@@ -1,0 +1,65 @@
+{
+  "format": 1,
+  "restore": {
+    "/home/diego/Projects/Meadow/Meadow/Meadow.csproj": {}
+  },
+  "projects": {
+    "/home/diego/Projects/Meadow/Meadow/Meadow.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/home/diego/Projects/Meadow/Meadow/Meadow.csproj",
+        "projectName": "Meadow",
+        "projectPath": "/home/diego/Projects/Meadow/Meadow/Meadow.csproj",
+        "packagesPath": "/home/diego/.nuget/packages/",
+        "outputPath": "/home/diego/Projects/Meadow/Meadow/obj/",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "/usr/share/dotnet/sdk/NuGetFallbackFolder"
+        ],
+        "configFilePaths": [
+          "/home/diego/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netstandard2.0"
+        ],
+        "sources": {
+          "/home/diego/Projects/PublishedNuGets": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netstandard2.0": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netstandard2.0": {
+          "dependencies": {
+            "NETStandard.Library": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[2.0.3, )",
+              "autoReferenced": true
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/3.1.408/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

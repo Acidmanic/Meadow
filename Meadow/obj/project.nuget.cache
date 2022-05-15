@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "aco8l9oJ9ULOh+UTwwqwO7dIwCpKL5duTPCVX6lnohsJ6loJosWRJmibJrymvv3hTsPQmYIoLQajwOHKMD9BdQ==",
+  "success": true,
+  "projectFilePath": "/home/diego/Projects/Meadow/Meadow/Meadow.csproj",
+  "expectedPackageFiles": [
+    "/usr/share/dotnet/sdk/NuGetFallbackFolder/microsoft.netcore.platforms/1.1.0/microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "/usr/share/dotnet/sdk/NuGetFallbackFolder/netstandard.library/2.0.3/netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
