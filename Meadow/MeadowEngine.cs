@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Meadow.Attributes;
 using Meadow.Configuration;
+using Meadow.Reflection;
 
 namespace Meadow
 {
@@ -33,7 +34,7 @@ namespace Meadow
                 {
                     var records = new List<TOut>();
 
-                    var map = GetTableMap<TOut>(FieldNameType.SpOutputParameter);
+                    var map =  new TypeFieldMapHelper().GetTableMap<TOut>(FieldNameType.SpOutputParameter);
 
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
 
@@ -83,7 +84,7 @@ namespace Meadow
                 return command;
             }
 
-            Dictionary<string, Accessor> map = GetTableMap<TIn>(FieldNameType.ColumnName);
+            Dictionary<string, Accessor> map = new TypeFieldMapHelper().GetTableMap<TIn>(FieldNameType.ColumnName);
 
             foreach (var item in map)
             {
@@ -102,54 +103,6 @@ namespace Meadow
         }
 
 
-        private Dictionary<string, Accessor> GetTableMap<T>(FieldNameType fieldNameType)
-        {
-            var map = new Dictionary<string, Accessor>();
-
-            var type = typeof(T);
-
-            var properties = type.GetProperties();
-
-            foreach (var property in properties)
-            {
-                string mappedName = GetMappedName(property, fieldNameType);
-
-                var accessor = new Accessor();
-
-                accessor.Getter = obj => property.GetValue(obj);
-
-                accessor.Setter = (obj, value) => property.SetValue(obj, value);
-
-                map.Add(mappedName, accessor);
-            }
-
-            //TODO: Here you can cache a map of string, func<object,object> for 
-            //TODO: each type, where the second object is the storage itself to be passed
-            return map;
-        }
-
-        private string GetMappedName(PropertyInfo property, FieldNameType fieldNameType)
-        {
-            string name = property.Name;
-            //TODO: Put naming conventions here   
-
-            List<FieldAttribute> attributes = new List<FieldAttribute>();
-
-            if (fieldNameType == FieldNameType.ColumnName)
-            {
-                attributes.AddRange(property.GetCustomAttributes<ColumnAttribute>());
-            }
-            else
-            {
-                attributes.AddRange(property.GetCustomAttributes<ParameterAttribute>());
-            }
-
-            if (attributes.Count > 0)
-            {
-                name = attributes.Last().Name;
-            }
-
-            return name;
-        }
+        
     }
 }
