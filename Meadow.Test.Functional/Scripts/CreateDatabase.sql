@@ -27,4 +27,12 @@ as
 
 
 
-execute spInsertTag 9,99
+DROP DATABASE Mexghun
+
+create DATABASE Mexghun
+
+
+IF (DB_ID('Mexghun') IS NOT NULL)
+    select cast(1 as bit) Ex 
+ELSE 
+    select cast(0 as bit) Ex

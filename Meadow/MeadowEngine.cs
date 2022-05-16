@@ -6,25 +6,68 @@ using System.Linq;
 using System.Reflection;
 using Meadow.Attributes;
 using Meadow.Configuration;
+using Meadow.Configuration.ConfigurationRequests;
 using Meadow.Reflection;
 
 namespace Meadow
 {
     public class MeadowEngine
     {
-        private readonly string _connectionString;
+        private readonly MeadowConfiguration _configuration;
 
         public MeadowEngine(MeadowConfiguration configuration)
         {
-            _connectionString = configuration.ConnectionString;
+            _configuration = configuration;
         }
+
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
             where TOut : class, new()
         {
-            using (var connection = new SqlConnection(_connectionString))
+            if (request is ConfigurationRequest<TOut> configRequest)
             {
-                var command = CreateCommand(request);
+                var result = PerformConfigurationRequest(configRequest);
+
+                configRequest.Result = result;
+
+                return request;
+            }
+
+            return PerformRequest(request, _configuration);
+        }
+
+
+        private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
+            where TOut : class, new()
+        {
+            try
+            {
+                var config = request.Initialize(_configuration);
+
+                var meadowRequest = PerformRequest(request, config);
+
+                return new ConfigurationRequestResult
+                {
+                    Success = true
+                };
+            }
+            catch (Exception e)
+            {
+                return new ConfigurationRequestResult
+                {
+                    Success = false,
+                    Exception = e
+                };
+            }
+        }
+
+        private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request,
+            MeadowConfiguration configuration)
+            where TOut : class, new()
+        {
+            using (var connection = new SqlConnection(configuration.ConnectionString))
+            {
+                var command = CreateCommand(request, configuration);
 
                 command.Connection = connection;
 
@@ -34,7 +77,7 @@ namespace Meadow
                 {
                     var records = new List<TOut>();
 
-                    var map =  new TypeFieldMapHelper().GetTableMap<TOut>(FieldNameType.SpOutputParameter);
+                    var map = new TypeFieldMapHelper().GetTableMap<TOut>(FieldNameType.SpOutputParameter);
 
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
 
@@ -69,13 +112,48 @@ namespace Meadow
             return request;
         }
 
-        private SqlCommand CreateCommand<TIn, TOut>(MeadowRequest<TIn, TOut> request)
+        public void CreateDatabase()
+        {
+            PerformRequest(new CreateDatabaseRequest());
+        }
+
+        public void DropDatabase()
+        {
+            PerformRequest(new DropDatabaseRequest());
+        }
+
+        public bool DatabaseExists()
+        {
+            var exists = PerformRequest(new DatabaseExistsRequest());
+
+            return exists.FromStorage[0].Value;
+        }
+
+        public void CreateIfNotExist()
+        {
+            PerformRequest(new CreateIfNotExistRequest());
+        }
+
+        private SqlCommand CreateCommand<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration)
             where TOut : class, new()
         {
-            var command = new SqlCommand(_connectionString)
+            SqlCommand command;
+
+            if (request is ConfigurationRequest<TOut>)
             {
-                CommandType = CommandType.StoredProcedure, CommandText = request.RequestName
-            };
+                command = new SqlCommand(configuration.ConnectionString)
+                {
+                    CommandType = CommandType.Text,
+                    CommandText = request.RequestName
+                };
+            }
+            else
+            {
+                command = new SqlCommand(configuration.ConnectionString)
+                {
+                    CommandType = CommandType.StoredProcedure, CommandText = request.RequestName
+                };
+            }
 
             var storage = request.ToStorage;
 
@@ -101,8 +179,5 @@ namespace Meadow
 
             return command;
         }
-
-
-        
     }
 }
