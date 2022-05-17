@@ -23,7 +23,11 @@ namespace Meadow.Test.Functional
 
             var jobs = engine.PerformRequest(new GetAllJobsRequest());
 
-            jobs.FromStorage.ForEach(j => PrintJob(j));
+            jobs.FromStorage.ForEach(PrintObject);
+
+            var persons = engine.PerformRequest(new GetAllPersons());
+
+            persons.FromStorage.ForEach(PrintObject);
         }
 
         private void PrintJob(Job job)
@@ -34,6 +38,23 @@ namespace Meadow.Test.Functional
             Console.WriteLine(nameof(Job.Title) + $@":{job.Title}");
             Console.WriteLine(nameof(Job.JobDescription) + $@":{job.JobDescription}");
             Console.WriteLine(nameof(Job.IncomeInRials) + $@":{job.IncomeInRials}");
+        }
+
+        private void PrintObject(object o)
+        {
+            Console.WriteLine("--------------------------------------");
+
+            var type = o.GetType();
+
+            var properties = type.GetProperties();
+
+            foreach (var property in properties)
+            {
+                if (property.CanRead)
+                {
+                    Console.WriteLine(property.Name + ": " + property.GetValue(o));
+                }
+            }
         }
     }
 }

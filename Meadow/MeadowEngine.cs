@@ -82,6 +82,8 @@ namespace Meadow
 
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
 
+                    List<string> fields = EnumFields(dataReader);
+
                     while (dataReader.Read())
                     {
                         var record = new TOut();
@@ -90,9 +92,12 @@ namespace Meadow
                         {
                             var parameterName = item.Key;
 
-                            var value = dataReader[parameterName];
+                            if (fields.Contains(parameterName))
+                            {
+                                var value = dataReader[parameterName];
 
-                            item.Value.Setter(record, value);
+                                item.Value.Setter(record, value);
+                            }
                         }
 
                         records.Add(record);
@@ -111,6 +116,18 @@ namespace Meadow
             }
 
             return request;
+        }
+
+        private List<string> EnumFields(SqlDataReader dataReader)
+        {
+            var result = new List<string>();
+
+            for (int i = 0; i < dataReader.FieldCount; i++)
+            {
+                result.Add(dataReader.GetName(i));
+            }
+
+            return result;
         }
 
         public void CreateDatabase()
