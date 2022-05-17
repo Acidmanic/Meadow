@@ -157,11 +157,7 @@ namespace Meadow
             {
                 var info = manager[i];
 
-                Log($@"Applying {info.OrderIndex}, {info.Name}");
-
-                var request = new BuildupScriptRequest(info);
-
-                var result = PerformConfigurationRequest(request);
+                var result = PerformScript(info);
 
                 if (result.Success)
                 {
@@ -169,15 +165,58 @@ namespace Meadow
                 }
                 else
                 {
-                    Log($@"{info.Order}, {info.Name} has no been applied successfully due to {
-                        result.Exception.GetType().Name}");
-                    Log($@"Buildup process failed at {info.Order}.");
+                    LogException(logs, result.Exception, $@"Applying {info.Order}, {info.Name}");
+
+                    Log($@"*** Buildup process FAILED at {info.Order}.***");
+
                     return logs;
+                }
+
+                Log($@"Applying {info.OrderIndex}, {info.Name}");
+            }
+
+            Log($@"*** Buildup process SUCCEEDED ***");
+            return logs;
+        }
+
+        private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
+        {
+            var sqls = scriptInfo.SplitScriptIntoBatches();
+
+            foreach (var sql in sqls)
+            {
+                var request = new SqlRequest(sql);
+
+                var result = PerformConfigurationRequest(request);
+
+                if (!result.Success)
+                {
+                    return new ConfigurationRequestResult
+                    {
+                        Exception = result.Exception,
+                        Success = false
+                    };
                 }
             }
 
-            return logs;
+            return new ConfigurationRequestResult
+            {
+                Success = true
+            };
         }
+
+        private void LogException(List<string> logs, Exception ex, string failedTitle)
+        {
+            logs.Add(failedTitle + $@" has FAILED, due to {ex.GetType().Name}:");
+
+            var lines = ex.Message.Split('\n', '\r', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                logs.Add("\t\t" + line);
+            }
+        }
+
 
         private SqlCommand CreateCommand<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration)
             where TOut : class, new()

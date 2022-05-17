@@ -21,7 +21,9 @@ namespace Meadow.BuildupScripts
         public void Update()
         {
             var files = _directory.EnumerateFiles();
+
             _scripts.Clear();
+
             foreach (var file in files)
             {
                 var name = file.Name;
@@ -32,6 +34,8 @@ namespace Meadow.BuildupScripts
                     try
                     {
                         var content = File.ReadAllText(file.FullName);
+
+                        content = Normalize(content);
 
                         var scriptInfo = new ScriptInfo
                         {
@@ -49,6 +53,22 @@ namespace Meadow.BuildupScripts
                     }
                 }
             }
+
+            _scripts.Sort(new ScriptInfoAscendingComparer());
+        }
+
+        private string Normalize(string content)
+        {
+            content = content.Replace('\r', '\n');
+
+            while (content.IndexOf("\n\n") > -1)
+            {
+                content = content.Replace("\n\n", "\n");
+            }
+
+            content = content.Replace("\n", "\r\n");
+
+            return content;
         }
 
         private BsnCheckResult IsValidBuildupScriptName(string name)
@@ -93,5 +113,6 @@ namespace Meadow.BuildupScripts
         public int ScriptsCount => _scripts.Count;
 
         public ScriptInfo this[int index] => _scripts[index];
+
     }
 }
