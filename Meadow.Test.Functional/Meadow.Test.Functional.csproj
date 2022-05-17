@@ -19,9 +19,5 @@
         </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Requests" />
-    </ItemGroup>
-
 
 </Project>

@@ -19,7 +19,7 @@ namespace Meadow.Test.Functional
         {
             public ReadAllTagsRequest() : base(true)
             {
-                this.RequestName = "spReadAllTags";
+                this.RequestText = "spReadAllTags";
             }
         }
 
@@ -27,7 +27,7 @@ namespace Meadow.Test.Functional
         {
             public InsertNewTagRequest(Tag newTag) : base(true)
             {
-                this.RequestName = "spInsertTag";
+                this.RequestText = "spInsertTag";
                 this.ToStorage = newTag;
             }
         }
