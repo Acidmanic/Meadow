@@ -1,14 +1,15 @@
-
-
+    
 create procedure spGetAllPersons
-as
-    select * from Persons
+    as
+        select * from Persons;
 go
+
 
 create procedure spGetPersonById(@Id bigint)
 as
     select * from Persons where Id = @Id
 go
+
 
 create procedure spGetAllEager
 as
