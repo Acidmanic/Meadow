@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Reflection;
 using Meadow.Attributes;
+using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
 using Meadow.Reflection;
@@ -132,6 +133,50 @@ namespace Meadow
         public void CreateIfNotExist()
         {
             PerformRequest(new CreateIfNotExistRequest());
+        }
+
+        /// <summary>
+        /// Applies all available buildup scripts
+        /// </summary>
+        /// <returns>A list of log reports</returns>
+        public List<string> BuildUpDatabase()
+        {
+            var logs = new List<string>();
+            void Log(string text) => logs.Add(text);
+
+            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory);
+
+            if (manager.ScriptsCount == 0)
+            {
+                Log(
+                    $@"No valid build-up scripts where found at given directory {_configuration.BuildupScriptDirectory}");
+                return logs;
+            }
+
+            for (int i = 0; i < manager.ScriptsCount; i++)
+            {
+                var info = manager[i];
+
+                Log($@"Applying {info.OrderIndex}, {info.Name}");
+
+                var request = new BuildupScriptRequest(info);
+
+                var result = PerformConfigurationRequest(request);
+
+                if (result.Success)
+                {
+                    Log($@"{info.OrderIndex}, {info.Name} has been applied successfully.");
+                }
+                else
+                {
+                    Log($@"{info.OrderIndex}, {info.Name} has no been applied successfully due to {
+                        result.Exception.GetType().Name}");
+                    Log($@"Buildup process failed at {info.OrderIndex}.");
+                    return logs;
+                }
+            }
+
+            return logs;
         }
 
         private SqlCommand CreateCommand<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration)
