@@ -38,6 +38,7 @@ namespace Meadow.BuildupScripts
                             Name = result.Name,
                             Script = content,
                             OrderIndex = result.OrderIndex,
+                            Order = result.Order,
                             ScriptFile = file
                         };
                         _scripts.Add(scriptInfo);
@@ -78,11 +79,14 @@ namespace Meadow.BuildupScripts
 
             var title = name.Substring(4, name.Length - 8);
 
+            title = title.Trim('-', '_', ' ', '\n', '\r', '\t', ',', '.', ';', ':');
+
             return new BsnCheckResult
             {
                 Name = title,
                 IsValid = true,
-                OrderIndex = order
+                OrderIndex = order,
+                Order = starter
             };
         }
 

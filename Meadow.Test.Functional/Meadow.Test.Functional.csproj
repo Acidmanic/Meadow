@@ -1,16 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\Meadow\Meadow.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Meadow\Meadow.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="Scripts\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
 
 </Project>

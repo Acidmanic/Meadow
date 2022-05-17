@@ -11,5 +11,7 @@ namespace Meadow.BuildupScripts
         public int OrderIndex { get; set; }
 
         public string Script { get; set; }
+
+        public string Order { get; set; }
     }
 }

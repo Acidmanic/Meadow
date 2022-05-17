@@ -13,7 +13,7 @@ namespace Meadow.Test.Functional
 
         static void Main(string[] args)
         {
-            new MeadowShouldCreateADatabase().Main();
+            new MeadowShouldBuildupTheDatabase().Main();
         }
 
     }

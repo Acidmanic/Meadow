@@ -165,13 +165,13 @@ namespace Meadow
 
                 if (result.Success)
                 {
-                    Log($@"{info.OrderIndex}, {info.Name} has been applied successfully.");
+                    Log($@"{info.Order}, {info.Name} has been applied successfully.");
                 }
                 else
                 {
-                    Log($@"{info.OrderIndex}, {info.Name} has no been applied successfully due to {
+                    Log($@"{info.Order}, {info.Name} has no been applied successfully due to {
                         result.Exception.GetType().Name}");
-                    Log($@"Buildup process failed at {info.OrderIndex}.");
+                    Log($@"Buildup process failed at {info.Order}.");
                     return logs;
                 }
             }
