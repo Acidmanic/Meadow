@@ -4,5 +4,7 @@ namespace Meadow.Configuration
     {
         public string ConnectionString { get; set; }
         
+        
+        public string BuildupScriptDirectory { get; set; }
     }
 }
