@@ -228,14 +228,14 @@ namespace Meadow
                 command = new SqlCommand(configuration.ConnectionString)
                 {
                     CommandType = CommandType.Text,
-                    CommandText = request.RequestName
+                    CommandText = request.RequestText
                 };
             }
             else
             {
                 command = new SqlCommand(configuration.ConnectionString)
                 {
-                    CommandType = CommandType.StoredProcedure, CommandText = request.RequestName
+                    CommandType = CommandType.StoredProcedure, CommandText = request.RequestText
                 };
             }
 

@@ -25,7 +25,7 @@ namespace Meadow.Configuration.ConfigurationRequests
 
             configuration = ReConfigure(configuration, ConfigurationMap);
 
-            this.RequestName = GetQuery();
+            this.RequestText = GetQuery();
 
             return configuration;
         }
