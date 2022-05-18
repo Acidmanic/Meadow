@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Meadow.Requests;
 using Meadow.Utility;
 
 namespace Meadow.Configuration.ConfigurationRequests
@@ -24,7 +25,7 @@ namespace Meadow.Configuration.ConfigurationRequests
             };
         }
 
-        protected override string GetQuery()
+        protected override string GetRequestText()
         {
             return
                 $@"IF (DB_ID('{_providedDbName}') IS NOT NULL)
@@ -32,5 +33,6 @@ namespace Meadow.Configuration.ConfigurationRequests
                 ELSE 
                     select cast(0 as bit) Value";
         }
+        
     }
 }

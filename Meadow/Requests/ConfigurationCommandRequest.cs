@@ -1,4 +1,4 @@
-namespace Meadow.Configuration.ConfigurationRequests
+namespace Meadow.Requests
 {
     public abstract class ConfigurationCommandRequest : ConfigurationRequest<MeadowVoid>
     {

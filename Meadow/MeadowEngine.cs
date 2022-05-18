@@ -8,19 +8,26 @@ using Meadow.Attributes;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
+using Meadow.Log;
 using Meadow.Reflection;
+using Meadow.Requests;
 
 namespace Meadow
 {
     public class MeadowEngine
     {
         private readonly MeadowConfiguration _configuration;
+        private readonly EnhancedLogger _logger;
 
-        public MeadowEngine(MeadowConfiguration configuration)
+        public MeadowEngine(MeadowConfiguration configuration, ILogger logger)
         {
             _configuration = configuration;
+            _logger = new EnhancedLogger(logger);
         }
 
+        public MeadowEngine(MeadowConfiguration configuration) : this(configuration, new NullLogger())
+        {
+        }
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
             where TOut : class, new()
@@ -34,18 +41,20 @@ namespace Meadow
                 return request;
             }
 
-            return PerformRequest(request, _configuration);
+            // Run UserRequest as Procedure Request
+            return new MeadowDataAccessCore().PerformRequest(request, _configuration,
+                MeadowDataAccessCore.RequestExecutionType.Procedure);
         }
-
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
             where TOut : class, new()
         {
             try
             {
-                var config = request.Initialize(_configuration);
-
-                var meadowRequest = PerformRequest(request, config);
+                var config = request.PreConfigure(_configuration);
+                // Run Configuration Request As a Script Request
+                var meadowRequest = new MeadowDataAccessCore().PerformRequest(request, config,
+                    MeadowDataAccessCore.RequestExecutionType.Script);
 
                 return new ConfigurationRequestResult
                 {
@@ -60,74 +69,6 @@ namespace Meadow
                     Exception = e
                 };
             }
-        }
-
-        private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request,
-            MeadowConfiguration configuration)
-            where TOut : class, new()
-        {
-            using (var connection = new SqlConnection(configuration.ConnectionString))
-            {
-                var command = CreateCommand(request, configuration);
-
-                command.Connection = connection;
-
-                connection.Open();
-
-                if (request.ReturnsValue)
-                {
-                    var records = new List<TOut>();
-
-                    var map = new TypeFieldMapHelper().GetTableMap<TOut>(FieldNameType.SpOutputParameter);
-
-                    var dataReader = command.ExecuteReader(CommandBehavior.Default);
-
-                    List<string> fields = EnumFields(dataReader);
-
-                    while (dataReader.Read())
-                    {
-                        var record = new TOut();
-
-                        foreach (var item in map)
-                        {
-                            var parameterName = item.Key;
-
-                            if (fields.Contains(parameterName))
-                            {
-                                var value = dataReader[parameterName];
-
-                                item.Value.Setter(record, value);
-                            }
-                        }
-
-                        records.Add(record);
-                    }
-
-                    connection.Close();
-
-                    request.FromStorage = records;
-                }
-                else
-                {
-                    command.ExecuteNonQuery();
-
-                    connection.Close();
-                }
-            }
-
-            return request;
-        }
-
-        private List<string> EnumFields(SqlDataReader dataReader)
-        {
-            var result = new List<string>();
-
-            for (int i = 0; i < dataReader.FieldCount; i++)
-            {
-                result.Add(dataReader.GetName(i));
-            }
-
-            return result;
         }
 
         public void CreateDatabase()
@@ -156,18 +97,15 @@ namespace Meadow
         /// Applies all available buildup scripts
         /// </summary>
         /// <returns>A list of log reports</returns>
-        public List<string> BuildUpDatabase()
+        public void BuildUpDatabase()
         {
-            var logs = new List<string>();
-            void Log(string text) => logs.Add(text);
-
             var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory);
 
             if (manager.ScriptsCount == 0)
             {
-                Log(
+                _logger.Log(
                     $@"No valid build-up scripts where found at given directory {_configuration.BuildupScriptDirectory}");
-                return logs;
+                return;
             }
 
             for (int i = 0; i < manager.ScriptsCount; i++)
@@ -178,22 +116,23 @@ namespace Meadow
 
                 if (result.Success)
                 {
-                    Log($@"{info.Order}, {info.Name} has been applied successfully.");
+                    _logger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
                 }
                 else
                 {
-                    LogException(logs, result.Exception, $@"Applying {info.Order}, {info.Name}");
+                    _logger.LogException(result.Exception, $@"Applying {info.Order}, {info.Name}");
 
-                    Log($@"*** Buildup process FAILED at {info.Order}.***");
+                    _logger.Log($@"*** Buildup process FAILED at {info.Order}.***");
 
-                    return logs;
+                    return;
                 }
 
-                Log($@"Applying {info.OrderIndex}, {info.Name}");
+                _logger.Log($@"Applying {info.OrderIndex}, {info.Name}");
             }
 
-            Log($@"*** Buildup process SUCCEEDED ***");
-            return logs;
+            _logger.Log($@"*** Buildup process SUCCEEDED ***");
+
+            return;
         }
 
         private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
@@ -220,65 +159,6 @@ namespace Meadow
             {
                 Success = true
             };
-        }
-
-        private void LogException(List<string> logs, Exception ex, string failedTitle)
-        {
-            logs.Add(failedTitle + $@" has FAILED, due to {ex.GetType().Name}:");
-
-            var lines = ex.Message.Split('\n', '\r', StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var line in lines)
-            {
-                logs.Add("\t\t" + line);
-            }
-        }
-
-
-        private SqlCommand CreateCommand<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration)
-            where TOut : class, new()
-        {
-            SqlCommand command;
-
-            if (request is ConfigurationRequest<TOut>)
-            {
-                command = new SqlCommand(configuration.ConnectionString)
-                {
-                    CommandType = CommandType.Text,
-                    CommandText = request.RequestText
-                };
-            }
-            else
-            {
-                command = new SqlCommand(configuration.ConnectionString)
-                {
-                    CommandType = CommandType.StoredProcedure, CommandText = request.RequestText
-                };
-            }
-
-            var storage = request.ToStorage;
-
-            if (storage is null)
-            {
-                return command;
-            }
-
-            Dictionary<string, Accessor> map = new TypeFieldMapHelper().GetTableMap<TIn>(FieldNameType.ColumnName);
-
-            foreach (var item in map)
-            {
-                var parameterValue = item.Value.Getter(storage);
-
-                var parameterName = "@" + item.Key;
-
-                var parameter = new SqlParameter(parameterName, parameterValue);
-
-                parameter.Direction = ParameterDirection.Input;
-
-                command.Parameters.Add(parameter);
-            }
-
-            return command;
         }
     }
 }

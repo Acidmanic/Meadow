@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
+using Meadow.Requests;
 
 namespace Meadow
 {
@@ -14,11 +16,29 @@ namespace Meadow
 
         public bool ReturnsValue { get; }
 
+
+        private List<string> _excludingInputFields;
+
         public MeadowRequest(bool returnsValue)
         {
             ReturnsValue = returnsValue;
-            // ReSharper disable once VirtualMemberCallInConstructor
+
+            FromStorage = new List<TOut>();
+
+            _excludingInputFields = new List<string>();
+        }
+
+        internal void InitializeBeforeExecution()
+        {
             RequestText = GetRequestText();
+
+            _excludingInputFields.Clear();
+
+            var exclusionMarker = new FieldExclusionMarker<TIn>();
+
+            OnExclusion(exclusionMarker);
+
+            _excludingInputFields = exclusionMarker.ExcludedNames();
         }
 
         protected virtual string GetRequestText()
@@ -29,7 +49,17 @@ namespace Meadow
             {
                 name = name.Substring(0, name.Length - "request".Length);
             }
+
             return "sp" + name;
+        }
+
+        protected virtual void OnExclusion(FieldExclusionMarker<TIn> exclusionMarker)
+        {
+        }
+
+        internal bool IsIncluded(string fieldName)
+        {
+            return !_excludingInputFields.Contains(fieldName);
         }
     }
 }

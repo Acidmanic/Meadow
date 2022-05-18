@@ -1,4 +1,5 @@
 using Meadow.Configuration.ConfigurationRequests;
+using Meadow.Requests;
 
 namespace Meadow.BuildupScripts
 {
@@ -11,7 +12,7 @@ namespace Meadow.BuildupScripts
             _sql = sql;
         }
 
-        protected override string GetQuery()
+        protected override string GetRequestText()
         {
             return _sql;
         }

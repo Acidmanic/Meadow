@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Utility;
 
-namespace Meadow.Configuration.ConfigurationRequests
+namespace Meadow.Requests
 {
     public abstract class ConfigurationRequest<TResult> : MeadowRequest<MeadowVoid, TResult>
         where TResult : class, new()
@@ -17,18 +18,18 @@ namespace Meadow.Configuration.ConfigurationRequests
 
         public ConfigurationRequestResult Result { get; set; }
 
-        public virtual MeadowConfiguration Initialize(MeadowConfiguration configuration)
+        public virtual MeadowConfiguration PreConfigure(MeadowConfiguration configuration)
         {
             Configuration = configuration;
-
+        
             ConfigurationMap = new ConnectionStringParser().Parse(configuration.ConnectionString);
-
+        
             configuration = ReConfigure(configuration, ConfigurationMap);
-
-            this.RequestText = GetQuery();
 
             return configuration;
         }
+        
+        
 
         protected virtual MeadowConfiguration ReConfigure(MeadowConfiguration config,
             Dictionary<string, string> valuesMap)
@@ -36,6 +37,5 @@ namespace Meadow.Configuration.ConfigurationRequests
             return config;
         }
 
-        protected abstract string GetQuery();
     }
 }
