@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Channels;
 using Meadow.Configuration;
+using Meadow.Log;
 
 namespace Meadow.Test.Functional
 {
@@ -16,7 +17,7 @@ namespace Meadow.Test.Functional
                 {
                     ConnectionString = connectionString,
                     BuildupScriptDirectory = "Scripts"
-                });
+                }, new ConsoleLogger());
 
             if (engine.DatabaseExists())
             {
@@ -24,12 +25,10 @@ namespace Meadow.Test.Functional
 
                 engine.DropDatabase();
             }
+
             engine.CreateDatabase();
 
-            var log = engine.BuildUpDatabase();
-            
-            log.ForEach(Console.WriteLine);
-
+            engine.BuildUpDatabase();
         }
     }
 }

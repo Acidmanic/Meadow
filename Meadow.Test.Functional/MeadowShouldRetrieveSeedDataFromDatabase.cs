@@ -12,7 +12,7 @@ namespace Meadow.Test.Functional
 
         public void Main()
         {
-            //new MeadowShouldBuildupTheDatabase().Main();
+            new MeadowShouldBuildupTheDatabase().Main();
 
             var engine = new MeadowEngine(
                 new MeadowConfiguration
@@ -24,7 +24,21 @@ namespace Meadow.Test.Functional
             var jobs = engine.PerformRequest(new GetAllJobsRequest());
 
             jobs.FromStorage.ForEach(PrintObject);
+            
+            var insertRequest = new InsertPerson
+            {
+                ToStorage = new Person
+                {
+                    Age = 12,
+                    Job = new Job(),
+                    Name = "Artin",
+                    Surname = "Khadivz",
+                    JobId = 1
+                }
+            };
 
+            var insertResult = engine.PerformRequest(insertRequest);
+            
             var persons = engine.PerformRequest(new GetAllPersons());
 
             persons.FromStorage.ForEach(PrintObject);
