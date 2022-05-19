@@ -1,16 +1,15 @@
 using System;
 using Meadow.Configuration;
+using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
 {
-    public class MeadowShouldCreateADatabase : IFunctionalTest
+    public class Tdd001MeadowShouldCreateADatabase : MeadowFunctionalTest
     {
-        private static string connectionString =
-            "Server=localhost;User Id=sa; Password=never54aga.1n;Database=Mexghun; MultipleActiveResultSets=true";
-
-        public void Main()
+        
+        public override void Main()
         {
-            var engine = new MeadowEngine(new MeadowConfiguration {ConnectionString = connectionString});
+            var engine = CreateEngine();
 
             var ex = engine.DatabaseExists();
 
@@ -32,9 +31,6 @@ namespace Meadow.Test.Functional
             }
             
             //engine.CreateIfNotExist();
-            
-            
-            
             
         }
     }

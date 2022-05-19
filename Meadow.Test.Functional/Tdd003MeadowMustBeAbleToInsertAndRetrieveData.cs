@@ -1,13 +1,15 @@
 using System;
 using Meadow.Configuration;
+using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
 {
-    public class MeadowMustBeAbleToInsertAndRetrieveData : IFunctionalTest
+    public class Tdd003MeadowMustBeAbleToInsertAndRetrieveData : MeadowFunctionalTest
     {
-        private static string connectionString =
-            "Server=localhost;User Id=sa; Password=never54aga.1n;Database=MeadowDatabase; MultipleActiveResultSets=true";
 
+        public Tdd003MeadowMustBeAbleToInsertAndRetrieveData():base("MeadowDatabase")
+        { }
+        
         private class Tag
         {
             public long PropertyId { get; set; }
@@ -32,9 +34,9 @@ namespace Meadow.Test.Functional
             }
         }
 
-        public void Main()
+        public override void Main()
         {
-            var engine = new MeadowEngine(new MeadowConfiguration {ConnectionString = connectionString});
+            var engine = CreateEngine();
 
             var request = new ReadAllTagsRequest();
 
@@ -61,7 +63,7 @@ namespace Meadow.Test.Functional
 
             foreach (var tag in tags)
             {
-                Console.WriteLine("Tag: " + tag.PropertyId + "," + tag.ProductClassId);
+                PrintObject(tag);
             }
 
             Console.WriteLine("----------------------------");

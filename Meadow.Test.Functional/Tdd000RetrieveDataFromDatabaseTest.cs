@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
 {
-    public class RetrieveDataFromDatabaseTest:IFunctionalTest
+    public class Tdd000RetrieveDataFromDatabaseTest:IFunctionalTest
     {
         
         public class Tag

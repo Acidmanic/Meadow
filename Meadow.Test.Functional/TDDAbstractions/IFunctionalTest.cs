@@ -1,4 +1,4 @@
-namespace Meadow.Test.Functional
+namespace Meadow.Test.Functional.TDDAbstractions
 {
     public interface IFunctionalTest
     {
