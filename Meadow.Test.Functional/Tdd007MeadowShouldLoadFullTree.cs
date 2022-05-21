@@ -10,11 +10,12 @@ namespace Meadow.Test.Functional
         {
             var engine = SetupClearDatabase();
             
-            var request = new GetPersonByIdFullTree(1);
+            var request = new GetAllPersonsFullTree();
 
             var result = engine.PerformRequest(request);
             
             PrintObject(result.FromStorage);
+            
         }
     }
 }
