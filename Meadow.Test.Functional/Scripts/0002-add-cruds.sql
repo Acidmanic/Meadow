@@ -18,7 +18,10 @@ go
 
 create procedure spGetPersonByIdEager(@Id bigint)
 as
-    select * from Persons P join Jobs J on J.Id = P.JobId where P.Id = @Id
+    select P.Id  'Persons.Id',
+           Name, Surname,Age,JobId,J.Id 'Jobs.Id',
+           Title,IncomeInRials,JobDescription
+        from Persons P join Jobs J on J.Id = P.JobId where P.Id = @Id
 go
 
 create procedure spGetAllJobs

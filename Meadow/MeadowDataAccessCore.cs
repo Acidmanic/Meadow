@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -49,7 +50,7 @@ namespace Meadow
 
                     while (dataReader.Read())
                     {
-                        var record = new TOut();
+                        var record = new TypeAnalyzer().CreateObject<TOut>(request.Eager);
 
                         foreach (var field in fieldsToRead)
                         {
@@ -109,7 +110,7 @@ namespace Meadow
             {
                 return command;
             }
-            
+
             var flatMap = new TypeAnalyzer().Map<TIn>(request.Eager);
 
             var fieldsToWrite = flatMap.FieldNames
@@ -128,6 +129,7 @@ namespace Meadow
 
                 command.Parameters.Add(parameter);
             }
+
             return command;
         }
     }

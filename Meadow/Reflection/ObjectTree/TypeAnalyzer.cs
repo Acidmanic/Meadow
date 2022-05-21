@@ -44,7 +44,7 @@ namespace Meadow.Reflection.ObjectTree
 
         public FlatMap Map<T>(bool eager = false)
         {
-            return Map(typeof(T),eager);
+            return Map(typeof(T), eager);
         }
 
         public AccessNode ToAccessNode(Type type, bool eager = false)
@@ -201,6 +201,40 @@ namespace Meadow.Reflection.ObjectTree
                     }
                 }
             }
+        }
+
+
+        public TOut CreateObject<TOut>(bool eager)
+        {
+            var type = typeof(TOut);
+            
+            if (eager)
+            {
+                return (TOut) CreateObject(type);
+            }
+
+            return (TOut) type.GetConstructor(new Type[] { })?.Invoke(new object[] { });
+        }
+
+        private object CreateObject(Type type)
+        {
+            var obj = type.GetConstructor(new Type[] { })?.Invoke(new object[] { });
+
+            var properties = type.GetProperties();
+
+            foreach (var property in properties)
+            {
+                var pType = property.PropertyType;
+
+                if (IsReferenceType(pType))
+                {
+                    var value = CreateObject(pType);
+
+                    property.SetValue(obj, value);
+                }
+            }
+
+            return obj;
         }
     }
 }

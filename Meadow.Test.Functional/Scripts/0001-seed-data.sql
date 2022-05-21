@@ -1,5 +1,4 @@
 
-
 Drop table Person;
 
 create table Persons(
@@ -16,3 +15,4 @@ INSERT INTO Jobs (Title,IncomeInRials,JobDescription) VALUES ('Project Manager',
 
 
 INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Mani','Moayedi',37,3);
+INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Mona','Moayedi',38,3);
