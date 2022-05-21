@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Reflection;
 using Meadow.Requests;
+using Meadow.Requests.FieldManipulation;
 
 namespace Meadow
 {
@@ -16,8 +18,8 @@ namespace Meadow
 
         public bool ReturnsValue { get; }
 
-
-        private List<string> _excludingInputFields;
+        private readonly FiledManipulationMarker<TIn> _toStorageManipulator;
+        private readonly FiledManipulationMarker<TOut> _fromStorageManipulator;
 
         public MeadowRequest(bool returnsValue)
         {
@@ -25,20 +27,19 @@ namespace Meadow
 
             FromStorage = new List<TOut>();
 
-            _excludingInputFields = new List<string>();
+            _toStorageManipulator = new FiledManipulationMarker<TIn>();
+            _fromStorageManipulator = new FiledManipulationMarker<TOut>();
         }
 
         internal void InitializeBeforeExecution()
         {
             RequestText = GetRequestText();
 
-            _excludingInputFields.Clear();
+            _toStorageManipulator.Clear();
 
-            var exclusionMarker = new FieldExclusionMarker<TIn>();
+            var exclusionMarker = new FiledManipulationMarker<TIn>();
 
-            OnExclusion(exclusionMarker);
-
-            _excludingInputFields = exclusionMarker.ExcludedNames();
+            OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
         }
 
         protected virtual string GetRequestText()
@@ -53,13 +54,19 @@ namespace Meadow
             return "sp" + name;
         }
 
-        protected virtual void OnExclusion(FieldExclusionMarker<TIn> exclusionMarker)
+        protected virtual void OnFieldManipulation(IFieldManipulator<TIn> toStorage,
+            IFieldManipulator<TOut> fromStorage)
         {
         }
 
-        internal bool IsIncluded(string fieldName)
+        protected virtual bool EagerReadWrite()
         {
-            return !_excludingInputFields.Contains(fieldName);
+            return false;
         }
+
+        internal IFieldMarks ToStorageMarks => _toStorageManipulator;
+        internal IFieldMarks FromStorageMarks => _fromStorageManipulator;
+
+        internal bool Eager => EagerReadWrite();
     }
 }

@@ -58,7 +58,7 @@ namespace Meadow.Test.Functional
         {
             var analyzer = new TypeAnalyzer();
 
-            var flatMap = analyzer.Map<OuterMost>();
+            var flatMap = analyzer.Map<OuterMost>(true);
 
             var data1 = new OuterMost
             {

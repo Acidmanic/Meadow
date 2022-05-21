@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using Meadow.Attributes;
 
@@ -8,11 +9,16 @@ namespace Meadow.Reflection.ObjectTree
 {
     public class TypeAnalyzer
     {
-        public FlatMap Map(Type type)
+        public FlatMap Map(Type type, bool eager = false)
         {
-            var rootNode = ToAccessNode(type);
+            var rootNode = ToAccessNode(type, eager);
 
             var leaves = rootNode.EnumerateLeavesBelow();
+
+            if (!eager)
+            {
+                leaves = leaves.Where(l => !IsReferenceType(l.Type)).ToList();
+            }
 
             var counts = CountFieldNames(leaves);
 
@@ -26,6 +32,7 @@ namespace Meadow.Reflection.ObjectTree
                 {
                     name = leaf.Parent.Name + "." + name;
                 }
+
                 map.Add(name,
                     o => leaf.GetValue(o),
                     (o, v) => leaf.SetValue(o, v)
@@ -35,23 +42,23 @@ namespace Meadow.Reflection.ObjectTree
             return map;
         }
 
-        public FlatMap Map<T>()
+        public FlatMap Map<T>(bool eager = false)
         {
-            return Map(typeof(T));
+            return Map(typeof(T),eager);
         }
 
-        public AccessNode ToAccessNode(Type type)
+        public AccessNode ToAccessNode(Type type, bool eager = false)
         {
             var name = GetTableName(type);
 
             var root = new AccessNode(name, type);
 
-            ToAccessNode(type, root);
+            ToAccessNode(type, root, eager);
 
             return root;
         }
 
-        private void ToAccessNode(Type type, AccessNode parent)
+        private void ToAccessNode(Type type, AccessNode parent, bool eager)
         {
             var properties = type.GetProperties();
 
@@ -63,9 +70,9 @@ namespace Meadow.Reflection.ObjectTree
 
                 var node = new AccessNode(name, property);
 
-                if (refType)
+                if (eager && refType)
                 {
-                    ToAccessNode(pType, node);
+                    ToAccessNode(pType, node, true);
                 }
 
                 parent.Add(node);
@@ -102,9 +109,9 @@ namespace Meadow.Reflection.ObjectTree
         }
 
 
-        public AccessNode ToAccessNode<T>()
+        public AccessNode ToAccessNode<T>(bool eager = false)
         {
-            return ToAccessNode(typeof(T));
+            return ToAccessNode(typeof(T), eager);
         }
 
 
@@ -136,6 +143,64 @@ namespace Meadow.Reflection.ObjectTree
             }
 
             return fieldCount;
+        }
+
+
+        public string GetFieldName<TModel>(MemberExpression expression)
+        {
+            if (expression.Member.MemberType == MemberTypes.Property)
+            {
+                var counts = CountLeafMemberNames<TModel>();
+
+                var name = expression.Member.Name;
+
+                if (counts.ContainsKey(name) && counts[name] > 1)
+                {
+                    name = GetTableName(expression.Member.DeclaringType) + "." + name;
+                }
+
+                return name;
+            }
+
+            return null;
+        }
+
+        private Dictionary<string, int> CountLeafMemberNames<TModel>()
+        {
+            var result = new Dictionary<string, int>();
+
+            CountLeafMemberNames(typeof(TModel), result);
+
+            return result;
+        }
+
+        private void CountLeafMemberNames(Type type, Dictionary<string, int> result)
+        {
+            //TODO: cache here
+            var properties = type.GetProperties();
+
+            foreach (var property in properties)
+            {
+                var pType = property.PropertyType;
+                var refType = IsReferenceType(property.PropertyType);
+                var name = refType ? GetTableName(pType) : GetMappedName(property);
+
+                if (refType)
+                {
+                    CountLeafMemberNames(pType, result);
+                }
+                else
+                {
+                    if (result.ContainsKey(name))
+                    {
+                        result[name]++;
+                    }
+                    else
+                    {
+                        result.Add(name, 1);
+                    }
+                }
+            }
         }
     }
 }

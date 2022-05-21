@@ -1,3 +1,5 @@
+using Meadow.Requests.FieldManipulation;
+
 namespace Meadow.Requests.Common
 {
     public abstract class InsertSpRequest<TModel> : MeadowRequest<TModel, TModel>
@@ -7,9 +9,9 @@ namespace Meadow.Requests.Common
         {
         }
 
-        protected override void OnExclusion(FieldExclusionMarker<TModel> exclusionMarker)
+        protected override void OnFieldManipulation(IFieldManipulator<TModel> toStorage, IFieldManipulator<TModel> fromStorage)
         {
-            exclusionMarker.Exclude("Id");
+            toStorage.Exclude("Id");
         }
     }
 }

@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using Meadow.Configuration;
 using Meadow.Reflection;
+using Meadow.Reflection.ObjectTree;
 
 namespace Meadow
 {
@@ -34,26 +36,28 @@ namespace Meadow
                 {
                     var records = new List<TOut>();
 
-                    var map = new TypeFieldMapHelper().GetTableMap<TOut>(FieldNameType.SpOutputParameter);
+                    var flatMap = new TypeAnalyzer().Map<TOut>(request.Eager);
 
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
 
                     List<string> fields = EnumFields(dataReader);
 
+                    var fieldsToRead =
+                        flatMap.FieldNames
+                            .Where(field => request.FromStorageMarks.IsIncluded(field) &&
+                                            fields.Contains(field)).ToList();
+
                     while (dataReader.Read())
                     {
                         var record = new TOut();
 
-                        foreach (var item in map)
+                        foreach (var field in fieldsToRead)
                         {
-                            var parameterName = item.Key;
+                            var parameterName = request.FromStorageMarks.GetPracticalName(field);
 
-                            if (fields.Contains(parameterName))
-                            {
-                                var value = dataReader[parameterName];
+                            var value = dataReader[parameterName];
 
-                                item.Value.Setter(record, value);
-                            }
+                            flatMap.Write(field, record, value);
                         }
 
                         records.Add(record);
@@ -105,32 +109,25 @@ namespace Meadow
             {
                 return command;
             }
+            
+            var flatMap = new TypeAnalyzer().Map<TIn>(request.Eager);
 
-            Dictionary<string, Accessor> map = new TypeFieldMapHelper().GetTableMap<TIn>(FieldNameType.ColumnName);
+            var fieldsToWrite = flatMap.FieldNames
+                .Where(field => request.ToStorageMarks.IsIncluded(field))
+                .ToList();
 
-            foreach (var item in map)
+            foreach (var field in fieldsToWrite)
             {
-                var parameterValue = item.Value.Getter(storage);
+                var parameterValue = flatMap.Read(field, storage);
 
-                var parameterName = item.Key;
+                var parameterName = "@" + request.ToStorageMarks.GetPracticalName(field);
 
-                if (parameterValue != null
-                    && (parameterValue.GetType().IsPrimitive || parameterValue is string || parameterValue is char)
-                    && request.IsIncluded(parameterName))
-                {
-                    var fieldName = "@" + parameterName;
+                var parameter = new SqlParameter(parameterName, parameterValue);
 
-                    var parameter = new SqlParameter(fieldName, parameterValue);
+                parameter.Direction = ParameterDirection.Input;
 
-                    parameter.Direction = ParameterDirection.Input;
-
-                    command.Parameters.Add(parameter);
-                }
+                command.Parameters.Add(parameter);
             }
-
-            // figure a way to exclue @Id for insert
-            // this inclusion or exclusion is per sp therefor per request
-            // add inclusion or exclusion mechanisem in requests
             return command;
         }
     }
