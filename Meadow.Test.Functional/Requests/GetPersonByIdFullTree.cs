@@ -7,14 +7,14 @@ namespace Meadow.Test.Functional.Requests
         public long Id { get; set; }
     }
 
-    public class GetPersonByIdEager : MeadowRequest<IdShell, Person>
+    public class GetPersonByIdFullTree : MeadowRequest<IdShell, Person>
     {
-        public GetPersonByIdEager(long id) : base(true)
+        public GetPersonByIdFullTree(long id) : base(true)
         {
             this.ToStorage = new IdShell {Id = id};
         }
 
-        protected override bool EagerReadWrite()
+        protected override bool FullTreeReadWrite()
         {
             return true;
         }

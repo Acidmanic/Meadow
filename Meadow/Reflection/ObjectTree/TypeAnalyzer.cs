@@ -9,13 +9,13 @@ namespace Meadow.Reflection.ObjectTree
 {
     public class TypeAnalyzer
     {
-        public FlatMap Map(Type type, bool eager = false)
+        public FlatMap Map(Type type, bool fullTree = false)
         {
-            var rootNode = ToAccessNode(type, eager);
+            var rootNode = ToAccessNode(type, fullTree);
 
             var leaves = rootNode.EnumerateLeavesBelow();
 
-            if (!eager)
+            if (!fullTree)
             {
                 leaves = leaves.Where(l => !IsReferenceType(l.Type)).ToList();
             }
@@ -42,23 +42,23 @@ namespace Meadow.Reflection.ObjectTree
             return map;
         }
 
-        public FlatMap Map<T>(bool eager = false)
+        public FlatMap Map<T>(bool fullTree = false)
         {
-            return Map(typeof(T), eager);
+            return Map(typeof(T), fullTree);
         }
 
-        public AccessNode ToAccessNode(Type type, bool eager = false)
+        public AccessNode ToAccessNode(Type type, bool fullTree = false)
         {
             var name = GetTableName(type);
 
             var root = new AccessNode(name, type);
 
-            ToAccessNode(type, root, eager);
+            ToAccessNode(type, root, fullTree);
 
             return root;
         }
 
-        private void ToAccessNode(Type type, AccessNode parent, bool eager)
+        private void ToAccessNode(Type type, AccessNode parent, bool fullTree)
         {
             var properties = type.GetProperties();
 
@@ -70,7 +70,7 @@ namespace Meadow.Reflection.ObjectTree
 
                 var node = new AccessNode(name, property);
 
-                if (eager && refType)
+                if (fullTree && refType)
                 {
                     ToAccessNode(pType, node, true);
                 }
@@ -109,9 +109,9 @@ namespace Meadow.Reflection.ObjectTree
         }
 
 
-        public AccessNode ToAccessNode<T>(bool eager = false)
+        public AccessNode ToAccessNode<T>(bool fullTree = false)
         {
-            return ToAccessNode(typeof(T), eager);
+            return ToAccessNode(typeof(T), fullTree);
         }
 
 
@@ -204,11 +204,11 @@ namespace Meadow.Reflection.ObjectTree
         }
 
 
-        public TOut CreateObject<TOut>(bool eager)
+        public TOut CreateObject<TOut>(bool fullTree)
         {
             var type = typeof(TOut);
             
-            if (eager)
+            if (fullTree)
             {
                 return (TOut) CreateObject(type);
             }

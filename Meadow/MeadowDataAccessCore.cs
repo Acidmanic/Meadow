@@ -37,7 +37,7 @@ namespace Meadow
                 {
                     var records = new List<TOut>();
 
-                    var flatMap = new TypeAnalyzer().Map<TOut>(request.Eager);
+                    var flatMap = new TypeAnalyzer().Map<TOut>(request.FullTree);
 
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
 
@@ -50,7 +50,7 @@ namespace Meadow
 
                     while (dataReader.Read())
                     {
-                        var record = new TypeAnalyzer().CreateObject<TOut>(request.Eager);
+                        var record = new TypeAnalyzer().CreateObject<TOut>(request.FullTree);
 
                         foreach (var field in fieldsToRead)
                         {
@@ -111,7 +111,7 @@ namespace Meadow
                 return command;
             }
 
-            var flatMap = new TypeAnalyzer().Map<TIn>(request.Eager);
+            var flatMap = new TypeAnalyzer().Map<TIn>(request.FullTree);
 
             var fieldsToWrite = flatMap.FieldNames
                 .Where(field => request.ToStorageMarks.IsIncluded(field))

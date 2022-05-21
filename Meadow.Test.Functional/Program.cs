@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd007MeadowShouldLoadEagerly().Main();
+            new Tdd007MeadowShouldLoadFullTree().Main();
         }
     }
 }

@@ -59,7 +59,7 @@ namespace Meadow
         {
         }
 
-        protected virtual bool EagerReadWrite()
+        protected virtual bool FullTreeReadWrite()
         {
             return false;
         }
@@ -67,6 +67,6 @@ namespace Meadow
         internal IFieldMarks ToStorageMarks => _toStorageManipulator;
         internal IFieldMarks FromStorageMarks => _fromStorageManipulator;
 
-        internal bool Eager => EagerReadWrite();
+        internal bool FullTree => FullTreeReadWrite();
     }
 }
