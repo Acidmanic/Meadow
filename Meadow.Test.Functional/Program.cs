@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd004MeadowShouldRetrieveSeedDataFromDatabase().Main();
+            new Tdd005FlatteningTests().Main();
         }
     }
 }
