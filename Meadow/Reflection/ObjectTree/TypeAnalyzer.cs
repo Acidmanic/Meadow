@@ -236,5 +236,6 @@ namespace Meadow.Reflection.ObjectTree
 
             return obj;
         }
+        
     }
 }
