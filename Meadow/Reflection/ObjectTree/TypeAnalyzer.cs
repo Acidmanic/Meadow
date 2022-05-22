@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -207,18 +208,24 @@ namespace Meadow.Reflection.ObjectTree
         public TOut CreateObject<TOut>(bool fullTree)
         {
             var type = typeof(TOut);
-            
+
             if (fullTree)
             {
                 return (TOut) CreateObject(type);
             }
 
-            return (TOut) type.GetConstructor(new Type[] { })?.Invoke(new object[] { });
+            return (TOut) BlindInstantiate(type);
+        }
+
+
+        public object BlindInstantiate(Type type)
+        {
+            return type.GetConstructor(new Type[] { })?.Invoke(new object[] { });
         }
 
         private object CreateObject(Type type)
         {
-            var obj = type.GetConstructor(new Type[] { })?.Invoke(new object[] { });
+            var obj = BlindInstantiate(type);
 
             var properties = type.GetProperties();
 
@@ -228,7 +235,20 @@ namespace Meadow.Reflection.ObjectTree
 
                 if (IsReferenceType(pType))
                 {
-                    var value = CreateObject(pType);
+                    object value;
+
+                    if (IsCollection(pType))
+                    {
+                        value = BlindInstantiate(pType);
+                    }
+                    else if (pType.IsArray)
+                    {
+                        value = Array.CreateInstance(pType.GetElementType() ?? typeof(Object), 0);
+                    }
+                    else
+                    {
+                        value = CreateObject(pType);
+                    }
 
                     property.SetValue(obj, value);
                 }
@@ -236,6 +256,27 @@ namespace Meadow.Reflection.ObjectTree
 
             return obj;
         }
-        
+
+        private bool IsCollection(Type type)
+        {
+            var parent = type;
+
+            while (parent != null)
+            {
+                var allInterfaces = type.GetInterfaces();
+
+                foreach (var i in allInterfaces)
+                {
+                    if (i == typeof(ICollection))
+                    {
+                        return true;
+                    }
+                }
+
+                parent = parent.DeclaringType;
+            }
+
+            return false;
+        }
     }
 }
