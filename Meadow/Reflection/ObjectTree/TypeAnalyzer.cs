@@ -5,11 +5,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Meadow.Attributes;
+using Meadow.Reflection.Conventions;
 
 namespace Meadow.Reflection.ObjectTree
 {
     public class TypeAnalyzer
     {
+        
+        public ITableNameProvider TableNameProvider { get; set; } = new PluralTableNameProvider();
+        
         public FlatMap Map(Type type, bool fullTree = false)
         {
             var rootNode = ToAccessNode(type, fullTree);
@@ -34,10 +38,7 @@ namespace Meadow.Reflection.ObjectTree
                     name = leaf.Parent.Name + "." + name;
                 }
 
-                map.Add(name,
-                    o => leaf.GetValue(o),
-                    (o, v) => leaf.SetValue(o, v)
-                );
+                map.Add(name, o => leaf.GetValue(o), (o, v) => leaf.SetValue(o, v));
             }
 
             return map;
@@ -50,7 +51,7 @@ namespace Meadow.Reflection.ObjectTree
 
         public AccessNode ToAccessNode(Type type, bool fullTree = false)
         {
-            var name = GetTableName(type);
+            var name = TableNameProvider.GetTableName(type);
 
             var root = new AccessNode(name, type);
 
@@ -59,21 +60,29 @@ namespace Meadow.Reflection.ObjectTree
             return root;
         }
 
-        private void ToAccessNode(Type type, AccessNode parent, bool fullTree)
+        private void ToAccessNode(Type type, AccessNode parent, bool fullTree, PropertyInfo parentPropertyInfo = null)
         {
-            var properties = type.GetProperties();
+            var isCollection = IsCollection(type);
+            var elementType = isCollection ? type.GenericTypeArguments[0] : null;
+
+            var properties = isCollection ? elementType.GetProperties() : type.GetProperties();
 
             foreach (var property in properties)
             {
                 var pType = property.PropertyType;
-                var refType = IsReferenceType(property.PropertyType);
-                var name = refType ? GetTableName(pType) : GetMappedName(property);
 
-                var node = new AccessNode(name, property);
+                var refType = IsReferenceType(pType);
+
+                var name = IsCollection(pType) ? TableNameProvider.GetTableName(pType.GenericTypeArguments[0]) :
+                    refType ? TableNameProvider.GetTableName(pType) : GetMappedName(property);
+
+                var node = isCollection
+                    ? new CollectionAccessNode(name, parentPropertyInfo, property, elementType)
+                    : new AccessNode(name, property);
 
                 if (fullTree && refType)
                 {
-                    ToAccessNode(pType, node, true);
+                    ToAccessNode(pType, node, true, property);
                 }
 
                 parent.Add(node);
@@ -95,18 +104,6 @@ namespace Meadow.Reflection.ObjectTree
             }
 
             return name;
-        }
-
-        private string GetTableName(Type pType)
-        {
-            var attributes = pType.GetCustomAttributes<TableAttribute>().ToList();
-
-            if (attributes.Count > 0)
-            {
-                return attributes.Last().TableName;
-            }
-
-            return pType.Name + "s";
         }
 
 
@@ -157,7 +154,7 @@ namespace Meadow.Reflection.ObjectTree
 
                 if (counts.ContainsKey(name) && counts[name] > 1)
                 {
-                    name = GetTableName(expression.Member.DeclaringType) + "." + name;
+                    name = TableNameProvider.GetTableName(expression.Member.DeclaringType) + "." + name;
                 }
 
                 return name;
@@ -184,7 +181,7 @@ namespace Meadow.Reflection.ObjectTree
             {
                 var pType = property.PropertyType;
                 var refType = IsReferenceType(property.PropertyType);
-                var name = refType ? GetTableName(pType) : GetMappedName(property);
+                var name = refType ? TableNameProvider.GetTableName(pType) : GetMappedName(property);
 
                 if (refType)
                 {

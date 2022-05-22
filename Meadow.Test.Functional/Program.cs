@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd008CollectionsArrays().Main();
+            new Tdd009Load1ToN().Main();
         }
     }
 }

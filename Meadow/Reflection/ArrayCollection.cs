@@ -16,11 +16,11 @@ namespace Meadow.Reflection
             _elementType = array.GetType().GetElementType();
         }
 
-        public ArrayCollection(Type type)
+        public ArrayCollection(Type elementType)
         {
-            _array = Array.CreateInstance(type, 0);
+            _array = Array.CreateInstance(elementType, 0);
 
-            _elementType = type;
+            _elementType = elementType;
         }
 
 

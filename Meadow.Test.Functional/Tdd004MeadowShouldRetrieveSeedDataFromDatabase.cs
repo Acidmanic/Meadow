@@ -35,7 +35,7 @@ namespace Meadow.Test.Functional
 
             var insertResult = engine.PerformRequest(insertRequest);
 
-            var persons = engine.PerformRequest(new GetAllPersons());
+            var persons = engine.PerformRequest(new GetAllPersonsRequest());
 
             persons.FromStorage.ForEach(PrintObject);
 

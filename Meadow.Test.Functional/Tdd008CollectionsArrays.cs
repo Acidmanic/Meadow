@@ -8,30 +8,50 @@ using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd008CollectionsArrays:MeadowFunctionalTest
+    public class Tdd008CollectionsArrays : MeadowFunctionalTest
     {
         public override void Main()
         {
-            object array = new string[] { "first","second"};
-            
-            if (array is Array arSrc)
+            // object array = new string[] { "first","second"};
+            //
+            // if (array is Array arSrc)
+            // {
+            //     
+            //     var arCol = new ArrayCollection(arSrc);
+            //     
+            //     arCol.Add("Mona");
+            //
+            //     var ar = arCol.WrappedArray;
+            //
+            //     foreach (var e in arCol)
+            //     {
+            //         Console.WriteLine(e);
+            //     }
+            // }
+            //
+            // var person = new TypeAnalyzer().CreateObject<Person>(true);
+            //
+            // PrintObject(person);
+
+
+            object realCollection = new List<string>
             {
-                
-                var arCol = new ArrayCollection(arSrc);
-                
-                arCol.Add("Mona");
+                "First", "Second"
+            };
 
-                var ar = arCol.WrappedArray;
+            if (realCollection is ICollection collection)
+            {
+                var colCol = new CollectionCollection(collection);
+                
+                colCol.Add("Acidmanic");
 
-                foreach (var e in arCol)
+                colCol.Remove("Second");
+                
+                foreach (var item in colCol)
                 {
-                    Console.WriteLine(e);
+                    Console.WriteLine(item);
                 }
             }
-            
-            var person = new TypeAnalyzer().CreateObject<Person>(true);
-            
-            PrintObject(person);
         }
     }
 }

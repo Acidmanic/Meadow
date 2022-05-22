@@ -12,11 +12,11 @@ namespace Meadow.Reflection.ObjectTree
 
         public AccessNode Parent { get; private set; }
 
-        private List<AccessNode> Children { get; set; }
+        protected List<AccessNode> Children { get; set; }
 
         public bool IsLeaf => Children.Count == 0;
 
-        private PropertyInfo PropertyInfo { get; set; }
+        protected PropertyInfo PropertyInfo { get; set; }
 
         public bool IsRoot => Parent == null;
 
@@ -64,14 +64,14 @@ namespace Meadow.Reflection.ObjectTree
             return Parent.GetFullName() + "." + Name;
         }
 
-        public void SetValue(object rootObject, object value)
+        public virtual void SetValue(object rootObject, object value)
         {
             var parentObject = Parent.GetSelfFromRoot(rootObject);
 
             PropertyInfo.SetValue(parentObject, value);
         }
 
-        public object GetValue(object rootObject)
+        public virtual object GetValue(object rootObject)
         {
             return GetSelfFromRoot(rootObject);
         }
