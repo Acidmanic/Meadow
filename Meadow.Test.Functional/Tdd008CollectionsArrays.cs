@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Meadow.Reflection;
+using Meadow.Reflection.ObjectTree;
+using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
@@ -12,7 +14,6 @@ namespace Meadow.Test.Functional
         {
             object array = new string[] { "first","second"};
             
-
             if (array is Array arSrc)
             {
                 
@@ -28,6 +29,9 @@ namespace Meadow.Test.Functional
                 }
             }
             
+            var person = new TypeAnalyzer().CreateObject<Person>(true);
+            
+            PrintObject(person);
         }
     }
 }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Meadow.Test.Functional.Models
 {
     public class Person
@@ -13,5 +15,7 @@ namespace Meadow.Test.Functional.Models
         public long JobId { get; set; }
 
         public Job Job { get; set; }
+
+        public List<Address> Addresses { get; set; }
     }
 }
