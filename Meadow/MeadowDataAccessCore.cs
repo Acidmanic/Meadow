@@ -57,8 +57,10 @@ namespace Meadow
                             var parameterName = request.FromStorageMarks.GetPracticalName(field);
 
                             var value = dataReader[parameterName];
-
-                            flatMap.Write(field, record, value);
+                            if (!(value is DBNull))
+                            {    
+                                flatMap.Write(field, record, value);
+                            }
                         }
 
                         records.Add(record);

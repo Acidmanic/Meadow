@@ -62,7 +62,7 @@ select P.Id 'Persons.Id',
        A.PersonId 'PersonId'
 from Persons P
          join Jobs J on P.JobId = J.Id
-         join Addresses A on P.Id = A.PersonId
+         left join Addresses A on P.Id = A.PersonId
         where P.Id = @Id
 go
 
@@ -87,5 +87,5 @@ select P.Id 'Persons.Id',
        A.PersonId 'PersonId'
 from Persons P
          join Jobs J on P.JobId = J.Id
-         join Addresses A on P.Id = A.PersonId
+         left join Addresses A on P.Id = A.PersonId
 go
