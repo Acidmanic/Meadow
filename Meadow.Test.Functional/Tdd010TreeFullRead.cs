@@ -9,8 +9,6 @@ namespace Meadow.Test.Functional
     {
         public override void Main()
         {
-            
-            
             var node  = new TypeAnalyzer().ToAccessNode<List<Person>>();
             
             new AccessNodePrinter().Print(node);
