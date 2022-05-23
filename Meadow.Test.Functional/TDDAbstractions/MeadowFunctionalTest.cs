@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Meadow.Configuration;
 using Meadow.Log;
+using Meadow.Reflection;
 using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.TDDAbstractions
@@ -51,10 +52,16 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
         private void PrintObject(string indent, object obj)
         {
-            if (obj is IEnumerable objects)
+            if (obj == null)
+            {
+                Console.WriteLine("[NULL]");
+                return;
+            }
+
+            if (TypeCheck.IsCollection(obj.GetType()) && obj is IEnumerable objects)
             {
                 Console.WriteLine(indent + "[");
-                
+
                 foreach (var o in objects)
                 {
                     PrintNonEnumerableObject(indent, o);
@@ -74,7 +81,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
             var type = o.GetType();
 
-            var properties = type.GetProperties(BindingFlags.DeclaredOnly);
+            var properties = type.GetProperties();
 
             foreach (var property in properties)
             {
@@ -83,7 +90,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
                     var name = property.Name;
                     var value = property.GetValue(o);
 
-                    if (value == null || IsSingleLinable(property.PropertyType))
+                    if (value == null || IsSingleLinable(value.GetType()))
                     {
                         Console.WriteLine(indent + name + ": " + value);
                     }
