@@ -11,9 +11,8 @@ namespace Meadow.Reflection.ObjectTree
 {
     public class TypeAnalyzer
     {
-        
         public ITableNameProvider TableNameProvider { get; set; } = new PluralTableNameProvider();
-        
+
         public FlatMap Map(Type type, bool fullTree = false)
         {
             var rootNode = ToAccessNode(type, fullTree);
@@ -22,7 +21,7 @@ namespace Meadow.Reflection.ObjectTree
 
             if (!fullTree)
             {
-                leaves = leaves.Where(l => !IsReferenceType(l.Type)).ToList();
+                leaves = leaves.Where(l => !TypeCheck.IsReferenceType(l.Type)).ToList();
             }
 
             var counts = CountFieldNames(leaves);
@@ -51,42 +50,108 @@ namespace Meadow.Reflection.ObjectTree
 
         public AccessNode ToAccessNode(Type type, bool fullTree = false)
         {
-            var name = TableNameProvider.GetTableName(type);
-
-            var root = new AccessNode(name, type);
-
-            ToAccessNode(type, root, fullTree);
-
-            return root;
+            // var name = TableNameProvider.GetTableName(type);
+            //
+            // var root = new AccessNode(name, type);
+            //
+            // ToAccessNodeJaghul(type, root, fullTree);
+            //
+            // return root;
+            return ToAccessNode(type, fullTree, null);
         }
 
-        private void ToAccessNode(Type type, AccessNode parent, bool fullTree, PropertyInfo parentPropertyInfo = null)
+        // private void ToAccessNodeJaghul(Type type, AccessNode parent, bool fullTree)
+        // {
+        //     var properties = type.GetProperties();
+        //
+        //     foreach (var property in properties)
+        //     {
+        //         var pType = property.PropertyType;
+        //
+        //         var isCollection = TypeCheck.IsCollection(pType);
+        //
+        //         var isReference = TypeCheck.IsReferenceType(pType);
+        //
+        //         var elementType = isCollection ? pType.GenericTypeArguments[0] : null;
+        //
+        //         var elementTableName = elementType == null ? null : TableNameProvider.GetTableName(elementType);
+        //
+        //         var name = isCollection ? "<" + elementType + ">" :
+        //             isReference ? TableNameProvider.GetTableName(pType) : GetMappedName(property);
+        //
+        //         var isUnique = IsUnique(property);
+        //
+        //         var node = new AccessNode(name, property, isUnique);
+        //
+        //         if (isCollection)
+        //         {
+        //             var collectionChild = new AccessNode(elementTableName, elementType);
+        //
+        //             ToAccessNodeJaghul(elementType, node, true);
+        //
+        //             node.Add(collectionChild);
+        //         }
+        //         else if (fullTree && isReference)
+        //         {
+        //             ToAccessNodeJaghul(pType, node, true);
+        //         }
+        //
+        //         parent.Add(node);
+        //     }
+        // }
+
+
+        private AccessNode ToAccessNode(Type type, bool fullTree, PropertyInfo callerProperty)
         {
-            var isCollection = IsCollection(type);
+            var isCollection = TypeCheck.IsCollection(type);
+
+            var isReference = TypeCheck.IsReferenceType(type);
+
+            var isUnique = IsUnique(callerProperty);
+
             var elementType = isCollection ? type.GenericTypeArguments[0] : null;
 
-            var properties = isCollection ? elementType.GetProperties() : type.GetProperties();
+            var elementTableName = elementType == null ? null : TableNameProvider.GetTableName(elementType);
 
-            foreach (var property in properties)
+            var name = isCollection ? "<" + elementType + ">" :
+                isReference ? TableNameProvider.GetTableName(type) : GetMappedName(callerProperty);
+
+            var node = new AccessNode(name, type, callerProperty, isUnique);
+
+            if (isCollection)
             {
-                var pType = property.PropertyType;
+                var collectionChild = ToAccessNode(elementType, true, null);
 
-                var refType = IsReferenceType(pType);
-
-                var name = IsCollection(pType) ? TableNameProvider.GetTableName(pType.GenericTypeArguments[0]) :
-                    refType ? TableNameProvider.GetTableName(pType) : GetMappedName(property);
-
-                var node = isCollection
-                    ? new CollectionAccessNode(name, parentPropertyInfo, property, elementType)
-                    : new AccessNode(name, property);
-
-                if (fullTree && refType)
-                {
-                    ToAccessNode(pType, node, true, property);
-                }
-
-                parent.Add(node);
+                node.Add(collectionChild);
             }
+            else if (fullTree && isReference)
+            {
+                var properties = type.GetProperties();
+
+                foreach (var property in properties)
+                {
+                    var pType = property.PropertyType;
+
+                    var child = ToAccessNode(pType, true,property);
+
+                    node.Add(child);
+                }
+            }
+
+            return node;
+        }
+
+
+        private bool IsUnique(PropertyInfo property)
+        {
+            if (property == null)
+            {
+                return false;
+            }
+
+            var attributes = property.GetCustomAttributes<UniqueFieldAttribute>();
+
+            return attributes.Any();
         }
 
         public string GetMappedName(PropertyInfo property)
@@ -110,15 +175,6 @@ namespace Meadow.Reflection.ObjectTree
         public AccessNode ToAccessNode<T>(bool fullTree = false)
         {
             return ToAccessNode(typeof(T), fullTree);
-        }
-
-
-        public bool IsReferenceType(Type t)
-        {
-            return !t.IsPrimitive &&
-                   !t.IsValueType &&
-                   t != typeof(string) &&
-                   t != typeof(char);
         }
 
 
@@ -180,7 +236,7 @@ namespace Meadow.Reflection.ObjectTree
             foreach (var property in properties)
             {
                 var pType = property.PropertyType;
-                var refType = IsReferenceType(property.PropertyType);
+                var refType = TypeCheck.IsReferenceType(property.PropertyType);
                 var name = refType ? TableNameProvider.GetTableName(pType) : GetMappedName(property);
 
                 if (refType)
@@ -230,11 +286,11 @@ namespace Meadow.Reflection.ObjectTree
             {
                 var pType = property.PropertyType;
 
-                if (IsReferenceType(pType))
+                if (TypeCheck.IsReferenceType(pType))
                 {
                     object value;
 
-                    if (IsCollection(pType))
+                    if (TypeCheck.IsCollection(pType))
                     {
                         value = BlindInstantiate(pType);
                     }
@@ -252,28 +308,6 @@ namespace Meadow.Reflection.ObjectTree
             }
 
             return obj;
-        }
-
-        private bool IsCollection(Type type)
-        {
-            var parent = type;
-
-            while (parent != null)
-            {
-                var allInterfaces = type.GetInterfaces();
-
-                foreach (var i in allInterfaces)
-                {
-                    if (i == typeof(ICollection))
-                    {
-                        return true;
-                    }
-                }
-
-                parent = parent.DeclaringType;
-            }
-
-            return false;
         }
     }
 }

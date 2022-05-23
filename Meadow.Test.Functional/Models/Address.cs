@@ -1,3 +1,5 @@
+using Meadow.Attributes;
+
 namespace Meadow.Test.Functional.Models
 {
     public class Address
@@ -12,6 +14,7 @@ namespace Meadow.Test.Functional.Models
         
         public int Plate { get; set; }
         
+        [UniqueField]
         public long Id { get; set; }
         
         public long PersonId { get; set; }

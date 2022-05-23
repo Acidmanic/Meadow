@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd009Load1ToN().Main();
+            new Tdd010TreeFullRead().Main();
         }
     }
 }

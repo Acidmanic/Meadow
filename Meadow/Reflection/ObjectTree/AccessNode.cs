@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -20,31 +21,27 @@ namespace Meadow.Reflection.ObjectTree
 
         public bool IsRoot => Parent == null;
 
-        public AccessNode(string name, PropertyInfo info)
+        public bool IsUnique { get; }
+
+
+        public bool IsCollectable { get; }
+
+
+        public AccessNode(string name, Type type, PropertyInfo info, bool isUnique)
         {
             Name = name;
 
             PropertyInfo = info;
 
-            Type = info.PropertyType;
-
-            Parent = null;
-
-            Children = new List<AccessNode>();
-        }
-
-
-        public AccessNode(string name, Type type)
-        {
-            Name = name;
-
-            PropertyInfo = null;
+            IsCollectable = TypeCheck.IsCollection(type);
 
             Type = type;
 
             Parent = null;
 
             Children = new List<AccessNode>();
+
+            IsUnique = isUnique;
         }
 
         public void Add(AccessNode child)
@@ -112,6 +109,29 @@ namespace Meadow.Reflection.ObjectTree
                     child.EnumerateLeavesBelow(result);
                 }
             }
+        }
+
+        public Type ElementType
+        {
+            get
+            {
+                if (TypeCheck.Implements<ICollection>(Type))
+                {
+                    return Type.GenericTypeArguments[0];
+                }
+
+                if (TypeCheck.Extends<Array>(Type))
+                {
+                    return Type.GetElementType();
+                }
+
+                return null;
+            }
+        }
+
+        internal List<AccessNode> GetChildren()
+        {
+            return new List<AccessNode>(Children);
         }
     }
 }

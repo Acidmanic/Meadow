@@ -1,9 +1,11 @@
 using System.Collections.Generic;
+using Meadow.Attributes;
 
 namespace Meadow.Test.Functional.Models
 {
     public class Person
     {
+        [UniqueField]
         public long Id { get; set; }
 
         public string Name { get; set; }

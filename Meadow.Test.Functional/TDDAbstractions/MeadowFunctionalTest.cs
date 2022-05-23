@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Meadow.Configuration;
 using Meadow.Log;
 using Meadow.Test.Functional.Models;
@@ -53,6 +54,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
             if (obj is IEnumerable objects)
             {
                 Console.WriteLine(indent + "[");
+                
                 foreach (var o in objects)
                 {
                     PrintNonEnumerableObject(indent, o);
@@ -72,7 +74,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
             var type = o.GetType();
 
-            var properties = type.GetProperties();
+            var properties = type.GetProperties(BindingFlags.DeclaredOnly);
 
             foreach (var property in properties)
             {
