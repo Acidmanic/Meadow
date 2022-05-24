@@ -16,9 +16,9 @@ namespace Meadow.Test.Functional
         {
             var engine = SetupClearDatabase();
             
-            // var jobs = engine.PerformRequest(new GetAllJobsRequest());
-            //
-            // jobs.FromStorage.ForEach(PrintObject);
+            var jobs = engine.PerformRequest(new GetAllJobsRequest());
+            
+            jobs.FromStorage.ForEach(PrintObject);
             
             var insertRequest = new InsertPerson
             {

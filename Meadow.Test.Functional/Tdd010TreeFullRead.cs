@@ -19,7 +19,7 @@ namespace Meadow.Test.Functional
 
         public override void Main()
         {
-            var node = new TypeAnalyzer().ToAccessNode<List<Person>>();
+            var node = new TypeAnalyzer().ToAccessNode<List<Person>>(true);
 
             new AccessNodePrinter().Print(node);
 
