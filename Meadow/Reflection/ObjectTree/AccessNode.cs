@@ -24,16 +24,16 @@ namespace Meadow.Reflection.ObjectTree
         public bool IsUnique { get; }
 
 
-        public bool IsCollectable { get; }
+        public bool IsCollection { get; }
 
 
-        public AccessNode(string name, Type type, PropertyInfo info, bool isUnique)
+        public AccessNode(string name, Type type, PropertyInfo info, bool isUnique,int depth)
         {
             Name = name;
 
             PropertyInfo = info;
 
-            IsCollectable = TypeCheck.IsCollection(type);
+            IsCollection = TypeCheck.IsCollection(type);
 
             Type = type;
 
@@ -42,12 +42,14 @@ namespace Meadow.Reflection.ObjectTree
             Children = new List<AccessNode>();
 
             IsUnique = isUnique;
+
+            Depth = depth;
         }
 
         public void Add(AccessNode child)
         {
             child.Parent = this;
-
+            
             Children.Add(child);
         }
 
@@ -61,26 +63,26 @@ namespace Meadow.Reflection.ObjectTree
             return Parent.GetFullName() + "." + Name;
         }
 
-        public virtual void SetValue(object rootObject, object value)
+        public virtual void SetValue(object topLevelObject, object value)
         {
-            var parentObject = Parent.GetSelfFromRoot(rootObject);
+            var parentObject = Parent.GetSelfFromTopLevel(topLevelObject);
 
             PropertyInfo.SetValue(parentObject, value);
         }
 
-        public virtual object GetValue(object rootObject)
+        public virtual object GetValue(object topLevelObject)
         {
-            return GetSelfFromRoot(rootObject);
+            return GetSelfFromTopLevel(topLevelObject);
         }
 
-        private object GetSelfFromRoot(object rootObject)
+        private object GetSelfFromTopLevel(object topLevelObject)
         {
-            if (IsRoot)
+            if (IsTopLevel(this))
             {
-                return rootObject;
+                return topLevelObject;
             }
 
-            var parentObject = Parent.GetSelfFromRoot(rootObject);
+            var parentObject = Parent.GetSelfFromTopLevel(topLevelObject);
 
             var me = PropertyInfo.GetValue(parentObject);
 
@@ -133,5 +135,62 @@ namespace Meadow.Reflection.ObjectTree
         {
             return new List<AccessNode>(Children);
         }
+
+        public AccessNode GetTopLevelNode()
+        {
+            return GetTopLevelNode(this);
+        }
+
+        private AccessNode GetTopLevelNode(AccessNode node)
+        {
+            if (node.IsRoot)
+            {
+                if (node.IsCollection)
+                {
+                    return null;
+                }
+
+                return node;
+            }
+
+            if (IsTopLevel(node.Parent))
+            {
+                return node.Parent;
+            }
+
+            return GetTopLevelNode(node.Parent);
+        }
+
+
+        private bool IsTopLevel(AccessNode node)
+        {
+            if (!node.IsRoot)
+            {
+                return node.Parent.IsCollection;
+            }
+
+            return !node.IsCollection;
+        }
+
+        public bool IsCollectable
+        {
+            get
+            {
+                if (Parent != null)
+                {
+                    return Parent.IsCollection;
+                }
+
+                return false;
+            }
+        }
+
+        public override string ToString()
+        {
+            return GetFullName();
+        }
+
+
+        public int Depth { get; protected set; }
     }
 }

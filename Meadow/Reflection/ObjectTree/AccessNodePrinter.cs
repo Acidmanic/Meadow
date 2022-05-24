@@ -16,10 +16,11 @@ namespace Meadow.Reflection.ObjectTree
         {
             Console.Write(indent + "Name: " + node.Name);
             Console.Write(", Of Type: " + node.Type);
-            Console.Write(", Collectable: " + node.IsCollectable);
+            Console.Write(", Collectable: " + node.IsCollection);
             Console.Write(", Leaf: " + node.IsLeaf);
             Console.Write(", Root: " + node.IsRoot);
             Console.Write(", Unique: " + node.IsUnique);
+            Console.Write(", Depth: " + node.Depth);
             Console.WriteLine();
             var children = node.GetChildren();
             foreach (var child in children)
