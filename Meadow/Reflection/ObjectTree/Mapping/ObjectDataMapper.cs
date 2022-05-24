@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Runtime.Serialization;
 using Meadow.Reflection.ObjectTree.DataSource;
+using Meadow.Reflection.Sets;
 
 namespace Meadow.Reflection.ObjectTree.Mapping
 {

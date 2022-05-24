@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Meadow.Reflection.ObjectTree;
 
-namespace Meadow.Reflection
+namespace Meadow.Reflection.Sets
 {
     public class CollectionCollection : ICollection<object>
     {

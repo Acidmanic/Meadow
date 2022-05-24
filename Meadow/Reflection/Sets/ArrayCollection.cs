@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Meadow.Reflection
+namespace Meadow.Reflection.Sets
 {
     public class ArrayCollection : ICollection<object>
     {
