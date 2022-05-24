@@ -37,7 +37,7 @@ namespace Meadow
                 {
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
                     
-                    var records = new DataReadWrite().ReadData<TOut>(dataReader);
+                    var records = new DataReadWrite().ReadData<TOut>(dataReader,request.FullTree);
 
                     connection.Close();
 
@@ -53,20 +53,7 @@ namespace Meadow
 
             return request;
         }
-
-        private List<string> EnumFields(SqlDataReader dataReader)
-        {
-            var result = new List<string>();
-
-            for (int i = 0; i < dataReader.FieldCount; i++)
-            {
-                result.Add(dataReader.GetName(i));
-            }
-
-            return result;
-        }
-
-
+        
         private SqlCommand CreateCommand<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration,

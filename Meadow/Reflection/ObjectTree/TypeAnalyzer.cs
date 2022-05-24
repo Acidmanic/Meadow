@@ -84,11 +84,11 @@ namespace Meadow.Reflection.ObjectTree
 
             if (isCollection)
             {
-                var collectionChild = ToAccessNode(elementType, true, null, depth + 1);
+                var collectionChild = ToAccessNode(elementType, fullTree, null, depth + 1);
 
                 node.Add(collectionChild);
             }
-            else if (fullTree && isReference)
+            else if (isReference)
             {
                 var properties = type.GetProperties();
 
@@ -96,9 +96,12 @@ namespace Meadow.Reflection.ObjectTree
                 {
                     var pType = property.PropertyType;
 
-                    var child = ToAccessNode(pType, true, property, depth + 1);
+                    if (!TypeCheck.IsReferenceType(pType) || fullTree)
+                    {
+                        var child = ToAccessNode(pType, fullTree, property, depth + 1);
 
-                    node.Add(child);
+                        node.Add(child);
+                    }
                 }
             }
 

@@ -10,9 +10,9 @@ namespace Meadow
 
 
 
-        public List<TModel> ReadData<TModel>(IDataReader dataReader)
+        public List<TModel> ReadData<TModel>(IDataReader dataReader,bool fullTree)
         {
-            var node = new TypeAnalyzer().ToAccessNode<List<TModel>>();
+            var node = new TypeAnalyzer().ToAccessNode<List<TModel>>(fullTree);
 
             var mapper = new ObjectDataMapper(node);
             
