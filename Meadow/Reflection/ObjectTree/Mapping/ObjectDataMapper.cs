@@ -96,10 +96,9 @@ namespace Meadow.Reflection.ObjectTree.Mapping
 
                 foreach (var field in drFields)
                 {
-
                     var value = dataReader[field];
 
-                    if (value != null)
+                    if (!(value is DBNull) && value != null)
                     {
                         var datapoint = new DataPoint
                         {

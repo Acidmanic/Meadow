@@ -35,36 +35,9 @@ namespace Meadow
 
                 if (request.ReturnsValue)
                 {
-                    var records = new List<TOut>();
-
-                    var flatMap = new TypeAnalyzer().Map<TOut>(request.FullTree);
-
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
-
-                    List<string> fields = EnumFields(dataReader);
-
-                    var fieldsToRead =
-                        flatMap.FieldNames
-                            .Where(field => request.FromStorageMarks.IsIncluded(field) &&
-                                            fields.Contains(field)).ToList();
-
-                    while (dataReader.Read())
-                    {
-                        var record = new TypeAnalyzer().CreateObject<TOut>(request.FullTree);
-
-                        foreach (var field in fieldsToRead)
-                        {
-                            var parameterName = request.FromStorageMarks.GetPracticalName(field);
-
-                            var value = dataReader[parameterName];
-                            if (!(value is DBNull))
-                            {    
-                                flatMap.Write(field, record, value);
-                            }
-                        }
-
-                        records.Add(record);
-                    }
+                    
+                    var records = new DataReadWrite().ReadData<TOut>(dataReader);
 
                     connection.Close();
 
