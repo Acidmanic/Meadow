@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Meadow.Reflection
 {
-    public class TypeCheck
+    public static class TypeCheck
     {
         public static bool IsCollection(Type type)
         {

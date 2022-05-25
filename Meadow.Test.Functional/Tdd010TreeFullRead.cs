@@ -26,11 +26,10 @@ namespace Meadow.Test.Functional
             Console.WriteLine();
 
             var dataReader = new FullTreePersonDataReader();
-
-
-            var machine = new ObjectDataMapper(node);
             
-            machine.Write(dataReader);
+            var machine = new ObjectDataWriter(node);
+            
+            machine.WriteIntoRootObject(dataReader);
             
             var chos = machine.RootObject;
             

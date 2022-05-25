@@ -6,6 +6,7 @@ using System.Linq;
 using Meadow.Configuration;
 using Meadow.Reflection;
 using Meadow.Reflection.ObjectTree;
+using Meadow.Reflection.ObjectTree.Mapping;
 
 namespace Meadow
 {
@@ -36,8 +37,12 @@ namespace Meadow
                 if (request.ReturnsValue)
                 {
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
-                    
-                    var records = new DataReadWrite().ReadData<TOut>(dataReader,request.FullTree);
+
+                    var writer = ObjectDataWriter.Create<List<TOut>>(request.FullTree);
+
+                    writer.WriteIntoRootObject(dataReader);
+
+                    var records = writer.As<List<TOut>>();
 
                     connection.Close();
 
@@ -53,7 +58,7 @@ namespace Meadow
 
             return request;
         }
-        
+
         private SqlCommand CreateCommand<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration,
@@ -73,19 +78,13 @@ namespace Meadow
                 return command;
             }
 
-            var flatMap = new TypeAnalyzer().Map<TIn>(request.FullTree);
+            var reader = new ObjectDataReader(storage, request.FullTree);
 
-            var fieldsToWrite = flatMap.FieldNames
-                .Where(field => request.ToStorageMarks.IsIncluded(field))
-                .ToList();
+            var data = reader.ReadRootObject(request.ToStorageMarks);
 
-            foreach (var field in fieldsToWrite)
+            foreach (var dataPoint in data)
             {
-                var parameterValue = flatMap.Read(field, storage);
-
-                var parameterName = "@" + request.ToStorageMarks.GetPracticalName(field);
-
-                var parameter = new SqlParameter(parameterName, parameterValue);
+                var parameter = new SqlParameter("@" + dataPoint.Key, dataPoint.Value);
 
                 parameter.Direction = ParameterDirection.Input;
 

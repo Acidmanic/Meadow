@@ -38,7 +38,7 @@ namespace Meadow.Test.Functional
             //
             // var blank = new TypeAnalyzer().CreateObject<OuterClass>(true);
             //
-            // map.Write("Name",blank,"Mani");
+            // map.WriteIntoRootObject("Name",blank,"Mani");
             //
             // PrintObject(blank);
             

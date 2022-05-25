@@ -12,47 +12,7 @@ namespace Meadow.Reflection.ObjectTree
     public class TypeAnalyzer
     {
         public ITableNameProvider TableNameProvider { get; set; } = new PluralTableNameProvider();
-
-        public FlatMap Map(Type type, bool fullTree = false)
-        {
-            var rootNode = ToAccessNode(type, fullTree);
-
-            return Map(rootNode, fullTree);
-        }
-
-        public FlatMap Map(AccessNode rootNode, bool fullTree = false)
-        {
-            var leaves = rootNode.EnumerateLeavesBelow();
-
-            if (!fullTree)
-            {
-                leaves = leaves.Where(l => !TypeCheck.IsReferenceType(l.Type)).ToList();
-            }
-
-            var counts = CountFieldNames(leaves);
-
-            var map = new FlatMap();
-
-            foreach (var leaf in leaves)
-            {
-                var name = leaf.Name;
-
-                if (counts[name] > 1)
-                {
-                    name = leaf.Parent.Name + "." + name;
-                }
-
-                map.Add(name, o => leaf.GetValue(o), (o, v) => leaf.SetValue(o, v));
-            }
-
-            return map;
-        }
-
-        public FlatMap Map<T>(bool fullTree = false)
-        {
-            return Map(typeof(T), fullTree);
-        }
-
+        
         public AccessNode ToAccessNode(Type type, bool fullTree = false)
         {
             return ToAccessNode(type, fullTree, null, 0);
