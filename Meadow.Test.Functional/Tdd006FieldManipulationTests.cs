@@ -26,7 +26,7 @@ namespace Meadow.Test.Functional
         {
             public long Id { get; set; }            
             public C CItem { get; set; }
-            [Column("CId")]
+            [Field("CId")]
             public int CItemId { get; set; }
         }
 
@@ -34,7 +34,7 @@ namespace Meadow.Test.Functional
         public class C
         {
             public int Id { get; set; }
-            [Column("CTitle")]
+            [Field("CTitle")]
             public string Name { get; set; }
             
             public string StupidProperty { get; set; }

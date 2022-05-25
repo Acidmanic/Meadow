@@ -127,7 +127,7 @@ namespace Meadow.Reflection.ObjectTree
 
             List<FieldAttribute> attributes = new List<FieldAttribute>();
 
-            attributes.AddRange(property.GetCustomAttributes<ColumnAttribute>());
+            attributes.AddRange(property.GetCustomAttributes<FieldAttribute>());
 
             if (attributes.Count > 0)
             {
