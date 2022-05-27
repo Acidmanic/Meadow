@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd010TreeFullRead().Main();
+            new Tdd011CrudScripts().Main();
         }
     }
 }

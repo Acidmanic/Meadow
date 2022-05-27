@@ -131,7 +131,7 @@ namespace Meadow.Reflection.ObjectTree
             }
         }
 
-        internal List<AccessNode> GetChildren()
+        public List<AccessNode> GetChildren()
         {
             return new List<AccessNode>(Children);
         }
@@ -141,6 +141,21 @@ namespace Meadow.Reflection.ObjectTree
             return GetTopLevelNode(this);
         }
 
+        public List<AccessNode> GetDirectLeaves()
+        {
+            var directLeaves = new List<AccessNode>();
+
+            foreach (var child in Children)
+            {
+                if (child.IsLeaf)
+                {
+                    directLeaves.Add(child);
+                }
+            }
+
+            return directLeaves;
+        }
+        
         private AccessNode GetTopLevelNode(AccessNode node)
         {
             if (node.IsRoot)

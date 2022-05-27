@@ -25,8 +25,8 @@ declare @NewId bigint = (IDENT_CURRENT('Addresses'));
 select *
 from Addresses
 where Id = @NewId;
-    
-    
+
+
 go
 
 
@@ -44,12 +44,12 @@ go
 
 alter procedure spGetPersonByIdFullTree(@Id bigint)
 as
-select P.Id 'Persons.Id',
+select P.Id       'Persons.Id',
        Name,
        Surname,
        Age,
        JobId,
-       J.Id 'Jobs.Id',
+       J.Id       'Jobs.Id',
        Title,
        IncomeInRials,
        JobDescription,
@@ -58,23 +58,23 @@ select P.Id 'Persons.Id',
        AddressName,
        Block,
        Plate,
-       A.Id 'Addresses.Id',
+       A.Id       'Addresses.Id',
        A.PersonId 'PersonId'
 from Persons P
          join Jobs J on P.JobId = J.Id
          left join Addresses A on P.Id = A.PersonId
-        where P.Id = @Id
+where P.Id = @Id
 go
 
 
 alter procedure spGetAllPersonsFullTree
 as
-select P.Id 'Persons.Id',
+select P.Id       'Persons.Id',
        Name,
        Surname,
        Age,
        JobId,
-       J.Id 'Jobs.Id',
+       J.Id       'Jobs.Id',
        Title,
        IncomeInRials,
        JobDescription,
@@ -83,9 +83,10 @@ select P.Id 'Persons.Id',
        AddressName,
        Block,
        Plate,
-       A.Id 'Addresses.Id',
+       A.Id       'Addresses.Id',
        A.PersonId 'PersonId'
 from Persons P
          join Jobs J on P.JobId = J.Id
          left join Addresses A on P.Id = A.PersonId
 go
+
