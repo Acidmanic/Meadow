@@ -11,6 +11,11 @@ namespace Meadow.Reflection
             return Implements<ICollection>(type);
         }
 
+        public static bool InheritsFrom<TSuper>(Type type)
+        {
+            return Extends<TSuper>(type) || Implements<TSuper>(type);
+        }
+        
         public static bool Implements<TInterface>(Type type)
         {
             var parent = type;
