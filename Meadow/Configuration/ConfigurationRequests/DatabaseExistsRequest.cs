@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Meadow.Configuration.ConfigurationRequests.Models;
 using Meadow.Requests;
 using Meadow.Utility;
 

@@ -135,6 +135,31 @@ namespace Meadow
             return;
         }
 
+        public List<string> EnumerateProcedures()
+        {
+            return EnumerateDbObject(true);
+        }
+        
+        public List<string> EnumerateTables()
+        {
+            return EnumerateDbObject(false);
+        }
+        
+        private List<string> EnumerateDbObject(bool dbProcedureNotTable)
+        {
+            var response = dbProcedureNotTable ?
+                PerformRequest(new EnumerateProceduresRequest()):
+                PerformRequest(new EnumerateTablesRequest());
+
+            var result = new List<string>();
+            
+            if (response.FromStorage != null)
+            {
+                result = response.FromStorage.Select(n => n.Name).ToList();
+            }
+
+            return result;
+        }
         private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
         {
             var sqls = scriptInfo.SplitScriptIntoBatches();

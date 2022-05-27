@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Channels;
 using Meadow.Configuration;
 using Meadow.Reflection;
 using Meadow.Reflection.FetchPlug;
@@ -12,12 +13,9 @@ namespace Meadow.Test.Functional
     public class Tdd011CrudScripts : MeadowFunctionalTest
     {
 
-        public class Mashdollah : IMeadowConfigurationProvider
+        public Tdd011CrudScripts():base("MeadowScratch")
         {
-            public MeadowConfiguration GetConfigurations()
-            {
-                return new MeadowConfiguration();
-            }
+            
         }
      
         public override void Main()
@@ -48,7 +46,23 @@ namespace Meadow.Test.Functional
             });
 
             Console.WriteLine(tables + inserts + reads + deletes + updates);
+            
+            Console.WriteLine("========================================");
 
+            var engin = SetupClearDatabase();
+            
+            Console.WriteLine("========================================");
+
+            var allprocedures = engin.EnumerateProcedures();
+            
+            allprocedures.ForEach(Console.WriteLine);
+
+            
+            Console.WriteLine("========================================");
+
+            var allTables = engin.EnumerateTables();
+            
+            allTables.ForEach(Console.WriteLine);
         }
 
     }

@@ -109,9 +109,6 @@ namespace Meadow.Reflection.ObjectTree.Mapping
                     {
                         if (leaf.Parent.IsCollectable)
                         {
-                            Console.WriteLine(
-                                $"New Record Detected for {leaf.Parent.Name}.{leaf.Name}, {oldValue} -> {value}");
-
                             AddNewElementToTopLevelCollection(leaf);
                         }
                         else

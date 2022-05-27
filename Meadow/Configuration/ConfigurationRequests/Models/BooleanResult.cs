@@ -1,4 +1,4 @@
-namespace Meadow.Configuration.ConfigurationRequests
+namespace Meadow.Configuration.ConfigurationRequests.Models
 {
     public class BooleanResult
     {
