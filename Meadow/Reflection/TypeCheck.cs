@@ -61,5 +61,37 @@ namespace Meadow.Reflection
                    t != typeof(string) &&
                    t != typeof(char);
         }
+
+
+        public static List<Type> EnumerateEntities(Type type)
+        {
+            var result = new List<Type>();
+
+            EnumerateEntities(type, result);
+
+            return result;
+        }
+
+        private static void EnumerateEntities(Type type, List<Type> result)
+        {
+            if (IsReferenceType(type))
+            {
+                if (IsCollection(type))
+                {
+                    type = type.GenericTypeArguments[0];
+                }
+
+                result.Add(type);
+            }
+
+            var properties = type.GetProperties();
+
+            foreach (var property in properties)
+            {
+                var pType = property.PropertyType;
+
+                EnumerateEntities(pType, result);
+            }
+        }
     }
 }
