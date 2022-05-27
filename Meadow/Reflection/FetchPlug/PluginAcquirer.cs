@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Reflection;
+using System.Threading;
 
 namespace Meadow.Reflection.FetchPlug
 {
@@ -12,7 +15,8 @@ namespace Meadow.Reflection.FetchPlug
 
             foreach (var module in assembly.GetModules())
             {
-                var types = module.GetTypes();
+
+                var types = SafeGetModuleTypes(module);
 
                 foreach (var type in types)
                 {
@@ -31,6 +35,20 @@ namespace Meadow.Reflection.FetchPlug
             return result;
         }
 
+        private IEnumerable<Type> SafeGetModuleTypes(Module module)
+        {
+            try
+            {
+                return module.GetTypes();
+            }
+            catch (Exception _)
+            {
+                // ignored
+            }
+
+            return new Type[] { };
+        }
+
         public List<T> AcquireAny<T>()
         {
             var result = new List<T>();
@@ -40,6 +58,67 @@ namespace Meadow.Reflection.FetchPlug
             result.AddRange(AcquireAny<T>(Assembly.GetExecutingAssembly()));
 
             return result;
+        }
+
+        public List<T> AcquireAny<T>(string directory)
+        {
+            var loadedAssemblies = EnumerateAssemblies(directory);
+
+            var result = new List<T>();
+
+            loadedAssemblies.ForEach(ass =>
+                result.AddRange(AcquireAny<T>(ass))
+            );
+
+            return result;
+        }
+
+        private List<Assembly> EnumerateAssemblies(string directory)
+        {
+            var allDlls = EnumerateDlls(directory);
+
+            var result = new List<Assembly>();
+
+            foreach (var file in allDlls)
+            {
+                try
+                {
+                    var assembly = Assembly.LoadFile(file.FullName);
+
+                    result.Add(assembly);
+                }
+                catch (Exception _)
+                {
+                    // ignored
+                }
+            }
+
+            return result;
+        }
+
+        private List<FileInfo> EnumerateDlls(string directory)
+        {
+            var result = new List<FileInfo>();
+
+            var rootDirectory = new DirectoryInfo(directory);
+
+            EnumerateDlls(rootDirectory, result);
+
+            return result;
+        }
+
+        private void EnumerateDlls(DirectoryInfo directory, List<FileInfo> result)
+        {
+            var files = directory.EnumerateFiles("*.dll", SearchOption.TopDirectoryOnly);
+
+            result.AddRange(files);
+
+            var directories = directory.EnumerateDirectories();
+
+            foreach (var directoryInfo in directories)
+            {
+                EnumerateDlls(directoryInfo, result);
+            }
         }
 
         private object TryInstantiate(Type type)

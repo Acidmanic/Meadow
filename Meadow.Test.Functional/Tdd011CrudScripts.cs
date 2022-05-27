@@ -1,5 +1,8 @@
 using System;
+using Meadow.Configuration;
 using Meadow.Reflection;
+using Meadow.Reflection.FetchPlug;
+using Meadow.Scaffolding.Contracts;
 using Meadow.Scaffolding.SqlScriptsGenerators;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -8,6 +11,15 @@ namespace Meadow.Test.Functional
 {
     public class Tdd011CrudScripts : MeadowFunctionalTest
     {
+
+        public class Mashdollah : IMeadowConfigurationProvider
+        {
+            public MeadowConfiguration GetConfigurations()
+            {
+                return new MeadowConfiguration();
+            }
+        }
+     
         public override void Main()
         {
             var typesInvolved = TypeCheck.EnumerateEntities(typeof(Person));
@@ -36,6 +48,7 @@ namespace Meadow.Test.Functional
             });
 
             Console.WriteLine(tables + inserts + reads + deletes + updates);
+
         }
 
     }
