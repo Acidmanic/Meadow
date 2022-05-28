@@ -66,9 +66,9 @@ namespace Meadow.Test.Functional
             
             Console.WriteLine("========================================");
             
-            var models = new TypeAcquirer().EnumerateModels(".");
+            var models = new TypeAcquirer().EnumerateModels(".","Meadow.Test");
 
-            
+            models.ForEach(m => Console.WriteLine(m.Name));
         }
 
     }

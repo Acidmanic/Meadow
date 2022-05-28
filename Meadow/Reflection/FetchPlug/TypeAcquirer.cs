@@ -16,7 +16,6 @@ namespace Meadow.Reflection.FetchPlug
 
             foreach (var module in assembly.GetModules())
             {
-
                 var types = SafeGetModuleTypes(module);
 
                 foreach (var type in types)
@@ -155,24 +154,23 @@ namespace Meadow.Reflection.FetchPlug
                 foreach (var module in assembly.Modules)
                 {
                     var types = SafeGetModuleTypes(module);
-                    
+
                     result.AddRange(types);
                 }
             }
 
             return result;
         }
+
         public List<Type> EnumerateTypes(string directory)
         {
-
             var assemblies = EnumerateAssemblies(directory);
 
             var types = EnumerateTypes(assemblies);
 
             return types;
-
         }
-        
+
         public List<Type> EnumerateModels(string directory)
         {
             var assemblies = EnumerateAssemblies(directory);
@@ -182,14 +180,14 @@ namespace Meadow.Reflection.FetchPlug
 
             return types;
         }
-        
-        public List<Type> EnumerateModels(string directory,string @namespace)
+
+        public List<Type> EnumerateModels(string directory, string @namespace)
         {
             var assemblies = EnumerateAssemblies(directory);
 
             var types = EnumerateTypes(assemblies)
                 .Where(TypeCheck.IsModel)
-                .Where(t => t.Namespace==@namespace)
+                .Where(t => t.Namespace != null && t.Namespace.StartsWith(@namespace))
                 .ToList();
 
             return types;

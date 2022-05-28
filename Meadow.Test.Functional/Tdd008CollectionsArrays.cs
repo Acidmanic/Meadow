@@ -13,26 +13,26 @@ namespace Meadow.Test.Functional
     {
         public override void Main()
         {
-            // object array = new string[] { "first","second"};
-            //
-            // if (array is Array arSrc)
-            // {
-            //     
-            //     var arCol = new ArrayCollection(arSrc);
-            //     
-            //     arCol.Add("Mona");
-            //
-            //     var ar = arCol.WrappedArray;
-            //
-            //     foreach (var e in arCol)
-            //     {
-            //         Console.WriteLine(e);
-            //     }
-            // }
-            //
-            // var person = new TypeAnalyzer().CreateObject<Person>(true);
-            //
-            // PrintObject(person);
+            object array = new string[] { "first","second"};
+            
+            if (array is Array arSrc)
+            {
+                
+                var arCol = new ArrayCollection(arSrc);
+                
+                arCol.Add("Mona");
+            
+                var ar = arCol.WrappedArray;
+            
+                foreach (var e in arCol)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+            
+            var person = new TypeAnalyzer().CreateObject<Person>(true);
+            
+            PrintObject(person);
 
 
             object realCollection = new List<string>

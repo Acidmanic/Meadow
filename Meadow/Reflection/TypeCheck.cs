@@ -116,7 +116,7 @@ namespace Meadow.Reflection
         
         private static bool IsModelNoneCached(Type type)
         {
-            if (type.IsAbstract || type.IsInterface)
+            if (type.IsAbstract || type.IsInterface || type.IsGenericType)
             {
                 return false;
             }
@@ -140,7 +140,7 @@ namespace Meadow.Reflection
 
                 var pType = property.PropertyType;
 
-                if (IsReferenceType(pType) && !(IsModel(pType) || IsCollection(type)))
+                if (IsReferenceType(pType) && !(IsModel(pType) || IsCollection(pType)))
                 {
                     return false;
                 }

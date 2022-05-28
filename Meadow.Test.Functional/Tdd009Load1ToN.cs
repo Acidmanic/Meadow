@@ -33,17 +33,6 @@ namespace Meadow.Test.Functional
             var result = engine.PerformRequest(request);
             
             PrintObject(result.FromStorage);
-
-            // var map = new TypeAnalyzer().Map<OuterClass>(true);
-            //
-            // var blank = new TypeAnalyzer().CreateObject<OuterClass>(true);
-            //
-            // map.WriteIntoRootObject("Name",blank,"Mani");
-            //
-            // PrintObject(blank);
-            
-            
-            
         }
     }
 }

@@ -132,41 +132,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
             return false;
         }
-
-        private class Koon
-        {
-            public List<Person> People { get; set; }
-        }
-
-        protected void PrintTest()
-        {
-            var person = new Person
-            {
-                Age = 10,
-                Id = 10,
-                Job = new Job
-                {
-                    Id = 1010,
-                    Title = "TenTinaTun",
-                    JobDescription = "Stupid",
-                    IncomeInRials = 10101010
-                },
-                Name = "Tutun",
-                Surname = "Tatanian",
-                JobId = 1010
-            };
-
-            var printTest = new Koon
-            {
-                People = new List<Person>
-                {
-                    person, person
-                }
-            };
-
-            PrintObject(printTest);
-        }
-
+        
         public abstract void Main();
 
         protected MeadowEngine SetupClearDatabase()
