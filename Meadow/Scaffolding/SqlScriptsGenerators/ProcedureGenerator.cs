@@ -13,13 +13,23 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         public override string SqlObjectName => ProcedureName;
 
+        public override DbObjectTypes ObjectType => DbObjectTypes.StoredProcedures;
 
         protected abstract string GetProcedureName();
 
 
-        public override Code Generate(bool alreadyExists)
+        public override Code Generate(SqlScriptActions action)
         {
-            var script = GenerateScript(alreadyExists, CreateKeyWord(alreadyExists));
+            var snippet = "CREATE ";
+            if (action == SqlScriptActions.Alter)
+            {
+                snippet = "ALTER ";
+            }
+            else if(action==SqlScriptActions.DropCreate)
+            {
+                snippet = $"DROP PROCEDURE IF EXISTS {GetProcedureName()}\n\nCREATE ";
+            }
+            var script = GenerateScript(action, snippet);
 
             return new Code
                 {
@@ -28,6 +38,6 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 };
         }
 
-        protected abstract string GenerateScript(bool alreadyExists, string createKeyword);
+        protected abstract string GenerateScript(SqlScriptActions action,string preProcedureSnippet);
     }
 }

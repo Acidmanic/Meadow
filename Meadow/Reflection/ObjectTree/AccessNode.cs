@@ -100,7 +100,7 @@ namespace Meadow.Reflection.ObjectTree
 
         private void EnumerateLeavesBelow(ICollection<AccessNode> result)
         {
-            if (IsLeaf)
+            if (IsLeaf && !IsRoot)
             {
                 result.Add(this);
             }

@@ -1,9 +1,13 @@
 using System;
+using System.IO;
 using System.Threading.Channels;
 using Meadow.Configuration;
 using Meadow.Reflection;
 using Meadow.Reflection.FetchPlug;
+using Meadow.Scaffolding;
+using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Contracts;
+using Meadow.Scaffolding.OnExistsPolicy;
 using Meadow.Scaffolding.SqlScriptsGenerators;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -17,6 +21,22 @@ namespace Meadow.Test.Functional
         {
             
         }
+
+        public class TestConfigProvider : IMeadowConfigurationProvider
+        {
+            public MeadowConfiguration GetConfigurations()
+            {
+                return new MeadowConfiguration
+                {
+                    ConnectionString = "Server=localhost;" +
+                                       "User Id=sa; " +
+                                       "Password=never54aga.1n;" +
+                                       $@"Database={"MeadowScratch"}; " +
+                                       "MultipleActiveResultSets=true",
+                    BuildupScriptDirectory = "Scripts"
+                };
+            }
+        } 
      
         public override void Main()
         {
@@ -30,9 +50,9 @@ namespace Meadow.Test.Functional
 
             typesInvolved.ForEach(y =>
             {
-                tables += new TableScriptGenerator(y).Generate(false).Text;
+                tables += new TableScriptGenerator(y).Generate(SqlScriptActions.Create).Text;
 
-                inserts += new InsertProcedureGenerator(y).Generate(false).Text;
+                inserts += new InsertProcedureGenerator(y).Generate(SqlScriptActions.Create).Text;
 
                 reads += new ReadProcedureGenerator(y, true, true).Generate().Text;
                 reads += new ReadProcedureGenerator(y, false, true).Generate().Text;
@@ -69,6 +89,20 @@ namespace Meadow.Test.Functional
             var models = new TypeAcquirer().EnumerateModels(".","Meadow.Test");
 
             models.ForEach(m => Console.WriteLine(m.Name));
+            
+            Console.WriteLine("========================================");
+            
+            var script = new AutoScriptGenerator().Generate(".","Meadow.Test.Functional.Models",
+                new OnExistsPolicyManager().Add( o => OnExistsPolicies.Alter));
+
+
+            var path = script.ScriptFile.FullName;
+
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+            File.WriteAllText(path,script.Script);
         }
 
     }

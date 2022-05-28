@@ -11,9 +11,10 @@ namespace Meadow.Scaffolding.CodeGenerators
     {
         public Code Generate()
         {
-            return Generate(false);
+            return Generate(SqlScriptActions.Create);
         }
 
+        public abstract DbObjectTypes ObjectType { get; }
         public Type Type { get; }
 
         protected AccessNode TreeRoot { get; }
@@ -67,7 +68,7 @@ namespace Meadow.Scaffolding.CodeGenerators
             return GetIdField(new TypeAnalyzer() {TableNameProvider = TableNameProvider}.ToAccessNode(type, false));
         }
 
-        public abstract Code Generate(bool alreadyExists);
+        public abstract Code Generate(SqlScriptActions action);
 
         protected string CreateKeyWord(bool alreadyExists)
         {

@@ -11,7 +11,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
         {
         }
 
-        protected override string GenerateScript(bool alreadyExists, string createKeyword)
+        protected override string GenerateScript(SqlScriptActions action, string snippet)
         {
             var sep = "";
             var fields = "";
@@ -43,7 +43,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 }
             });
 
-            var script = $"{createKeyword} PROCEDURE {ProcedureName} (\n\t{parameters}\n)AS\n";
+            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t{parameters}\n)AS\n";
 
             script += $"\tINSERT INTO {TableName} ({fields}) VALUES ({values})\n";
 
@@ -58,7 +58,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName()
         {
-            return "spInsert" + TableName;
+            return "spInsert" + EntityName;
         }
     }
 }

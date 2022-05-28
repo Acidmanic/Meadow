@@ -17,15 +17,17 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             FullTree = fullTree;
         }
 
-        protected override string GenerateScript(bool alreadyExists, string createKeyword)
+        protected override string GenerateScript(SqlScriptActions action, string snippet)
         {
             var idField = GetIdField(Type);
 
-            var parameters = ById ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
+            var useIdField = ById && idField != null;
 
-            var script = $"{createKeyword} PROCEDURE {ProcedureName}({parameters})\nAS";
+            var parameters = useIdField ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
 
-            var where = ById ? $"WHERE {idField.Name}=@{idField.Name}" : "";
+            var script = $"{snippet} PROCEDURE {ProcedureName}({parameters})\nAS";
+
+            var where = useIdField ? $"WHERE {idField.Name}=@{idField.Name}" : "";
 
             var select = $"SELECT * FROM {TableName}";
 
@@ -106,24 +108,43 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
             string idCheck = "";
 
-            if (direction1Ton)
+            var from = direction1Ton ? joining : father;
+            var to = direction1Ton ? father : joining;
+            var fromTableName = direction1Ton ? jTableName : fTableName;
+            var toTableName = direction1Ton ? fTableName : jTableName;
+
+
+            var id = from.GetChildren()
+                .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
+
+            if (id == null)
             {
-                var id = joining.GetChildren()
-                    .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
-
-                var nodeId = joining.Type.Name + id.Name;
-
-                idCheck = $"{fTableName}.{nodeId}={jTableName}.{id.Name}";
+                // A Node without unique id cant participate in a join
+                return "";
             }
-            else
-            {
-                var id = father.GetChildren()
-                    .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
+            var nodeId = from.Type.Name + id.Name;
 
-                var nodeId = father.Type.Name + id.Name;
-
-                idCheck = $"{jTableName}.{nodeId}={fTableName}.{id.Name}";
-            }
+            idCheck = $"{toTableName}.{nodeId}={fromTableName}.{id.Name}";
+            
+            //
+            // if (direction1Ton)
+            // {
+            //     var id = joining.GetChildren()
+            //         .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
+            //
+            //     var nodeId = joining.Type.Name + id.Name;
+            //
+            //     idCheck = $"{fTableName}.{nodeId}={jTableName}.{id.Name}";
+            // }
+            // else
+            // {
+            //     var id = father.GetChildren()
+            //         .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
+            //
+            //     var nodeId = father.Type.Name + id.Name;
+            //
+            //     idCheck = $"{jTableName}.{nodeId}={fTableName}.{id.Name}";
+            // }
 
             return $"JOIN {jTableName} on {idCheck}";
         }

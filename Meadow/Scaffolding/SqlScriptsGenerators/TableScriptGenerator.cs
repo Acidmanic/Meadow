@@ -7,17 +7,17 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
     public class TableScriptGenerator : SqlGeneratorBase
     {
+        public override DbObjectTypes ObjectType => DbObjectTypes.Tables;
 
         public TableScriptGenerator(Type type) : base(type)
         {
         }
-        
-        public override Code Generate(bool alreadyExists)
+
+        public override Code Generate(SqlScriptActions action)
         {
-           
             var sep = "";
             var parameters = "";
-            
+
             WalkThroughLeaves(false, leaf =>
             {
                 string fieldName = leaf.Name;
@@ -28,11 +28,21 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
                 parameters += sep + fieldName + " " + typeName + id;
 
-                sep = ", ";    
-                
+                sep = ", ";
             });
-            
-            var tableScript = $"{CreateKeyWord(alreadyExists)} TABLE {TableName} (\n\t{parameters}\n\t)\n\n";
+
+            var tableScript = "";
+            var createKeyword = "CREATE";
+            if (action == SqlScriptActions.DropCreate)
+            {
+                tableScript = $"DROP TABLE {TableName}\n\n";
+            }
+            else if (action == SqlScriptActions.Alter)
+            {
+                createKeyword = "ALTER";
+            }
+
+            tableScript = $"{createKeyword} TABLE {TableName} (\n\t{parameters}\n\t)\n\n";
 
             return new Code
             {

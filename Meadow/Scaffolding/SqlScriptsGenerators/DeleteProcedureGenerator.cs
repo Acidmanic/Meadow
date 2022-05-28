@@ -1,4 +1,5 @@
 using System;
+using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
@@ -11,15 +12,17 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             ById = byId;
         }
 
-        protected override string GenerateScript(bool alreadyExists, string createKeyword)
+        protected override string GenerateScript(SqlScriptActions action,string snippet )
         {
             var idField = GetIdField(Type);
+
+            var useIdField = ById && idField != null;
             
-            var parameters = ById ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
+            var parameters = useIdField ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
 
-            var script = $"{createKeyword} PROCEDURE {ProcedureName}({parameters})\nAS";
+            var script = $"{snippet} PROCEDURE {ProcedureName}({parameters})\nAS";
 
-            var where = ById ? $" WHERE {idField.Name}=@{idField.Name}" : "";
+            var where = useIdField ? $" WHERE {idField.Name}=@{idField.Name}" : "";
 
             script += $"\n\tDECLARE @existing = (SELECT COUNT(*) FROM {TableName});";
 

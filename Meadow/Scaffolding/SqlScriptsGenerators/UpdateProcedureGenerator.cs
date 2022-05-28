@@ -1,4 +1,6 @@
 using System;
+using Meadow.Reflection.ObjectTree;
+using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
@@ -13,7 +15,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             return $"spUpdate{EntityName}";
         }
 
-        protected override string GenerateScript(bool alreadyExists, string createKeyword)
+        protected override string GenerateScript(SqlScriptActions action, string snippet)
         {
             
             var sep = "";
@@ -21,6 +23,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             var idFieldName = "";
             var idFieldType = "";
             var columnValues = "";
+            AccessNode idLeaf = null;
             
             WalkThroughLeaves(false, leaf =>
             {
@@ -28,6 +31,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 {
                     idFieldName = leaf.Name;
                     idFieldType = TypeNameMapper[leaf.Type];
+                    idLeaf = leaf;
                 }
                 else
                 {
@@ -42,8 +46,13 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                     sep = ", ";
                 }
             });
-            
-            var script = $"{createKeyword} PROCEDURE {ProcedureName} (\n\t@{idFieldName} {idFieldType} ,{parameters})\nAS";
+
+            if (idLeaf == null)
+            {
+                // An entity without Id, cant be updated by Id!!
+                return "";
+            }
+            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t@{idFieldName} {idFieldType} ,{parameters})\nAS";
 
             script += $"\n\tUPDATE {TableName}";
 
