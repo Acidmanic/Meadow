@@ -63,6 +63,12 @@ namespace Meadow.Test.Functional
             var allTables = engin.EnumerateTables();
             
             allTables.ForEach(Console.WriteLine);
+            
+            Console.WriteLine("========================================");
+            
+            var models = new TypeAcquirer().EnumerateModels(".");
+
+            
         }
 
     }

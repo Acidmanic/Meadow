@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 
 namespace Meadow.Reflection.FetchPlug
 {
-    public class PluginAcquirer
+    public class TypeAcquirer
     {
         public List<T> AcquireAny<T>(Assembly assembly)
         {
@@ -143,6 +144,55 @@ namespace Meadow.Reflection.FetchPlug
             }
 
             return null;
+        }
+
+        public List<Type> EnumerateTypes(IEnumerable<Assembly> assemblies)
+        {
+            var result = new List<Type>();
+
+            foreach (var assembly in assemblies)
+            {
+                foreach (var module in assembly.Modules)
+                {
+                    var types = SafeGetModuleTypes(module);
+                    
+                    result.AddRange(types);
+                }
+            }
+
+            return result;
+        }
+        public List<Type> EnumerateTypes(string directory)
+        {
+
+            var assemblies = EnumerateAssemblies(directory);
+
+            var types = EnumerateTypes(assemblies);
+
+            return types;
+
+        }
+        
+        public List<Type> EnumerateModels(string directory)
+        {
+            var assemblies = EnumerateAssemblies(directory);
+
+            var types = EnumerateTypes(assemblies)
+                .Where(TypeCheck.IsModel).ToList();
+
+            return types;
+        }
+        
+        public List<Type> EnumerateModels(string directory,string @namespace)
+        {
+            var assemblies = EnumerateAssemblies(directory);
+
+            var types = EnumerateTypes(assemblies)
+                .Where(TypeCheck.IsModel)
+                .Where(t => t.Namespace==@namespace)
+                .ToList();
+
+            return types;
         }
     }
 }

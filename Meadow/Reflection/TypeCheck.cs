@@ -6,6 +6,8 @@ namespace Meadow.Reflection
 {
     public static class TypeCheck
     {
+        private static Dictionary<Type, bool> _isModelCache = new Dictionary<Type, bool>();
+        
         public static bool IsCollection(Type type)
         {
             return Implements<ICollection>(type);
@@ -66,8 +68,7 @@ namespace Meadow.Reflection
                    t != typeof(string) &&
                    t != typeof(char);
         }
-
-
+        
         public static List<Type> EnumerateEntities(Type type)
         {
             var result = new List<Type>();
@@ -97,6 +98,54 @@ namespace Meadow.Reflection
 
                 EnumerateEntities(pType, result);
             }
+        }
+
+        public static bool IsModel(Type type)
+        {
+            if (_isModelCache.ContainsKey(type))
+            {
+                return _isModelCache[type];
+            }
+
+            var isModel = IsModelNoneCached(type);
+            
+            _isModelCache.Add(type,isModel);
+
+            return isModel;
+        }
+        
+        private static bool IsModelNoneCached(Type type)
+        {
+            if (type.IsAbstract || type.IsInterface)
+            {
+                return false;
+            }
+
+            if (!IsReferenceType(type))
+            {
+                return false;
+            }
+            var properties = type.GetProperties();
+
+            if (properties.Length == 0)
+            {
+                return false;
+            }
+            foreach (var property in properties)
+            {
+                if (!property.CanRead || !property.CanWrite)
+                {
+                    return false;
+                }
+
+                var pType = property.PropertyType;
+
+                if (IsReferenceType(pType) && !(IsModel(pType) || IsCollection(type)))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
