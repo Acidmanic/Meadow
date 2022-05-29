@@ -185,7 +185,14 @@ namespace Meadow.Reflection.FetchPlug
         {
             var assemblies = EnumerateAssemblies(directory);
 
-            var types = EnumerateTypes(assemblies)
+            if (@namespace == null)
+            {
+                @namespace = "";
+            }
+
+            var allTypes = EnumerateTypes(assemblies);
+            
+            var types = allTypes
                 .Where(TypeCheck.IsModel)
                 .Where(t => t.Namespace != null && t.Namespace.StartsWith(@namespace))
                 .ToList();
