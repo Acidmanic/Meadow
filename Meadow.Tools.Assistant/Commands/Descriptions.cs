@@ -3,10 +3,10 @@ namespace Meadow.Tools.Assistant.Commands
     public static class Descriptions
     {
         public const string Create = "Creates build-up scripts based on models found on current directory (PWD) " +
-                                     "and any database objects already exists in the database. The scrip created," +
-                                     "would be placed at the build-up scripts directory. For this command to work, " +
-                                     "you need to have an implementation of IMeadowConfigurationProvider in your " +
-                                     "project for assistant tool to find.";
+                                     "\n\t\t   and any database objects already exists in the database. The scrip created," +
+                                     "\n\t\t   would be placed at the build-up scripts directory. For this command to work, " +
+                                     "\n\t\t   you need to have an implementation of IMeadowConfigurationProvider in your " +
+                                     "\n\t\t   project for assistant tool to find.";
 
         public const string CreatePolicies =
             "Any number of policy strings separated by ','. Policy strings can be any of values: " +
