@@ -33,7 +33,7 @@ namespace Meadow.Reflection.ObjectTree
 
             var isUnique = IsUnique(callerProperty);
 
-            var elementType = isCollection ? type.GenericTypeArguments[0] : null;
+            var elementType = TypeCheck.GetElementType(type);
 
             var elementTableName = elementType == null ? null : TableNameProvider.GetTableName(elementType);
 

@@ -13,17 +13,29 @@ namespace Meadow.Scaffolding
 {
     public class AutoScriptGenerator
     {
-        public ScriptInfo Generate(string directory, string nameSpace, OnExistsPolicyManager policyManager)
+        public class ScriptGeneratingResult
+        {
+            public ScriptInfo ScriptInfo { get; set; }
+
+            public bool Created { get; set; }
+
+            public string Log { get; set; }
+        }
+
+        public ScriptGeneratingResult Generate(string directory, string nameSpace, OnExistsPolicyManager policyManager)
         {
             var configurationProvider
-                = new TypeAcquirer().AcquireAny<IMeadowConfigurationProvider>(directory)
-                    .SingleOrDefault();
+                = new TypeAcquirer()
+                    .AcquireAny<IMeadowConfigurationProvider>(directory)
+                    .FirstOrDefault();
 
             if (configurationProvider == null)
             {
-                // meeeeh
-
-                return null;
+                return new ScriptGeneratingResult
+                {
+                    Created = false,
+                    Log = "Could not find any constructable ConfigurationProvider in your project."
+                };
             }
 
             var configurations = configurationProvider.GetConfigurations();
@@ -113,7 +125,11 @@ namespace Meadow.Scaffolding
 
             if (objectsCreated == 0)
             {
-                return null;
+                return new ScriptGeneratingResult
+                {
+                    Created = false,
+                    Log = "No Update script has been created."
+                };
             }
 
 
@@ -125,12 +141,19 @@ namespace Meadow.Scaffolding
 
             var filePath = Path.Combine(new DirectoryInfo(configurations.BuildupScriptDirectory).FullName, fileName);
 
-            return new ScriptInfo
+            return new ScriptGeneratingResult
             {
-                Name = name,
-                Order = order,
-                ScriptFile = new FileInfo(filePath),
-                Script = script
+                Created = true,
+                Log =
+                    $"Created {objectsCreated} Database Objects:\n\t{tablesCreated} Tables:\n\t{proceduresCreated} Procedures.\n" +
+                    $"Script name: {name}",
+                ScriptInfo = new ScriptInfo
+                {
+                    Name = name,
+                    Order = order,
+                    ScriptFile = new FileInfo(filePath),
+                    Script = script
+                }
             };
         }
     }

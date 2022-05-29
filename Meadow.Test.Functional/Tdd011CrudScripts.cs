@@ -96,13 +96,18 @@ namespace Meadow.Test.Functional
                 new OnExistsPolicyManager().Add( o => OnExistsPolicies.Alter));
 
 
-            var path = script.ScriptFile.FullName;
-
-            if (File.Exists(path))
+            if (script.Created)
             {
-                File.Delete(path);
+                var path = script.ScriptInfo.ScriptFile.FullName;
+
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+                File.WriteAllText(path,script.ScriptInfo.Script);    
             }
-            File.WriteAllText(path,script.Script);
+
+            Console.WriteLine(script.Log);
         }
 
     }
