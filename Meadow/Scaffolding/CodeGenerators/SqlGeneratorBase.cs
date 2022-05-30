@@ -23,15 +23,11 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected AccessTreeInformation TreeInformation { get; }
 
-        protected string EntityName { get; }
-
-        public ITableNameProvider TableNameProvider { get; set; }
-
-        protected string TableName { get; }
-
         protected IDbTypeNameMapper TypeNameMapper { get; }
 
         public abstract string SqlObjectName { get; }
+        
+        protected  NameConvention NameConvention { get; }
 
         public SqlGeneratorBase(Type type)
         {
@@ -42,22 +38,12 @@ namespace Meadow.Scaffolding.CodeGenerators
             RootOnlyNode = new TypeAnalyzer().ToAccessNode(Type, false);
 
             TreeInformation = new AccessTreeInformation(TreeRoot);
-
-            TableNameProvider = new PluralTableNameProvider();
-
-            TableName = GetTableName(Type);
-
+            
             TypeNameMapper = new SqlDbTypeNameMapper();
 
-            EntityName = Type.Name;
+            NameConvention = new NameConvention(type);
         }
-
-
-        protected string GetTableName(Type type)
-        {
-            return TableNameProvider.GetTableName(type);
-        }
-
+        
         protected AccessNode GetIdField(AccessNode node)
         {
             return node.GetDirectLeaves().SingleOrDefault(leaf => leaf.IsUnique);
@@ -65,7 +51,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected AccessNode GetIdField(Type type)
         {
-            return GetIdField(new TypeAnalyzer() {TableNameProvider = TableNameProvider}.ToAccessNode(type, false));
+            return GetIdField(new TypeAnalyzer() {TableNameProvider = NameConvention.TableNameProvider}.ToAccessNode(type, false));
         }
 
         public abstract Code Generate(SqlScriptActions action);
@@ -77,7 +63,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected void WalkThroughLeaves(bool fullTree, Action<AccessNode> leafAction)
         {
-            var node = new TypeAnalyzer {TableNameProvider = TableNameProvider}.ToAccessNode(Type, fullTree);
+            var node = new TypeAnalyzer {TableNameProvider = NameConvention.TableNameProvider}.ToAccessNode(Type, fullTree);
 
             var info = new AccessTreeInformation(node);
 

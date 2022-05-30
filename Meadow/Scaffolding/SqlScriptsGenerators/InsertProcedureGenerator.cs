@@ -45,11 +45,11 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
             var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t{parameters}\n)AS\n";
 
-            script += $"\tINSERT INTO {TableName} ({fields}) VALUES ({values})\n";
+            script += $"\tINSERT INTO {NameConvention.TableName} ({fields}) VALUES ({values})\n";
 
-            script += $"\tDECLARE @newId {idFieldType}=(IDENT_CURRENT('{TableName}'));\n";
+            script += $"\tDECLARE @newId {idFieldType}=(IDENT_CURRENT('{NameConvention.TableName}'));\n";
 
-            script += $"\tSELECT * FROM {TableName} WHERE {idFieldName}=@newId;\n";
+            script += $"\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=@newId;\n";
 
             script += "GO\n\n";
 
@@ -58,7 +58,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName()
         {
-            return "spInsert" + EntityName;
+            return NameConvention.InsertProcedureName;
         }
     }
 }

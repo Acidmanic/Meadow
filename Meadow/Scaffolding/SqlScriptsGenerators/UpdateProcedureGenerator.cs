@@ -4,7 +4,7 @@ using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
-    public class UpdateProcedureGenerator:ProcedureGenerator
+    public class UpdateProcedureGenerator : ProcedureGenerator
     {
         public UpdateProcedureGenerator(Type type) : base(type)
         {
@@ -12,19 +12,18 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName()
         {
-            return $"spUpdate{EntityName}";
+            return NameConvention.UpdateProcedureName;
         }
 
         protected override string GenerateScript(SqlScriptActions action, string snippet)
         {
-            
             var sep = "";
             var parameters = "";
             var idFieldName = "";
             var idFieldType = "";
             var columnValues = "";
             AccessNode idLeaf = null;
-            
+
             WalkThroughLeaves(false, leaf =>
             {
                 if (leaf.IsUnique)
@@ -52,15 +51,16 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 // An entity without Id, cant be updated by Id!!
                 return "";
             }
+
             var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t@{idFieldName} {idFieldType} ,{parameters})\nAS";
 
-            script += $"\n\tUPDATE {TableName}";
+            script += $"\n\tUPDATE {NameConvention.TableName}";
 
             script += $"\n\tSET {columnValues}";
 
             script += $"\n\tWHERE {idFieldName}=@{idFieldName}";
 
-            script += $"\n\tSELECT * FROM {TableName} WHERE {idFieldName}=@{idFieldName};";
+            script += $"\n\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=@{idFieldName};";
 
             script += "\nGO\n\n";
 

@@ -35,22 +35,22 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             var createKeyword = "CREATE";
             if (action == SqlScriptActions.DropCreate)
             {
-                tableScript = $"DROP TABLE {TableName}\n\n";
+                tableScript = $"DROP TABLE {NameConvention.TableName}\n\n";
             }
             else if (action == SqlScriptActions.Alter)
             {
                 createKeyword = "ALTER";
             }
 
-            tableScript = $"{createKeyword} TABLE {TableName} (\n\t{parameters}\n\t)\n\n";
+            tableScript = $"{createKeyword} TABLE {NameConvention.TableName} (\n\t{parameters}\n\t)\n\n";
 
             return new Code
             {
-                Name = TableName,
+                Name = NameConvention.TableName,
                 Text = tableScript
             };
         }
 
-        public override string SqlObjectName => TableName;
+        public override string SqlObjectName => NameConvention.TableName;
     }
 }

@@ -29,7 +29,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
             var where = useIdField ? $"WHERE {idField.Name}=@{idField.Name}" : "";
 
-            var select = $"SELECT * FROM {TableName}";
+            var select = $"SELECT * FROM {NameConvention.TableName}";
 
             if (FullTree)
             {
@@ -45,16 +45,16 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName()
         {
-            var spName = "spGet" + (ById ? $"{EntityName}ById" : $"All{TableName}") + (FullTree ? "FullTree" : "");
-
-            return spName;
+            return ById
+                ? (FullTree ? NameConvention.SelectByIdProcedureNameFullTree : NameConvention.SelectByIdProcedureName)
+                : (FullTree ? NameConvention.SelectAllProcedureNameFullTree : NameConvention.SelectAllProcedureName);
         }
 
         private FullTreeSelectState ExtractSelectInfo(AccessNode node)
         {
             var type = node.Type;
 
-            var tableName = GetTableName(type);
+            var tableName = NameConvention.TableNameProvider.GetTableName(type);
 
             var result = new FullTreeSelectState
             {
@@ -102,9 +102,9 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         private string GetJoin(AccessNode father, AccessNode joining, bool direction1Ton)
         {
-            var jTableName = GetTableName(joining.Type);
+            var jTableName = NameConvention.TableNameProvider.GetTableName(joining.Type);
 
-            var fTableName = GetTableName(father.Type);
+            var fTableName = NameConvention.TableNameProvider.GetTableName(father.Type);
 
             string idCheck = "";
 
@@ -122,29 +122,10 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 // A Node without unique id cant participate in a join
                 return "";
             }
+
             var nodeId = from.Type.Name + id.Name;
 
             idCheck = $"{toTableName}.{nodeId}={fromTableName}.{id.Name}";
-            
-            //
-            // if (direction1Ton)
-            // {
-            //     var id = joining.GetChildren()
-            //         .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
-            //
-            //     var nodeId = joining.Type.Name + id.Name;
-            //
-            //     idCheck = $"{fTableName}.{nodeId}={jTableName}.{id.Name}";
-            // }
-            // else
-            // {
-            //     var id = father.GetChildren()
-            //         .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
-            //
-            //     var nodeId = father.Type.Name + id.Name;
-            //
-            //     idCheck = $"{jTableName}.{nodeId}={fTableName}.{id.Name}";
-            // }
 
             return $"JOIN {jTableName} on {idCheck}";
         }
