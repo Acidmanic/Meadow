@@ -4,6 +4,9 @@ using System.Xml;
 using ConsoleAppFramework;
 using Meadow.Scaffolding;
 using Meadow.Scaffolding.OnExistsPolicy;
+using Meadow.Tools.Assistant.Compilation;
+using Meadow.Tools.Assistant.DotnetProject;
+using Meadow.Tools.Assistant.Extensions;
 using Meadow.Tools.Assistant.Utils;
 
 namespace Meadow.Tools.Assistant.Commands
@@ -19,39 +22,27 @@ namespace Meadow.Tools.Assistant.Commands
             [Option("d", "The path to target Meadow Project")]
             string directory = ".",
             [Option("p", Descriptions.CreatePolicies)]
-            string[] policies = null)
+            string[] policies = null,
+            [Option("n","comma separated List of Local nuget directories")]
+            string[] localNuGets=null)
         {
             var manager = policies.AsPolicyManager();
 
-            var ns = string.IsNullOrEmpty(@namespace) ? new DotnetProjectInfo(directory).GetRootNamespace() : @namespace;
+            var ns = string.IsNullOrEmpty(@namespace)
+                ? DotnetProjectInfo.FromDirectory(directory).GetRootNamespace()
+                : @namespace;
 
-            var script = new AutoScriptGenerator().Generate(directory, ns, manager);
+            var compilationResult = new DirectoryCompiler().WithLocalNuGetDirectory(localNuGets).Compile(directory);
 
+            var availableTypes = compilationResult.Assembly.GetAvailableTypes();
 
+            var script = new AutoScriptGenerator().Generate(directory, availableTypes, ns, manager);
+            
             Console.WriteLine($"Looking up namespace: {ns}");
 
-            if (script.Created)
-            {
-                var dir = script.ScriptInfo.ScriptFile.Directory;
-
-                if (!dir.Exists)
-                {
-                    dir.Create();
-                }
-
-                var path = script.ScriptInfo.ScriptFile.FullName;
-
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-
-                File.WriteAllText(path, script.ScriptInfo.Script);
-            }
+            script.Save();
 
             Console.WriteLine(script.Log);
         }
-
-        
     }
 }

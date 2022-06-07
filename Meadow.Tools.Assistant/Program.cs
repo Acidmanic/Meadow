@@ -8,10 +8,12 @@ namespace Meadow.Tools.Assistant
         static void Main(string[] args)
         {
             var app = ConsoleApp.Create(args);
-
+            
             app.AddAllCommandType();
             
             app.Run();
+
+            
         }
     }
 }
