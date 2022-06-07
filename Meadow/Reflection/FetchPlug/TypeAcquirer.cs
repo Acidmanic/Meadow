@@ -4,122 +4,123 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using System.Threading;
 
 namespace Meadow.Reflection.FetchPlug
 {
     public class TypeAcquirer
     {
-        public List<T> AcquireAny<T>(Assembly assembly)
-        {
-            var result = new List<T>();
+        // private IEnumerable<Type> SafeGetModuleTypes(Module module)
+        // {
+        //     try
+        //     {
+        //         return module.GetTypes();
+        //     }
+        //     catch (Exception _)
+        //     {
+        //         // ignored
+        //     }
+        //
+        //     return new Type[] { };
+        // }
 
-            foreach (var module in assembly.GetModules())
-            {
-                var types = SafeGetModuleTypes(module);
+        // public List<T> AcquireAny<T>(string directory)
+        // {
+        //     var loadedAssemblies = EnumerateAssemblies(directory);
+        //
+        //     var result = new List<T>();
+        //
+        //     var types = EnumerateTypes(loadedAssemblies, TypeCheck.InheritsFrom<T>);
+        //
+        //     foreach (var type in types)
+        //     {
+        //         var instance = TryInstantiate(type);
+        //
+        //         if (instance != null)
+        //         {
+        //             result.Add((T) instance);
+        //         }
+        //     }
+        //
+        //     Console.WriteLine($"{result.Count} Instances of {typeof(T).Name} has been found.");
+        //
+        //     return result;
+        // }
 
-                foreach (var type in types)
-                {
-                    if (TypeCheck.InheritsFrom<T>(type))
-                    {
-                        var obj = TryInstantiate(type);
+        // private bool IsAlreadyLoaded(FileInfo file)
+        // {
+        //     var assemblyName = AssemblyName.GetAssemblyName(file.FullName);
+        //
+        //     var asses = AppDomain.CurrentDomain.GetAssemblies();
+        //
+        //     foreach (var assembly in asses)
+        //     {
+        //         if (assembly.FullName == assemblyName.FullName)
+        //         {
+        //             return true;
+        //         }
+        //     }
+        //
+        //     return false;
+        // }
 
-                        if (obj != null)
-                        {
-                            result.Add((T) obj);
-                        }
-                    }
-                }
-            }
+        // private List<Assembly> EnumerateAssemblies(string directory)
+        // {
+        //     var allDlls = EnumerateDlls(directory);
+        //
+        //     var result = new List<Assembly>();
+        //
+        //     foreach (var file in allDlls)
+        //     {
+        //         try
+        //         {
+        //             if (IsAlreadyLoaded(file))
+        //             {
+        //                 Console.WriteLine($"FILE: {file.Name} will be ignored cause assembly is already loaded.");
+        //             }
+        //             else
+        //             {
+        //                 var assembly = Assembly.LoadFrom(file.FullName);
+        //
+        //                 result.Add(assembly);
+        //
+        //                 Console.WriteLine("Loaded: " + file);
+        //             }
+        //         }
+        //         catch (Exception ex)
+        //         {
+        //             Console.WriteLine($"Did not load {file}, because: {ex.Message}");
+        //         }
+        //     }
+        //
+        //     return result;
+        // }
 
-            return result;
-        }
+        // private List<FileInfo> EnumerateDlls(string directory)
+        // {
+        //     var result = new List<FileInfo>();
+        //
+        //     var rootDirectory = new DirectoryInfo(directory);
+        //
+        //     EnumerateDlls(rootDirectory, result);
+        //
+        //     return result;
+        // }
 
-        private IEnumerable<Type> SafeGetModuleTypes(Module module)
-        {
-            try
-            {
-                return module.GetTypes();
-            }
-            catch (Exception _)
-            {
-                // ignored
-            }
-
-            return new Type[] { };
-        }
-
-        public List<T> AcquireAny<T>()
-        {
-            var result = new List<T>();
-
-            result.AddRange(AcquireAny<T>(Assembly.GetCallingAssembly()));
-
-            result.AddRange(AcquireAny<T>(Assembly.GetExecutingAssembly()));
-
-            return result;
-        }
-
-        public List<T> AcquireAny<T>(string directory)
-        {
-            var loadedAssemblies = EnumerateAssemblies(directory);
-
-            var result = new List<T>();
-
-            loadedAssemblies.ForEach(ass =>
-                result.AddRange(AcquireAny<T>(ass))
-            );
-
-            return result;
-        }
-
-        private List<Assembly> EnumerateAssemblies(string directory)
-        {
-            var allDlls = EnumerateDlls(directory);
-
-            var result = new List<Assembly>();
-
-            foreach (var file in allDlls)
-            {
-                try
-                {
-                    var assembly = Assembly.LoadFile(file.FullName);
-
-                    result.Add(assembly);
-                }
-                catch (Exception _)
-                {
-                    // ignored
-                }
-            }
-
-            return result;
-        }
-
-        private List<FileInfo> EnumerateDlls(string directory)
-        {
-            var result = new List<FileInfo>();
-
-            var rootDirectory = new DirectoryInfo(directory);
-
-            EnumerateDlls(rootDirectory, result);
-
-            return result;
-        }
-
-        private void EnumerateDlls(DirectoryInfo directory, List<FileInfo> result)
-        {
-            var files = directory.EnumerateFiles("*.dll", SearchOption.TopDirectoryOnly);
-
-            result.AddRange(files);
-
-            var directories = directory.EnumerateDirectories();
-
-            foreach (var directoryInfo in directories)
-            {
-                EnumerateDlls(directoryInfo, result);
-            }
-        }
+        // private void EnumerateDlls(DirectoryInfo directory, List<FileInfo> result)
+        // {
+        //     var files = directory.EnumerateFiles("*.dll", SearchOption.TopDirectoryOnly);
+        //
+        //     result.AddRange(files);
+        //
+        //     var directories = directory.EnumerateDirectories();
+        //
+        //     foreach (var directoryInfo in directories)
+        //     {
+        //         EnumerateDlls(directoryInfo, result);
+        //     }
+        // }
 
         private object TryInstantiate(Type type)
         {
@@ -145,59 +146,122 @@ namespace Meadow.Reflection.FetchPlug
             return null;
         }
 
-        public List<Type> EnumerateTypes(IEnumerable<Assembly> assemblies)
+        // public List<Type> EnumerateTypes(IEnumerable<Assembly> assemblies)
+        // {
+        //     return EnumerateTypes(assemblies, t => true);
+        // }
+
+        // public List<Type> EnumerateTypes(IEnumerable<Assembly> assemblies, Func<Type, bool> select)
+        // {
+        //     var result = new List<Type>();
+        //
+        //     foreach (var assembly in assemblies)
+        //     {
+        //         var types = new Type[] { };
+        //
+        //         try
+        //         {
+        //             types = assembly.GetTypes();
+        //         }
+        //         catch (Exception e)
+        //         {
+        //             Console.WriteLine($"Got no types out of {assembly.FullName} because of {e.Message}");
+        //         }
+        //
+        //         foreach (var type in types)
+        //         {
+        //             if (select(type))
+        //             {
+        //                 result.Add(type);
+        //             }
+        //         }
+        //     }
+        //
+        //
+        //     Console.WriteLine($"** {result.Count} types has been loaded.");
+        //
+        //     return result;
+        // }
+
+        // public List<Type> EnumerateTypes(string directory)
+        // {
+        //     var assemblies = EnumerateAssemblies(directory);
+        //
+        //     var types = EnumerateTypes(assemblies);
+        //
+        //     return types;
+        // }
+
+        // public List<Type> EnumerateModels(string directory, string @namespace = "")
+        // {
+        //     var assemblies = EnumerateAssemblies(directory);
+        //
+        //     if (@namespace == null)
+        //     {
+        //         @namespace = "";
+        //     }
+        //
+        //     var types = EnumerateTypes(assemblies, t =>
+        //         TypeCheck.IsModel(t) &&
+        //         t.Namespace != null &&
+        //         t.Namespace.StartsWith(@namespace)
+        //     );
+        //
+        //     return types;
+        // }
+
+        public List<T> AcquireAny<T>(List<Type> availableTypes)
         {
-            var result = new List<Type>();
-
-            foreach (var assembly in assemblies)
+            var result = new List<T>();
+            
+            foreach (var type in availableTypes)
             {
-                foreach (var module in assembly.Modules)
+                if (TypeCheck.InheritsFrom<T>(type))
                 {
-                    var types = SafeGetModuleTypes(module);
+                    var instance = TryInstantiate(type);
 
-                    result.AddRange(types);
+                    if (instance != null)
+                    {
+                        result.Add((T) instance);
+                    }
                 }
             }
-
             return result;
         }
 
-        public List<Type> EnumerateTypes(string directory)
+        public IEnumerable<Type> EnumerateModels(List<Type> availableTypes, string nameSpace)
         {
-            var assemblies = EnumerateAssemblies(directory);
-
-            var types = EnumerateTypes(assemblies);
-
-            return types;
+            return availableTypes.Where(t => TypeCheck.IsModel(t) && NamespaceMatch(nameSpace,t.Namespace));
         }
 
-        public List<Type> EnumerateModels(string directory)
+        private bool NamespaceMatch(string rootNs, string ns)
         {
-            var assemblies = EnumerateAssemblies(directory);
-
-            var types = EnumerateTypes(assemblies)
-                .Where(TypeCheck.IsModel).ToList();
-
-            return types;
-        }
-
-        public List<Type> EnumerateModels(string directory, string @namespace)
-        {
-            var assemblies = EnumerateAssemblies(directory);
-
-            if (@namespace == null)
+            if (rootNs == null && ns == null)
             {
-                @namespace = "";
+                return true;
             }
 
-            var allTypes = EnumerateTypes(assemblies);
-            
-            var types = allTypes
-                .Where(TypeCheck.IsModel)
-                .Where(t => t.Namespace != null && t.Namespace.StartsWith(@namespace))
-                .ToList();
+            if (rootNs == null)
+            {
+                return true;
+            }
 
-            return types;
+            if (ns == null)
+            {
+                return false;
+            }
+
+            if (rootNs.Length == 0)
+            {
+                return true;
+            }
+
+            if (ns.Length == 0)
+            {
+                return false;
+            }
+
+            return ns.StartsWith(rootNs);
         }
     }
 }

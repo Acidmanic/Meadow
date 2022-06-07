@@ -22,11 +22,12 @@ namespace Meadow.Scaffolding
             public string Log { get; set; }
         }
 
-        public ScriptGeneratingResult Generate(string directory, string nameSpace, OnExistsPolicyManager policyManager)
+        public ScriptGeneratingResult Generate(string directory, List<Type> availableTypes, string nameSpace,
+            OnExistsPolicyManager policyManager)
         {
             var configurationProvider
                 = new TypeAcquirer()
-                    .AcquireAny<IMeadowConfigurationProvider>(directory)
+                    .AcquireAny<IMeadowConfigurationProvider>(availableTypes)
                     .FirstOrDefault();
 
             if (configurationProvider == null)
@@ -60,7 +61,7 @@ namespace Meadow.Scaffolding
                 return false;
             }
 
-            var models = new TypeAcquirer().EnumerateModels(directory, nameSpace);
+            var models = new TypeAcquirer().EnumerateModels(availableTypes, nameSpace);
 
             var sqlGenerators = new List<SqlGeneratorBase>();
 
@@ -139,7 +140,16 @@ namespace Meadow.Scaffolding
 
             var fileName = order + "-" + name + ".sql";
 
-            var filePath = Path.Combine(new DirectoryInfo(configurations.BuildupScriptDirectory).FullName, fileName);
+            var scriptsDirectory = configurations.BuildupScriptDirectory;
+
+            directory = Path.GetFullPath(directory);
+
+            if (!Path.IsPathRooted(scriptsDirectory))
+            {
+                scriptsDirectory = Path.Join(directory, scriptsDirectory);
+            }
+
+            var filePath = Path.Combine(scriptsDirectory, fileName);
 
             return new ScriptGeneratingResult
             {
