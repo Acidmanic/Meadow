@@ -6,7 +6,7 @@ namespace Meadow.Configuration.ConfigurationRequests.Models
     {
         [UniqueField] public long Id { get; set; }
 
-        public long ScriptOrder { get; set; }
+        public int ScriptOrder { get; set; }
 
         public string ScriptName { get; set; }
 

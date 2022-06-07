@@ -27,10 +27,8 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             var idField = GetIdField(Type);
 
             var useIdField = idField != null;
-
-            var parameters = useIdField ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
-
-            var script = $"{snippet} PROCEDURE {ProcedureName}({parameters})\nAS";
+            
+            var script = $"{snippet} PROCEDURE {ProcedureName}\nAS";
             
             var top = GetTop();
 

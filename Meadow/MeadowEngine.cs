@@ -8,9 +8,11 @@ using Meadow.Attributes;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
+using Meadow.Configuration.ConfigurationRequests.Models;
 using Meadow.Log;
 using Meadow.Reflection;
 using Meadow.Requests;
+using Meadow.Requests.Common;
 
 namespace Meadow
 {
@@ -103,6 +105,19 @@ namespace Meadow
         /// <returns>A list of log reports</returns>
         public void BuildUpDatabase()
         {
+            var lastExecResult = PerformRequest(new LastExecutedHistoryRequest());
+
+            int lastAppliedOrder = -1;
+
+            if (lastExecResult.FromStorage != null && lastExecResult.FromStorage.Count == 1)
+            {
+                var lastExec = lastExecResult.FromStorage[0];
+
+                _logger.Log($"Already built up, up to {lastExec.ScriptName}:{lastExec.ScriptOrder}");
+
+                lastAppliedOrder = lastExec.ScriptOrder;
+            }
+
             var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory);
 
             if (manager.ScriptsCount == 0)
@@ -112,32 +127,50 @@ namespace Meadow
                 return;
             }
 
+            var anyApplied = false;
+
             for (int i = 0; i < manager.ScriptsCount; i++)
             {
                 var info = manager[i];
 
-                var result = PerformScript(info);
-
-                if (result.Success)
+                if (info.OrderIndex > lastAppliedOrder)
                 {
-                    _logger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
+                    _logger.Log($@"Applying {info.OrderIndex}, {info.Name}");
+                    
+                    var result = PerformScript(info);
+
+                    if (result.Success)
+                    {
+                        _logger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
+                        
+                        anyApplied = true;
+
+                        PerformRequest(new MarkExecutionInHistoryRequest(info));
+                    }
+                    else
+                    {
+                        _logger.LogException(result.Exception, $@"Applying {info.Order}, {info.Name}");
+
+                        _logger.Log($@"*** Buildup process FAILED at {info.Order}.***");
+
+                        return;
+                    }
                 }
-                else
-                {
-                    _logger.LogException(result.Exception, $@"Applying {info.Order}, {info.Name}");
-
-                    _logger.Log($@"*** Buildup process FAILED at {info.Order}.***");
-
-                    return;
-                }
-
-                _logger.Log($@"Applying {info.OrderIndex}, {info.Name}");
             }
 
-            _logger.Log($@"*** Buildup process SUCCEEDED ***");
+            if (anyApplied)
+            {
+                _logger.Log($@"*** Buildup process SUCCEEDED ***");    
+            }
+            else
+            {
+                _logger.Log($@"*** Everything Already Up-to-date ***");
+            }
+            
 
             return;
         }
+
 
         public List<string> EnumerateProcedures()
         {
