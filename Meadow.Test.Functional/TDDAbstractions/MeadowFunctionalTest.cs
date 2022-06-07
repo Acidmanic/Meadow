@@ -135,17 +135,19 @@ namespace Meadow.Test.Functional.TDDAbstractions
         
         public abstract void Main();
 
-        protected MeadowEngine SetupClearDatabase()
+        protected MeadowEngine SetupClearDatabase(bool fromScratch = true)
         {
             var engine = CreateEngine();
 
-            if (engine.DatabaseExists())
+            if (fromScratch)
             {
-                engine.DropDatabase();
+                if (engine.DatabaseExists())
+                {
+                    engine.DropDatabase();
+                }
+
+                engine.CreateDatabase();    
             }
-
-            engine.CreateDatabase();
-
             engine.BuildUpDatabase();
 
             return engine;

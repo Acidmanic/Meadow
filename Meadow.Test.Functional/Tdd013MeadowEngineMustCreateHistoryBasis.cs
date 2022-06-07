@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional
         
         public override void Main()
         {
-            var engine = SetupClearDatabase();
+            var engine = SetupClearDatabase(false);
         }
     }
 }
