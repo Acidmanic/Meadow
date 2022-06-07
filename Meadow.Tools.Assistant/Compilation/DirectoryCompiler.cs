@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Meadow.Reflection.FetchPlug;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
 using Microsoft.CodeAnalysis;
@@ -68,6 +70,54 @@ namespace Meadow.Tools.Assistant.Compilation
         }
 
 
+        public List<T> FastSearchFor<T>(string directory)
+        {
+            var projects = DotnetProjectInfo.FindProjects(directory);
+
+            var sources = new List<FileInfo>();
+
+            projects.ForEach(p => p.GetSourceCodes().ForEach(s => sources.Add(s)));
+
+            var instances = new List<T>();
+
+            foreach (var source in sources)
+            {
+                var compiled = TryInstantiate<T>(source);
+
+                if (compiled)
+                {
+                    instances.AddRange(compiled.Value);
+                }
+            }
+
+            return instances;
+        }
+
+        private Result<List<T>> TryInstantiate<T>(FileInfo source)
+        {
+            var contents = Read(new List<FileInfo> {source});
+
+            var compiled = CompileCode(contents);
+
+            try
+            {
+                var types = compiled.GetAvailableTypes();
+
+                var instances = new TypeAcquirer().AcquireAny<T>(types);
+
+                if (instances.Count > 0)
+                {
+                    return Result.Successful(instances);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+
+            return Result.Failure<List<T>>();
+        }
+
         private List<FileInfo> IncludeNuGets(List<MetadataReference> references, List<PackageReference> nuGets)
         {
             var runtimes = new List<FileInfo>();
@@ -88,6 +138,38 @@ namespace Meadow.Tools.Assistant.Compilation
             return runtimes;
         }
 
+
+        private Assembly CompileCode(IEnumerable<string> codes)
+        {
+            var parsedCodes = Parse(codes);
+
+            var references = CreateDefaultReferences();
+
+            var cSharpCompilation = CSharpCompilation.Create("ClassListingAssembly",
+                parsedCodes,
+                references: references,
+                options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary,
+                    optimizationLevel: OptimizationLevel.Release,
+                    assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
+
+            using var peStream = new MemoryStream();
+
+            var compilationResult = cSharpCompilation.Emit(peStream);
+
+            if (!compilationResult.Success)
+            {
+                return null;
+            }
+
+            peStream.Seek(0, SeekOrigin.Begin);
+
+            var assBytes = peStream.ToArray();
+
+            var assembly = Assembly.Load(assBytes);
+
+            return assembly;
+        }
+
         private Assembly CompileTogether(List<FileInfo> files, List<PackageReference> nugets = null)
         {
             var codes = Read(files);
@@ -105,39 +187,38 @@ namespace Meadow.Tools.Assistant.Compilation
                     optimizationLevel: OptimizationLevel.Release,
                     assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
 
-            using (var peStream = new MemoryStream())
+            using var peStream = new MemoryStream();
+
+            var compilationResult = cSharpCompilation.Emit(peStream);
+
+            if (!compilationResult.Success)
             {
-                var compilationResult = cSharpCompilation.Emit(peStream);
+                Console.WriteLine("Compilation done with error.");
 
-                if (!compilationResult.Success)
+                var failures = compilationResult.Diagnostics.Where(diagnostic =>
+                    diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+
+                foreach (var diagnostic in failures)
                 {
-                    Console.WriteLine("Compilation done with error.");
-
-                    var failures = compilationResult.Diagnostics.Where(diagnostic =>
-                        diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
-
-                    foreach (var diagnostic in failures)
-                    {
-                        Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
-                    }
-
-                    return null;
+                    Console.Error.WriteLine("{0}: {1}", diagnostic.Id, diagnostic.GetMessage());
                 }
 
-                Console.WriteLine("Compilation done without any error.");
-
-                peStream.Seek(0, SeekOrigin.Begin);
-
-                var assBytes = peStream.ToArray();
-
-                var writeAssembly = WriteAssembly(assBytes, "ClassListingAssembly");
-
-                runtimes.ForEach(file => file.CopyTo(Path.Join(_tempDir.FullName, file.Name), true));
-
-                var assembly = Assembly.LoadFrom(writeAssembly);
-
-                return assembly;
+                return null;
             }
+
+            Console.WriteLine("Compilation done without any error.");
+
+            peStream.Seek(0, SeekOrigin.Begin);
+
+            var assBytes = peStream.ToArray();
+
+            var writeAssembly = WriteAssembly(assBytes, "ClassListingAssembly");
+
+            runtimes.ForEach(file => file.CopyTo(Path.Join(_tempDir.FullName, file.Name), true));
+
+            var assembly = Assembly.LoadFrom(writeAssembly);
+
+            return assembly;
         }
 
         private string WriteAssembly(byte[] bytes, string packageName)
@@ -170,7 +251,7 @@ namespace Meadow.Tools.Assistant.Compilation
             return result;
         }
 
-        private List<SyntaxTree> Parse(List<string> codes)
+        private List<SyntaxTree> Parse(IEnumerable<string> codes)
         {
             var parsedCodes = new List<SyntaxTree>();
 
