@@ -1,4 +1,5 @@
 using System;
+using System.Data;
 
 namespace Meadow.Reflection.Conventions
 {
@@ -38,6 +39,11 @@ namespace Meadow.Reflection.Conventions
 
             SelectAllProcedureNameFullTree = "spReadAll" + TableName + "FullTree";
 
+            SelectFirstProcedureName = "spSelectFirst" + TableName;
+            SelectLastProcedureName = "spSelectLast" + TableName;
+            SelectFirstProcedureNameFullTree = "spSelectFirst" + TableName + "FullTree";
+            SelectLastProcedureNameFullTree = "spSelectLast" + TableName + "FullTree";
+
             UpdateProcedureName = "spUpdate" + EntityName;
 
             InsertProcedureName = "spInsert" + EntityName;
@@ -53,6 +59,14 @@ namespace Meadow.Reflection.Conventions
 
         public string SelectAllProcedureName { get; }
 
+
+        public string SelectFirstProcedureName { get; }
+
+        public string SelectLastProcedureName { get; }
+
+        public string SelectFirstProcedureNameFullTree { get; }
+
+        public string SelectLastProcedureNameFullTree { get; }
 
         public string SelectAllProcedureNameFullTree { get; }
 

@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
-using Meadow.Tools.Assistant.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,14 +18,13 @@ namespace Meadow.Tools.Assistant.Compilation
 
         public DirectoryCompiler()
         {
-            _nuget = new Nuget.Nuget("nugetCache");
-                
+            var executionPath = new DirectoryInfo(Assembly.GetExecutingAssembly().Location).Parent?.FullName;
 
-            var path = Path.GetFullPath(".");
-            
-            path = Path.Join(path, "temp");
+            var nugetCachePath = Path.Join(executionPath, "nugetCache");
 
-            _tempDir = new DirectoryInfo(path);
+            var tempPath = Path.Join(executionPath, "temp");
+
+            _tempDir = new DirectoryInfo(tempPath);
 
             if (_tempDir.Exists)
             {
@@ -34,6 +32,8 @@ namespace Meadow.Tools.Assistant.Compilation
             }
 
             _tempDir.Create();
+
+            _nuget = new Nuget.Nuget(nugetCachePath);
         }
 
         public DirectoryCompiler WithLocalNuGetDirectory(params string[] directories)
@@ -43,13 +43,13 @@ namespace Meadow.Tools.Assistant.Compilation
                 foreach (var directory in directories)
                 {
                     _nuget.AddLocalDirectoryPackageSource(directory);
-                }   
+                }
             }
+
             return this;
         }
-        
-        
-        
+
+
         public CompiledDirectoryResult Compile(string directory)
         {
             var result = new CompiledDirectoryResult();
@@ -71,7 +71,7 @@ namespace Meadow.Tools.Assistant.Compilation
         private List<FileInfo> IncludeNuGets(List<MetadataReference> references, List<PackageReference> nuGets)
         {
             var runtimes = new List<FileInfo>();
-            
+
             if (nuGets != null)
             {
                 foreach (var nuget in nuGets)
@@ -80,7 +80,7 @@ namespace Meadow.Tools.Assistant.Compilation
                         .GetCompilingReferences(nuget.PackageName, nuget.PackageVersion);
 
                     runtimeSet.ForEach(rt => references.Add(MetadataReference.CreateFromFile(rt.FullName)));
-                    
+
                     runtimes.AddRange(runtimeSet);
                 }
             }
@@ -132,10 +132,10 @@ namespace Meadow.Tools.Assistant.Compilation
 
                 var writeAssembly = WriteAssembly(assBytes, "ClassListingAssembly");
 
-                runtimes.ForEach( file => file.CopyTo(Path.Join(_tempDir.FullName,file.Name),true));
-                
+                runtimes.ForEach(file => file.CopyTo(Path.Join(_tempDir.FullName, file.Name), true));
+
                 var assembly = Assembly.LoadFrom(writeAssembly);
-                
+
                 return assembly;
             }
         }
@@ -194,7 +194,6 @@ namespace Meadow.Tools.Assistant.Compilation
                 MetadataReference.CreateFromFile(typeof(IServiceCollection).Assembly.Location),
                 GetRuntimeSpecificReference()
             };
-
 
             var file = new FileInfo(typeof(object).Assembly.Location).Directory;
 

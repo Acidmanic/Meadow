@@ -74,6 +74,10 @@ namespace Meadow
         public void CreateDatabase()
         {
             PerformRequest(new CreateDatabaseRequest());
+
+            var scripts = new MeadowBuiltInScripts().GenerateHistoryBasis();
+
+            scripts.ForEach(s => PerformScript(s));
         }
 
         public void DropDatabase()
@@ -139,20 +143,20 @@ namespace Meadow
         {
             return EnumerateDbObject(true);
         }
-        
+
         public List<string> EnumerateTables()
         {
             return EnumerateDbObject(false);
         }
-        
+
         private List<string> EnumerateDbObject(bool dbProcedureNotTable)
         {
-            var response = dbProcedureNotTable ?
-                PerformRequest(new EnumerateProceduresRequest()):
-                PerformRequest(new EnumerateTablesRequest());
+            var response = dbProcedureNotTable
+                ? PerformRequest(new EnumerateProceduresRequest())
+                : PerformRequest(new EnumerateTablesRequest());
 
             var result = new List<string>();
-            
+
             if (response.FromStorage != null)
             {
                 result = response.FromStorage.Select(n => n.Name).ToList();
@@ -160,6 +164,7 @@ namespace Meadow
 
             return result;
         }
+
         private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
         {
             var sqls = scriptInfo.SplitScriptIntoBatches();

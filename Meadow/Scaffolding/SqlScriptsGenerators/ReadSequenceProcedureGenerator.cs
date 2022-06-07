@@ -6,26 +6,17 @@ using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
-    public class ReadProcedureGenerator : ProcedureGenerator
+    public class ReadSequenceProcedureGenerator : ProcedureGenerator
     {
-        public bool ById { get; }
         public bool FullTree { get; }
 
         public int Top { get; }
 
         public bool OrderAscending { get; }
 
-        public ReadProcedureGenerator(Type type, bool byId, bool fullTree) : base(type)
-        {
-            ById = byId;
-            FullTree = fullTree;
-            Top = 0;
-            OrderAscending = false;
-        }
 
-        public ReadProcedureGenerator(Type type, bool byId, bool fullTree, int top, bool orderAscending) : base(type)
+        public ReadSequenceProcedureGenerator(Type type, bool fullTree, int top, bool orderAscending) : base(type)
         {
-            ById = byId;
             FullTree = fullTree;
             Top = top;
             OrderAscending = orderAscending;
@@ -35,14 +26,12 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
         {
             var idField = GetIdField(Type);
 
-            var useIdField = ById && idField != null;
+            var useIdField = idField != null;
 
             var parameters = useIdField ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
 
             var script = $"{snippet} PROCEDURE {ProcedureName}({parameters})\nAS";
-
-            var where = useIdField ? $"WHERE {idField.Name}=@{idField.Name}" : "";
-
+            
             var top = GetTop();
 
             var order = GetOrder(useIdField, idField?.Name);
@@ -56,7 +45,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 select = sel.ToString();
             }
 
-            script += $"\n\t{select} {where}\nGO\n\n";
+            script += $"\n\t{select}\nGO\n\n";
 
             return script;
         }
@@ -88,9 +77,9 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName()
         {
-            return ById
-                ? (FullTree ? NameConvention.SelectByIdProcedureNameFullTree : NameConvention.SelectByIdProcedureName)
-                : (FullTree ? NameConvention.SelectAllProcedureNameFullTree : NameConvention.SelectAllProcedureName);
+            return OrderAscending
+                ? (FullTree ? NameConvention.SelectFirstProcedureNameFullTree : NameConvention.SelectFirstProcedureName)
+                : (FullTree ? NameConvention.SelectLastProcedureNameFullTree : NameConvention.SelectLastProcedureName);
         }
 
         private FullTreeSelectState ExtractSelectInfo(AccessNode node)

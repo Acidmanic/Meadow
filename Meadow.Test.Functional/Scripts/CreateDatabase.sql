@@ -36,3 +36,11 @@ IF (DB_ID('Mexghun') IS NOT NULL)
     select cast(1 as bit) Ex 
 ELSE 
     select cast(0 as bit) Ex
+
+
+    CREATE TABLE MeadowDatabaseHistorys (
+                                            Id bigint, ScriptOrder bigint, ScriptName nvarchar(256), Script nvarchar(256)
+    )
+
+
+SELECT TOP 1 * FROM MeadowDatabaseHistorys ORDER BY Id DESC WHERE Id=@Id
