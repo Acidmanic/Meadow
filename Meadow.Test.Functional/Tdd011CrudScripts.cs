@@ -65,49 +65,49 @@ namespace Meadow.Test.Functional
                 updates += new UpdateProcedureGenerator(y).Generate().Text;
             });
 
-            Console.WriteLine(tables + inserts + reads + deletes + updates);
-            
-            Console.WriteLine("========================================");
-
-            var engin = SetupClearDatabase();
-            
-            Console.WriteLine("========================================");
-
-            var allprocedures = engin.EnumerateProcedures();
-            
-            allprocedures.ForEach(Console.WriteLine);
-
-            
-            Console.WriteLine("========================================");
-
-            var allTables = engin.EnumerateTables();
-            
-            allTables.ForEach(Console.WriteLine);
-            
-            Console.WriteLine("========================================");
-            
-            var models = new TypeAcquirer().EnumerateModels(".","Meadow.Test");
-
-            models.ForEach(m => Console.WriteLine(m.Name));
-            
-            Console.WriteLine("========================================");
-            
-            var script = new AutoScriptGenerator().Generate(".","Meadow.Test.Functional.Models",
-                new OnExistsPolicyManager().Add( o => OnExistsPolicies.Alter));
-
-
-            if (script.Created)
-            {
-                var path = script.ScriptInfo.ScriptFile.FullName;
-
-                if (File.Exists(path))
-                {
-                    File.Delete(path);
-                }
-                File.WriteAllText(path,script.ScriptInfo.Script);    
-            }
-
-            Console.WriteLine(script.Log);
+            // Console.WriteLine(tables + inserts + reads + deletes + updates);
+            //
+            // Console.WriteLine("========================================");
+            //
+            // var engin = SetupClearDatabase();
+            //
+            // Console.WriteLine("========================================");
+            //
+            // var allprocedures = engin.EnumerateProcedures();
+            //
+            // allprocedures.ForEach(Console.WriteLine);
+            //
+            //
+            // Console.WriteLine("========================================");
+            //
+            // var allTables = engin.EnumerateTables();
+            //
+            // allTables.ForEach(Console.WriteLine);
+            //
+            // Console.WriteLine("========================================");
+            //
+            // var models = new TypeAcquirer().EnumerateModels(".","Meadow.Test");
+            //
+            // models.ForEach(m => Console.WriteLine(m.Name));
+            //
+            // Console.WriteLine("========================================");
+            //
+            // var script = new AutoScriptGenerator().Generate("/home/diego/Projects/Learning/chopogh/","",
+            //     new OnExistsPolicyManager().Add( o => OnExistsPolicies.Alter));
+            //
+            //
+            // if (script.Created)
+            // {
+            //     var path = script.ScriptInfo.ScriptFile.FullName;
+            //
+            //     if (File.Exists(path))
+            //     {
+            //         File.Delete(path);
+            //     }
+            //     File.WriteAllText(path,script.ScriptInfo.Script);    
+            // }
+            //
+            // Console.WriteLine(script.Log);
         }
 
     }
