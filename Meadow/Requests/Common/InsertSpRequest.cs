@@ -15,9 +15,5 @@ namespace Meadow.Requests.Common
             toStorage.Exclude("Id");
         }
 
-        protected override string GetRequestText()
-        {
-            return new NameConvention(typeof(TModel)).InsertProcedureName;
-        }
     }
 }

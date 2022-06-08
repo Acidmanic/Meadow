@@ -16,13 +16,5 @@ namespace Meadow.Requests.Common
         {
         }
 
-        protected override string GetRequestText()
-        {
-            var namingConvention = new NameConvention(typeof(TModel));
-
-            return _fullTree
-                ? namingConvention.SelectAllProcedureNameFullTree
-                : namingConvention.SelectAllProcedureName;
-        }
     }
 }

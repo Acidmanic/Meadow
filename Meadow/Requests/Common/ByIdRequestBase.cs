@@ -1,0 +1,52 @@
+using System;
+using System.Linq;
+using System.Linq.Expressions;
+using Meadow.Exceptions;
+using Meadow.Reflection.Conventions;
+using Meadow.Reflection.Dynamics;
+using Meadow.Reflection.ObjectTree;
+
+namespace Meadow.Requests.Common
+{
+    public abstract class ByIdRequestBase<TModel, TId, TOut> : MeadowRequest<object, TOut>
+        where TModel : class, new() where TOut : class, new()
+    {
+        private readonly bool _fullTree;
+        private readonly string _idFieldName;
+        private readonly Type _idFieldType;
+        private TId _id;
+
+        protected ByIdRequestBase(bool returnsValue, bool fullTree) : base(returnsValue)
+        {
+            _fullTree = fullTree;
+
+            var modelType = typeof(TModel);
+
+            var node = new TypeAnalyzer().ToAccessNode(modelType, false);
+
+            var idField = node.GetDirectLeaves().FirstOrDefault(l => l.IsUnique);
+
+            if (idField == null)
+            {
+                throw new ModelMustHaveIdentifierException();
+            }
+
+            _idFieldName = idField.Name;
+
+            _idFieldType = idField.Type;
+        }
+
+        public TId Id
+        {
+            get => _id;
+            set
+            {
+                _id = value;
+
+                ToStorage = new ModelBuilder("IdShell")
+                    .AddProperty(_idFieldName, _idFieldType)
+                    .BuildObject();
+            }
+        }
+    }
+}

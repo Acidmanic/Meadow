@@ -1,14 +1,14 @@
 using Meadow.Reflection.Conventions;
+using Meadow.Reflection.Dynamics;
 
 namespace Meadow.Requests.Common
 {
-    public abstract class ReadByIdSpRequest<TModel> : MeadowRequest<MeadowVoid, TModel>
+    public abstract class ReadByIdSpRequest<TModel, TId> : ByIdRequestBase<TModel, TId, TModel>
         where TModel : class, new()
     {
         private readonly bool _fullTree;
 
-
-        protected ReadByIdSpRequest(bool fullTree) : base(true)
+        protected ReadByIdSpRequest(bool fullTree) : base(true, fullTree)
         {
             _fullTree = fullTree;
         }
@@ -17,11 +17,5 @@ namespace Meadow.Requests.Common
         {
         }
 
-        protected override string GetRequestText()
-        {
-            var naming = new NameConvention(typeof(TModel));
-
-            return _fullTree ? naming.SelectByIdProcedureNameFullTree : naming.SelectByIdProcedureName;
-        }
     }
 }
