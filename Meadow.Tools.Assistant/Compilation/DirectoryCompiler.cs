@@ -118,7 +118,7 @@ namespace Meadow.Tools.Assistant.Compilation
             return Result.Failure<List<T>>();
         }
 
-        private List<FileInfo> IncludeNuGets(List<MetadataReference> references, List<PackageReference> nuGets)
+        private List<FileInfo> GetNugetianRuntimes(List<PackageReference> nuGets)
         {
             var runtimes = new List<FileInfo>();
 
@@ -129,8 +129,6 @@ namespace Meadow.Tools.Assistant.Compilation
                     var runtimeSet = _nuget
                         .GetCompilingReferences(nuget.PackageName, nuget.PackageVersion);
 
-                    runtimeSet.ForEach(rt => references.Add(MetadataReference.CreateFromFile(rt.FullName)));
-
                     runtimes.AddRange(runtimeSet);
                 }
             }
@@ -138,12 +136,54 @@ namespace Meadow.Tools.Assistant.Compilation
             return runtimes;
         }
 
+        private List<FileInfo> ClearRepeatsSelectLatest(List<FileInfo> runtimes)
+        {
+            var cleared = new Dictionary<string, FileInfo>();
+
+            var alreadyIncluded = new Dictionary<string, Version>();
+
+            foreach (var runtimeFile in runtimes)
+            {
+                var runtimeAssemblyName = AssemblyName.GetAssemblyName(runtimeFile.FullName);
+
+                string name = runtimeAssemblyName.Name;
+
+                if (name != null)
+                {
+                    Version version = runtimeAssemblyName.Version;
+
+                    if (alreadyIncluded.ContainsKey(name))
+                    {
+                        var alreadyVersion = alreadyIncluded[name];
+
+                        if (alreadyVersion.CompareTo(version) < 0)
+                        {
+                            alreadyIncluded[name] = version;
+
+                            cleared[name] = runtimeFile;
+                        }
+                    }
+                    else
+                    {
+                        cleared.Add(name, runtimeFile);
+                        alreadyIncluded.Add(name, version);
+                    }
+                }
+            }
+
+            return new List<FileInfo>(cleared.Values);
+        }
+
 
         private Assembly CompileCode(IEnumerable<string> codes)
         {
             var parsedCodes = Parse(codes);
 
-            var references = CreateDefaultReferences();
+            var defaultRuntimes = CreateDefaultReferences();
+
+            var references = new List<MetadataReference>();
+
+            defaultRuntimes.ForEach(rt => references.Add(MetadataReference.CreateFromFile(rt.FullName)));
 
             var cSharpCompilation = CSharpCompilation.Create("ClassListingAssembly",
                 parsedCodes,
@@ -176,9 +216,15 @@ namespace Meadow.Tools.Assistant.Compilation
 
             var parsedCodes = Parse(codes);
 
-            var references = CreateDefaultReferences();
+            var runtimes = CreateDefaultReferences();
 
-            var runtimes = IncludeNuGets(references, nugets);
+            runtimes.AddRange(GetNugetianRuntimes(nugets));
+
+            runtimes = ClearRepeatsSelectLatest(runtimes);
+
+            var references = new List<MetadataReference>();
+
+            runtimes.ForEach(rt => references.Add(MetadataReference.CreateFromFile(rt.FullName)));
 
             var cSharpCompilation = CSharpCompilation.Create("ClassListingAssembly",
                 parsedCodes,
@@ -267,15 +313,14 @@ namespace Meadow.Tools.Assistant.Compilation
             return parsedCodes;
         }
 
-        private List<MetadataReference> CreateDefaultReferences()
+        private List<FileInfo> CreateDefaultReferences()
         {
-            var references = new List<MetadataReference>
+            var assemblyFiles = new List<FileInfo>
             {
-                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(IServiceCollection).Assembly.Location),
+                new FileInfo(typeof(object).Assembly.Location),
+                new FileInfo(typeof(IServiceCollection).Assembly.Location),
                 GetRuntimeSpecificReference()
             };
-
             var file = new FileInfo(typeof(object).Assembly.Location).Directory;
 
             var others = file.EnumerateFiles("*.dll");
@@ -284,18 +329,18 @@ namespace Meadow.Tools.Assistant.Compilation
             {
                 try
                 {
-                    references.Add(MetadataReference.CreateFromFile(other.FullName));
+                    assemblyFiles.Add(other);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
             }
-
+            
             Assembly.GetEntryAssembly()?.GetReferencedAssemblies().ToList()
-                .ForEach(a => references.Add(MetadataReference.CreateFromFile(Assembly.Load(a).Location)));
+                .ForEach(a => assemblyFiles.Add(new FileInfo(Assembly.Load(a).Location)));
 
-            return references;
+            return assemblyFiles;
         }
 
         private static string GetAssemblyLocation<T>()
@@ -312,14 +357,13 @@ namespace Meadow.Tools.Assistant.Compilation
             return MetadataReference.CreateFromFile(assemblyLocation);
         }
 
-        // This function was needed
-        private static PortableExecutableReference GetRuntimeSpecificReference()
+        private static FileInfo GetRuntimeSpecificReference()
         {
             var assemblyLocation = GetAssemblyLocation<object>();
             var runtimeDirectory = Path.GetDirectoryName(assemblyLocation);
             var libraryPath = Path.Join(runtimeDirectory, @"netstandard.dll");
 
-            return MetadataReference.CreateFromFile(libraryPath);
+            return new FileInfo(libraryPath);
         }
     }
 }
