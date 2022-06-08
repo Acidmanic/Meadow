@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using ConsoleAppFramework;
 using Meadow.BuildupScripts;
+using Meadow.Log;
 using Meadow.Scaffolding;
 using Meadow.Scaffolding.Contracts;
 using Meadow.Scaffolding.OnExistsPolicy;
@@ -54,86 +55,7 @@ namespace Meadow.Tools.Assistant.Commands
             [Option("d", "The path to target Meadow Project")]
             string directory = ".")
         {
-            var configurationProviders = new DirectoryCompiler().FastSearchFor<IMeadowConfigurationProvider>(directory);
-
-            if (configurationProviders.Count == 0)
-            {
-                Console.WriteLine("No ConfigurationProvider found.");
-
-                return;
-            }
-
-            Console.WriteLine(
-                $"An instance of {configurationProviders[0].GetType()} is being used to get configurations from.");
-
-
-            directory = Path.GetFullPath(directory);
-
-            var configurations = configurationProviders[0].GetConfigurations();
-
-            var scriptsDirectory = configurations.BuildupScriptDirectory;
-
-            if (!Path.IsPathRooted(scriptsDirectory))
-            {
-                scriptsDirectory = Path.Join(directory, scriptsDirectory);
-            }
-
-            var scriptManager = new BuildupScriptManager(scriptsDirectory);
-
-            var lastIndex = scriptManager.ScriptsCount - 1;
-
-            var lastScript = lastIndex > -1 ? scriptManager[lastIndex] : null;
-
-            var currentOrder = lastScript == null ? "0000" : Fix(lastScript.OrderIndex + 1, 4);
-
-            var name = currentOrder + "-" + FileNameFriendly(title) + ".sql";
-
-            var scriptPath = Path.Join(scriptsDirectory, name);
-
-            File.Create(scriptPath);
-        }
-
-
-        private string FileNameFriendly(string title)
-        {
-            bool lastDash = false;
-
-            string result = "";
-
-            for (int i = 0; i < title.Length; i++)
-            {
-                var c = title[i];
-
-                if (char.IsLetterOrDigit(c))
-                {
-                    result += c;
-
-                    lastDash = false;
-                }
-                else
-                {
-                    if (!lastDash && i != 0 && i != title.Length)
-                    {
-                        lastDash = true;
-
-                        result += "-";
-                    }
-                }
-            }
-
-            return result;
-        }
-
-        private string Fix(int value, int digits)
-        {
-            string result = digits.ToString();
-
-            while (result.Length < digits)
-            {
-                result = "0" + result;
-            }
-
-            return result;
+            new ScripUtils(new ConsoleLogger()).Blank(title, directory);
         }
     }
 }
