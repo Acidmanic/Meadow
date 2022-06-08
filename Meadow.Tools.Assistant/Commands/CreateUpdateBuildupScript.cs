@@ -1,12 +1,7 @@
 using System;
-using System.IO;
-using System.Xml;
 using ConsoleAppFramework;
-using Meadow.BuildupScripts;
 using Meadow.Log;
 using Meadow.Scaffolding;
-using Meadow.Scaffolding.Contracts;
-using Meadow.Scaffolding.OnExistsPolicy;
 using Meadow.Tools.Assistant.Compilation;
 using Meadow.Tools.Assistant.DotnetProject;
 using Meadow.Tools.Assistant.Extensions;

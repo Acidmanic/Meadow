@@ -1,3 +1,4 @@
+using Meadow.Reflection.Conventions;
 using Meadow.Requests.FieldManipulation;
 
 namespace Meadow.Requests.Common
@@ -12,6 +13,11 @@ namespace Meadow.Requests.Common
         protected override void OnFieldManipulation(IFieldManipulator<TModel> toStorage, IFieldManipulator<TModel> fromStorage)
         {
             toStorage.Exclude("Id");
+        }
+
+        protected override string GetRequestText()
+        {
+            return new NameConvention(typeof(TModel)).InsertProcedureName;
         }
     }
 }
