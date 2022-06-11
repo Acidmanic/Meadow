@@ -5,6 +5,7 @@ using Meadow.Scaffolding;
 using Meadow.Tools.Assistant.Compilation;
 using Meadow.Tools.Assistant.DotnetProject;
 using Meadow.Tools.Assistant.Extensions;
+using Meadow.Tools.Assistant.Options;
 using Meadow.Tools.Assistant.Utils;
 
 namespace Meadow.Tools.Assistant.Commands
@@ -14,14 +15,13 @@ namespace Meadow.Tools.Assistant.Commands
     {
         [Command("script", Descriptions.CreateSqlScript)]
         public void Create(
-            [Option("ns",
-                "Root namespace to search for models. The default value would be RootNamespace of the project.")]
+            [NamespaceOption]
             string @namespace = null,
-            [Option("d", "The path to target Meadow Project")]
+            [DirectoryOption]
             string directory = ".",
             [Option("p", Descriptions.CreatePolicies)]
             string[] policies = null,
-            [Option("n", "comma separated List of Local nuget directories")]
+            [NuGetsOption]
             string[] localNuGets = null)
         {
             var manager = policies.AsPolicyManager();
@@ -47,7 +47,7 @@ namespace Meadow.Tools.Assistant.Commands
         public void Blank(
             [Option("t", "The title you describe your new script with.")]
             string title,
-            [Option("d", "The path to target Meadow Project")]
+            [DirectoryOption]
             string directory = ".")
         {
             new ScripUtils(new ConsoleLogger()).Blank(title, directory);
