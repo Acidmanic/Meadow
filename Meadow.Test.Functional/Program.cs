@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd014CreatingDynamicType().Main();
+            new Tdd15TypeCheckMustRecognizeCyclicReferences().Main();
         }
     }
 }

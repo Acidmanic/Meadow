@@ -1,16 +1,18 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Meadow.Reflection
 {
     public static class TypeCheck
     {
-        private static Dictionary<Type, bool> _isModelCache = new Dictionary<Type, bool>();
+        private static readonly Dictionary<Type, bool> IsModelCache = new Dictionary<Type, bool>();
 
         public static bool IsCollection(Type type)
         {
-            return Implements<ICollection>(type);
+            return Implements<ICollection>(type)
+                   || Implements(typeof(ICollection<>), type);
         }
 
         public static bool InheritsFrom<TSuper>(Type type)
@@ -22,7 +24,30 @@ namespace Meadow.Reflection
         {
             var parent = type;
 
-            var checkingType = typeof(TInterface);
+            var ifaceType = typeof(TInterface);
+
+            return Implements(ifaceType, type);
+        }
+
+        public static bool Implements(Type ifaceType, Type type)
+        {
+            var parent = type;
+
+            Func<Type, bool> predicate;
+
+            if (ifaceType.IsGenericType)
+            {
+                predicate = t => t.IsGenericType && t.GetGenericTypeDefinition() == ifaceType;
+            }
+            else
+            {
+                predicate = t => t == ifaceType;
+            }
+
+            if (predicate(type))
+            {
+                return true;
+            }
 
             while (parent != null)
             {
@@ -30,7 +55,7 @@ namespace Meadow.Reflection
 
                 foreach (var i in allInterfaces)
                 {
-                    if (i == checkingType)
+                    if (predicate(i))
                     {
                         return true;
                     }
@@ -100,17 +125,64 @@ namespace Meadow.Reflection
             }
         }
 
+
+        public static bool HasCyclicReferencedDescendants(Type type)
+        {
+            var alreadySeens = new List<Type>();
+
+            return HasCyclicReferencedDescendants(type, alreadySeens);
+        }
+
+        private static bool HasCyclicReferencedDescendants(Type type, List<Type> alreadySeens)
+        {
+            if (!IsReferenceType(type))
+            {
+                return false;
+            }
+
+            foreach (var seen in alreadySeens)
+            {
+                if (type == seen)
+                {
+                    return true;
+                }
+            }
+
+            alreadySeens.Add(type);
+
+            IEnumerable<Type> children;
+
+            if (IsCollection(type))
+            {
+                children = new Type[]{GetElementType(type)} ;
+            }
+            else
+            {
+                children = type.GetProperties().Select(p => p.PropertyType);    
+            }
+            
+            foreach (var child in children)
+            {
+                if (HasCyclicReferencedDescendants(child, alreadySeens))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         public static bool IsModel(Type type)
         {
-            if (_isModelCache.ContainsKey(type))
+            if (IsModelCache.ContainsKey(type))
             {
-                return _isModelCache[type];
+                return IsModelCache[type];
             }
 
             var isModel = IsModelNoneCached(type);
 
-            _isModelCache.Add(type, isModel);
-
+            IsModelCache.Add(type, isModel);
+            
             return isModel;
         }
 
@@ -133,6 +205,11 @@ namespace Meadow.Reflection
                 return false;
             }
 
+            if (HasCyclicReferencedDescendants(type))
+            {
+                return false;
+            }
+
             foreach (var property in properties)
             {
                 if (!property.CanRead || !property.CanWrite)
@@ -142,8 +219,10 @@ namespace Meadow.Reflection
 
                 var pType = property.PropertyType;
 
-                if (IsReferenceType(pType) && !(IsModel(pType) || IsCollection(pType)))
+                if (IsReferenceType(pType) && !IsModel(pType) && !IsCollection(pType))
                 {
+                    Console.WriteLine($"Reference Rejected: {type.Name} because of {pType.Name}");
+                    
                     return false;
                 }
             }
