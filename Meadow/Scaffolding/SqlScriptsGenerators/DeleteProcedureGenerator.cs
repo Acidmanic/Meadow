@@ -25,11 +25,11 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
             var where = useIdField ? $" WHERE {idField.Name}=@{idField.Name}" : "";
 
-            script += $"\n\tDECLARE @existing = (SELECT COUNT(*) FROM {NameConvention.TableName});";
+            script += $"\n\tDECLARE @existing int = (SELECT COUNT(*) FROM {NameConvention.TableName});";
 
             script += $"\n\tDELETE FROM {NameConvention.TableName}{where}";
 
-            script += $"\n\tDECLARE @delta = @existing - (SELECT COUNT(*) FROM {NameConvention.TableName});";
+            script += $"\n\tDECLARE @delta int = @existing - (SELECT COUNT(*) FROM {NameConvention.TableName});";
 
             script += "\n\tIF @delta > 0 or @existing = 0\n\t\tSELECT cast(1 as bit) Success";
 
