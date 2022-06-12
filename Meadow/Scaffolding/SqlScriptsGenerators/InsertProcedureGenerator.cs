@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.DataTypeMapping;
 using Meadow.Reflection;
 using Meadow.Scaffolding.CodeGenerators;
@@ -7,8 +9,11 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
     public class InsertProcedureGenerator : ProcedureGenerator
     {
+       
+
         public InsertProcedureGenerator(Type type) : base(type)
         {
+           
         }
 
         protected override string GenerateScript(SqlScriptActions action, string snippet)
@@ -19,6 +24,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             var values = "";
             var idFieldName = "";
             var idFieldType = "";
+            var hadId = false;
 
             WalkThroughLeaves(false, leaf =>
             {
@@ -26,6 +32,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 {
                     idFieldName = leaf.Name;
                     idFieldType = TypeNameMapper[leaf.Type];
+                    hadId = true;
                 }
                 else
                 {
@@ -45,11 +52,21 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
             var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t{parameters}\n)AS\n";
 
-            script += $"\tINSERT INTO {NameConvention.TableName} ({fields}) VALUES ({values})\n";
+            script += $"\tINSERT INTO {NameConvention.TableName} ({fields})";
 
-            script += $"\tDECLARE @newId {idFieldType}=(IDENT_CURRENT('{NameConvention.TableName}'));\n";
+            if (hadId)
+            {
+                script += "OUTPUT inserted.* ";
+            }
 
-            script += $"\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=@newId;\n";
+            script += $" VALUES ({values})\n";
+
+            if (!hadId)
+            {
+                script += $"\tDECLARE @newId {idFieldType}=(IDENT_CURRENT('{NameConvention.TableName}'));\n";
+
+                script += $"\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=@newId;\n";
+            }
 
             script += "GO\n\n";
 
