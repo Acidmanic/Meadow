@@ -1,9 +1,8 @@
-using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Requests.FieldManipulation;
 
-namespace Meadow.Reflection.ObjectTree.Mapping
+namespace Meadow.Reflection.Mapping
 {
     public class ObjectDataReader : ObjectDataMapperBase
     {

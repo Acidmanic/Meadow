@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Meadow.Reflection.ObjectTree.DataSource
+namespace Meadow.DataSource
 {
     public class DataStream : IDataStream
     {

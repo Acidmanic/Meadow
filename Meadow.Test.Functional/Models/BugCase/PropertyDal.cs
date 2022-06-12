@@ -1,4 +1,4 @@
-using Meadow.Attributes;
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Test.Functional.Models.BugCase
 {
@@ -10,6 +10,6 @@ namespace Meadow.Test.Functional.Models.BugCase
 
         public long TypeId { get; set; }
 
-        [UniqueField] public long Id { get; set; }
+        [UniqueMember] public long Id { get; set; }
     }
 }

@@ -3,10 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Meadow.Reflection.ObjectTree.DataSource;
-using Meadow.Reflection.Sets;
+using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.Sets;
 
-namespace Meadow.Reflection.ObjectTree.Mapping
+namespace Meadow.Reflection.Mapping
 {
     public abstract class ObjectDataMapperBase
     {

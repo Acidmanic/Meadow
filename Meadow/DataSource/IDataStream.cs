@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Meadow.Reflection.ObjectTree.DataSource
+namespace Meadow.DataSource
 {
     public interface IDataStream:IEnumerable<DataPoint>
     {

@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using Meadow.Reflection.ObjectTree.DataSource;
-using Meadow.Reflection.Sets;
+using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.Sets;
+using Meadow.DataSource;
 
-namespace Meadow.Reflection.ObjectTree.Mapping
+namespace Meadow.Reflection.Mapping
 {
     public class ObjectDataWriter : ObjectDataMapperBase
     {

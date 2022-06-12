@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 
 namespace Meadow.Reflection.Conventions
 {
@@ -9,14 +10,14 @@ namespace Meadow.Reflection.Conventions
 
         public string TableName { get; private set; }
 
-        public ITableNameProvider TableNameProvider { get; }
+        public IDataOwnerNameProvider TableNameProvider { get; }
         public Type EntityType { get; private set; }
 
-        public NameConvention(Type entityType) : this(entityType, new PluralTableNameProvider())
+        public NameConvention(Type entityType) : this(entityType, new PluralDataOwnerNameProvider())
         {
         }
 
-        public NameConvention(Type entityType, ITableNameProvider tableNameProvider)
+        public NameConvention(Type entityType, IDataOwnerNameProvider tableNameProvider)
         {
             EntityType = entityType;
 
@@ -24,7 +25,7 @@ namespace Meadow.Reflection.Conventions
 
             TableNameProvider = tableNameProvider;
 
-            TableName = TableNameProvider.GetTableName(EntityType);
+            TableName = TableNameProvider.GetNameForOwnerType(EntityType);
 
 
             DeleteAllProcedureName = "spDeleteAll" + TableName;
@@ -83,7 +84,7 @@ namespace Meadow.Reflection.Conventions
         {
         }
 
-        public NameConvention(ITableNameProvider tableNameProvider) : base(typeof(TEntity), tableNameProvider)
+        public NameConvention(IDataOwnerNameProvider tableNameProvider) : base(typeof(TEntity), tableNameProvider)
         {
         }
     }

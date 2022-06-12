@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Meadow.Reflection;
-using Meadow.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.Sets;
 using Meadow.Reflection.Sets;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;

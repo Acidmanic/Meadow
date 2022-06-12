@@ -1,10 +1,10 @@
-using Meadow.Attributes;
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Configuration.ConfigurationRequests.Models
 {
     public class NameResult
     {
-        [UniqueField]
+        [UniqueMember]
         public string Name { get; set; }
     }
 }

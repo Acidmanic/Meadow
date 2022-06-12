@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using Meadow.Attributes;
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Test.Functional.Models.BugCase
 {
@@ -10,7 +10,7 @@ namespace Meadow.Test.Functional.Models.BugCase
         public string Value { get; set; }
         
         [Key]
-        [UniqueField]
+        [UniqueMember]
         public long Id { get; set; }
     }
 }

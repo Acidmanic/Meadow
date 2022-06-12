@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Meadow.Reflection.ObjectTree.DataSource
+namespace Meadow.DataSource
 {
     public class InMemoryDataStream : IDataStream
     {

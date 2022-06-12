@@ -1,4 +1,4 @@
-namespace Meadow.Reflection.ObjectTree.DataSource
+namespace Meadow.DataSource
 {
     public class DataPoint
     {

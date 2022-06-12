@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using Meadow.Attributes;
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Test.Functional.Models
 {
     public class Person
     {
-        [UniqueField]
+        [UniqueMember]
         public long Id { get; set; }
 
         public string Name { get; set; }

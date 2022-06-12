@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
-using Meadow.Reflection;
-using Meadow.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
@@ -84,7 +83,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
         {
             var type = node.Type;
 
-            var tableName = NameConvention.TableNameProvider.GetTableName(type);
+            var tableName = NameConvention.TableNameProvider.GetNameForOwnerType(type);
 
             var result = new FullTreeSelectState
             {
@@ -132,9 +131,9 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         private string GetJoin(AccessNode father, AccessNode joining, bool direction1Ton)
         {
-            var jTableName = NameConvention.TableNameProvider.GetTableName(joining.Type);
+            var jTableName = NameConvention.TableNameProvider.GetNameForOwnerType(joining.Type);
 
-            var fTableName = NameConvention.TableNameProvider.GetTableName(father.Type);
+            var fTableName = NameConvention.TableNameProvider.GetNameForOwnerType(father.Type);
 
             string idCheck = "";
 

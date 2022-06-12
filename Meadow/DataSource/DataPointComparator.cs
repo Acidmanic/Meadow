@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using Meadow.Reflection.ObjectTree;
-using Meadow.Reflection.ObjectTree.DataSource;
 
-namespace Meadow.Reflection
+namespace Meadow.DataSource
 {
     public class DataPointComparator : Comparer<DataPoint>
     {

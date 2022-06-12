@@ -1,6 +1,5 @@
 using System;
-using Meadow.Reflection;
-using Meadow.Test.Functional.Models;
+using Acidmanic.Utilities.Reflection;
 using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;
 

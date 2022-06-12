@@ -1,10 +1,10 @@
-using Meadow.Attributes;
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Test.Functional.Models.BugCase
 {
     public class SupplementDal
     {
-        [UniqueField]
+        [UniqueMember]
         public long Id { get; set; }
         
         public ProductClassDal UniqueProductClass { get; set; }

@@ -1,10 +1,11 @@
-using Meadow.Attributes;
+
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Configuration.ConfigurationRequests.Models
 {
     public class MeadowDatabaseHistory
     {
-        [UniqueField] public long Id { get; set; }
+        [UniqueMember] public long Id { get; set; }
 
         public int ScriptOrder { get; set; }
 

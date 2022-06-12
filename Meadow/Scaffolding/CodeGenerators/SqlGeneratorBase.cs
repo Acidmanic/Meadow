@@ -1,9 +1,8 @@
 using System;
 using System.Linq;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.DataTypeMapping;
-using Meadow.Reflection;
 using Meadow.Reflection.Conventions;
-using Meadow.Reflection.ObjectTree;
 
 namespace Meadow.Scaffolding.CodeGenerators
 {
@@ -51,7 +50,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected AccessNode GetIdField(Type type)
         {
-            return GetIdField(new TypeAnalyzer() {TableNameProvider = NameConvention.TableNameProvider}.ToAccessNode(type, false));
+            return GetIdField(new TypeAnalyzer() {DataOwnerNameProvider = NameConvention.TableNameProvider}.ToAccessNode(type, false));
         }
 
         public abstract Code Generate(SqlScriptActions action);
@@ -63,7 +62,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected void WalkThroughLeaves(bool fullTree, Action<AccessNode> leafAction)
         {
-            var node = new TypeAnalyzer {TableNameProvider = NameConvention.TableNameProvider}.ToAccessNode(Type, fullTree);
+            var node = new TypeAnalyzer {DataOwnerNameProvider = NameConvention.TableNameProvider}.ToAccessNode(Type, fullTree);
 
             var info = new AccessTreeInformation(node);
 

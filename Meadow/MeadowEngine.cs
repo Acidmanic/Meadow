@@ -1,18 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Reflection;
-using Meadow.Attributes;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
-using Meadow.Configuration.ConfigurationRequests.Models;
 using Meadow.Log;
-using Meadow.Reflection;
 using Meadow.Requests;
-using Meadow.Requests.Common;
 
 namespace Meadow
 {
@@ -77,10 +70,16 @@ namespace Meadow
         {
             PerformRequest(new CreateDatabaseRequest());
 
+            PerformPostDatabaseCreationTasks();
+        }
+
+        private void PerformPostDatabaseCreationTasks()
+        {
             var scripts = new MeadowBuiltInScripts().GenerateHistoryBasis();
 
             scripts.ForEach(s => PerformScript(s));
         }
+
 
         public void DropDatabase()
         {
@@ -97,6 +96,8 @@ namespace Meadow
         public void CreateIfNotExist()
         {
             PerformRequest(new CreateIfNotExistRequest());
+
+            PerformPostDatabaseCreationTasks();
         }
 
         /// <summary>

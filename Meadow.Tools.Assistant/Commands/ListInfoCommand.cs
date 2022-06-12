@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection;
 using ConsoleAppFramework;
-using Meadow.Reflection;
 using Meadow.Reflection.FetchPlug;
 using Meadow.Tools.Assistant.Compilation;
 using Meadow.Tools.Assistant.DotnetProject;

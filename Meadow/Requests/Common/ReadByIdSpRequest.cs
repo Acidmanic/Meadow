@@ -1,6 +1,3 @@
-using Meadow.Reflection.Conventions;
-using Meadow.Reflection.Dynamics;
-
 namespace Meadow.Requests.Common
 {
     public abstract class ReadByIdSpRequest<TModel, TId> : ByIdRequestBase<TModel, TId, TModel>
