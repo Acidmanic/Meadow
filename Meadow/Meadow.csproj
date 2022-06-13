@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.0-b3" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.0-b4" />
     </ItemGroup>
 
 

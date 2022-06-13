@@ -36,9 +36,9 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
             var useIdField = ById && idField != null;
 
-            var parameters = useIdField ? $"@{idField.Name} {TypeNameMapper[idField.Type]}" : "";
+            var parameters = useIdField ? $"(@{idField.Name} {TypeNameMapper[idField.Type]})" : "";
 
-            var script = $"{snippet} PROCEDURE {ProcedureName}({parameters})\nAS";
+            var script = $"{snippet} PROCEDURE {ProcedureName}{parameters}\nAS";
 
             var where = useIdField ? $"WHERE {idField.Name}=@{idField.Name}" : "";
 

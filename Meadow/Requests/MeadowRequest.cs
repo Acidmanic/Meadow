@@ -1,16 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using Meadow.Configuration;
-using Meadow.Reflection;
-using Meadow.Requests;
+﻿using System.Collections.Generic;
 using Meadow.Requests.FieldManipulation;
 
-namespace Meadow
+namespace Meadow.Requests
 {
     public class MeadowRequest<TIn, TOut>
         where TOut : class, new()
     {
-        public TIn ToStorage { get; set; }
+        public virtual TIn ToStorage { get; set; }
 
         public List<TOut> FromStorage { get; set; }
 

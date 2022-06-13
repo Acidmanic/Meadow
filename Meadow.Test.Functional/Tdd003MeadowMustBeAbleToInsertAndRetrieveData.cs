@@ -1,5 +1,6 @@
 using System;
 using Meadow.Configuration;
+using Meadow.Requests;
 using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional

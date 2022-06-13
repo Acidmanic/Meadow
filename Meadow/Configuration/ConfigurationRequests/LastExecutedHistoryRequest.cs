@@ -1,6 +1,7 @@
 using Meadow.BuildupScripts;
 using Meadow.Configuration.ConfigurationRequests.Models;
 using Meadow.Reflection.Conventions;
+using Meadow.Requests;
 
 namespace Meadow.Configuration.ConfigurationRequests
 {

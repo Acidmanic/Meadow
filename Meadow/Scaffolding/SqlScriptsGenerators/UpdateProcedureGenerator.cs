@@ -51,7 +51,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 // An entity without Id, cant be updated by Id!!
                 return "";
             }
-
+            
             var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t@{idFieldName} {idFieldType} ,{parameters})\nAS";
 
             script += $"\n\tUPDATE {NameConvention.TableName}";

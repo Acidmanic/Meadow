@@ -1,3 +1,4 @@
+using Meadow.Requests;
 using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.Requests
