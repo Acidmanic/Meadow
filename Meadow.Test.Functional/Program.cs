@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd15TypeCheckMustRecognizeCyclicReferences().Main();
+            new Tdd016ProducClassDalAccessNode().Main();
         }
     }
 }

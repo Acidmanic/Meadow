@@ -63,23 +63,48 @@ namespace Meadow.Scaffolding
 
             var models = new TypeAcquirer().EnumerateModels(availableTypes, nameSpace);
 
-            var sqlGenerators = new List<SqlGeneratorBase>();
+            var codeGenerators = new List<ICodeGenerator>();
 
             foreach (var model in models)
             {
-                sqlGenerators.Add(new TableScriptGenerator(model));
-                sqlGenerators.Add(new InsertProcedureGenerator(model));
+                codeGenerators.Add(new CommentSectionTitleGenerator(model.Name + " Table(s)"));
 
-                sqlGenerators.Add(new ReadProcedureGenerator(model, false, false));
-                sqlGenerators.Add(new ReadProcedureGenerator(model, false, true));
-                sqlGenerators.Add(new ReadProcedureGenerator(model, true, true));
-                sqlGenerators.Add(new ReadProcedureGenerator(model, true, false));
+                codeGenerators.Add(new TableScriptGenerator(model));
+                
+                codeGenerators.Add(new SqlSplitterGenerator());
 
+                codeGenerators.Add(new CommentSectionTitleGenerator(model.Name + " Procedures"));
 
-                sqlGenerators.Add(new DeleteProcedureGenerator(model, true));
-                sqlGenerators.Add(new DeleteProcedureGenerator(model, false));
+                codeGenerators.Add(new InsertProcedureGenerator(model));
 
-                sqlGenerators.Add(new UpdateProcedureGenerator(model));
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new ReadProcedureGenerator(model, false, false));
+                
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new ReadProcedureGenerator(model, false, true));
+                
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new ReadProcedureGenerator(model, true, true));
+                
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new ReadProcedureGenerator(model, true, false));
+                
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new DeleteProcedureGenerator(model, true));
+                
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new DeleteProcedureGenerator(model, false));
+
+                codeGenerators.Add(new SqlSingleLineGenerator());
+                
+                codeGenerators.Add(new UpdateProcedureGenerator(model));
+                
             }
 
             var objectsCreated = 0;
@@ -103,24 +128,31 @@ namespace Meadow.Scaffolding
                 script += gen.Generate(action).Text;
             }
 
-            foreach (var generator in sqlGenerators)
+            foreach (var generator in codeGenerators)
             {
-                if (AlreadyExists(generator.SqlObjectName, generator.ObjectType))
+                if (generator is SqlGeneratorBase sqlGenerator)
                 {
-                    var policyAction = policyManager.OnExists(generator.SqlObjectName, generator.ObjectType);
+                    if (AlreadyExists(sqlGenerator.SqlObjectName, sqlGenerator.ObjectType))
+                    {
+                        var policyAction = policyManager.OnExists(sqlGenerator.SqlObjectName, sqlGenerator.ObjectType);
 
-                    if (policyAction == OnExistsPolicies.Alter)
-                    {
-                        Create(generator, SqlScriptActions.Alter);
+                        if (policyAction == OnExistsPolicies.Alter)
+                        {
+                            Create(sqlGenerator, SqlScriptActions.Alter);
+                        }
+                        else if (policyAction == OnExistsPolicies.DropAndReCreate)
+                        {
+                            Create(sqlGenerator, SqlScriptActions.DropCreate);
+                        }
                     }
-                    else if (policyAction == OnExistsPolicies.DropAndReCreate)
+                    else
                     {
-                        Create(generator, SqlScriptActions.DropCreate);
+                        Create(sqlGenerator, SqlScriptActions.Create);
                     }
                 }
                 else
                 {
-                    Create(generator, SqlScriptActions.Create);
+                    script += generator.Generate().Text;
                 }
             }
 
