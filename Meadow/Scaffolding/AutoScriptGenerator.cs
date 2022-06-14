@@ -46,16 +46,16 @@ namespace Meadow.Scaffolding
             var existingTables = engine.EnumerateTables();
             var existingProcedures = engine.EnumerateProcedures();
 
-            bool AlreadyExists(string name, DbObjectTypes type)
+            bool AlreadyExists(string objectName, DbObjectTypes type)
             {
                 if (type == DbObjectTypes.Tables)
                 {
-                    return existingTables.Contains(name);
+                    return existingTables.Contains(objectName);
                 }
 
                 if (type == DbObjectTypes.StoredProcedures)
                 {
-                    return existingProcedures.Contains(name);
+                    return existingProcedures.Contains(objectName);
                 }
 
                 return false;

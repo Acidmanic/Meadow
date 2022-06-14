@@ -50,18 +50,18 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 }
             });
 
-            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t{parameters}\n)AS\n";
+            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t{parameters}\n)\nAS\n";
 
             script += $"\tINSERT INTO {NameConvention.TableName} ({fields})";
 
-            if (hadId)
+            if (!hadId)
             {
                 script += "OUTPUT inserted.* ";
             }
 
             script += $" VALUES ({values})\n";
 
-            if (!hadId)
+            if (hadId)
             {
                 script += $"\tDECLARE @newId {idFieldType}=(IDENT_CURRENT('{NameConvention.TableName}'));\n";
 
