@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd016ProducClassDalAccessNode().Main();
+            new Tdd017X2XRelationTest().Main();
         }
     }
 }

@@ -110,7 +110,7 @@ namespace Meadow.Reflection.Mapping
                 return wrapped.Last();
             }
 
-            throw new Exception(" It supposed to be a collection but it was not");
+            throw new Exception(" It was supposed to be a collection but it was not");
         }
 
         public object RootObject => _rootObject;

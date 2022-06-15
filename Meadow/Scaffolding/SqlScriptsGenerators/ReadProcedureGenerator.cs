@@ -112,7 +112,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             var sep = "";
             foreach (var filed in result.Info.OrderedFieldNames)
             {
-                result.Parameters += sep + filed;
+                result.Parameters += sep + filed + $" '{filed}'";
 
                 sep = ", ";
             }
@@ -126,7 +126,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             {
                 var father = node.Parent.Parent;
 
-                result.Joins += result.Sep + "LEFT " + GetJoin(father, node, false);
+                result.Joins += result.Sep + "LEFT " + GetJoin(father, node, false,result.Info);
 
                 result.Sep = " ";
             }
@@ -134,7 +134,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             {
                 var father = node.Parent;
 
-                result.Joins += result.Sep + GetJoin(father, node, true);
+                result.Joins += result.Sep + GetJoin(father, node, true,result.Info);
 
                 result.Sep = " ";
             }
@@ -142,7 +142,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             node.GetChildren().ForEach(child => ExtractSelectInfo(child, result));
         }
 
-        private string GetJoin(AccessNode father, AccessNode joining, bool direction1Ton)
+        private string GetJoin(AccessNode father, AccessNode joining, bool direction1Ton,AccessTreeInformation info)
         {
             var jTableName = NameConvention.TableNameProvider.GetNameForOwnerType(joining.Type);
 
@@ -156,18 +156,18 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
             var toTableName = direction1Ton ? fTableName : jTableName;
 
 
-            var id = from.GetChildren()
+            var idNode = from.GetChildren()
                 .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
 
-            if (id == null)
+            if (idNode == null)
             {
                 // A Node without unique id cant participate in a join
                 return "";
             }
 
-            var nodeId = from.Type.Name + id.Name;
+            var nodeId =  NameConvention.TableNameProvider.GetNameForOwnerType(from.Type) + idNode.Name;
 
-            idCheck = $"{toTableName}.{nodeId}={fromTableName}.{id.Name}";
+            idCheck = $"{toTableName}.{nodeId}={fromTableName}.{idNode.Name}";
 
             return $"JOIN {jTableName} on {idCheck}";
         }

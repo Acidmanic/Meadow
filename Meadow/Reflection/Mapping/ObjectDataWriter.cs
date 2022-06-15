@@ -34,8 +34,9 @@ namespace Meadow.Reflection.Mapping
 
             while (dataReader.Read())
             {
+                // For each Record
                 var record = new List<DataPoint>();
-
+                // Read all the record data cells
                 foreach (var field in drFields)
                 {
                     var value = dataReader[field];
@@ -51,8 +52,9 @@ namespace Meadow.Reflection.Mapping
                     }
                 }
 
+                // Sort cells inside the field in a way that Id fields come first 
                 record.Sort(new DataPointComparator(_treeInformation.GetFieldsOrders()));
-
+                // Write sorted fields into root object
                 record.ForEach(WriteData);
             }
         }
@@ -110,7 +112,17 @@ namespace Meadow.Reflection.Mapping
                     {
                         if (leaf.Parent.IsCollectable)
                         {
-                            AddNewElementToTopLevelCollection(leaf);
+                            // leaf is a field of An element Of a collection
+                            var collectableParent = leaf.Parent;
+
+                            AddNewElementToTopLevelCollection(leaf, collectableParent);
+                        }
+                        else if (!leaf.IsRoot && leaf.Parent.Parent != null && leaf.Parent.Parent.IsCollectable)
+                        {
+                            // leaf is a field of a pivot table for many-to-many relation
+                            var collectableParent = leaf.Parent.Parent;
+
+                            AddNewElementToTopLevelCollection(leaf, collectableParent);
                         }
                         else
                         {
@@ -130,19 +142,19 @@ namespace Meadow.Reflection.Mapping
             return true;
         }
 
-        private void AddNewElementToTopLevelCollection(AccessNode leaf)
+        private void AddNewElementToTopLevelCollection(AccessNode leaf, AccessNode collectableParent)
         {
-            var elementType = leaf.Parent.Type;
+            var elementType = collectableParent.Type;
 
             var element = new TypeAnalyzer().CreateObject(elementType);
 
-            var collectionNode = leaf.Parent.Parent;
+            var collectionNode = collectableParent.Parent;
 
             var collectionObject = GetCorrespondingObject(collectionNode);
 
             new CollectionCollection(collectionObject as ICollection).Add(element);
 
-            ClearHistoryFor(leaf.Parent);
+            ClearHistoryFor(collectableParent);
         }
 
         private void ClearHistoryFor(AccessNode node)

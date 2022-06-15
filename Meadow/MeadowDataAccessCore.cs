@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -81,7 +82,7 @@ namespace Meadow
 
             foreach (var dataPoint in data)
             {
-                var parameter = new SqlParameter("@" + dataPoint.Key, dataPoint.Value);
+                var parameter = new SqlParameter("@" + dataPoint.Key, dataPoint.Value ?? DBNull.Value);
 
                 parameter.Direction = ParameterDirection.Input;
 
