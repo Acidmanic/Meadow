@@ -8,8 +8,9 @@ namespace Meadow.Test.Functional.Models.BugCase
 
         public PropertyTypeDal Type { get; set; }
 
+        [MemberName("TypeId")]
         public long TypeId { get; set; }
 
-        [UniqueMember] public long Id { get; set; }
+        [UniqueMember] [AutoValuedMember] public long Id { get; set; }
     }
 }

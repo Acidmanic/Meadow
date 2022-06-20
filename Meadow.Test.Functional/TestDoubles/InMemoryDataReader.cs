@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Meadow.DataSource;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Meadow.Test.Functional.TestDoubles
 {
@@ -21,7 +22,7 @@ namespace Meadow.Test.Functional.TestDoubles
                 FieldsByName = new Dictionary<string, DataPoint>();
                 Ordinals = new Dictionary<string, int>();
             }
-
+            
             public void InsertField(string fieldName, object value)
             {
                 var data = new DataPoint
@@ -128,6 +129,16 @@ namespace Meadow.Test.Functional.TestDoubles
             return this;
         }
 
+        public InMemoryDataReader InsertData(List<List<DataPoint>> data)
+        {
+            foreach (var record in data)
+            {
+                CreateRecord();
+                record.ForEach(r => InsertField(r.Identifier,r.Value));
+            }
+
+            return this;
+        }
 
         private T CastOrDefault<T>(object value)
         {

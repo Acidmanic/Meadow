@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
-using Meadow.Reflection.Mapping;
+using Meadow.Contracts;
 using Meadow.Requests;
+using Meadow.Sql;
 
 namespace Meadow
 {
@@ -15,6 +15,9 @@ namespace Meadow
             Procedure = CommandType.StoredProcedure,
             Script = CommandType.Text
         }
+
+        protected IStandardDataStorageAdapter<SqlCommand, IDataReader> DataStorageAdapter { get; } =
+            new SqlDataStorageAdapter();
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
@@ -36,15 +39,12 @@ namespace Meadow
                 {
                     var dataReader = command.ExecuteReader(CommandBehavior.Default);
 
-                    var writer = ObjectDataWriter.Create<List<TOut>>(request.FullTree);
-
-                    writer.WriteIntoRootObject(dataReader);
-
-                    var records = writer.As<List<TOut>>();
+                    var fromStorage = DataStorageAdapter.ReadFromStorage<TOut>(
+                        dataReader, request.FromStorageMarks);
 
                     connection.Close();
 
-                    request.FromStorage = records;
+                    request.FromStorage = fromStorage;
                 }
                 else
                 {
@@ -76,18 +76,9 @@ namespace Meadow
                 return command;
             }
 
-            var reader = new ObjectDataReader(storage, request.FullTree);
+            var evaluator = new ObjectEvaluator(storage);
 
-            var data = reader.ReadRootObject(request.ToStorageMarks);
-
-            foreach (var dataPoint in data)
-            {
-                var parameter = new SqlParameter("@" + dataPoint.Key, dataPoint.Value ?? DBNull.Value);
-
-                parameter.Direction = ParameterDirection.Input;
-
-                command.Parameters.Add(parameter);
-            }
+            DataStorageAdapter.WriteToStorage(command, request.ToStorageMarks, evaluator);
 
             return command;
         }

@@ -1,6 +1,4 @@
-using System;
-
-namespace Meadow.Tools.Assistant
+namespace Meadow
 {
 
     public class Result
