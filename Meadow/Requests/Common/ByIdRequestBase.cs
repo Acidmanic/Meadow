@@ -20,7 +20,7 @@ namespace Meadow.Requests.Common
 
             var modelType = typeof(TModel);
 
-            var node = new TypeAnalyzer().ToAccessNode(modelType, false);
+            var node = ObjectStructure.CreateStructure(modelType, false);
 
             var idField = node.GetDirectLeaves().FirstOrDefault(l => l.IsUnique);
 

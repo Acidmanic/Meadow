@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 
 namespace Meadow.Requests.FieldManipulation
@@ -9,9 +10,11 @@ namespace Meadow.Requests.FieldManipulation
     {
         private readonly List<string> _excludedNames;
         private readonly Dictionary<string, string> _renames;
-
-        public FiledManipulationMarker()
+        private readonly MemberOwnerUtilities _memberOwnerUtilities;
+        
+        public FiledManipulationMarker(IDataOwnerNameProvider dataOwnerNameProvider)
         {
+            _memberOwnerUtilities = new MemberOwnerUtilities(dataOwnerNameProvider);
             _excludedNames = new List<string>();
             _renames = new Dictionary<string, string>();
         }
@@ -20,7 +23,7 @@ namespace Meadow.Requests.FieldManipulation
         {
             var memberExpression = (MemberExpression) propertySelector.Body;
 
-            var selectedPropertyName = new TypeAnalyzer().GetFieldName<TModel>(memberExpression);
+            var selectedPropertyName = _memberOwnerUtilities.GetFieldName<TModel>(memberExpression);
 
             return selectedPropertyName;
         }

@@ -76,7 +76,6 @@ namespace Meadow.Sql
                 }
                 else 
                 {
-                    Console.WriteLine($"Next Object On {profile.Key} for value: {value}");
                     IncrementCurrentRecord();
 
                     actualAddress = ActualAddress(profile);

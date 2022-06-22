@@ -32,19 +32,18 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GenerateScript(SqlScriptActions action, string snippet)
         {
-            var idField = GetIdField(Type);
 
-            var useIdField = ById && idField != null;
+            var useIdField = ById && HasIdField;
 
-            var parameters = useIdField ? $"(@{idField.Name} {TypeNameMapper[idField.Type]})" : "";
+            var parameters = useIdField ? $"(@{IdField.Name} {TypeNameMapper[IdField.Type]})" : "";
 
             var script = $"{snippet} PROCEDURE {ProcedureName}{parameters}\nAS";
 
-            var where = useIdField ? $"WHERE {idField.Name}=@{idField.Name}" : "";
+            var where = useIdField ? $"WHERE {IdField.Name}=@{IdField.Name}" : "";
 
             var top = GetTop();
 
-            var order = GetOrder(useIdField, idField?.Name);
+            var order = GetOrder(useIdField, IdField?.Name);
 
             var select = $"SELECT {top} * FROM {NameConvention.TableName} {order}";
 

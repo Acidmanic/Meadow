@@ -10,11 +10,21 @@ namespace Meadow
 {
     internal class MeadowDataAccessCore
     {
+
+        private readonly IDataOwnerNameProvider _dataOwnerNameProvider;
+
+        public MeadowDataAccessCore(IDataOwnerNameProvider dataOwnerNameProvider)
+        {
+            _dataOwnerNameProvider = dataOwnerNameProvider;
+        }
+
         public enum RequestExecutionType
         {
             Procedure = CommandType.StoredProcedure,
             Script = CommandType.Text
         }
+
+        
 
         protected IStandardDataStorageAdapter<SqlCommand, IDataReader> DataStorageAdapter { get; } =
             new SqlDataStorageAdapter();
@@ -25,7 +35,7 @@ namespace Meadow
             RequestExecutionType executionType)
             where TOut : class, new()
         {
-            request.InitializeBeforeExecution();
+            request.InitializeBeforeExecution(_dataOwnerNameProvider);
 
             using (var connection = new SqlConnection(configuration.ConnectionString))
             {

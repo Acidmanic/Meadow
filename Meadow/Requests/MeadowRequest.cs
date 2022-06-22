@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Requests.FieldManipulation;
 
 namespace Meadow.Requests
@@ -14,26 +15,24 @@ namespace Meadow.Requests
 
         public bool ReturnsValue { get; }
 
-        private readonly FiledManipulationMarker<TIn> _toStorageManipulator;
-        private readonly FiledManipulationMarker<TOut> _fromStorageManipulator;
+        private FiledManipulationMarker<TIn> _toStorageManipulator;
+        private FiledManipulationMarker<TOut> _fromStorageManipulator;
 
         public MeadowRequest(bool returnsValue)
         {
             ReturnsValue = returnsValue;
 
             FromStorage = new List<TOut>();
-
-            _toStorageManipulator = new FiledManipulationMarker<TIn>();
-            _fromStorageManipulator = new FiledManipulationMarker<TOut>();
         }
 
-        internal void InitializeBeforeExecution()
+        internal void InitializeBeforeExecution(IDataOwnerNameProvider dataOwnerNameProvider)
         {
             RequestText = GetRequestText();
 
             _toStorageManipulator.Clear();
 
-            var exclusionMarker = new FiledManipulationMarker<TIn>();
+            _toStorageManipulator = new FiledManipulationMarker<TIn>(dataOwnerNameProvider);
+            _fromStorageManipulator = new FiledManipulationMarker<TOut>(dataOwnerNameProvider);
 
             OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
         }

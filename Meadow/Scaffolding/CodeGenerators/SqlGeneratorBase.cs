@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.DataTypeMapping;
@@ -25,33 +26,32 @@ namespace Meadow.Scaffolding.CodeGenerators
         protected IDbTypeNameMapper TypeNameMapper { get; }
 
         public abstract string SqlObjectName { get; }
-        
-        protected  NameConvention NameConvention { get; }
+
+        protected NameConvention NameConvention { get; }
+
+        protected IEnumerable<AccessNode> UniqueNodes { get; }
+
+        protected AccessNode IdField => HasIdField ? UniqueNodes.FirstOrDefault() : null;
+
+        protected bool HasIdField => UniqueNodes.Any();
 
         public SqlGeneratorBase(Type type)
         {
             Type = type;
 
-            TreeRoot = new TypeAnalyzer().ToAccessNode(Type, true);
+            TreeRoot = ObjectStructure.CreateStructure(Type, true);
 
-            RootOnlyNode = new TypeAnalyzer().ToAccessNode(Type, false);
+            RootOnlyNode = ObjectStructure.CreateStructure(Type, false);
 
             TreeInformation = new AccessTreeInformation(TreeRoot);
-            
+
             TypeNameMapper = new SqlDbTypeNameMapper();
 
             NameConvention = new NameConvention(type);
-        }
-        
-        protected AccessNode GetIdField(AccessNode node)
-        {
-            return node.GetDirectLeaves().SingleOrDefault(leaf => leaf.IsUnique);
+
+            UniqueNodes = RootOnlyNode.GetDirectLeaves().Where(n => n.IsUnique);
         }
 
-        protected AccessNode GetIdField(Type type)
-        {
-            return GetIdField(new TypeAnalyzer() {DataOwnerNameProvider = NameConvention.TableNameProvider}.ToAccessNode(type, false));
-        }
 
         public abstract Code Generate(SqlScriptActions action);
 
@@ -62,7 +62,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected void WalkThroughLeaves(bool fullTree, Action<AccessNode> leafAction)
         {
-            var node = new TypeAnalyzer {DataOwnerNameProvider = NameConvention.TableNameProvider}.ToAccessNode(Type, fullTree);
+            var node = fullTree ? TreeRoot : RootOnlyNode;
 
             var info = new AccessTreeInformation(node);
 

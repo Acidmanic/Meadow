@@ -23,15 +23,11 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         protected override string GenerateScript(SqlScriptActions action, string snippet)
         {
-            var idField = GetIdField(Type);
-
-            var useIdField = idField != null;
-            
             var script = $"{snippet} PROCEDURE {ProcedureName}\nAS";
             
             var top = GetTop();
 
-            var order = GetOrder(useIdField, idField?.Name);
+            var order = GetOrder(HasIdField, IdField.Name);
 
             var select = $"SELECT {top} * FROM {NameConvention.TableName} {order}";
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
@@ -13,11 +14,15 @@ namespace Meadow
     {
         private readonly MeadowConfiguration _configuration;
         private readonly EnhancedLogger _logger;
+        private IDataOwnerNameProvider TableNameProvider { get; set; }
 
         public MeadowEngine(MeadowConfiguration configuration, ILogger logger)
         {
             _configuration = configuration;
             _logger = new EnhancedLogger(logger);
+            
+            //TODO: Tie to configurations
+            TableNameProvider = new PluralDataOwnerNameProvider();
         }
 
         public MeadowEngine(MeadowConfiguration configuration) : this(configuration, new NullLogger())
@@ -37,7 +42,7 @@ namespace Meadow
             }
 
             // Run UserRequest as Procedure Request
-            return new MeadowDataAccessCore().PerformRequest(request, _configuration,
+            return new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, _configuration,
                 MeadowDataAccessCore.RequestExecutionType.Procedure);
         }
 
@@ -48,7 +53,7 @@ namespace Meadow
             {
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
-                var meadowRequest = new MeadowDataAccessCore().PerformRequest(request, config,
+                var meadowRequest = new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, config,
                     MeadowDataAccessCore.RequestExecutionType.Script);
 
                 return new ConfigurationRequestResult
@@ -137,13 +142,13 @@ namespace Meadow
                 if (info.OrderIndex > lastAppliedOrder)
                 {
                     _logger.Log($@"Applying {info.OrderIndex}, {info.Name}");
-                    
+
                     var result = PerformScript(info);
 
                     if (result.Success)
                     {
                         _logger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
-                        
+
                         anyApplied = true;
 
                         PerformRequest(new MarkExecutionInHistoryRequest(info));
@@ -161,13 +166,13 @@ namespace Meadow
 
             if (anyApplied)
             {
-                _logger.Log($@"*** Buildup process SUCCEEDED ***");    
+                _logger.Log($@"*** Buildup process SUCCEEDED ***");
             }
             else
             {
                 _logger.Log($@"*** Everything Already Up-to-date ***");
             }
-            
+
 
             return;
         }
