@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.DataSource;
 using Meadow.Extensions;
 using Meadow.Requests.FieldManipulation;
@@ -13,9 +14,6 @@ namespace Meadow.Test.Functional
     {
         public override void Main()
         {
-            
-            
-            
             var dataReader = new InMemoryDataReader();
 
             var testcaseData = this.ReadJsonBesideAssembly<List<List<DataPoint>>>("testcase.json");
@@ -24,7 +22,9 @@ namespace Meadow.Test.Functional
 
             var adapter = new SqlDataStorageAdapter();
 
-            var data = adapter.ReadFromStorage<ProductClassDal>(dataReader, new FiledManipulationMarker<ProductClassDal>());
+            var manipulator = new FiledManipulationMarker<ProductClassDal>(new PluralDataOwnerNameProvider());
+
+            var data = adapter.ReadFromStorage<ProductClassDal>(dataReader, manipulator);
 
             PrintObject(data);
         }

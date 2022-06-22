@@ -1,3 +1,4 @@
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -8,7 +9,7 @@ namespace Meadow.Test.Functional
     {
         public override void Main()
         {
-            var node = new TypeAnalyzer().ToAccessNode<ProductClassDal>(true);
+            var node = ObjectStructure.CreateStructure<ProductClassDal>(true);
             
             new AccessNodePrinter().Print(node);
         }

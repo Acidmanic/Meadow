@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.Sets;
 using Meadow.Reflection.Sets;
@@ -30,7 +31,7 @@ namespace Meadow.Test.Functional
                 }
             }
             
-            var person = new TypeAnalyzer().CreateObject<Person>(true);
+            var person = new ObjectInstantiator().CreateObject<Person>(true);
             
             PrintObject(person);
 
