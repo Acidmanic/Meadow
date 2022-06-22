@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd018LbTestCase().Main();
+            new Tdd009Load1ToN().Main();
         }
     }
 }

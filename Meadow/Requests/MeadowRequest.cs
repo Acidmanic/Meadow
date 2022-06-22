@@ -29,11 +29,13 @@ namespace Meadow.Requests
         {
             RequestText = GetRequestText();
 
-            _toStorageManipulator.Clear();
+            
 
             _toStorageManipulator = new FiledManipulationMarker<TIn>(dataOwnerNameProvider);
             _fromStorageManipulator = new FiledManipulationMarker<TOut>(dataOwnerNameProvider);
 
+            _toStorageManipulator.Clear();
+            
             OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
         }
 
