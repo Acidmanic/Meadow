@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
 using Meadow.Requests.FieldManipulation;
@@ -41,7 +42,14 @@ namespace Meadow.Sql
 
         public void WriteToStorage(SqlCommand command, IFieldMarks toStorageMarks, ObjectEvaluator evaluator)
         {
-            var standardData = evaluator.ToStandardFlatData();
+            var standardData = new Record(evaluator.ToStandardFlatData()
+                // Select Only Direct-Leaves
+                .Where(dp =>
+                {
+                    var node = evaluator.Map.NodeByAddress(dp.Identifier);
+
+                    return node.IsLeaf && node.Parent == evaluator.RootNode;
+                }));
 
             List<DataPoint> data = new SqlStandardDataTranslator().TranslateToStorage(standardData, evaluator);
 

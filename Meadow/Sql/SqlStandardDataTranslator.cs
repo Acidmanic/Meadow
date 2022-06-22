@@ -74,9 +74,9 @@ namespace Meadow.Sql
             var mappedFieldIds = MapFieldIdsToStandardKeys(availableFieldIds, evaluator);
 
             var datapointComparator = new StandardDataPointComparator(mappedFieldIds);
-            
+
             var recordAccumulator = new SqlRecordAccumulator(evaluator.Map);
-            
+
             foreach (var record in storageData)
             {
                 record.Sort(datapointComparator);
@@ -87,14 +87,14 @@ namespace Meadow.Sql
 
                     var profile = mappedFieldIds[datapoint.Identifier];
 
-                    recordAccumulator.Pass(value,profile);
+                    recordAccumulator.Pass(value, profile);
                 }
             }
 
             return recordAccumulator.StandardRecords;
         }
 
-   
+
         private Dictionary<string, FieldProfile> MapFieldIdsToStandardKeys(List<string> availableFieldIds,
             ObjectEvaluator evaluator)
         {
@@ -120,31 +120,34 @@ namespace Meadow.Sql
                 }
                 else if (candidates.Count > 1)
                 {
+                    List<FieldKey> narrowedDown;
+
+
                     if (fieldKey.Count < 2)
                     {
-                        //TODO: Log Ambiguous Field name presented in results
+                        narrowedDown = candidates.Where(key => key.Count == 2).ToList();
                     }
                     else
                     {
                         var tableName = fieldKey[0].Name;
 
-                        var narrowedDown = candidates
+                        narrowedDown = candidates
                             .Where(key => tableName == GetTableNameOfFieldKey(key, evaluator))
                             .ToList();
+                    }
 
-                        if (narrowedDown.Count == 0)
-                        {
-                            //ToDO: Log Missing field for received data
-                        }
-                        else if (narrowedDown.Count > 1)
-                        {
-                            //TODO: Log Ambiguous name ...
-                        }
-                        else
-                        {
-                            // exactly 1
-                            map.Add(fieldId, new FieldProfile(narrowedDown[0], evaluator.Map.NodeByKey(narrowedDown[0])));
-                        }
+                    if (narrowedDown.Count == 0)
+                    {
+                        //ToDO: Log Missing field for received data
+                    }
+                    else if (narrowedDown.Count > 1)
+                    {
+                        //TODO: Log Ambiguous name ...
+                    }
+                    else
+                    {
+                        // exactly 1
+                        map.Add(fieldId, new FieldProfile(narrowedDown[0], evaluator.Map.NodeByKey(narrowedDown[0])));
                     }
                 }
             }
@@ -171,7 +174,7 @@ namespace Meadow.Sql
 
             return fieldIds;
         }
-        
+
         private Dictionary<FieldKey, object> IndexByKey(List<DataPoint> standardData, ObjectEvaluator evaluator)
         {
             var keyIndexedData = new Dictionary<FieldKey, object>();
