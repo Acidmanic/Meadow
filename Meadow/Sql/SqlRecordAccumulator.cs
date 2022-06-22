@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
@@ -8,15 +10,35 @@ namespace Meadow.Sql
 {
     public class SqlRecordAccumulator
     {
-        private readonly Dictionary<AccessNode, int> _indexKeeper;
+        private Dictionary<AccessNode, int> _indexKeeper;
         private readonly Dictionary<string, object> _history;
+        private int _currentRecordIndex = 0;
+
+        private Record CurrentRecord
+        {
+            get
+            {
+                while (!(StandardRecords.Count > _currentRecordIndex))
+                {
+                    StandardRecords.Add(new Record());
+                }
+
+                return StandardRecords[_currentRecordIndex];
+            }
+        }
+
+
+        public AddressKeyNodeMap Map { get; }
+
+        public List<Record> StandardRecords { get; } = new List<Record>();
+
 
         public SqlRecordAccumulator(AddressKeyNodeMap map)
         {
             Map = map;
 
             _indexKeeper = InitializeCollectionIndexes(map);
-            
+
             _history = new Dictionary<string, object>();
         }
 
@@ -35,45 +57,45 @@ namespace Meadow.Sql
             return indexes;
         }
 
-        public AddressKeyNodeMap Map { get; }
-
-        public List<Record> StandardRecords { get; } = new List<Record>();
-
-
-        private int _currentRecordIndex = 0;
-
-        private Record CurrentRecord
-        {
-            get
-            {
-                while (!(StandardRecords.Count > _currentRecordIndex))
-                {
-                    StandardRecords.Add(new Record());
-                }
-
-                return StandardRecords[_currentRecordIndex];
-            }
-        }
 
         public void Pass(object value, FieldProfile profile)
         {
             var foundCollectableParent = FindParentCollectableNode(profile);
 
+            var isSecondWrite = IsSecondWriteOnSamePlace(value, profile);
+
             var actualAddress = ActualAddress(profile);
 
-            if (foundCollectableParent)
+            if (isSecondWrite)
             {
-                if (SecondWriteOnSamePlace(value, profile))
+                if (foundCollectableParent)
                 {
                     IncrementParentIndex(foundCollectableParent);
 
                     actualAddress = ActualAddress(profile);
                 }
+                else 
+                {
+                    Console.WriteLine($"Next Object On {profile.Key} for value: {value}");
+                    IncrementCurrentRecord();
+
+                    actualAddress = ActualAddress(profile);
+                }
             }
+
 
             CurrentRecord.Add(actualAddress, value);
 
             LogIntoHistory(actualAddress, value);
+        }
+
+        private void IncrementCurrentRecord()
+        {
+            _currentRecordIndex += 1;
+            
+            _history.Clear();
+
+            _indexKeeper = InitializeCollectionIndexes(Map);
         }
 
 
@@ -95,7 +117,7 @@ namespace Meadow.Sql
             }
         }
 
-        private bool SecondWriteOnSamePlace(object value, FieldProfile profile)
+        private bool IsSecondWriteOnSamePlace(object value, FieldProfile profile)
         {
             if (profile.Node.IsUnique)
             {
@@ -105,7 +127,7 @@ namespace Meadow.Sql
                 {
                     var previousValue = _history[actualAddress];
 
-                    if (previousValue != value)
+                    if (!previousValue.AreEqualAsNullables(value))
                     {
                         return true;
                     }
@@ -114,6 +136,8 @@ namespace Meadow.Sql
 
             return false;
         }
+
+        
 
 
         private Result<FieldProfile> FindParentCollectableNode(FieldProfile profile)
@@ -160,7 +184,7 @@ namespace Meadow.Sql
             var subKey = new FieldKey();
             var actualKey = new FieldKey();
 
-            for (int i = 0; i < key.Count ; i++)
+            for (int i = 0; i < key.Count; i++)
             {
                 var segment = key[i];
 
