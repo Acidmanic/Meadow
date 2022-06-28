@@ -85,9 +85,19 @@ namespace Meadow.Sql
                 {
                     var value = datapoint.Value;
 
-                    var profile = mappedFieldIds[datapoint.Identifier];
+                    if (mappedFieldIds.ContainsKey(datapoint.Identifier))
+                    {
+                        var profile = mappedFieldIds[datapoint.Identifier];
 
-                    recordAccumulator.Pass(value, profile);
+                        recordAccumulator.Pass(value, profile);    
+                    }
+                    else
+                    {
+                        //TODO: log if you want
+                        Console.WriteLine($"Could not find object-node for {datapoint.Identifier}");
+                    }
+
+                    
                 }
             }
 

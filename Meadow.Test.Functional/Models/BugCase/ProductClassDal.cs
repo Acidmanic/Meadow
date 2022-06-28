@@ -9,7 +9,7 @@ namespace Meadow.Test.Functional.Models.BugCase
     {
         [Key][UniqueMember][AutoValuedMember] public long Id { get; set; }
 
-        public List<ProductClassPropertyTag> DeclaredProperties { get; set; }
+        public ICollection<ProductClassPropertyTag> DeclaredProperties { get; set; }
         
         public string Description { get; set; }
     }

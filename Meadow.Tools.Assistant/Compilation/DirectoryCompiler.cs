@@ -7,6 +7,7 @@ using System.Reflection;
 using Meadow.Reflection.FetchPlug;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
+using Meadow.Tools.Assistant.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.Extensions.DependencyInjection;

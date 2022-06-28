@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Utility;
 
 namespace Meadow.Sql
 {
-    public class StandardDataPointComparator:IComparer<DataPoint>
+    public class StandardDataPointComparator:ComparatorBase<DataPoint>
     {
 
         private readonly Dictionary<string, FieldProfile> _mappedFieldIds;
@@ -14,26 +15,28 @@ namespace Meadow.Sql
             this._mappedFieldIds = mappedFieldIds;
         }
 
-        public int Compare(DataPoint x, DataPoint y)
+        protected override int CompareNotNull(DataPoint x, DataPoint y)
         {
-            if (x == null && y == null)
-            {
-                return 0;
-            }
 
-            if (x == null)
-            {
-                return 1;
-            }
+            var bothExistsCompare = SubCompare(o => _mappedFieldIds.ContainsKey(o.Identifier), x, y);
 
-            if (y == null)
+            if (bothExistsCompare.WereEqual)
             {
-                return -1;
-            }
-            var xNode = _mappedFieldIds[x.Identifier].Node;
-            var yNode = _mappedFieldIds[y.Identifier].Node;
+                if (!bothExistsCompare.XApplies)
+                {
+                    // neither exist
+                    return 0;
+                }
+                // both exist
+                var xNode = _mappedFieldIds[x.Identifier].Node;
+                var yNode = _mappedFieldIds[y.Identifier].Node;
             
-            return new AccessNodeComparator().Compare(xNode,yNode);
+                return new AccessNodeComparator().Compare(xNode,yNode);    
+            }
+            return bothExistsCompare.Comparison;
+            
         }
+
+
     }
 }

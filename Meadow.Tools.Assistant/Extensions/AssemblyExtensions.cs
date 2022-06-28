@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace Meadow.Tools.Assistant
+namespace Meadow.Tools.Assistant.Extensions
 {
     public static class AssemblyExtensions
     {

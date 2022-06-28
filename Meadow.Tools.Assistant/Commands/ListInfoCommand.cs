@@ -6,6 +6,7 @@ using ConsoleAppFramework;
 using Meadow.Reflection.FetchPlug;
 using Meadow.Tools.Assistant.Compilation;
 using Meadow.Tools.Assistant.DotnetProject;
+using Meadow.Tools.Assistant.Extensions;
 using Meadow.Tools.Assistant.Options;
 
 namespace Meadow.Tools.Assistant.Commands
