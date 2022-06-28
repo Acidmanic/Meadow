@@ -6,19 +6,50 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-        <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.0-b6" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.1"/>
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.3"/>
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.0-b6"/>
     </ItemGroup>
 
 
-<!--    <ItemGroup>-->
-<!--      <Reference Include="Acidmanic.Utilities.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
-<!--        <HintPath>..\..\Reflections.netcore\Acidmanic.Utilities.Reflection\bin\Debug\netstandard2.1\Acidmanic.Utilities.Reflection.dll</HintPath>-->
-<!--      </Reference>-->
-<!--    </ItemGroup>-->
+    <PropertyGroup>
+        <!-- NuGet -->
+        <Id>Meadow.Framework</Id>
+        <PackageId>Meadow.Framework</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Mani Moayedi</Authors>
+        <Company>Acidmanic</Company>
+        <!--        <PackageIcon>graphics/Meadow.png</PackageIcon>-->
+        <Description>Managed and Enhanced ADO Wrapper</Description>
+        <Summary>A toolset for using ADO.net directly in an elegantly maintanable way.</Summary>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <RepositoryUrl>https://github.com/Acidmanic/Meadow</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
+        <Title>MEADOW - Managed and Enhanced ADO Wrapper</Title>
+
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- NuGet -->
+        <!--        <None Include="../graphics/EnTier.png">-->
+        <!--            <Pack>true</Pack>-->
+        <!--            <PackagePath>graphics/Meadow.png</PackagePath>-->
+        <!--            <CopyToOutputDirectory>Always</CopyToOutputDirectory>-->
+        <!--        </None>-->
+        <None Include="../LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath>LICENSE.txt</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
 
-    
-    
+    <!--    <ItemGroup>-->
+    <!--      <Reference Include="Acidmanic.Utilities.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
+    <!--        <HintPath>..\..\Reflections.netcore\Acidmanic.Utilities.Reflection\bin\Debug\netstandard2.1\Acidmanic.Utilities.Reflection.dll</HintPath>-->
+    <!--      </Reference>-->
+    <!--    </ItemGroup>-->
+
+
 </Project>
