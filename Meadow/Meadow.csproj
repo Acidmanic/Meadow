@@ -19,7 +19,7 @@
         <Version>1.0.0</Version>
         <Authors>Mani Moayedi</Authors>
         <Company>Acidmanic</Company>
-        <!--        <PackageIcon>graphics/Meadow.png</PackageIcon>-->
+        <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
         <Description>Managed and Enhanced ADO Wrapper</Description>
         <Summary>A toolset for using ADO.net directly in an elegantly maintanable way.</Summary>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
@@ -31,12 +31,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!-- NuGet -->
-        <!--        <None Include="../graphics/EnTier.png">-->
-        <!--            <Pack>true</Pack>-->
-        <!--            <PackagePath>graphics/Meadow.png</PackagePath>-->
-        <!--            <CopyToOutputDirectory>Always</CopyToOutputDirectory>-->
-        <!--        </None>-->
+        NuGet
+        <None Include="../Graphics/MeadowIcon.png">
+            <Pack>true</Pack>
+            <PackagePath>Graphics/MeadowIcon.png</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
         <None Include="../LICENSE.txt">
             <Pack>true</Pack>
             <PackagePath>LICENSE.txt</PackagePath>
@@ -45,11 +45,11 @@
     </ItemGroup>
 
 
-    <!--    <ItemGroup>-->
-    <!--      <Reference Include="Acidmanic.Utilities.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
-    <!--        <HintPath>..\..\Reflections.netcore\Acidmanic.Utilities.Reflection\bin\Debug\netstandard2.1\Acidmanic.Utilities.Reflection.dll</HintPath>-->
-    <!--      </Reference>-->
-    <!--    </ItemGroup>-->
+    <!--        <ItemGroup>-->
+    <!--          <Reference Include="Acidmanic.Utilities.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
+    <!--            <HintPath>..\..\Reflections.netcore\Acidmanic.Utilities.Reflection\bin\Debug\netstandard2.1\Acidmanic.Utilities.Reflection.dll</HintPath>-->
+    <!--          </Reference>-->
+    <!--        </ItemGroup>-->
 
 
 </Project>
