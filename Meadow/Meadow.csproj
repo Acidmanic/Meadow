@@ -31,7 +31,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        NuGet
         <None Include="../Graphics/MeadowIcon.png">
             <Pack>true</Pack>
             <PackagePath>Graphics/MeadowIcon.png</PackagePath>
