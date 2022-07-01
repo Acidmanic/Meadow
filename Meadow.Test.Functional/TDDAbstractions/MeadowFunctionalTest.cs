@@ -8,18 +8,18 @@ namespace Meadow.Test.Functional.TDDAbstractions
 {
     public abstract class MeadowFunctionalTest : IFunctionalTest
     {
-        private readonly string _dbName;
+        protected readonly string DbName;
 
         protected MeadowFunctionalTest(string dbName)
         {
-            _dbName = dbName;
+            DbName = dbName;
         }
 
         protected MeadowFunctionalTest()
         {
-            _dbName = GetType().Name + "Db2BeDeleted";
+            DbName = GetType().Name + "Db2BeDeleted";
 
-            Console.WriteLine($@"****Database: '{_dbName}' is being used for this test.*****");
+            Console.WriteLine($@"****Database: '{DbName}' is being used for this test.*****");
         }
 
         protected string GetConnectionString()
@@ -27,7 +27,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
             return "Server=localhost;" +
                    "User Id=sa; " +
                    "Password=never54aga.1n;" +
-                   $@"Database={_dbName}; " +
+                   $@"Database={DbName}; " +
                    "MultipleActiveResultSets=true";
         }
 
