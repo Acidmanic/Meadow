@@ -18,8 +18,8 @@
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"
    sodipodi:docname="MeadowIcon.svg"
    inkscape:export-filename="/home/diego/Projects/Meadow/Graphics/MeadowIcon.png"
-   inkscape:export-xdpi="21.674667"
-   inkscape:export-ydpi="21.674667">
+   inkscape:export-xdpi="10.837334"
+   inkscape:export-ydpi="10.837334">
   <metadata
      id="metadata11">
     <rdf:RDF>
@@ -28,7 +28,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -42,11 +42,11 @@
      inkscape:pagecheckerboard="0"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="0.60221134"
-     inkscape:cx="559.66773"
-     inkscape:cy="669.54529"
-     inkscape:window-width="1920"
-     inkscape:window-height="992"
+     inkscape:zoom="0.21291386"
+     inkscape:cx="-196.49326"
+     inkscape:cy="48.282717"
+     inkscape:window-width="1366"
+     inkscape:window-height="680"
      inkscape:window-x="0"
      inkscape:window-y="31"
      inkscape:window-maximized="1"
@@ -210,13 +210,13 @@
        inkscape:transform-center-x="-39.95225"
        inkscape:transform-center-y="-4.3183235" />
     <path
-       style="opacity:1;fill:url(#linearGradient883-2-9);fill-opacity:1;stroke:none;stroke-width:1.24765134;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       style="opacity:1;fill:url(#linearGradient883-2-9);fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        d="m 49.034716,84.429505 c -5.608884,4.7e-5 -17.614771,1.912796 -24.33119,6.523517 C 14.531839,97.935717 -4.8564332,111.65185 6.0896716,148.29745 17.03578,184.94303 108.43429,246.25525 143.09204,244.69578 c 26.8316,-2.63885 36.66998,-16.22877 36.41651,-32.69234 C 178.42693,141.74834 50.583728,207.08652 23.68324,148.40283 11.053712,125.18639 13.175992,97.001763 52.568563,84.429465 Z M 143.51186,183.8268 c 15.10865,-1.25351 28.31975,9.73307 29.50785,24.53926 1.18784,14.8062 -10.09716,27.82504 -25.2058,29.07849 -15.10866,1.25346 -28.31972,-9.73309 -29.50785,-24.53927 -1.18784,-14.8062 10.09716,-27.82508 25.2058,-29.07848 z"
        id="path870-7-0"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="sszcsccscscsc" />
     <path
-       style="opacity:1;fill:url(#linearGradient1009);fill-opacity:1;stroke:none;stroke-width:1.23552704;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
+       style="opacity:1;fill:url(#linearGradient1009);fill-opacity:1;stroke:#000000;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:markers fill stroke"
        d="M 296.06597,171.6853 C 291.20257,141.69097 233.2796,86.071418 192.15359,69.715226 c -16.9642,-0.946693 -30.27783,-1.177147 -46.10056,0.805655 0,0 -4.01247,0.138846 -3.7797,4.736615 0.73484,17.976473 0.23148,29.769354 0.55139,43.783284 0.58732,4.3396 3.13777,5.76963 6.15931,6.08244 16.91426,2.55711 26.11952,1.97136 45.24103,4.81935 44.20043,5.74437 122.74216,36.96188 76.50272,78.92078 -11.30679,10.35594 -23.81102,17.66616 -23.81102,17.66616 47.81968,-9.35654 54.82216,-35.30627 49.14921,-54.84421 z M 186.40504,119.51022 h -31.72095 c -2.77475,0 -5.00828,-2.22811 -5.00828,-4.99509 V 82.88341 c 0,-2.76699 2.23353,-4.994224 5.00828,-4.994224 h 31.72095 c 2.77477,0 5.00917,2.227234 5.00917,4.994224 v 31.63172 c 0,2.76698 -2.2344,4.99509 -5.00917,4.99509 z"
        id="path870-7-0-1"
        inkscape:connector-curvature="0"
