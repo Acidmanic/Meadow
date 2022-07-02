@@ -51,15 +51,23 @@ namespace Meadow.Sql
                     return node.IsLeaf && node.Parent == evaluator.RootNode;
                 }));
 
-            List<DataPoint> data = new SqlStandardDataTranslator().TranslateToStorage(standardData, evaluator);
+            List<DataPoint> data = new SqlStandardDataTranslator()
+                .TranslateToStorage(standardData, evaluator)
+                .Where(dp => toStorageMarks.IsIncluded(dp.Identifier))
+                .ToList();
 
-            foreach (var dataPoint in data)
-            {
-                if (toStorageMarks.IsIncluded(dataPoint.Identifier))
-                {
-                    WriteIntoCommand(dataPoint, command);
-                }
-            }
+            WriteAllToCommand(data, command);
+        }
+
+        /// <summary>
+        /// This method will be called after data being filtered and standardized and ready to be written into command.
+        /// Default implementation will make call to <code>WriteIntoCommand(DataPoint dataPoint, IDbCommand command)</code>
+        /// </summary>
+        /// <param name="data"></param>
+        /// <param name="command"></param>
+        protected virtual void WriteAllToCommand(List<DataPoint> data, IDbCommand command)
+        {
+            data.ForEach(dataPoint => WriteIntoCommand(dataPoint, command));
         }
 
         protected abstract void WriteIntoCommand(DataPoint dataPoint, IDbCommand command);
