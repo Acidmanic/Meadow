@@ -11,121 +11,17 @@ using Meadow.Requests.FieldManipulation;
 
 namespace Meadow.Sql
 {
-    public class SqlDataStorageAdapter : IStandardDataStorageAdapter<SqlCommand, IDataReader>
+    public class SqlDataStorageAdapter : SqlDataStorageAdapterBase
     {
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks)
+        protected override void WriteIntoCommand(DataPoint dataPoint, IDbCommand command)
         {
-            var storageData = ReadAllRecords(carrier);
-
-            storageData = Filter(storageData, fromStorageMarks);
-
-            var standardData = new SqlStandardDataTranslator().TranslateFromStorage(storageData, typeof(TModel));
-
-            List<TModel> results = new List<TModel>();
-
-            foreach (var record in standardData)
+            var parameter = new SqlParameter("@" + dataPoint.Identifier, dataPoint.Value ?? DBNull.Value)
             {
-                var evaluator = new ObjectEvaluator(typeof(TModel));
+                Direction = ParameterDirection.Input
+            };
 
-                evaluator.LoadStandardData(record);
-
-                var recordObject = evaluator.As<TModel>();
-
-                if (recordObject != null)
-                {
-                    results.Add(recordObject);
-                }
-            }
-
-            return results;
+            command.Parameters.Add(parameter);
         }
-
-        public void WriteToStorage(SqlCommand command, IFieldMarks toStorageMarks, ObjectEvaluator evaluator)
-        {
-            var standardData = new Record(evaluator.ToStandardFlatData()
-                // Select Only Direct-Leaves
-                .Where(dp =>
-                {
-                    var node = evaluator.Map.NodeByAddress(dp.Identifier);
-
-                    return node.IsLeaf && node.Parent == evaluator.RootNode;
-                }));
-
-            List<DataPoint> data = new SqlStandardDataTranslator().TranslateToStorage(standardData, evaluator);
-
-            foreach (var dataPoint in data)
-            {
-                if (toStorageMarks.IsIncluded(dataPoint.Identifier))
-                {
-                    var parameter = new SqlParameter("@" + dataPoint.Identifier, dataPoint.Value ?? DBNull.Value);
-
-                    parameter.Direction = ParameterDirection.Input;
-
-                    command.Parameters.Add(parameter);
-                }
-            }
-        }
-
-
-        private Record Filter(Record record, IFieldMarks filter)
-        {
-            var filteredRecord =
-                record.Where(dp => filter.IsIncluded(dp.Identifier));
-
-            return new Record(filteredRecord);
-        }
-
-        private List<Record> Filter(List<Record> records, IFieldMarks filter)
-        {
-            var filteredRecords = records.Select(r => Filter(r, filter));
-
-            return new List<Record>(filteredRecords);
-        }
-
-        private List<Record> ReadAllRecords(IDataReader dataReader)
-        {
-            var drFields = EnumFields(dataReader);
-
-            var records = new List<Record>();
-
-            while (dataReader.Read())
-            {
-                // For each Record
-                var record = new Record();
-                // Read all the record data cells
-                foreach (var field in drFields)
-                {
-                    var value = dataReader[field];
-
-                    if (!(value is DBNull) && value != null)
-                    {
-                        var datapoint = new DataPoint
-                        {
-                            Identifier = field,
-                            Value = dataReader[field]
-                        };
-                        record.Add(datapoint);
-                    }
-                }
-
-                // Store data in memory for further processing
-                records.Add(record);
-            }
-
-            return records;
-        }
-
-
-        private List<string> EnumFields(IDataReader dataReader)
-        {
-            var result = new List<string>();
-
-            for (int i = 0; i < dataReader.FieldCount; i++)
-            {
-                result.Add(dataReader.GetName(i));
-            }
-
-            return result;
-        }
+        
     }
 }

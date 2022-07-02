@@ -26,7 +26,7 @@ namespace Meadow
 
         
 
-        protected IStandardDataStorageAdapter<SqlCommand, IDataReader> DataStorageAdapter { get; } =
+        protected IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } =
             new SqlDataStorageAdapter();
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
