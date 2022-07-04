@@ -14,6 +14,7 @@ namespace Meadow.Requests
 
         public ConfigurationRequest(bool returnsValue) : base(returnsValue)
         {
+            Execution = RequestExecution.RequestTextIsExecutable;
         }
 
         public ConfigurationRequestResult Result { get; set; }

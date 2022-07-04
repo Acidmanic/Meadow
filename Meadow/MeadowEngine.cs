@@ -42,8 +42,7 @@ namespace Meadow
             }
 
             // Run UserRequest as Procedure Request
-            return new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, _configuration,
-                MeadowDataAccessCore.RequestExecutionType.Procedure);
+            return new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, _configuration);
         }
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
@@ -53,8 +52,7 @@ namespace Meadow
             {
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
-                var meadowRequest = new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, config,
-                    MeadowDataAccessCore.RequestExecutionType.Script);
+                var meadowRequest = new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, config);
 
                 return new ConfigurationRequestResult
                 {
