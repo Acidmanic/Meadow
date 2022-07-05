@@ -4,6 +4,7 @@ using Meadow.DataSource;
 using Meadow.Extensions;
 using Meadow.Requests.FieldManipulation;
 using Meadow.Sql;
+using Meadow.SqlServer;
 using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Test.Functional.TestDoubles;

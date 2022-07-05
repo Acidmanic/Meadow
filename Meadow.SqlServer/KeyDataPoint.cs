@@ -1,8 +1,7 @@
-using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 
-namespace Meadow.Sql
+namespace Meadow.SqlServer
 {
     public class KeyDataPoint
     {

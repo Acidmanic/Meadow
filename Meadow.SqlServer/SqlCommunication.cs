@@ -5,7 +5,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
 
-namespace Meadow.Sql
+namespace Meadow.SqlServer
 {
     public class SqlCommunication : IStorageCommunication<IDbCommand, IDataReader>
     {

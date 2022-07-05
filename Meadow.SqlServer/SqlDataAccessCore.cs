@@ -2,8 +2,9 @@ using System.Data;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
+using Meadow.Sql;
 
-namespace Meadow.Sql
+namespace Meadow.SqlServer
 {
     public class SqlDataAccessCore:MeadowDataAccessCoreBase<IDbCommand,IDataReader>
     {

@@ -2,8 +2,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Meadow\Meadow.csproj" />
-
-    <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0-preview.5.22302.2" />
   </ItemGroup>
 
   <PropertyGroup>

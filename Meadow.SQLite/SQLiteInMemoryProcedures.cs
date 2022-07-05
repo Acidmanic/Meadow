@@ -50,6 +50,18 @@ namespace Meadow.SQLite
 
             return _doNothing;
         }
+        
+        public SqLiteProcedure GetProcedureOrNull(string name)
+        {
+            var key = SqLiteProcedure.GetKey(name);
+
+            if (_procedures.ContainsKey(name))
+            {
+                return _procedures[name];
+            }
+
+            return null;
+        }
 
         public void AddProcedure(SqLiteProcedure procedure)
         {

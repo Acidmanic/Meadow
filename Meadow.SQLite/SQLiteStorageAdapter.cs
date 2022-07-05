@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Requests;
 using Meadow.Sql;
 
 namespace Meadow.SQLite
@@ -11,11 +12,14 @@ namespace Meadow.SQLite
     {
         protected override void WriteAllToCommand(List<DataPoint> data, IDbCommand command)
         {
-            var procedure = SqLiteInMemoryProcedures.Instance.GetProcedure(command.CommandText);
+            var procedure = SqLiteInMemoryProcedures.Instance.GetProcedureOrNull(command.CommandText);
 
-            var injectedCode = InjectValuesIntoCode(procedure, data);
+            if (procedure != null)
+            {
+                var injectedCode = InjectValuesIntoCode(procedure, data);
 
-            command.CommandText = injectedCode;
+                command.CommandText = injectedCode;   
+            }
         }
 
         private string InjectValuesIntoCode(SqLiteProcedure procedure, List<DataPoint> data)

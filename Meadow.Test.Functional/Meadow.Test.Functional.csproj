@@ -17,6 +17,7 @@
         <ProjectReference Include="..\Meadow\Meadow.csproj" />
         <ProjectReference Include="..\Meadow.Tools.Assistant\Meadow.Tools.Assistant.csproj" />
         <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
+        <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,5 +1,6 @@
 using System.Reflection.Metadata;
 using Meadow.Sql;
+using Meadow.SqlServer;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Utility;
 
