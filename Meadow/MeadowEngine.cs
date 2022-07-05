@@ -33,6 +33,18 @@ namespace Meadow
         {
         }
 
+        public static void UseDataAccess(IMeadowDataAccessCoreProvider provider)
+        {
+            if (provider == null)
+            {
+                _coreProvider = new CoreProvider<NullMeadowCore>();
+            }
+            else
+            {
+                _coreProvider = provider;
+            }
+        }
+
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
             where TOut : class, new()
         {

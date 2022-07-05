@@ -1,16 +1,11 @@
-using System;
 using System.Data;
-using System.Data.SqlClient;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
-using Meadow.Requests;
-using Meadow.Sql;
 
-namespace Meadow
+namespace Meadow.Sql
 {
-    internal class MeadowDataAccessCore:MeadowDataAccessCoreBase<IDbCommand,IDataReader>
+    public class SqlDataAccessCore:MeadowDataAccessCoreBase<IDbCommand,IDataReader>
     {
         public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
         protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } = new SqlDataStorageAdapter();

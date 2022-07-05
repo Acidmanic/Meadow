@@ -7,7 +7,7 @@ using Meadow.Sql;
 
 namespace Meadow.DataAccessCore
 {
-    internal abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier>:IMeadowDataAccessCore
+    public abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier>:IMeadowDataAccessCore
     {
         public abstract IDataOwnerNameProvider DataOwnerNameProvider { get; }
 
