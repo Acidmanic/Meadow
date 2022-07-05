@@ -9,13 +9,11 @@ namespace Meadow.DataAccessCore
 {
     internal abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier>:IMeadowDataAccessCore
     {
-        private readonly IDataOwnerNameProvider _dataOwnerNameProvider;
+        public abstract IDataOwnerNameProvider DataOwnerNameProvider { get; }
 
-        public MeadowDataAccessCoreBase(IDataOwnerNameProvider dataOwnerNameProvider)
+        public MeadowDataAccessCoreBase()
         {
-            _dataOwnerNameProvider = dataOwnerNameProvider;
         }
-
 
         protected abstract IStandardDataStorageAdapter<TToStorageCarrier, TFromStorageCarrier> DataStorageAdapter { get; }
 
@@ -26,7 +24,7 @@ namespace Meadow.DataAccessCore
             MeadowConfiguration configuration)
             where TOut : class, new()
         {
-            request.InitializeBeforeExecution(_dataOwnerNameProvider);
+            request.InitializeBeforeExecution(DataOwnerNameProvider);
 
 
             var carrier = ProvideCarrier(request, configuration);

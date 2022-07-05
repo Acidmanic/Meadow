@@ -5,8 +5,11 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
+using Meadow.Contracts;
 using Meadow.Log;
+using Meadow.NullCore;
 using Meadow.Requests;
+using Meadow.Utility;
 
 namespace Meadow
 {
@@ -14,15 +17,16 @@ namespace Meadow
     {
         private readonly MeadowConfiguration _configuration;
         private readonly EnhancedLogger _logger;
-        private IDataOwnerNameProvider TableNameProvider { get; set; }
 
+
+        private static IMeadowDataAccessCoreProvider _coreProvider = new CoreProvider<NullMeadowCore>();
+        
+        
         public MeadowEngine(MeadowConfiguration configuration, ILogger logger)
         {
             _configuration = configuration;
             _logger = new EnhancedLogger(logger);
             
-            //TODO: Tie to configurations
-            TableNameProvider = new PluralDataOwnerNameProvider();
         }
 
         public MeadowEngine(MeadowConfiguration configuration) : this(configuration, new NullLogger())
@@ -42,7 +46,7 @@ namespace Meadow
             }
 
             // Run UserRequest as Procedure Request
-            return new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, _configuration);
+            return _coreProvider.CreateDataAccessCore().PerformRequest(request, _configuration);
         }
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
@@ -52,7 +56,7 @@ namespace Meadow
             {
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
-                var meadowRequest = new MeadowDataAccessCore(TableNameProvider).PerformRequest(request, config);
+                var meadowRequest = _coreProvider.CreateDataAccessCore().PerformRequest(request, config);
 
                 return new ConfigurationRequestResult
                 {
