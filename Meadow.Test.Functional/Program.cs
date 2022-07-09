@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd013MeadowEngineMustCreateHistoryBasis().Main();
+            new Tdd020WorkWithBothDataAccesses().Main();
         }
     }
 }

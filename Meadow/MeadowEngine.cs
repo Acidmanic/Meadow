@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
+using Meadow.Configuration.Requests;
 using Meadow.Contracts;
 using Meadow.Log;
+using Meadow.Models;
 using Meadow.NullCore;
 using Meadow.Requests;
 using Meadow.Utility;
@@ -20,7 +20,6 @@ namespace Meadow
 
 
         private static IMeadowDataAccessCoreProvider _coreProvider = new CoreProvider<NullMeadowCore>();
-        
         
         public MeadowEngine(MeadowConfiguration configuration, ILogger logger)
         {
@@ -87,55 +86,75 @@ namespace Meadow
 
         public void CreateDatabase()
         {
-            PerformRequest(new CreateDatabaseRequest());
+            _coreProvider.CreateDataAccessCore()
+                .CreateDatabase(_configuration);
 
             PerformPostDatabaseCreationTasks();
         }
 
         private void PerformPostDatabaseCreationTasks()
         {
-            var scripts = new MeadowBuiltInScripts().GenerateHistoryBasis();
-
-            scripts.ForEach(s => PerformScript(s));
+            var core = _coreProvider.CreateDataAccessCore();
+            
+            core.CreateTable<MeadowDatabaseHistory>(_configuration);
+            
+            core.CreateInsertProcedure<MeadowDatabaseHistory>(_configuration);
+            
+            core.CreateLastInsertedProcedure<MeadowDatabaseHistory>(_configuration);
+            
         }
-
 
         public void DropDatabase()
         {
-            PerformRequest(new DropDatabaseRequest());
+            _coreProvider.CreateDataAccessCore()
+                .DropDatabase(_configuration);
         }
 
         public bool DatabaseExists()
         {
-            var exists = PerformRequest(new DatabaseExistsRequest());
-
-            return exists.FromStorage[0].Value;
+            return _coreProvider.CreateDataAccessCore()
+                .DatabaseExists(_configuration);
         }
 
         public void CreateIfNotExist()
         {
-            PerformRequest(new CreateIfNotExistRequest());
-
+            _coreProvider.CreateDataAccessCore()
+                .CreateDatabaseIfNotExists(_configuration);
+            
             PerformPostDatabaseCreationTasks();
         }
 
+        
+        private  TModel ReadLastInsertedRecord<TModel>() where TModel : class, new()
+        {
+            var response = PerformRequest(new ReadLastModel<TModel>());
+
+            if (response.FromStorage != null && response.FromStorage.Count == 1)
+            {
+                return response.FromStorage[0];
+            }
+
+            return default;
+        }
+        
         /// <summary>
         /// Applies all available buildup scripts
         /// </summary>
         /// <returns>A list of log reports</returns>
         public void BuildUpDatabase()
         {
-            var lastExecResult = PerformRequest(new LastExecutedHistoryRequest());
+            var core = _coreProvider.CreateDataAccessCore();
+
+
+            var lastExecResult = ReadLastInsertedRecord<MeadowDatabaseHistory>();
 
             int lastAppliedOrder = -1;
 
-            if (lastExecResult.FromStorage != null && lastExecResult.FromStorage.Count == 1)
+            if (lastExecResult!=null)
             {
-                var lastExec = lastExecResult.FromStorage[0];
+                _logger.Log($"Already built up, up to {lastExecResult.ScriptName}:{lastExecResult.ScriptOrder}");
 
-                _logger.Log($"Already built up, up to {lastExec.ScriptName}:{lastExec.ScriptOrder}");
-
-                lastAppliedOrder = lastExec.ScriptOrder;
+                lastAppliedOrder = lastExecResult.ScriptOrder;
             }
 
             var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory);
@@ -166,6 +185,8 @@ namespace Meadow
                         anyApplied = true;
 
                         PerformRequest(new MarkExecutionInHistoryRequest(info));
+                        
+                        
                     }
                     else
                     {
@@ -187,36 +208,22 @@ namespace Meadow
                 _logger.Log($@"*** Everything Already Up-to-date ***");
             }
 
-
-            return;
         }
 
 
         public List<string> EnumerateProcedures()
         {
-            return EnumerateDbObject(true);
+            return _coreProvider.CreateDataAccessCore()
+                .EnumerateProcedures(_configuration);
         }
 
         public List<string> EnumerateTables()
         {
-            return EnumerateDbObject(false);
+            return _coreProvider.CreateDataAccessCore()
+                .EnumerateTables(_configuration);
         }
 
-        private List<string> EnumerateDbObject(bool dbProcedureNotTable)
-        {
-            var response = dbProcedureNotTable
-                ? PerformRequest(new EnumerateProceduresRequest())
-                : PerformRequest(new EnumerateTablesRequest());
-
-            var result = new List<string>();
-
-            if (response.FromStorage != null)
-            {
-                result = response.FromStorage.Select(n => n.Name).ToList();
-            }
-
-            return result;
-        }
+       
 
         private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
         {

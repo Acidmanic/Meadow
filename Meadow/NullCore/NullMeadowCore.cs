@@ -1,14 +1,14 @@
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.DataAccessCore;
 using Meadow.Log;
 using Meadow.Requests;
 
 namespace Meadow.NullCore
 {
-    public class NullMeadowCore:IMeadowDataAccessCore
+    public class NullMeadowCore : IMeadowDataAccessCore
     {
-
         private readonly ILogger _logger;
 
         public NullMeadowCore(ILogger logger)
@@ -16,13 +16,13 @@ namespace Meadow.NullCore
             _logger = logger;
         }
 
-        public NullMeadowCore():this(new ConsoleLogger())
+        public NullMeadowCore() : this(new ConsoleLogger())
         {
-            
         }
 
 
-        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
+        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request,
+            MeadowConfiguration configuration) where TOut : class, new()
         {
             _logger.Log("No DataAccessCore has been introduced to meadow engine.");
 
@@ -32,6 +32,50 @@ namespace Meadow.NullCore
             }
 
             return request;
+        }
+
+        public void CreateDatabase(MeadowConfiguration configuration)
+        {
+        }
+
+        public void CreateDatabaseIfNotExists(MeadowConfiguration configuration)
+        {
+        }
+
+        public void DropDatabase(MeadowConfiguration configuration)
+        {
+        }
+
+        public bool DatabaseExists(MeadowConfiguration configuration)
+        {
+            return false;
+        }
+
+        public List<string> EnumerateProcedures(MeadowConfiguration configuration)
+        {
+            return new List<string>();
+        }
+
+        public List<string> EnumerateTables(MeadowConfiguration configuration)
+        {
+            return new List<string>();
+        }
+
+        public void CreateTable<TModel>(MeadowConfiguration configuration)
+        {
+        }
+
+        public void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
+        {
+        }
+
+        public void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
+        {
+        }
+
+        public TModel ReadLastInsertedRecord<TModel>(MeadowConfiguration configuration) where TModel : class, new()
+        {
+            return null;
         }
     }
 }

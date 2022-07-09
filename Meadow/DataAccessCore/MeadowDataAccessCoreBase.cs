@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
@@ -10,7 +11,8 @@ namespace Meadow.DataAccessCore
     public abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier>:IMeadowDataAccessCore
     {
         public abstract IDataOwnerNameProvider DataOwnerNameProvider { get; }
-
+        
+        
         public MeadowDataAccessCoreBase()
         {
         }
@@ -19,6 +21,8 @@ namespace Meadow.DataAccessCore
 
         protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication { get; }
 
+        
+        
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
@@ -40,6 +44,17 @@ namespace Meadow.DataAccessCore
             return request;
         }
 
+        public abstract void CreateDatabase(MeadowConfiguration configuration);
+        public abstract void CreateDatabaseIfNotExists(MeadowConfiguration configuration);
+        public abstract void DropDatabase(MeadowConfiguration configuration);
+        public abstract bool DatabaseExists(MeadowConfiguration configuration);
+        public abstract List<string> EnumerateProcedures(MeadowConfiguration configuration);
+        public abstract List<string> EnumerateTables(MeadowConfiguration configuration);
+        public abstract void CreateTable<TModel>(MeadowConfiguration configuration);
+        public abstract void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
+        public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
+
+
         private TToStorageCarrier ProvideCarrier<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
@@ -60,5 +75,8 @@ namespace Meadow.DataAccessCore
 
             return carrier;
         }
+        
+        
+        
     }
 }

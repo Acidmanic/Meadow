@@ -1,12 +1,10 @@
-using Meadow.Configuration.ConfigurationRequests;
-using Meadow.Requests;
-
-namespace Meadow.BuildupScripts
+namespace Meadow.Requests
 {
-    class SqlRequest : ConfigurationCommandRequest
+    public class SqlRequest : ConfigurationCommandRequest
     {
         private readonly string _sql;
-
+        
+        
         public SqlRequest(string sql)
         {
             _sql = sql;
