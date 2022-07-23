@@ -7,7 +7,7 @@ namespace Meadow.SQLite
         public static MeadowEngine UseSQLite(this MeadowEngine engine)
         {
 
-            MeadowEngine.UseDataAccess(new CoreProvider<SQLiteDataAccessCore>());
+            MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
 
             return engine;
         }

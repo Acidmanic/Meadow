@@ -11,6 +11,15 @@ namespace Meadow.SqlServer.ConfigurationRequests
         private string _providedDbName = "MeadoDatabase";
 
 
+        protected override string GetRequestText()
+        {
+            return
+                $@"IF (DB_ID('{_providedDbName}') IS NOT NULL)
+                    select cast(1 as bit) Value 
+                ELSE 
+                    select cast(0 as bit) Value";
+        }
+
         protected override MeadowConfiguration ReConfigure(MeadowConfiguration config,
             Dictionary<string, string> valuesMap)
         {
@@ -27,14 +36,5 @@ namespace Meadow.SqlServer.ConfigurationRequests
             };
         }
 
-        protected override string GetRequestText()
-        {
-            return
-                $@"IF (DB_ID('{_providedDbName}') IS NOT NULL)
-                    select cast(1 as bit) Value 
-                ELSE 
-                    select cast(0 as bit) Value";
-        }
-        
     }
 }

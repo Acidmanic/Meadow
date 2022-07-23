@@ -11,9 +11,10 @@ namespace Meadow.Configuration.ConfigurationRequests
         }
 
 
-        protected override string GetRequestText()
+        public override string RequestText
         {
-            return new NameConvention(typeof(TModel)).SelectLastProcedureName;
+            get { return new NameConvention(typeof(TModel)).SelectLastProcedureName; }
+            protected set { }
         }
     }
 }

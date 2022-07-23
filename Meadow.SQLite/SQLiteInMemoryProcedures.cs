@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Meadow.SQLite
 {
@@ -18,7 +19,7 @@ namespace Meadow.SQLite
             {
                 Code = "",
                 Name = "",
-                ParameterNames = new List<string>()
+                Parameters = new Dictionary<string, string>()
             };
         }
 
@@ -43,21 +44,21 @@ namespace Meadow.SQLite
         {
             var key = SqLiteProcedure.GetKey(name);
 
-            if (_procedures.ContainsKey(name))
+            if (_procedures.ContainsKey(key))
             {
-                return _procedures[name];
+                return _procedures[key];
             }
 
             return _doNothing;
         }
-        
+
         public SqLiteProcedure GetProcedureOrNull(string name)
         {
             var key = SqLiteProcedure.GetKey(name);
 
-            if (_procedures.ContainsKey(name))
+            if (_procedures.ContainsKey(key))
             {
-                return _procedures[name];
+                return _procedures[key];
             }
 
             return null;
@@ -78,6 +79,11 @@ namespace Meadow.SQLite
             }
 
             _procedures.Add(key, procedure);
+        }
+
+        public List<string> ListProcedures()
+        {
+            return new List<string>(_procedures.Values.Select(v => v.Name));
         }
     }
 }

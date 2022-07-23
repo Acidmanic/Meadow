@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Data;
+using System.Security.Cryptography;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -11,10 +12,12 @@ namespace Meadow.DataAccessCore
     public abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier>:IMeadowDataAccessCore
     {
         public abstract IDataOwnerNameProvider DataOwnerNameProvider { get; }
-        
+
+        private List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>> _carrierInterceptors;
         
         public MeadowDataAccessCoreBase()
         {
+            _carrierInterceptors = new List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>>();
         }
 
         protected abstract IStandardDataStorageAdapter<TToStorageCarrier, TFromStorageCarrier> DataStorageAdapter { get; }
@@ -23,7 +26,7 @@ namespace Meadow.DataAccessCore
 
         
         
-        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
+        public virtual MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
             where TOut : class, new()
@@ -36,6 +39,8 @@ namespace Meadow.DataAccessCore
 
             void OnDataAvailable(TFromStorageCarrier reader)
             {
+                InterceptFromStorage(reader);
+                
                 request.FromStorage = DataStorageAdapter.ReadFromStorage<TOut>(reader, request.FromStorageMarks);
             }
 
@@ -55,7 +60,7 @@ namespace Meadow.DataAccessCore
         public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
 
 
-        private TToStorageCarrier ProvideCarrier<TIn, TOut>(
+        protected virtual TToStorageCarrier ProvideCarrier<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
             where TOut : class, new()
@@ -66,17 +71,34 @@ namespace Meadow.DataAccessCore
 
             if (storage is null)
             {
+                InterceptToStorage(carrier,new ObjectEvaluator(typeof(TIn)));
+                
                 return carrier;
             }
 
             var evaluator = new ObjectEvaluator(storage);
 
+            InterceptToStorage(carrier,evaluator);
+            
             DataStorageAdapter.WriteToStorage(carrier, request.ToStorageMarks, evaluator);
-
+            
             return carrier;
         }
+
+        protected void AddCarrierInterceptor(
+            ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier> carrierInterceptor)
+        {
+            _carrierInterceptors.Add(carrierInterceptor);
+        }
+
+        private void InterceptToStorage(TToStorageCarrier carrier,ObjectEvaluator data)
+        {
+            _carrierInterceptors.ForEach(i => i.InterceptBeforeCommunication(carrier,data));
+        }
         
-        
-        
+        private void InterceptFromStorage(TFromStorageCarrier carrier)
+        {
+            _carrierInterceptors.ForEach(i => i.InterceptAfterCommunication(carrier));
+        }
     }
 }

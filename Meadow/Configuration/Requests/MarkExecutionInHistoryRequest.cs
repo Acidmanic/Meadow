@@ -1,4 +1,6 @@
+using System;
 using Meadow.BuildupScripts;
+using Meadow.Extensions;
 using Meadow.Models;
 using Meadow.Reflection.Conventions;
 using Meadow.Requests.Common;
@@ -11,15 +13,17 @@ namespace Meadow.Configuration.Requests
         {
             ToStorage = new MeadowDatabaseHistory
             {
-                Script = script.Script,
+                Script = script.Script.ToBase64String(),
                 ScriptName = script.Name,
                 ScriptOrder = script.OrderIndex
             };
         }
 
-        protected override string GetRequestText()
+
+        public override string RequestText
         {
-            return new NameConvention(typeof(MeadowDatabaseHistory)).InsertProcedureName;
+            get { return new NameConvention(typeof(MeadowDatabaseHistory)).InsertProcedureName; }
+            protected set { }
         }
     }
 }

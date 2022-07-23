@@ -6,7 +6,7 @@ namespace Meadow.Requests
 {
     public abstract class MeadowRequest
     {
-        public string RequestText { get; protected set; }
+        public virtual string RequestText { get; protected set; }
 
         public bool ReturnsValue { get; }
         
@@ -48,7 +48,7 @@ namespace Meadow.Requests
 
         internal void InitializeBeforeExecution(IDataOwnerNameProvider dataOwnerNameProvider)
         {
-            RequestText = GetRequestText();
+            RequestText = GetProcedureNameFromRequestName();
 
             
 
@@ -60,7 +60,7 @@ namespace Meadow.Requests
             OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
         }
 
-        protected virtual string GetRequestText()
+        protected string GetProcedureNameFromRequestName()
         {
             var name = this.GetType().Name;
 

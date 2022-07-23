@@ -17,6 +17,14 @@ namespace Meadow.Requests
             Execution = RequestExecution.RequestTextIsExecutable;
         }
 
+        protected abstract string GetRequestText();
+        
+        public override string RequestText
+        {
+            get { return GetRequestText(); }
+            protected set { }
+        }
+
         public ConfigurationRequestResult Result { get; set; }
 
         public virtual MeadowConfiguration PreConfigure(MeadowConfiguration configuration)

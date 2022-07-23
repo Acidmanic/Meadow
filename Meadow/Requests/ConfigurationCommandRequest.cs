@@ -5,5 +5,7 @@ namespace Meadow.Requests
         public ConfigurationCommandRequest() : base(false)
         {
         }
+
+        
     }
 }

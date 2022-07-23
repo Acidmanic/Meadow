@@ -23,7 +23,7 @@ namespace Meadow.Configuration.ConfigurationRequests
                 ConnectionString = new ConnectionStringParser().CreateConnectionString(valuesMap)
             };
         }
-
+        
         protected override string GetRequestText()
         {
             return $@"IF (DB_ID('{_providedDbName}') IS NULL)

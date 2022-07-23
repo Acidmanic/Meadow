@@ -23,7 +23,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected AccessTreeInformation TreeInformation { get; }
 
-        protected IDbTypeNameMapper TypeNameMapper { get; }
+        protected IDbTypeNameMapper TypeNameMapper { get; private set; }
 
         public abstract string SqlObjectName { get; }
 
@@ -35,6 +35,11 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected bool HasIdField => UniqueNodes.Any();
 
+        protected void UseDbTypeMapper(IDbTypeNameMapper mapper)
+        {
+            this.TypeNameMapper = mapper;
+        }
+        
         public SqlGeneratorBase(Type type)
         {
             Type = type;

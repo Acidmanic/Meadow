@@ -1,9 +1,8 @@
 using System;
-using Meadow.DataTypeMapping;
-using Meadow.Reflection;
+using Meadow.Scaffolding;
 using Meadow.Scaffolding.CodeGenerators;
 
-namespace Meadow.Scaffolding.SqlScriptsGenerators
+namespace Meadow.SQLite.SqlScriptsGenerators
 {
     public class TableScriptGenerator : SqlGeneratorBase
     {
@@ -11,6 +10,7 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
 
         public TableScriptGenerator(Type type) : base(type)
         {
+            UseDbTypeMapper(new SqLiteTypeNameMapper());
         }
 
         public override Code Generate(SqlScriptActions action)
@@ -25,11 +25,19 @@ namespace Meadow.Scaffolding.SqlScriptsGenerators
                 string typeName = TypeNameMapper[leaf.Type];
 
                 var id = "";
-
-                id += leaf.IsUnique ? " NOT NULL PRIMARY KEY" : "";
-
-                id += leaf.IsAutoValued ? " IDENTITY (1,1)":"";
-
+                // For supported (by SQLite) types to be auto incremented
+                if (leaf.IsAutoValued && typeName=="INTEGER")
+                {
+                    id = " PRIMARY KEY";
+                }
+                else
+                {
+                    // For regular fields
+                    if (leaf.IsUnique)
+                    {
+                        id = " NOT NULL PRIMARY KEY";
+                    }
+                }
                 parameters += sep + fieldName + " " + typeName + id;
 
                 sep = ", ";

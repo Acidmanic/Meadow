@@ -5,7 +5,9 @@ namespace Meadow.Models
 {
     public class MeadowDatabaseHistory
     {
-        [UniqueMember] public long Id { get; set; }
+        [UniqueMember]
+        [AutoValuedMember]
+        public long Id { get; set; }
 
         public int ScriptOrder { get; set; }
 
