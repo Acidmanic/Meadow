@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd020WorkWithBothDataAccesses().Main();
+            new Tdd023MqSqlTest().Main();
         }
     }
 }
