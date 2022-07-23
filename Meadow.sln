@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SQLite", "Meadow.SQL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SqlServer", "Meadow.SqlServer\Meadow.SqlServer.csproj", "{C19204D1-0D11-4E78-8611-9273B044BF2A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.MySql", "Meadow.MySql\Meadow.MySql.csproj", "{D2457DAC-1E49-48CF-89E6-A70E33E96812}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,5 +45,9 @@ Global
 		{C19204D1-0D11-4E78-8611-9273B044BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C19204D1-0D11-4E78-8611-9273B044BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C19204D1-0D11-4E78-8611-9273B044BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2457DAC-1E49-48CF-89E6-A70E33E96812}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2457DAC-1E49-48CF-89E6-A70E33E96812}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2457DAC-1E49-48CF-89E6-A70E33E96812}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2457DAC-1E49-48CF-89E6-A70E33E96812}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
