@@ -2,7 +2,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
-    internal class FullTreeSelectState
+    public class FullTreeSelectState
     {
         public string Joins { get; set; }
 

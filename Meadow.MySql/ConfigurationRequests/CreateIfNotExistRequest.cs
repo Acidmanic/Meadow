@@ -27,9 +27,7 @@ namespace Meadow.MySql.ConfigurationRequests
         
         protected override string GetRequestText()
         {
-            return $@"IF (DB_ID('{_providedDbName}') IS NULL)
-                        CREATE DATABASE {_providedDbName};
-                    END IF;";
+            return $@"CREATE DATABASE IF NOT EXISTS {_providedDbName};";
         }
     }
 }

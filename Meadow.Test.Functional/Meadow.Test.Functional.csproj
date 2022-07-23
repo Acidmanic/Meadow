@@ -19,19 +19,17 @@
         <ProjectReference Include="..\Meadow.Tools.Assistant\Meadow.Tools.Assistant.csproj" />
         <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
         <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
+        <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <Content Include="Scripts\**">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content Include="SqLiteScripts\0000-initialize.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <Content Include="MySqlScripts\**">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content Include="SqLiteScripts\0001-seed-data.sql">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Include="SqLiteScripts\0002-add-cruds.sql">
+        <Content Include="SqLiteScripts\**">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>

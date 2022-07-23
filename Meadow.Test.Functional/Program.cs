@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd023MqSqlTest().Main();
+            new Tdd024UseMySqlDb().Main();
         }
     }
 }

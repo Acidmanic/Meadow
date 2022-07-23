@@ -6,7 +6,7 @@ using Meadow.Utility;
 
 namespace Meadow.MySql.ConfigurationRequests
 {
-    class DatabaseExistsRequest : ConfigurationFunctionRequest<BooleanResult>
+    class FindDatabase : ConfigurationFunctionRequest<NameResult>
     {
         private string _providedDbName = "MeadoDatabase";
 
@@ -14,11 +14,7 @@ namespace Meadow.MySql.ConfigurationRequests
         protected override string GetRequestText()
         {
             return
-                $@"IF (DB_ID('{_providedDbName}') IS NOT NULL)
-                    select cast(1 as bit) Value; 
-                ELSE 
-                    select cast(0 as bit) Value;
-                END IF;";
+                $@"SELECT SCHEMA_NAME Name FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='{_providedDbName}';;";
         }
 
         protected override MeadowConfiguration ReConfigure(MeadowConfiguration config,

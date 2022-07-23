@@ -1,17 +1,16 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.IO;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
-using Meadow.Configuration.ConfigurationRequests;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
 using Meadow.MySql.ConfigurationRequests;
 using Meadow.Requests;
-using Meadow.Scaffolding.SqlScriptsGenerators;
-using Meadow.Utility;
+using InsertProcedureGenerator = Meadow.MySql.Scaffolding.MySqlScriptGenerators.InsertProcedureGenerator;
+using ReadSequenceProcedureGenerator = Meadow.MySql.Scaffolding.MySqlScriptGenerators.ReadSequenceProcedureGenerator;
+using TableScriptGenerator = Meadow.MySql.Scaffolding.MySqlScriptGenerators.TableScriptGenerator;
 
 namespace Meadow.MySql
 {
@@ -28,7 +27,7 @@ namespace Meadow.MySql
         public MySqlDataAccessCore()
         {
         }
-        
+
         private void PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
             where TOut : class, new()
@@ -38,7 +37,6 @@ namespace Meadow.MySql
                 var config = request.PreConfigure(configuration);
 
                 PerformRequest(request, config);
-
             }
             catch (Exception e)
             {
@@ -46,8 +44,8 @@ namespace Meadow.MySql
                 Console.WriteLine(e);
             }
         }
-        
-        
+
+
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
             var request = new CreateDatabaseRequest();
@@ -71,7 +69,7 @@ namespace Meadow.MySql
 
         public override bool DatabaseExists(MeadowConfiguration configuration)
         {
-            var request = new DatabaseExistsRequest();
+            var request = new FindDatabase();
 
             var config = request.PreConfigure(configuration);
 
@@ -79,17 +77,17 @@ namespace Meadow.MySql
 
             if (response.FromStorage != null && response.FromStorage.Count > 0 && response.FromStorage[0] != null)
             {
-                return response.FromStorage[0].Value;
+                return response.FromStorage.Count > 0;
             }
 
             return false;
         }
 
-        private List<string> EnumerateDbObject(bool dbProcedureNotTable,MeadowConfiguration configuration)
+        private List<string> EnumerateDbObject(bool dbProcedureNotTable, MeadowConfiguration configuration)
         {
             var response = dbProcedureNotTable
-                ? PerformRequest(new EnumerateProceduresRequest(),configuration)
-                : PerformRequest(new EnumerateTablesRequest(),configuration);
+                ? PerformRequest(new EnumerateProceduresRequest(), configuration)
+                : PerformRequest(new EnumerateTablesRequest(), configuration);
 
             var result = new List<string>();
 
@@ -100,7 +98,7 @@ namespace Meadow.MySql
 
             return result;
         }
-        
+
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
             return EnumerateDbObject(true, configuration);
@@ -114,9 +112,9 @@ namespace Meadow.MySql
         public override void CreateTable<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
-            
+
             var script = new TableScriptGenerator(type).Generate().Text;
-            
+
             var request = new SqlRequest(script);
 
             PerformRequest(request, configuration);
@@ -125,26 +123,23 @@ namespace Meadow.MySql
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
-            
+
             var script = new InsertProcedureGenerator(type).Generate().Text;
-            
+
             var request = new SqlRequest(script);
 
             PerformRequest(request, configuration);
-            
         }
 
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
-            
+
             var script = new ReadSequenceProcedureGenerator(type, false, 1, false).Generate().Text;
-            
+
             var request = new SqlRequest(script);
 
             PerformRequest(request, configuration);
         }
-       
     }
-
 }
