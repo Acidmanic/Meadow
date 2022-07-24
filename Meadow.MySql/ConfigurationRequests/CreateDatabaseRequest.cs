@@ -21,7 +21,8 @@ namespace Meadow.MySql.ConfigurationRequests
 
             return new MeadowConfiguration()
             {
-                ConnectionString = new ConnectionStringParser().CreateConnectionString(valuesMap)
+                ConnectionString = new ConnectionStringParser().CreateConnectionString(valuesMap),
+                BuildupScriptDirectory = config.BuildupScriptDirectory
             };
         }
 

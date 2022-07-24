@@ -30,11 +30,13 @@ namespace Meadow.MySql.ConfigurationRequests
         {
 
             return
-                $@"SELECT IF(count(SCHEMA_NAME)>=1,0,1) into @x FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME={_providedDbName};
+                $@"
+                SELECT IF(count(SCHEMA_NAME)>=1,0,1) into @existance FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{_providedDbName}' ;
 
                 CREATE DATABASE IF NOT EXISTS {_providedDbName};
 
-                SELECT @x Value;";
+                SELECT @existance Value;
+                ";
         }
     }
 }
