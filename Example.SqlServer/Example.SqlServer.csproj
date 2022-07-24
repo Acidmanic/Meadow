@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Meadow\Meadow.csproj" />
+    <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+</Project>
