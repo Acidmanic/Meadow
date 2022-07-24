@@ -1,18 +1,25 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Meadow.SQLite
 {
-    class SqLiteInMemoryProcedures
+    class SqLiteProcedureManager
     {
-        private static SqLiteInMemoryProcedures _instance = null;
+        private static SqLiteProcedureManager _instance = null;
         private static readonly object Locker = new object();
 
 
         private readonly Dictionary<string, SqLiteProcedure> _procedures;
+        private  string _filePath;
+        private  bool _isAssignedToFile;
+        
         private readonly SqLiteProcedure _doNothing;
 
-        private SqLiteInMemoryProcedures()
+        private SqLiteProcedureManager()
         {
             _procedures = new Dictionary<string, SqLiteProcedure>();
             _doNothing = new SqLiteProcedure
@@ -24,7 +31,7 @@ namespace Meadow.SQLite
         }
 
 
-        public static SqLiteInMemoryProcedures Instance
+        public static SqLiteProcedureManager Instance
         {
             get
             {
@@ -32,7 +39,7 @@ namespace Meadow.SQLite
                 {
                     if (_instance == null)
                     {
-                        _instance = new SqLiteInMemoryProcedures();
+                        _instance = new SqLiteProcedureManager();
                     }
 
                     return _instance;
@@ -79,11 +86,66 @@ namespace Meadow.SQLite
             }
 
             _procedures.Add(key, procedure);
+            
+            SaveToFile();
         }
 
         public List<string> ListProcedures()
         {
             return new List<string>(_procedures.Values.Select(v => v.Name));
+        }
+
+
+        public void AssignDatabase(string file)
+        {
+            var proceduresFile = file + ".json";
+
+            _filePath = proceduresFile;
+
+            _isAssignedToFile = true;
+            
+            if (File.Exists(proceduresFile))
+            {
+                _procedures.Clear();
+                
+                try
+                {
+                    var json = File.ReadAllText(proceduresFile);
+
+                    var procs = JsonConvert.DeserializeObject < Dictionary<string, SqLiteProcedure>>(json);
+                    
+                    foreach (var keyValuePair in procs)
+                    {
+                        _procedures.Add(keyValuePair.Key,keyValuePair.Value);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }                
+            }
+            else
+            {
+                SaveToFile();
+            }
+            
+            
+        }
+
+        private void SaveToFile()
+        {
+            if (_isAssignedToFile)
+            {
+                var json = JsonConvert.SerializeObject(this._procedures);
+
+                if (File.Exists(_filePath))
+                {
+                    File.Delete(_filePath);
+                }
+                
+                File.WriteAllText(_filePath,json);
+            }
         }
     }
 }

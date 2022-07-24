@@ -15,7 +15,7 @@ namespace Meadow.SQLite.CarrierInterceptors
         {
             var commandText = carrier.CommandText;
             
-            var procedure = SqLiteInMemoryProcedures.Instance.GetProcedureOrNull(commandText);
+            var procedure = SqLiteProcedureManager.Instance.GetProcedureOrNull(commandText);
             
             if (procedure != null)
             {
@@ -42,7 +42,7 @@ namespace Meadow.SQLite.CarrierInterceptors
             
                 if(p!=null)
                 {
-                    SqLiteInMemoryProcedures.Instance.AddProcedure(p);
+                    SqLiteProcedureManager.Instance.AddProcedure(p);
             
                     commandText = "";
                 }

@@ -77,6 +77,8 @@ namespace Meadow.SQLite
             {
                 var filename = conInfo["Data Source"];
 
+                SqLiteProcedureManager.Instance.AssignDatabase(filename);
+                
                 try
                 {
                     return code(filename);
@@ -119,7 +121,7 @@ namespace Meadow.SQLite
 
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
-            return SqLiteInMemoryProcedures.Instance.ListProcedures();
+            return SqLiteProcedureManager.Instance.ListProcedures();
         }
 
         public override List<string> EnumerateTables(MeadowConfiguration configuration)
@@ -157,7 +159,7 @@ namespace Meadow.SQLite
 
             var procedure = SqLiteProcedure.Parse(script);
             
-            SqLiteInMemoryProcedures.Instance.AddProcedure(procedure);
+            SqLiteProcedureManager.Instance.AddProcedure(procedure);
             
         }
 
@@ -171,7 +173,7 @@ namespace Meadow.SQLite
             
             var procedure = SqLiteProcedure.Parse(script);
             
-            SqLiteInMemoryProcedures.Instance.AddProcedure(procedure);
+            SqLiteProcedureManager.Instance.AddProcedure(procedure);
         }
         
         private string ClearGo(string script)
