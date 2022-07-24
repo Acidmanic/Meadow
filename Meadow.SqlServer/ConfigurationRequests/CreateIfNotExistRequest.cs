@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using Meadow.Configuration;
+using Meadow.Models;
 using Meadow.Requests;
 using Meadow.Utility;
 
-namespace Meadow.Configuration.ConfigurationRequests
+namespace Meadow.SqlServer.ConfigurationRequests
 {
-    class CreateIfNotExistRequest : ConfigurationCommandRequest
+    class CreateIfNotExistRequest : ConfigurationFunctionRequest<BooleanResult>
     {
         private string _providedDbName = "MeadoDatabase";
 
@@ -26,8 +28,15 @@ namespace Meadow.Configuration.ConfigurationRequests
         
         protected override string GetRequestText()
         {
-            return $@"IF (DB_ID('{_providedDbName}') IS NULL)
-                    CREATE DATABASE {_providedDbName}";
+            return $@"
+                IF (DB_ID('{_providedDbName}') IS NOT NULL)
+                BEGIN
+                    {_providedDbName}
+                    select cast(1 as bit) Value
+                END 
+                ELSE 
+                    select cast(0 as bit) Value
+            ";
         }
     }
 }

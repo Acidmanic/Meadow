@@ -22,26 +22,7 @@ namespace Meadow.SqlServer
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; } =
             new SqlCommunication();
-
-
-        private void PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request,
-            MeadowConfiguration configuration)
-            where TOut : class, new()
-        {
-            try
-            {
-                var config = request.PreConfigure(configuration);
-
-                PerformRequest(request, config);
-
-            }
-            catch (Exception e)
-            {
-                //
-                Console.WriteLine(e);
-            }
-        }
-
+        
 
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
@@ -52,12 +33,13 @@ namespace Meadow.SqlServer
         }
 
 
-        public override void CreateDatabaseIfNotExists(MeadowConfiguration configuration)
+        public override bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
             var request = new CreateIfNotExistRequest();
 
-            PerformConfigurationRequest(request, configuration);
+            var response = PerformConfigurationRequest(request, configuration);
 
+            return response.SingleOrDefault()?.Value ?? false;
         }
 
         public override void DropDatabase(MeadowConfiguration configuration)

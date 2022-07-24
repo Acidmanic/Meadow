@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Models;
 using Meadow.Requests;
 using Meadow.Utility;
 
 namespace Meadow.MySql.ConfigurationRequests
 {
-    class CreateIfNotExistRequest : ConfigurationCommandRequest
+    class CreateIfNotExistRequest : ConfigurationFunctionRequest<BooleanResult>
     {
         private string _providedDbName = "MeadoDatabase";
 
@@ -27,7 +28,13 @@ namespace Meadow.MySql.ConfigurationRequests
         
         protected override string GetRequestText()
         {
-            return $@"CREATE DATABASE IF NOT EXISTS {_providedDbName};";
+
+            return
+                $@"SELECT IF(count(SCHEMA_NAME)>=1,0,1) into @x FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME={_providedDbName};
+
+                CREATE DATABASE IF NOT EXISTS {_providedDbName};
+
+                SELECT @x Value;";
         }
     }
 }

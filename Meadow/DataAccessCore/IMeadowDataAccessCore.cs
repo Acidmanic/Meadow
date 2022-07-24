@@ -16,7 +16,12 @@ namespace Meadow.DataAccessCore
 
         void CreateDatabase(MeadowConfiguration configuration);
 
-        void CreateDatabaseIfNotExists(MeadowConfiguration configuration);
+        /// <summary>
+        /// This method will create database only it is not already created.
+        /// </summary>
+        /// <param name="configuration"></param>
+        /// <returns>True if it created a new database</returns>
+        bool CreateDatabaseIfNotExists(MeadowConfiguration configuration);
 
         void DropDatabase(MeadowConfiguration configuration);
 
@@ -31,6 +36,5 @@ namespace Meadow.DataAccessCore
         void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
 
         void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
-
     }
 }

@@ -38,8 +38,9 @@ namespace Meadow.NullCore
         {
         }
 
-        public void CreateDatabaseIfNotExists(MeadowConfiguration configuration)
+        public bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
+            return false;
         }
 
         public void DropDatabase(MeadowConfiguration configuration)

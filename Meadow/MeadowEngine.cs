@@ -118,10 +118,13 @@ namespace Meadow
 
         public void CreateIfNotExist()
         {
-            _coreProvider.CreateDataAccessCore()
+            var created = _coreProvider.CreateDataAccessCore()
                 .CreateDatabaseIfNotExists(_configuration);
-            
-            PerformPostDatabaseCreationTasks();
+
+            if (created)
+            {
+                PerformPostDatabaseCreationTasks();    
+            }
         }
 
         

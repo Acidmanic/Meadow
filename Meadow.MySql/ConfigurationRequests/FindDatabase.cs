@@ -14,7 +14,7 @@ namespace Meadow.MySql.ConfigurationRequests
         protected override string GetRequestText()
         {
             return
-                $@"SELECT SCHEMA_NAME Name FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='{_providedDbName}';;";
+                $@"SELECT SCHEMA_NAME Name FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME='{_providedDbName}';";
         }
 
         protected override MeadowConfiguration ReConfigure(MeadowConfiguration config,

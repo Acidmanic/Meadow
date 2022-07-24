@@ -44,38 +44,32 @@ namespace Meadow.SQLite
             });
         }
 
-        public override void CreateDatabaseIfNotExists(MeadowConfiguration configuration)
+        public override bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
-            TryDbFile(configuration,file =>
+            return TryDbFile(configuration,file =>
             {
                 if (!File.Exists(file))
                 {
                     PerformRequest(new CreateDatabaseRequest(), configuration);
-                    
+
+                    return true;
                 }
+
+                return false;
             });
         }
 
-
-        // protected override IDbCommand ProvideCarrier<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration)
-        // {
-        //     var storage = request.ToStorage;
-        //
-        //     if (request.Execution == RequestExecution.RequestTextIsNameOfRoutine && storage == null)
-        //     {
-        //         var carrier = StorageCommunication.CreateToStorageCarrier(request, configuration);
-        //         
-        //         
-        //         var procedure = SqLiteInMemoryProcedures.Instance.GetProcedure(request.RequestText);
-        //
-        //         carrier.CommandText = procedure.Code;
-        //
-        //         return carrier;
-        //     }
-        //     return base.ProvideCarrier(request, configuration);
-        // }
-
         private void TryDbFile(MeadowConfiguration configuration, Action<string> code)
+        {
+            TryDbFile(configuration, s =>
+            {
+                code(s);
+
+                return true;
+            });
+        }
+
+        private bool TryDbFile(MeadowConfiguration configuration, Func<string,bool> code)
         {
             var conInfo = new ConnectionStringParser().Parse(configuration.ConnectionString);
 
@@ -85,13 +79,15 @@ namespace Meadow.SQLite
 
                 try
                 {
-                    code(filename);
+                    return code(filename);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
                 }
             }
+
+            return false;
         }
 
         public override void DropDatabase(MeadowConfiguration configuration)

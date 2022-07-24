@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Security.Cryptography;
@@ -50,7 +51,7 @@ namespace Meadow.DataAccessCore
         }
 
         public abstract void CreateDatabase(MeadowConfiguration configuration);
-        public abstract void CreateDatabaseIfNotExists(MeadowConfiguration configuration);
+        public abstract bool CreateDatabaseIfNotExists(MeadowConfiguration configuration);
         public abstract void DropDatabase(MeadowConfiguration configuration);
         public abstract bool DatabaseExists(MeadowConfiguration configuration);
         public abstract List<string> EnumerateProcedures(MeadowConfiguration configuration);
@@ -85,6 +86,27 @@ namespace Meadow.DataAccessCore
             return carrier;
         }
 
+        
+        protected List<TOut> PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request,
+            MeadowConfiguration configuration)
+            where TOut : class, new()
+        {
+            try
+            {
+                var config = request.PreConfigure(configuration);
+
+                return PerformRequest(request, config).FromStorage;
+
+            }
+            catch (Exception e)
+            {
+                //
+                Console.WriteLine(e);
+            }
+            return new List<TOut>();
+        }
+
+        
         protected void AddCarrierInterceptor(
             ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier> carrierInterceptor)
         {
