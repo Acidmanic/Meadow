@@ -6,7 +6,7 @@
 
 **Meadow**
 =========
- __M__ anaged / __E__ nhanced __Ado__ __W__ rapper
+ __M__<nothing>anaged/<nothing>__E__<nothing>nhanced<nothing>__Ado__<nothing>__W__<nothing>rapper
  
  This library is designed to help using ado.net easier and with some good practices consistently.
  
