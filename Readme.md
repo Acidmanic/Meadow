@@ -52,10 +52,10 @@ How to Use
 ================
 
  1. Prepare your connection string, regarding your database-framework of choice. (Ms-Sql-server, MySql, SQLite)
- 2. Setup "_Build-up_ scripts"
+ 2. [Setup "_Build-up_ scripts"](https://github.com/Acidmanic/Meadow#build-up-scripts)
  3. Add Meadow library to your project. (You can install the NuGet package)
- 4. To use each of your procedures in your c# code, create a MeadowRequest. and it's required models.
- 5. Use meadow!
+ 4. [Create a MeadowRequest and it's required models](https://github.com/Acidmanic/Meadow#creating-meadowrequests) To use each of your procedures in your c# code.
+ 5. [Use meadow!](https://github.com/Acidmanic/Meadow#using-meadow-in-your-project)
 
 
 Build-up Scripts
@@ -85,11 +85,15 @@ Each build-up script file should __has .sql extension__ and __Start with 4 digit
     smaller numbers will be applied before larger numbers. (ie.: ___0000_initial-database.sql___ or ___0001-AddUserInformationTables.sql___)
 
 
+[^](https://github.com/Acidmanic/Meadow#how-to-use)
+
 Creating MeadowRequests
 -----------------------
 
 For creating a request, you can drive from ```MeadowRequest``` class. Its a better practice to keep your request classes under a grouped and managed directory/namespace. You can use Conventions to write minimum code. __By Convention, a MeadowRequest named__ ```AbcRequest```, __would be resolved for to execute a procedure named:__ ```spAbc```. If you prefer not to rely on conventions, you can provide procedure name manually by overriding the the property ```RequestText``` in your meadow request.
 
+
+[^](https://github.com/Acidmanic/Meadow#how-to-use)
 
 Using Meadow In Your Project
 ----------------------------
@@ -101,6 +105,8 @@ necessary to keep the engine object. You can keep the engine object or instantia
 You can also instantiate the ```MeadowEngine``` also by passing an object of Type ```IMeadowConfigurationProvider```. This would be helpful when you want to use different configurations controlled by your DI.
 
 
+[^](https://github.com/Acidmanic/Meadow#how-to-use)
+
 Examples
 --------
 
@@ -110,8 +116,8 @@ Meadow can be used to connect to Ms-SqlServer, My-Sql and SQLite. For each of th
 ℹ️ NOTE: SQLITE, DOES NOT SUPPORT STORED PROCEDURES, AND MEADOW IS BASED ON STORED PROCEDURES. SO MEADOW DOES STORE YOUR PROCEDURES SEAMLESSLY.
 
 
-When The Darkness Caresses The Meadows.... (Bugs and Issues)[^1]
-=======
+When The Darkness Caresses The Meadows...[^1] (Bugs and Issues)
+-------------------------------------------
 
 Meadow For Ms-SqlServer is currently being tested in my other projects, but for MySql and SQLite,
 It still has not being tested in practice. So Please consider dropping a mail or comment if you 
