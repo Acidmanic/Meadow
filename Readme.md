@@ -149,4 +149,4 @@ Mani.
 
 
 
-[^1] [IGNEA, Jahi.](https://www.youtube.com/watch?v=ZvLWn29l9tY)
+[^1]: [IGNEA, Jahi.](https://www.youtube.com/watch?v=ZvLWn29l9tY)
