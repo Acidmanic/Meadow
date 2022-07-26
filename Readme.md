@@ -65,14 +65,12 @@ Create a directory in your source codes for your build-up scripts. Directory nam
 ex:
 __your-project.csproj__
 
-    ```xml
-
+    ```
   <ItemGroup>
     <Content Include="Scripts\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
     ```
 
 For each set of changes during the process of evolving your database, Create a script inside the build-up scripts directory. It's best 
