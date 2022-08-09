@@ -9,4 +9,35 @@
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- NuGet -->
+    <Id>Meadow.MySql</Id>
+    <PackageId>Meadow.MySql</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Mani Moayedi</Authors>
+    <Company>Acidmanic</Company>
+    <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
+    <Description>Meadow MySql Adapter</Description>
+    <Summary>This package allows to use meadow on top of MySql database</Summary>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/Acidmanic/Meadow</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
+    <Title>MEADOW - Managed and Enhanced ADO Wrapper - MySql Adapter</Title>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../Graphics/MeadowIcon.png">
+      <Pack>true</Pack>
+      <PackagePath>Graphics/MeadowIcon.png</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="../LICENSE.txt">
+      <Pack>true</Pack>
+      <PackagePath>LICENSE.txt</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
