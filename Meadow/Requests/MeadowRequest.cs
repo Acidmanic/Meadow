@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Requests.FieldManipulation;
 
@@ -26,6 +27,24 @@ namespace Meadow.Requests
         }
         
         public RequestExecution Execution { get; protected set; }
+
+        public bool Failed { get; private set; } = false;
+        
+        public Exception FailureException { get; private set; }
+
+        public void SetFailure(Exception exception)
+        {
+            Failed = true;
+
+            FailureException = exception;
+        }
+
+        public void SetFailure(string reason)
+        {
+            Failed = true;
+            
+            FailureException = new Exception(reason);
+        }
     }
     
     
