@@ -6,8 +6,9 @@
    * reflect Execution success/failure-exception in returning request
    
    
-1.0.2
+1.0.3
 -------
 
    * Add Save Operation to known operations
+   * Fixed missing excluded fields in MeadowRequest
      
