@@ -144,10 +144,14 @@ For creating a request, you can drive from ```MeadowRequest``` class. Its a bett
     
  1. ```InsertSpRequest<TModel>```
            Inserts an Entity Of type TModel, Into the database. It expects the corresponding
-            procedure (which you would write in build-up scripts) to return newly inserted model.
+            procedure (which you would write in build-up scripts) to 
+             (a) have one input parameter corresponding to each effectively-primitive [^1] property of TModel. (Except for the Id Parameter)  
+             (b) return newly inserted model.
  2. ```UpdateSpRequest<TModel>```  
-        Updates an Entity Of Type TEntity then returns the updated value. Therefore it also 
-        expects your stored-procedure, to return updated value at the end of the procedure.
+        Updates an Entity Of Type TEntity then returns the updated value. Therefore it also  
+        expects your stored-procedure, to 
+         (a) have one input parameter corresponding to each effectively-primitive property of TModel. (Except for the Id Parameter)  
+         (b) return newly inserted model.
  3. ```ReadAllSpRequest<TModel>```  
         Reads all records of type TModel. If you pass 'True' for the constructor argument: __fullTree__,
          then this request expects your procedure to return all fields from all other tables (joined), so
@@ -168,7 +172,11 @@ For creating a request, you can drive from ```MeadowRequest``` class. Its a bett
  6. ```ByIdRequestBase```  
         This request is the base class for ```ReadByIdSpRequest``` and ```DeleteByIdSpRequest```. 
         It can be used for creating any other ById operations of interest.
- 
+ 7. ```SaveSpRequest<TModel>```
+        This Request to have a data inserted when it's not present in the database, and updated 
+        if it's already there. The expected input parameters are the same as Insert or Update. Also
+        no matter the insertion happened or an update took place, the procedure should return the 
+        inserted/updated model. 
  More On Requests
  ----------------
  
@@ -219,7 +227,7 @@ Meadow can be used to connect to Ms-SqlServer, My-Sql and SQLite. For each of th
 ℹ️ NOTE: SQLITE, DOES NOT SUPPORT STORED PROCEDURES, AND MEADOW IS BASED ON STORED PROCEDURES. SO MEADOW DOES STORE YOUR PROCEDURES SEAMLESSLY.
 
 
-When The Darkness Caresses The Meadows...[^1] (Bugs and Issues)
+When The Darkness Caresses The Meadows...[^2] (Bugs and Issues)
 -------------------------------------------
 
 Meadow For Ms-SqlServer is currently being tested in my other projects, but for MySql and SQLite,
@@ -246,15 +254,7 @@ https://www.instagram.com/acidmanix/
 Thanks And Regards.
 Mani.
 
-
-
-
-
-
-
-
-
-
-
-
-[^1]: [IGNEA, Jahi.](https://www.youtube.com/watch?v=ZvLWn29l9tY)
+.
+------------------------
+[^1]: For Meadow, __Effectively Primitive__ mean any type that is able to be inserted directly into the database. It involves all primitives, plus the String, DateTime and etc....
+[^2]: [IGNEA, Jahi.](https://www.youtube.com/watch?v=ZvLWn29l9tY)
