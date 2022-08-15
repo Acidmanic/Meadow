@@ -92,7 +92,7 @@ Add Meadow library
 ------------------
 Meadow libraries are available on Nuget.  To use meadow, you would add
 
-1. Add ___Meadow.Framework___.
+1. Add [___Meadow.Framework___](https://www.nuget.org/packages/Meadow.Framework).
 
     |  |  |
     |:--------:|:---------------:|
@@ -102,7 +102,7 @@ Meadow libraries are available on Nuget.  To use meadow, you would add
 
 2. Add ___Meadow.&lt;Db-Framework&gt;___. For each database-framework supported by Meadow, you would add it's own db-framework adapter:
    
-   1. SqlServer
+   1. [SqlServer](https://www.nuget.org/packages/Meadow.SqlServer)
 
         |  |  |
         |:--------:|:---------------:|
@@ -110,7 +110,7 @@ Meadow libraries are available on Nuget.  To use meadow, you would add
         |PackageManager|```dotnet add package Meadow.SqlServer --version 1.0.0```|
         |Dotnet CLI|```dotnet add package Meadow.SqlServer --version 1.0.0```|
     
-   2. SQLite
+   2. [SQLite](https://www.nuget.org/packages/Meadow.SQLite)
     
         |  |  |
         |:--------:|:---------------:|
@@ -118,13 +118,19 @@ Meadow libraries are available on Nuget.  To use meadow, you would add
         |PackageManager|```Install-Package Meadow.SQLite -Version 1.0.0```|
         |Dotnet CLI|```dotnet add package Meadow.SQLite --version 1.0.0```|
     
-   3. MySql
+   3. [MySql](https://www.nuget.org/packages/Meadow.MySql)
     
         |  |  |
         |:--------:|:---------------:|
         |PackageReference |```<PackageReference Include="Meadow.MySql" Version="1.0.0" />```|
         |PackageManager|```Install-Package Meadow.MySql -Version 1.0.0```|
         |Dotnet CLI|```dotnet add package Meadow.MySql --version 1.0.0```|
+
+
+
+
+* ⚠️ NOTE: _VERSIONS APPEARING IN THIS SECTION ARE NOT NECESSARILY LATEST. PLEASE CHECK OUT THE NUGET PAGE FOR EACH TO SEE THE LATEST VERSION_
+
 
 
 [^ [Back to How To Use]](https://github.com/Acidmanic/Meadow#how-to-use)
