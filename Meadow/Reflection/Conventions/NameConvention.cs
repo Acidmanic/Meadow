@@ -48,6 +48,8 @@ namespace Meadow.Reflection.Conventions
             UpdateProcedureName = "spUpdate" + EntityName;
 
             InsertProcedureName = "spInsert" + EntityName;
+
+            SaveProcedureName = "spSave" + EntityName;
         }
 
         public string DeleteByIdProcedureName { get; }
@@ -76,6 +78,9 @@ namespace Meadow.Reflection.Conventions
 
 
         public string InsertProcedureName { get; }
+        
+        
+        public string SaveProcedureName { get; }
     }
 
     public class NameConvention<TEntity> : NameConvention

@@ -139,6 +139,36 @@ For creating a request, you can drive from ```MeadowRequest``` class. Its a bett
  
  If you prefer not to rely on conventions, you can provide procedure name manually by overriding the the property ```RequestText``` in your meadow request.
  
+ 
+ Meadow also contains several pre-built requests for common operations that you can drive from:
+    
+ 1. ```InsertSpRequest<TModel>```
+           Inserts an Entity Of type TModel, Into the database. It expects the corresponding
+            procedure (which you would write in build-up scripts) to return newly inserted model.
+ 2. ```UpdateSpRequest<TModel>```  
+        Updates an Entity Of Type TEntity then returns the updated value. Therefore it also 
+        expects your stored-procedure, to return updated value at the end of the procedure.
+ 3. ```ReadAllSpRequest<TModel>```  
+        Reads all records of type TModel. If you pass 'True' for the constructor argument: __fullTree__,
+         then this request expects your procedure to return all fields from all other tables (joined), so
+         it can glue all together and construct an instance of TModel and all it's properties.
+          If you pass 'False' for full-tree argument, then a simple procedure like ```select * from <table-name> ...``` 
+          would be all it needs.
+4. ```ReadByIdSpRequest<TModel, TId>```  
+        Reads the Entity identified by the given Id. This Request and it's descendants, would 
+        have an Id property of type: ```TId```. You can set this property before performing 
+        the request.
+        This request, expects its Corresponding procedure to have one argument named after
+        the Identity Field of your Model.
+        the full-tree argument in this request is the same as __ReadAllSpRequest__. 
+ 5. ```DeleteByIdSpRequest<TModel,TId>```  
+        This request is for deleting a record by its Id. Like ReadById, It uses the Id property. It 
+        returns the success result of the deletion as ```DeletionResult```. So it expects your 
+        procedure to return a true/false value with the field-name of __Success__.
+ 6. ```ByIdRequestBase```  
+        This request is the base class for ```ReadByIdSpRequest``` and ```DeleteByIdSpRequest```. 
+        It can be used for creating any other ById operations of interest.
+ 
  More On Requests
  ----------------
  
