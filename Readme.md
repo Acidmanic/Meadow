@@ -53,7 +53,7 @@ How to Use
 
  1. Prepare your connection string, regarding your database-framework of choice. (Ms-Sql-server, MySql, SQLite)
  2. [Setup "_Build-up_ scripts"](https://github.com/Acidmanic/Meadow#build-up-scripts)
- 3. Add Meadow library to your project. (You can install the NuGet package)
+ 3. [Add Meadow library to your project](https://github.com/Acidmanic/Meadow#add-meadow-library). (You can install the NuGet package)
  4. [Create a MeadowRequest and it's required models](https://github.com/Acidmanic/Meadow#creating-meadowrequests) To use each of your procedures in your c# code.
  5. [Use meadow!](https://github.com/Acidmanic/Meadow#using-meadow-in-your-project)
 
@@ -85,15 +85,88 @@ Each build-up script file should __has .sql extension__ and __Start with 4 digit
     smaller numbers will be applied before larger numbers. (ie.: ___0000_initial-database.sql___ or ___0001-AddUserInformationTables.sql___)
 
 
-[^](https://github.com/Acidmanic/Meadow#how-to-use)
+[^ [Back to How To Use]](https://github.com/Acidmanic/Meadow#how-to-use)
+
+
+Add Meadow library
+------------------
+Meadow libraries are available on Nuget.  To use meadow, you would add
+
+1. Add ___Meadow.Framework___.
+
+    |  |  |
+    |:--------:|:---------------:|
+    |PackageReference |```<PackageReference Include="Meadow.Framework" Version="1.0.1" />```|
+    |PackageManager|```Install-Package Meadow.Framework -Version 1.0.1```|
+    |Dotnet CLI|```dotnet add package Meadow.Framework --version 1.0.1```|
+
+2. Add ___Meadow.&lt;Db-Framework&gt;___. For each database-framework supported by Meadow, you would add it's own db-framework adapter:
+   
+   1. SqlServer
+
+        |  |  |
+        |:--------:|:---------------:|
+        |PackageReference |```<PackageReference Include="Meadow.SqlServer" Version="1.0.0" />```|
+        |PackageManager|```dotnet add package Meadow.SqlServer --version 1.0.0```|
+        |Dotnet CLI|```dotnet add package Meadow.SqlServer --version 1.0.0```|
+    
+   2. SQLite
+    
+        |  |  |
+        |:--------:|:---------------:|
+        |PackageReference |```<PackageReference Include="Meadow.SQLite" Version="1.0.0" />```|
+        |PackageManager|```Install-Package Meadow.SQLite -Version 1.0.0```|
+        |Dotnet CLI|```dotnet add package Meadow.SQLite --version 1.0.0```|
+    
+   3. MySql
+    
+        |  |  |
+        |:--------:|:---------------:|
+        |PackageReference |```<PackageReference Include="Meadow.MySql" Version="1.0.0" />```|
+        |PackageManager|```Install-Package Meadow.MySql -Version 1.0.0```|
+        |Dotnet CLI|```dotnet add package Meadow.MySql --version 1.0.0```|
+
+
+[^ [Back to How To Use]](https://github.com/Acidmanic/Meadow#how-to-use)
 
 Creating MeadowRequests
 -----------------------
 
-For creating a request, you can drive from ```MeadowRequest``` class. Its a better practice to keep your request classes under a grouped and managed directory/namespace. You can use Conventions to write minimum code. __By Convention, a MeadowRequest named__ ```AbcRequest```, __would be resolved for to execute a procedure named:__ ```spAbc```. If you prefer not to rely on conventions, you can provide procedure name manually by overriding the the property ```RequestText``` in your meadow request.
+For creating a request, you can drive from ```MeadowRequest``` class. Its a better practice to keep your request classes under a grouped and managed
+ directory/namespace. You can use Conventions to write minimum code. 
+ 
+ __By Convention, a MeadowRequest named__ ```AbcRequest```, __would be resolved for to execute a procedure named:__ ```spAbc```. 
+ 
+ If you prefer not to rely on conventions, you can provide procedure name manually by overriding the the property ```RequestText``` in your meadow request.
+ 
+ More On Requests
+ ----------------
+ 
+ __Output/Input__
+ 
+ 
+When you drive ```MeadowRequest<TIn,TOut>```, TIn would be the type of the data you send towards the database when you perform that request.
+ in example when you are inserting a data. The same way, TOut would be the type of data returned from the database. In a case that you do not 
+ send any data towards the database, you should use the type ```MeadowVoid``` for TIn. Also for those requests that would not return any data,
+ you will use this class.
+ 
+ 
+ __Constructor__
 
 
-[^](https://github.com/Acidmanic/Meadow#how-to-use)
+Another point to consider is ```MeadowRequest```'s Constructor. It takes a boolean argument to determine if this request is obligated to read returned data.  
+
+
+__Name Conventions__
+
+In a case that you needed to know, what Db Object Names Meadow would prefer to be used for a specific Entity, 
+you can instantiate ```NameConvention<TEntity>``` class. This class will provide predefined names for common 
+procedures and tables regarding given type (TEntity).
+
+
+
+   
+[^ [Back to How To Use]](https://github.com/Acidmanic/Meadow#how-to-use)
 
 Using Meadow In Your Project
 ----------------------------
@@ -105,7 +178,7 @@ necessary to keep the engine object. You can keep the engine object or instantia
 You can also instantiate the ```MeadowEngine``` also by passing an object of Type ```IMeadowConfigurationProvider```. This would be helpful when you want to use different configurations controlled by your DI.
 
 
-[^](https://github.com/Acidmanic/Meadow#how-to-use)
+[^ [Back to How To Use]](https://github.com/Acidmanic/Meadow#how-to-use)
 
 Examples
 --------
