@@ -11,9 +11,11 @@ namespace Meadow.Requests.FieldManipulation
         private readonly List<string> _excludedNames;
         private readonly Dictionary<string, string> _renames;
         private readonly MemberOwnerUtilities _memberOwnerUtilities;
+        private readonly bool _fullTree;
         
-        public FiledManipulationMarker(IDataOwnerNameProvider dataOwnerNameProvider)
+        public FiledManipulationMarker(IDataOwnerNameProvider dataOwnerNameProvider, bool fullTree)
         {
+            _fullTree = fullTree;
             _memberOwnerUtilities = new MemberOwnerUtilities(dataOwnerNameProvider);
             _excludedNames = new List<string>();
             _renames = new Dictionary<string, string>();
@@ -23,7 +25,7 @@ namespace Meadow.Requests.FieldManipulation
         {
             var memberExpression = (MemberExpression) propertySelector.Body;
 
-            var selectedPropertyName = _memberOwnerUtilities.GetFieldName<TModel>(memberExpression);
+            var selectedPropertyName = _memberOwnerUtilities.GetFieldName<TModel>(memberExpression,_fullTree);
 
             return selectedPropertyName;
         }

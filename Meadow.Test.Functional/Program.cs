@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd024UseMySqlDb().Main();
+            new Tdd025TestFieldManipulation().Main();
         }
     }
 }
