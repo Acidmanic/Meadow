@@ -12,3 +12,6 @@
    * Add Save Operation to known operations
    * Fixed missing excluded fields in MeadowRequest
      
+1.0.4
+------
+   * Reflect Configuration failures regarding meadow requests being able to project execution result 

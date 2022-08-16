@@ -68,10 +68,11 @@ namespace Meadow
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
                 var meadowRequest = _coreProvider.CreateDataAccessCore().PerformRequest(request, config);
-
+                
                 return new ConfigurationRequestResult
                 {
-                    Success = true
+                    Success = !meadowRequest.Failed,
+                    Exception = meadowRequest.FailureException
                 };
             }
             catch (Exception e)
