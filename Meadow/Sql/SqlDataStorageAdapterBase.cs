@@ -48,7 +48,7 @@ namespace Meadow.Sql
                 {
                     var node = evaluator.Map.NodeByAddress(dp.Identifier);
 
-                    return node.IsLeaf && node.Parent == evaluator.RootNode;
+                    return node !=null && node.IsLeaf && node.Parent == evaluator.RootNode;
                 }));
 
             List<DataPoint> data = new SqlStandardDataTranslator()
