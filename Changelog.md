@@ -12,6 +12,9 @@
    * Add Save Operation to known operations
    * Fixed missing excluded fields in MeadowRequest
      
-1.0.4
+1.0.5
 ------
-   * Reflect Configuration failures regarding meadow requests being able to project execution result 
+   * Reflect Configuration failures regarding meadow requests being able to project execution result
+   * Update reflection package
+   * Fix retrieving direct leaves in sql data adapter base  
+ 
