@@ -12,5 +12,9 @@ namespace Meadow.Test.Functional.Models.BugCase
         public ICollection<ProductClassPropertyTag> DeclaredProperties { get; set; }
         
         public string Description { get; set; }
+        
+        public QuantifierDal Quantifier { get; set; }
+        
+        public long QuantifierId { get; set; }
     }
 }

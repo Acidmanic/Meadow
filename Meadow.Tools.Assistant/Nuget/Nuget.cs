@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Meadow.Log;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
+using Meadow.Tools.Assistant.Extensions;
 using Meadow.Tools.Assistant.Nuget.PackageSources;
 using Meadow.Tools.Assistant.Utils;
 using Meadow.Tools.Assistant.Utils.ProjectReferences;

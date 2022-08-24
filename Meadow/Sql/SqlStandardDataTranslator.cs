@@ -4,13 +4,15 @@ using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Contracts;
 
 namespace Meadow.Sql
 {
-    public class SqlStandardDataTranslator
+    public class SqlStandardDataTranslator:IStandardDataTranslator
     {
         public IDataOwnerNameProvider TableNameProvider { get; } = new PluralDataOwnerNameProvider();
-
+        
+        
         public List<DataPoint> TranslateToStorage(Record standardData, ObjectEvaluator evaluator)
         {
             var keyIndexedData = IndexByKey(standardData, evaluator);
@@ -153,6 +155,10 @@ namespace Meadow.Sql
                     else if (narrowedDown.Count > 1)
                     {
                         //TODO: Log Ambiguous name ...
+                        
+                        narrowedDown.Sort(new ClosestLengthFieldKeyComparer());
+                        
+                        map.Add(fieldId, new FieldProfile(narrowedDown[0], evaluator.Map.NodeByKey(narrowedDown[0])));
                     }
                     else
                     {
@@ -165,6 +171,14 @@ namespace Meadow.Sql
             return map;
         }
 
+        private class ClosestLengthFieldKeyComparer : IComparer<FieldKey>
+        {
+            public int Compare(FieldKey x, FieldKey y)
+            {
+                return x.Count - y.Count;
+            }
+        }
+        
         private List<string> EnumerateFieldIds(List<Record> storageData)
         {
             List<string> fieldIds = new List<string>();

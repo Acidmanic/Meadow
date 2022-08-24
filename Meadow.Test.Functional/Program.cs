@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd025TestFieldManipulation().Main();
+            new Tdd026SqlTranslatorTestCase().Main();
         }
     }
 }

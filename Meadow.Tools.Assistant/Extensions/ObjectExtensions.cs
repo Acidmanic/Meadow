@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Newtonsoft.Json;
 
-namespace Meadow.Tools.Assistant
+namespace Meadow.Tools.Assistant.Extensions
 {
     public static class ObjectExtensions
     {
