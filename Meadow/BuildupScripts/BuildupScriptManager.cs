@@ -24,15 +24,21 @@ namespace Meadow.BuildupScripts
 
                 if (assembly != null)
                 {
-                    _directory = new FileInfo(assembly.Location).Directory;
+                    var path  =  new FileInfo(assembly.Location).Directory?.FullName;
+
+                    if (path != null)
+                    {
+                        path = Path.Combine(path??"", directory);
+                    
+                        _directory = new DirectoryInfo(path);    
+                    }
                 }
-                else
+                if(_directory==null)
                 {
                     //TODO: Warn
                     _directory = new DirectoryInfo(directory);
                 }
-
-                if (_directory == null || !_directory.Exists)
+                if (_directory.Exists)
                 {
                     throw new MissingDirectoryScriptsException();
                 }
