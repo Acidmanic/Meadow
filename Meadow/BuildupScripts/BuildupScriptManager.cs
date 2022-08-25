@@ -38,7 +38,7 @@ namespace Meadow.BuildupScripts
                     //TODO: Warn
                     _directory = new DirectoryInfo(directory);
                 }
-                if (_directory.Exists)
+                if (!_directory.Exists)
                 {
                     throw new MissingDirectoryScriptsException();
                 }
