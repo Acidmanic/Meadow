@@ -30,12 +30,12 @@ namespace Meadow.SqlServer.ConfigurationRequests
         {
             return $@"
                 IF (DB_ID('{_providedDbName}') IS NOT NULL)
-                BEGIN
-                    {_providedDbName}
+                    BEGIN
+                        select cast(0 as bit) Value
+                    END 
+                ELSE
+                    CREATE DATABASE {_providedDbName}; 
                     select cast(1 as bit) Value
-                END 
-                ELSE 
-                    select cast(0 as bit) Value
             ";
         }
     }
