@@ -15,24 +15,12 @@ namespace Meadow.SqlServer
 {
     public class SqlDataAccessCore : MeadowDataAccessCoreBase<IDbCommand, IDataReader>
     {
-        public override IDataOwnerNameProvider DataOwnerNameProvider { get; }
-        public char FieldAddressDelimiter { get; } = '_';
+        // public override IDataOwnerNameProvider DataOwnerNameProvider { get; }
+        // public char FieldAddressDelimiter { get; } = '_';
 
-        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } 
+        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; } 
 
-        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; }
-
-        public SqlDataAccessCore() : this(new PluralDataOwnerNameProvider())
-        {
-            
-        }
-
-        public SqlDataAccessCore(IDataOwnerNameProvider dataOwnerNameProvider)
-        {
-            DataOwnerNameProvider = dataOwnerNameProvider;
-            DataStorageAdapter = new SqlDataStorageAdapter(FieldAddressDelimiter, dataOwnerNameProvider);
-            StorageCommunication = new SqlCommunication();
-        }
+        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
 
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
@@ -136,6 +124,14 @@ namespace Meadow.SqlServer
             var request = new SqlRequest(script);
 
             PerformConfigurationRequest(request, configuration);
+        }
+
+        protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
+        {
+            DataStorageAdapter = new SqlDataStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider);
+            StorageCommunication = new SqlCommunication();
+
+            return this;
         }
 
         private string ClearGo(string script)

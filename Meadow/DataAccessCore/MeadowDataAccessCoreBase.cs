@@ -9,7 +9,7 @@ namespace Meadow.DataAccessCore
 {
     public abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier> : IMeadowDataAccessCore
     {
-        public abstract IDataOwnerNameProvider DataOwnerNameProvider { get; }
+        protected virtual IDataOwnerNameProvider DataOwnerNameProvider { get; private set; }
 
         private List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>> _carrierInterceptors;
 
@@ -18,12 +18,9 @@ namespace Meadow.DataAccessCore
             _carrierInterceptors = new List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>>();
         }
 
-        protected abstract IStandardDataStorageAdapter<TToStorageCarrier, TFromStorageCarrier> DataStorageAdapter
-        {
-            get;
-        }
+        protected abstract IStandardDataStorageAdapter<TToStorageCarrier, TFromStorageCarrier> DataStorageAdapter { get; set; }
 
-        protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication { get; }
+        protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication { get; set; }
 
 
         public virtual MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
@@ -65,7 +62,19 @@ namespace Meadow.DataAccessCore
         public abstract void CreateTable<TModel>(MeadowConfiguration configuration);
         public abstract void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
         public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
-        public abstract IMeadowDataAccessCore Initialize(MeadowConfiguration configuration);
+
+        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration)
+        {
+            // That must be read from configurations later on
+            DataOwnerNameProvider = new PluralDataOwnerNameProvider();
+
+            return InitializeDerivedClass(configuration);
+        }
+
+        protected virtual IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
+        {
+            return this;
+        }
 
         protected virtual TToStorageCarrier ProvideCarrier<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
