@@ -9,8 +9,8 @@ end;
     
 CREATE PROCEDURE spGetAllPersonsFullTree()
 BEGIN
-    SELECT Persons.Id 'Persons.Id', Name, Surname, Age, JobId,
-        Jobs.Id 'Jobs.Id',Title,JobDescription,IncomeInRials
+    SELECT Persons.Id 'Persons_Id', Name, Surname, Age, JobId,
+        Jobs.Id 'Jobs_Id',Title,JobDescription,IncomeInRials
     FROM Persons INNER JOIN Jobs  ON Jobs.Id = Persons.JobId;
 END;
 
@@ -18,8 +18,8 @@ END;
 
 create procedure spGetPersonByIdFullTree(IN Id bigint(16))
 BEGIN
-    select P.Id  'Persons.Id',
-           Name, Surname,Age,JobId,J.Id 'Jobs.Id',
+    select P.Id  'Persons_Id',
+           Name, Surname,Age,JobId,J.Id 'Jobs_Id',
            Title,IncomeInRials,JobDescription
         from Persons P inner join Jobs J on J.Id = P.JobId where P.Id = Id;
 END;

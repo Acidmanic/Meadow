@@ -46,12 +46,12 @@ drop procedure spGetPersonByIdFullTree;
 create procedure spGetPersonByIdFullTree(Id bigint(16))
 begin
     
-select Persons.Id    'Persons.Id',
+select Persons.Id    'Persons_Id',
        Name,
        Surname,
        Age,
        JobId,
-       Jobs.Id       'Jobs.Id',
+       Jobs.Id       'Jobs_Id',
        Title,
        IncomeInRials,
        JobDescription,
@@ -60,8 +60,8 @@ select Persons.Id    'Persons.Id',
        AddressName,
        Block,
        Plate,
-       Addresses.Id       'Addresses.Id',
-       Addresses.PersonId 'Addresses.PersonId'
+       Addresses.Id       'Addresses_Id',
+       Addresses.PersonId 'Addresses_PersonId'
        from Persons
          inner join Jobs on Persons.JobId = Jobs.Id
          left join Addresses on Persons.Id = Addresses.PersonId
@@ -76,12 +76,12 @@ drop procedure spGetAllPersonsFullTree;
 
 create procedure spGetAllPersonsFullTree()
 begin 
-select P.Id       'Persons.Id',
+select P.Id       'Persons_Id',
        Name,
        Surname,
        Age,
        JobId,
-       J.Id       'Jobs.Id',
+       J.Id       'Jobs_Id',
        Title,
        IncomeInRials,
        JobDescription,
@@ -90,7 +90,7 @@ select P.Id       'Persons.Id',
        AddressName,
        Block,
        Plate,
-       A.Id       'Addresses.Id',
+       A.Id       'Addresses_Id',
        A.PersonId 'PersonId'
         from Persons P
          inner join Jobs J on P.JobId = J.Id

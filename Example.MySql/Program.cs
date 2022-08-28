@@ -15,7 +15,8 @@ namespace Example.MySql
             var configuration = new MeadowConfiguration
             {
                 ConnectionString = GetConnectionString(),
-                BuildupScriptDirectory = "Scripts"
+                BuildupScriptDirectory = "Scripts",
+                DatabaseFieldNameDelimiter = '_'
             };
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseMySql();

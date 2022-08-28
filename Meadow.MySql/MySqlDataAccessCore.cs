@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
@@ -16,18 +14,19 @@ namespace Meadow.MySql
 {
     public class MySqlDataAccessCore : MeadowDataAccessCoreBase<IDbCommand, IDataReader>
     {
-        public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
+        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; }
 
-        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } =
-            new MySqlStorageAdapter();
+        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
 
-        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; } =
-            new MySqlStorageCommunication();
-
-        public MySqlDataAccessCore()
+        protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
-        }
+            DataStorageAdapter =
+                new MySqlStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider);
 
+            StorageCommunication = new MySqlStorageCommunication();
+
+            return this;
+        }
 
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
@@ -41,7 +40,7 @@ namespace Meadow.MySql
             var request = new CreateIfNotExistRequest();
 
             var response = PerformConfigurationRequest(request, configuration);
-            
+
             return response.SingleOrDefault()?.Value ?? false;
         }
 
