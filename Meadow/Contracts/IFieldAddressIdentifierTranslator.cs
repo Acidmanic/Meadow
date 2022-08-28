@@ -8,8 +8,8 @@ namespace Meadow.Contracts
     public interface IFieldAddressIdentifierTranslator
     {
 
-        Dictionary<string, FieldKey> MapAddressesByIdentifier<TModel>();
+        Dictionary<string, FieldKey> MapAddressesByIdentifier<TModel>(bool fullTree=true);
         
-        Dictionary<string, FieldKey> MapAddressesByIdentifier(Type type);
+        Dictionary<string, FieldKey> MapAddressesByIdentifier(Type type,bool fullTree=true);
     }
 }

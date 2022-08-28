@@ -19,14 +19,14 @@ namespace Meadow
         public IDataOwnerNameProvider DataOwnerNameProvider { get; set; } = new PluralDataOwnerNameProvider();
 
 
-        public Dictionary<string, FieldKey> MapAddressesByIdentifier<TModel>()
+        public Dictionary<string, FieldKey> MapAddressesByIdentifier<TModel>(bool fullTree=true)
         {
-            return MapAddressesByIdentifier(typeof(TModel));
+            return MapAddressesByIdentifier(typeof(TModel),fullTree);
         }
 
-        public Dictionary<string, FieldKey> MapAddressesByIdentifier(Type type)
+        public Dictionary<string, FieldKey> MapAddressesByIdentifier(Type type,bool fullTree=true)
         {
-            var fullLengthMap = CreateFullLengthMap(type);
+            var fullLengthMap = CreateFullLengthMap(type,fullTree);
 
             var optimized = OptimizeLengths(fullLengthMap);
 
@@ -138,7 +138,7 @@ namespace Meadow
             }
         }
 
-        private Dictionary<FieldKey, FieldKey> CreateFullLengthMap(Type modelType)
+        private Dictionary<FieldKey, FieldKey> CreateFullLengthMap(Type modelType,bool fullTree)
         {
             var evaluator = new ObjectEvaluator(modelType);
 
@@ -146,7 +146,10 @@ namespace Meadow
 
             evaluator.Map.Nodes.ForEach(node =>
             {
-                if (node.IsLeaf)
+
+                var processThisNode = node.IsLeaf && (fullTree || node.Parent == evaluator.RootNode);   
+                
+                if (processThisNode)
                 {
                     var key = evaluator.Map.FieldKeyByNode(node);
 
