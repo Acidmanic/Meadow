@@ -22,4 +22,9 @@
 1.0.6
 -----
   * Fix un expected directory for scripts issue  
+  
+ 1.1.0
+ -------
+  * Update Standard <-> Storage field name resolution
+ 
  
