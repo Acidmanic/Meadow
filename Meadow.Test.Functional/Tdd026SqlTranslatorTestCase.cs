@@ -18,7 +18,9 @@ namespace Meadow.Test.Functional
             
             storageData[0].Add("StrategyParameters.StrategyParameterDescriptor.QuantifierId",2L);
             
-            var standardData = new SqlStandardDataTranslator2().TranslateFromStorage(storageData, typeof(SupplementDal));
+            var standardData = new FieldAddressTranslatedStandardDataTranslator(
+                new RelationalFieldAddressIdentifierTranslator(){Separator = '.',DataOwnerNameProvider = new PluralDataOwnerNameProvider()}
+                ).TranslateFromStorage(storageData, typeof(SupplementDal));
             
             List<SupplementDal> results = new List<SupplementDal>();
             

@@ -9,9 +9,9 @@ using Meadow.Utility;
 
 namespace Meadow.Sql
 {
-    public class SqlStandardDataTranslator2 : IStandardDataTranslator
+    public class FieldAddressTranslatedStandardDataTranslator : IStandardDataTranslator
     {
-        public SqlStandardDataTranslator2(IFieldAddressIdentifierTranslator translator)
+        public FieldAddressTranslatedStandardDataTranslator(IFieldAddressIdentifierTranslator translator)
         {
             Translator = translator;
         }

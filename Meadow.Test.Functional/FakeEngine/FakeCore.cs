@@ -8,9 +8,8 @@ namespace Meadow.Test.Functional.FakeEngine
 {
     public class FakeCore:MeadowDataAccessCoreBase<int,int>
     {
-        public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
-        protected override IStandardDataStorageAdapter<int, int> DataStorageAdapter { get; } = new FakeAdapter();
-        protected override IStorageCommunication<int, int> StorageCommunication { get; } = new FakeCommunication();
+        protected override IStandardDataStorageAdapter<int, int> DataStorageAdapter { get; set; } = new FakeAdapter();
+        protected override IStorageCommunication<int, int> StorageCommunication { get; set; } = new FakeCommunication();
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
             

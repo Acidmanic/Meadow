@@ -21,7 +21,7 @@ namespace Meadow.Test.Functional
 
             dataReader.InsertData(testcaseData);
 
-            var adapter = new SqlDataStorageAdapter();
+            var adapter = new SqlDataStorageAdapter('.',new PluralDataOwnerNameProvider());
 
             var manipulator = new FiledManipulationMarker<ProductClassDal>(new PluralDataOwnerNameProvider(),false);
 

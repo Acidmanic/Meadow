@@ -35,7 +35,7 @@ namespace Meadow.Sql
 
             storageData = Filter(storageData, fromStorageMarks);
 
-            var standardData = new SqlStandardDataTranslator2(FieldAddressIdentifierTranslator)
+            var standardData = new FieldAddressTranslatedStandardDataTranslator(FieldAddressIdentifierTranslator)
                 .TranslateFromStorage(storageData, typeof(TModel));
 
             List<TModel> results = new List<TModel>();
