@@ -74,6 +74,12 @@ namespace Meadow.NullCore
         {
         }
 
+        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration)
+        {
+            return this;
+        }
+
+
         public TModel ReadLastInsertedRecord<TModel>(MeadowConfiguration configuration) where TModel : class, new()
         {
             return null;

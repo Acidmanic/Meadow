@@ -65,7 +65,7 @@ namespace Meadow.DataAccessCore
         public abstract void CreateTable<TModel>(MeadowConfiguration configuration);
         public abstract void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
         public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
-
+        public abstract IMeadowDataAccessCore Initialize(MeadowConfiguration configuration);
 
         protected virtual TToStorageCarrier ProvideCarrier<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,

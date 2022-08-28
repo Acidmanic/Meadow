@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Sql;
 using MySql.Data.MySqlClient;
@@ -17,6 +18,10 @@ namespace Meadow.MySql
             };
 
             command.Parameters.Add(parameter);
+        }
+
+        public MySqlStorageAdapter(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider) : base(fieldNameDelimiter, dataOwnerNameProvider)
+        {
         }
     }
 }

@@ -5,6 +5,7 @@ using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
 using Meadow.Configuration.Requests;
 using Meadow.Contracts;
+using Meadow.DataAccessCore;
 using Meadow.Log;
 using Meadow.Models;
 using Meadow.NullCore;
@@ -44,6 +45,11 @@ namespace Meadow
             }
         }
 
+        private IMeadowDataAccessCore CreateInitializedCore(MeadowConfiguration configuration)
+        {
+            return _coreProvider.CreateDataAccessCore().Initialize(configuration);
+        }
+
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
             where TOut : class, new()
         {
@@ -57,7 +63,7 @@ namespace Meadow
             }
 
             // Run UserRequest as Procedure Request
-            return _coreProvider.CreateDataAccessCore().PerformRequest(request, _configuration);
+            return CreateInitializedCore(_configuration).PerformRequest(request, _configuration);
         }
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
@@ -67,7 +73,7 @@ namespace Meadow
             {
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
-                var meadowRequest = _coreProvider.CreateDataAccessCore().PerformRequest(request, config);
+                var meadowRequest = CreateInitializedCore(_configuration).PerformRequest(request, config);
                 
                 return new ConfigurationRequestResult
                 {
@@ -87,7 +93,7 @@ namespace Meadow
 
         public void CreateDatabase()
         {
-            _coreProvider.CreateDataAccessCore()
+            CreateInitializedCore(_configuration)
                 .CreateDatabase(_configuration);
 
             PerformPostDatabaseCreationTasks();
@@ -95,7 +101,7 @@ namespace Meadow
 
         private void PerformPostDatabaseCreationTasks()
         {
-            var core = _coreProvider.CreateDataAccessCore();
+            var core = CreateInitializedCore(_configuration);
             
             core.CreateTable<MeadowDatabaseHistory>(_configuration);
             
@@ -107,19 +113,19 @@ namespace Meadow
 
         public void DropDatabase()
         {
-            _coreProvider.CreateDataAccessCore()
+            CreateInitializedCore(_configuration)
                 .DropDatabase(_configuration);
         }
 
         public bool DatabaseExists()
         {
-            return _coreProvider.CreateDataAccessCore()
+            return CreateInitializedCore(_configuration)
                 .DatabaseExists(_configuration);
         }
 
         public void CreateIfNotExist()
         {
-            var created = _coreProvider.CreateDataAccessCore()
+            var created = CreateInitializedCore(_configuration)
                 .CreateDatabaseIfNotExists(_configuration);
 
             if (created)
@@ -147,7 +153,7 @@ namespace Meadow
         /// <returns>A list of log reports</returns>
         public void BuildUpDatabase()
         {
-            var core = _coreProvider.CreateDataAccessCore();
+            var core = CreateInitializedCore(_configuration);
 
 
             var lastExecResult = ReadLastInsertedRecord<MeadowDatabaseHistory>();
@@ -217,13 +223,13 @@ namespace Meadow
 
         public List<string> EnumerateProcedures()
         {
-            return _coreProvider.CreateDataAccessCore()
+            return CreateInitializedCore(_configuration)
                 .EnumerateProcedures(_configuration);
         }
 
         public List<string> EnumerateTables()
         {
-            return _coreProvider.CreateDataAccessCore()
+            return CreateInitializedCore(_configuration)
                 .EnumerateTables(_configuration);
         }
 

@@ -36,5 +36,7 @@ namespace Meadow.DataAccessCore
         void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
 
         void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
+
+        IMeadowDataAccessCore Initialize(MeadowConfiguration configuration);
     }
 }
