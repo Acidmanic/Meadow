@@ -14,7 +14,7 @@ namespace Meadow
     /// </summary>
     public class RelationalFieldAddressIdentifierTranslator : IFieldAddressIdentifierTranslator
     {
-        public string Separator { get; set; } = "_";
+        public char Separator { get; set; } = '_';
 
         public IDataOwnerNameProvider DataOwnerNameProvider { get; set; } = new PluralDataOwnerNameProvider();
 

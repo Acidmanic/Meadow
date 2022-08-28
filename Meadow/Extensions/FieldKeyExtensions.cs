@@ -6,7 +6,7 @@ namespace Meadow.Extensions
 {
     public static class FieldKeyExtensions
     {
-        public static string ToString(this FieldKey key, string delimiter)
+        public static string ToString(this FieldKey key, char delimiter)
         {
             var result = "";
 
@@ -16,7 +16,7 @@ namespace Meadow.Extensions
             {
                 result += sep + segment.Name;
 
-                sep = delimiter;
+                sep = delimiter +"";
             }
 
             return result;

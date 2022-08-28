@@ -11,13 +11,32 @@ namespace Meadow.Sql
 {
     public abstract class SqlDataStorageAdapterBase : IStandardDataStorageAdapter<IDbCommand, IDataReader>
     {
+        protected SqlDataStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider)
+        {
+            FieldNameDelimiter = fieldNameDelimiter;
+            DataOwnerNameProvider = dataOwnerNameProvider;
+            
+            FieldAddressIdentifierTranslator = new RelationalFieldAddressIdentifierTranslator
+            {
+                Separator = FieldNameDelimiter,
+                DataOwnerNameProvider = DataOwnerNameProvider
+            };
+        }
+
+        public char FieldNameDelimiter { get;  } 
+        
+        public IDataOwnerNameProvider DataOwnerNameProvider { get; }
+        
+        public IFieldAddressIdentifierTranslator FieldAddressIdentifierTranslator { get; }
+
         public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks)
         {
             var storageData = ReadAllRecords(carrier);
 
             storageData = Filter(storageData, fromStorageMarks);
 
-            var standardData = new SqlStandardDataTranslator().TranslateFromStorage(storageData, typeof(TModel));
+            var standardData = new SqlStandardDataTranslator2(FieldAddressIdentifierTranslator)
+                .TranslateFromStorage(storageData, typeof(TModel));
 
             List<TModel> results = new List<TModel>();
 

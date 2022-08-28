@@ -15,14 +15,24 @@ namespace Meadow.SqlServer
 {
     public class SqlDataAccessCore : MeadowDataAccessCoreBase<IDbCommand, IDataReader>
     {
-        public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
+        public override IDataOwnerNameProvider DataOwnerNameProvider { get; }
+        public char FieldAddressDelimiter { get; } = '_';
 
-        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } =
-            new SqlDataStorageAdapter();
+        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } 
 
-        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; } =
-            new SqlCommunication();
-        
+        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; }
+
+        public SqlDataAccessCore() : this(new PluralDataOwnerNameProvider())
+        {
+            
+        }
+
+        public SqlDataAccessCore(IDataOwnerNameProvider dataOwnerNameProvider)
+        {
+            DataOwnerNameProvider = dataOwnerNameProvider;
+            DataStorageAdapter = new SqlDataStorageAdapter(FieldAddressDelimiter, dataOwnerNameProvider);
+            StorageCommunication = new SqlCommunication();
+        }
 
         public override void CreateDatabase(MeadowConfiguration configuration)
         {

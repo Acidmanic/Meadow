@@ -17,6 +17,7 @@ namespace Meadow.Tools.Assistant.Commands
         [Command("fields", "This will list any found model on the given directory")]
         public void ListModels(
             [ModelNameOptions] string modelName,
+            [DelimiterOptions] char delimiter='_',
             [DirectoryOption] string directory = ".",
             [NamespaceOption] string @namespace = "",
             [NuGetsOption] string[] localNuGets = null,
@@ -41,7 +42,7 @@ namespace Meadow.Tools.Assistant.Commands
                 Console.WriteLine("----------------------------");
 
 
-                var translator = new RelationalFieldAddressIdentifierTranslator() {Separator = "_"};
+                var translator = new RelationalFieldAddressIdentifierTranslator() {Separator = delimiter};
 
                 var map = translator.MapAddressesByIdentifier(modelType,fullTree);
 
@@ -52,38 +53,5 @@ namespace Meadow.Tools.Assistant.Commands
             }
         }
 
-        private void LongAnswer(List<Type> availableTypes, string ns)
-        {
-            var ta = new TypeAcquirer();
-
-            Console.WriteLine("-----------------------");
-            Console.WriteLine("Model?\tNs-Match?\tType");
-            Console.WriteLine("-----------------------");
-            foreach (var type in availableTypes)
-            {
-                var isModel = TypeCheck.IsModel(type);
-                var isUnderNamespace = ta.NamespaceMatch(ns, type.Namespace);
-
-                Console.WriteLine($"{(isModel ? "YES" : "NO")}\t{(isUnderNamespace ? "YES" : "NO")}\t{type.FullName}");
-            }
-        }
-
-        private void ShortAnswer(List<Type> availableTypes, string ns)
-        {
-            Console.WriteLine($"Found {availableTypes.Count} Types available.");
-
-            var models = new TypeAcquirer().EnumerateModels(availableTypes, "").ToList();
-
-            Console.WriteLine($"Found {models.Count()} Models.");
-
-            var filteredModels = new TypeAcquirer().EnumerateModels(models, ns).ToList();
-
-            Console.WriteLine($"Found {filteredModels.Count()} Models under namespace: '{ns}':");
-
-            foreach (var modelType in filteredModels)
-            {
-                Console.WriteLine(modelType.Name);
-            }
-        }
     }
 }

@@ -11,6 +11,11 @@ namespace Meadow.Sql
 {
     public class SqlStandardDataTranslator2 : IStandardDataTranslator
     {
+        public SqlStandardDataTranslator2(IFieldAddressIdentifierTranslator translator)
+        {
+            Translator = translator;
+        }
+
         private class DpComparator : ComparatorBase<DataPoint>
         {
             private readonly AddressKeyNodeMap _addressKeyNodeMap;
@@ -45,8 +50,7 @@ namespace Meadow.Sql
             }
         }
 
-        private IFieldAddressIdentifierTranslator Translator { get; set; }
-            = new RelationalFieldAddressIdentifierTranslator() {Separator = "."};
+        private  IFieldAddressIdentifierTranslator Translator { get; }
 
 
         public List<DataPoint> TranslateToStorage(Record standardData, ObjectEvaluator evaluator)

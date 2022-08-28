@@ -1,6 +1,7 @@
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Sql;
 
@@ -17,6 +18,9 @@ namespace Meadow.SqlServer
 
             command.Parameters.Add(parameter);
         }
-        
+
+        public SqlDataStorageAdapter(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider) : base(fieldNameDelimiter, dataOwnerNameProvider)
+        {
+        }
     }
 }
