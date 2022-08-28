@@ -14,15 +14,15 @@ go
 create procedure spGetAllPersonsFullTree
 as
     select
-        P.Id 'Persons.Id', Name, Surname, Age, JobId,
-           J.Id 'Jobs.Id',Title,JobDescription,IncomeInRials
+        P.Id 'Persons_Id', Name, Surname, Age, JobId,
+           J.Id 'Jobs_Id',Title,JobDescription,IncomeInRials
     from Persons P join Jobs J on J.Id = P.JobId
 go
 
 create procedure spGetPersonByIdFullTree(@Id bigint)
 as
-    select P.Id  'Persons.Id',
-           Name, Surname,Age,JobId,J.Id 'Jobs.Id',
+    select P.Id  'Persons_Id',
+           Name, Surname,Age,JobId,J.Id 'Jobs_Id',
            Title,IncomeInRials,JobDescription
         from Persons P join Jobs J on J.Id = P.JobId where P.Id = @Id
 go

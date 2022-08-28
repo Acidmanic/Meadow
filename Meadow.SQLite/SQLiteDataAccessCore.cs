@@ -19,34 +19,44 @@ namespace Meadow.SQLite
 {
     public class SqLiteDataAccessCore : MeadowDataAccessCoreBase<IDbCommand, IDataReader>
     {
-        public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
+        //public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
 
-        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; } =
-            new SqLiteStorageAdapter();
+        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; }
 
-        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; } =
-            new SQLiteStorageCommunication();
+        protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
 
         public SqLiteDataAccessCore()
         {
             AddCarrierInterceptor(new SQLiteCommandInterceptor());
         }
-        
+
+
+        protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
+        {
+            DataStorageAdapter =
+                new SqLiteStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider);
+            
+            StorageCommunication = new SQLiteStorageCommunication();
+
+            return this;
+        }
+
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
-            TryDbFile(configuration,file =>
+            TryDbFile(configuration, file =>
             {
                 if (File.Exists(file))
                 {
                     throw new Exception("The Database already exists");
                 }
+
                 PerformRequest(new CreateDatabaseRequest(), configuration);
             });
         }
 
         public override bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
-            return TryDbFile(configuration,file =>
+            return TryDbFile(configuration, file =>
             {
                 if (!File.Exists(file))
                 {
@@ -69,7 +79,7 @@ namespace Meadow.SQLite
             });
         }
 
-        private bool TryDbFile(MeadowConfiguration configuration, Func<string,bool> code)
+        private bool TryDbFile(MeadowConfiguration configuration, Func<string, bool> code)
         {
             var conInfo = new ConnectionStringParser().Parse(configuration.ConnectionString);
 
@@ -78,7 +88,7 @@ namespace Meadow.SQLite
                 var filename = conInfo["Data Source"];
 
                 SqLiteProcedureManager.Instance.AssignDatabase(filename);
-                
+
                 try
                 {
                     return code(filename);
@@ -102,7 +112,6 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
-                    
                 }
             });
         }
@@ -111,10 +120,7 @@ namespace Meadow.SQLite
         {
             var exists = false;
 
-            TryDbFile(configuration, file =>
-            {
-                exists = File.Exists(file);
-            });
+            TryDbFile(configuration, file => { exists = File.Exists(file); });
 
             return exists;
         }
@@ -127,8 +133,8 @@ namespace Meadow.SQLite
         public override List<string> EnumerateTables(MeadowConfiguration configuration)
         {
             var response = PerformRequest(new EnumerateTablesRequest(), configuration);
-            
-            var result  = new List<string>();
+
+            var result = new List<string>();
 
             if (response.FromStorage != null)
             {
@@ -141,9 +147,9 @@ namespace Meadow.SQLite
         public override void CreateTable<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
-            
+
             var script = new TableScriptGenerator(type).Generate().Text;
-            
+
             var request = new SqlRequest(script);
 
             PerformRequest(request, configuration);
@@ -152,34 +158,33 @@ namespace Meadow.SQLite
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
-            
+
             var script = new InsertProcedureGenerator(type).Generate().Text;
-            
+
             script = ClearGo(script);
 
             var procedure = SqLiteProcedure.Parse(script);
-            
+
             SqLiteProcedureManager.Instance.AddProcedure(procedure);
-            
         }
 
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
-            
+
             var script = new ReadSequenceProcedureGenerator(type, false, 1, false).Generate().Text;
-            
+
             script = ClearGo(script);
-            
+
             var procedure = SqLiteProcedure.Parse(script);
-            
+
             SqLiteProcedureManager.Instance.AddProcedure(procedure);
         }
-        
+
         private string ClearGo(string script)
         {
             return script
-                .Split(new string[] {"GO","--SPLIT","go","Go","gO"}, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new string[] {"GO", "--SPLIT", "go", "Go", "gO"}, StringSplitOptions.RemoveEmptyEntries)
                 .FirstOrDefault(s => !string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s))
                 ?.Trim();
         }
