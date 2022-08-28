@@ -204,7 +204,12 @@ namespace Meadow
 
             if (n.IsCollection)
             {
-                return "";
+                n=n.Parent;
+            }
+
+            if (n == null || n.IsCollection)
+            {
+                throw new Exception("Hah?");
             }
 
             return DataOwnerNameProvider.GetNameForOwnerType(n.Type);
