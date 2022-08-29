@@ -25,7 +25,7 @@ namespace Meadow.Test.Functional
 
             var manipulator = new FiledManipulationMarker<ProductClassDal>(new PluralDataOwnerNameProvider(),false);
 
-            var data = adapter.ReadFromStorage<ProductClassDal>(dataReader, manipulator);
+            var data = adapter.ReadFromStorage<ProductClassDal>(dataReader, manipulator,true);
 
             PrintObject(data);
         }

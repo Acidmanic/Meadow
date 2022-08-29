@@ -7,7 +7,7 @@ namespace Meadow.Test.Functional.FakeEngine
 {
     public class FakeAdapter:IStandardDataStorageAdapter<int,int>
     {
-        public List<TModel> ReadFromStorage<TModel>(int carrier, IFieldMarks fromStorageMarks)
+        public List<TModel> ReadFromStorage<TModel>(int carrier, IFieldMarks fromStorageMarks,bool fullTree)
         {
             return new List<TModel>();
         }

@@ -56,7 +56,7 @@ namespace Meadow.Sql
         public List<DataPoint> TranslateToStorage(Record standardData, ObjectEvaluator evaluator)
         {
             var map = Translator
-                .MapAddressesByIdentifier(evaluator.RootNode.Type)
+                .MapAddressesByIdentifier(evaluator.RootNode.Type,false)
                 .Reverse();
 
 
@@ -79,9 +79,9 @@ namespace Meadow.Sql
             return translated;
         }
 
-        public List<Record> TranslateFromStorage(List<Record> storageData, Type targetType)
+        public List<Record> TranslateFromStorage(List<Record> storageData, Type targetType,bool fullTree)
         {
-            var map = Translator.MapAddressesByIdentifier(targetType);
+            var map = Translator.MapAddressesByIdentifier(targetType,fullTree:fullTree);
 
             var translated = new Record();
 

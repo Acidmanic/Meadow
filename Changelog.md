@@ -23,8 +23,9 @@
 -----
   * Fix un expected directory for scripts issue  
   
- 1.1.0
+ 1.1.1
  -------
   * Update Standard <-> Storage field name resolution
+  * Make Meadow able to get Runner assembly so it would not get confused when running in unit tests
  
  

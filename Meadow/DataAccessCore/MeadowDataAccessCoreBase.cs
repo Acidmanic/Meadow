@@ -38,7 +38,7 @@ namespace Meadow.DataAccessCore
             {
                 InterceptFromStorage(reader);
 
-                request.FromStorage = DataStorageAdapter.ReadFromStorage<TOut>(reader, request.FromStorageMarks);
+                request.FromStorage = DataStorageAdapter.ReadFromStorage<TOut>(reader, request.FromStorageMarks,request.FullTree);
             }
             
             try

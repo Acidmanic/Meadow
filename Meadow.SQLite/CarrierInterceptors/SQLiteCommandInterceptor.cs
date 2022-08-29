@@ -28,7 +28,8 @@ namespace Meadow.SQLite.CarrierInterceptors
                         return node.IsLeaf && node.Parent == evaluator.RootNode;
                     }));
 
-                List<DataPoint> data = new SqlStandardDataTranslator()
+                List<DataPoint> data = new FieldAddressTranslatedStandardDataTranslator(
+                        new RelationalFieldAddressIdentifierTranslator())
                     .TranslateToStorage(standardData, evaluator)
                     .ToList();
                 

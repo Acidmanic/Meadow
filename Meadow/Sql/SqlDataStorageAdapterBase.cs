@@ -29,14 +29,14 @@ namespace Meadow.Sql
         
         public IFieldAddressIdentifierTranslator FieldAddressIdentifierTranslator { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks)
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks,bool fullTreeRead)
         {
             var storageData = ReadAllRecords(carrier);
 
             storageData = Filter(storageData, fromStorageMarks);
 
             var standardData = new FieldAddressTranslatedStandardDataTranslator(FieldAddressIdentifierTranslator)
-                .TranslateFromStorage(storageData, typeof(TModel));
+                .TranslateFromStorage(storageData, typeof(TModel),fullTreeRead);
 
             List<TModel> results = new List<TModel>();
 
@@ -61,7 +61,7 @@ namespace Meadow.Sql
         {
             var standardData = evaluator.ToStandardFlatData(true);
 
-            List<DataPoint> data = new SqlStandardDataTranslator()
+            List<DataPoint> data = new FieldAddressTranslatedStandardDataTranslator(FieldAddressIdentifierTranslator)
                 .TranslateToStorage(standardData, evaluator)
                 .Where(dp => toStorageMarks.IsIncluded(dp.Identifier))
                 .ToList();

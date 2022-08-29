@@ -24,7 +24,7 @@ namespace Meadow.Contracts
         /// </param>
         /// <typeparam name="TModel">The Type of data model corresponding to the data being read from storage.</typeparam>
         /// <returns>A List of TModels which are read from carrier.</returns>
-        List<TModel> ReadFromStorage<TModel>(TFromStorageCarrier carrier, IFieldMarks fromStorageMarks);
+        List<TModel> ReadFromStorage<TModel>(TFromStorageCarrier carrier, IFieldMarks fromStorageMarks,bool fullTreeRead);
 
         /// <summary>
         /// This method writes data into carrier.

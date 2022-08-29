@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.ConfigurationRequests;
@@ -17,19 +18,32 @@ namespace Meadow
     public class MeadowEngine
     {
         private readonly MeadowConfiguration _configuration;
-        private readonly EnhancedLogger _logger;
+        private  EnhancedLogger MeadowLogger { get; }
 
 
         private static IMeadowDataAccessCoreProvider _coreProvider = new CoreProvider<NullMeadowCore>();
-        
-        public MeadowEngine(MeadowConfiguration configuration, ILogger logger)
+        public Assembly  MeadowRunnerAssembly {get;}
+
+
+        public MeadowEngine(MeadowConfiguration configuration, ILogger logger, Assembly meadowRunnerAssembly)
         {
+            MeadowRunnerAssembly = meadowRunnerAssembly;
+            MeadowLogger = new EnhancedLogger(logger);
             _configuration = configuration;
-            _logger = new EnhancedLogger(logger);
+        }
+
+        public MeadowEngine(MeadowConfiguration configuration, ILogger logger) : 
+            this(configuration, logger, Assembly.GetCallingAssembly())
+        {
+        }
+
+        public MeadowEngine(MeadowConfiguration configuration, Assembly meadowRunnerAssembly)
+        :this(configuration,new NullLogger(),meadowRunnerAssembly)
+        {
             
         }
 
-        public MeadowEngine(MeadowConfiguration configuration) : this(configuration, new NullLogger())
+        public MeadowEngine(MeadowConfiguration configuration) : this(configuration, new NullLogger(),Assembly.GetCallingAssembly())
         {
         }
 
@@ -74,7 +88,7 @@ namespace Meadow
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
                 var meadowRequest = CreateInitializedCore(_configuration).PerformRequest(request, config);
-                
+
                 return new ConfigurationRequestResult
                 {
                     Success = !meadowRequest.Failed,
@@ -102,13 +116,12 @@ namespace Meadow
         private void PerformPostDatabaseCreationTasks()
         {
             var core = CreateInitializedCore(_configuration);
-            
+
             core.CreateTable<MeadowDatabaseHistory>(_configuration);
-            
+
             core.CreateInsertProcedure<MeadowDatabaseHistory>(_configuration);
-            
+
             core.CreateLastInsertedProcedure<MeadowDatabaseHistory>(_configuration);
-            
         }
 
         public void DropDatabase()
@@ -130,12 +143,12 @@ namespace Meadow
 
             if (created)
             {
-                PerformPostDatabaseCreationTasks();    
+                PerformPostDatabaseCreationTasks();
             }
         }
 
-        
-        private  TModel ReadLastInsertedRecord<TModel>() where TModel : class, new()
+
+        private TModel ReadLastInsertedRecord<TModel>() where TModel : class, new()
         {
             var response = PerformRequest(new ReadLastModel<TModel>());
 
@@ -146,7 +159,7 @@ namespace Meadow
 
             return default;
         }
-        
+
         /// <summary>
         /// Applies all available buildup scripts
         /// </summary>
@@ -160,18 +173,18 @@ namespace Meadow
 
             int lastAppliedOrder = -1;
 
-            if (lastExecResult!=null)
+            if (lastExecResult != null)
             {
-                _logger.Log($"Already built up, up to {lastExecResult.ScriptName}:{lastExecResult.ScriptOrder}");
+                MeadowLogger.Log($"Already built up, up to {lastExecResult.ScriptName}:{lastExecResult.ScriptOrder}");
 
                 lastAppliedOrder = lastExecResult.ScriptOrder;
             }
 
-            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory);
+            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory,MeadowRunnerAssembly);
 
             if (manager.ScriptsCount == 0)
             {
-                _logger.Log(
+                MeadowLogger.Log(
                     $@"No valid build-up scripts where found at given directory {_configuration.BuildupScriptDirectory}");
                 return;
             }
@@ -184,25 +197,23 @@ namespace Meadow
 
                 if (info.OrderIndex > lastAppliedOrder)
                 {
-                    _logger.Log($@"Applying {info.OrderIndex}, {info.Name}");
+                    MeadowLogger.Log($@"Applying {info.OrderIndex}, {info.Name}");
 
                     var result = PerformScript(info);
 
                     if (result.Success)
                     {
-                        _logger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
+                        MeadowLogger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
 
                         anyApplied = true;
 
                         PerformRequest(new MarkExecutionInHistoryRequest(info));
-                        
-                        
                     }
                     else
                     {
-                        _logger.LogException(result.Exception, $@"Applying {info.Order}, {info.Name}");
+                        MeadowLogger.LogException(result.Exception, $@"Applying {info.Order}, {info.Name}");
 
-                        _logger.Log($@"*** Buildup process FAILED at {info.Order}.***");
+                        MeadowLogger.Log($@"*** Buildup process FAILED at {info.Order}.***");
 
                         return;
                     }
@@ -211,13 +222,12 @@ namespace Meadow
 
             if (anyApplied)
             {
-                _logger.Log($@"*** Buildup process SUCCEEDED ***");
+                MeadowLogger.Log($@"*** Buildup process SUCCEEDED ***");
             }
             else
             {
-                _logger.Log($@"*** Everything Already Up-to-date ***");
+                MeadowLogger.Log($@"*** Everything Already Up-to-date ***");
             }
-
         }
 
 
@@ -233,7 +243,6 @@ namespace Meadow
                 .EnumerateTables(_configuration);
         }
 
-       
 
         private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
         {

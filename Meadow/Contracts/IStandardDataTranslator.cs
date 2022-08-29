@@ -9,6 +9,6 @@ namespace Meadow.Contracts
     {
         List<DataPoint> TranslateToStorage(Record standardData, ObjectEvaluator evaluator);
 
-        List<Record> TranslateFromStorage(List<Record> storageData, Type targetType);
+        List<Record> TranslateFromStorage(List<Record> storageData, Type targetType,bool fullTree);
     }
 }

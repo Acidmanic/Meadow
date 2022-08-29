@@ -12,7 +12,12 @@ namespace Meadow.BuildupScripts
         private readonly List<ScriptInfo> _scripts;
 
 
-        public BuildupScriptManager(string directory)
+        public BuildupScriptManager(string directory):this( directory,Assembly.GetEntryAssembly())
+        {
+            
+        }
+        
+        public BuildupScriptManager(string directory,Assembly assembly)
         {
             if (Path.IsPathFullyQualified(directory))
             {
@@ -20,8 +25,6 @@ namespace Meadow.BuildupScripts
             }
             else
             {
-                var assembly = Assembly.GetEntryAssembly();
-
                 if (assembly != null)
                 {
                     var path  =  new FileInfo(assembly.Location).Directory?.FullName;

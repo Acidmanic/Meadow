@@ -20,7 +20,7 @@ namespace Meadow.Test.Functional
             
             var standardData = new FieldAddressTranslatedStandardDataTranslator(
                 new RelationalFieldAddressIdentifierTranslator(){Separator = '.',DataOwnerNameProvider = new PluralDataOwnerNameProvider()}
-                ).TranslateFromStorage(storageData, typeof(SupplementDal));
+                ).TranslateFromStorage(storageData, typeof(SupplementDal),true);
             
             List<SupplementDal> results = new List<SupplementDal>();
             
