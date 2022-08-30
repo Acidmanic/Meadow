@@ -27,7 +27,7 @@ namespace Meadow.SqlServer.ConfigurationRequests
 
         protected override string GetRequestText()
         {
-            return $@"CREATE DATABASE {_providedDbName}";
+            return $@"CREATE DATABASE {_providedDbName};";
         }
     }
 }

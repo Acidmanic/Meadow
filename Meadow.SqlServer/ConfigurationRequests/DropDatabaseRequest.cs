@@ -27,7 +27,7 @@ namespace Meadow.Configuration.ConfigurationRequests
 
         protected override string GetRequestText()
         {
-            return $@"DROP DATABASE {_providedDbName}";
+            return $@"DROP DATABASE {_providedDbName};";
         }
     }
 }

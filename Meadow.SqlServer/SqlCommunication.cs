@@ -24,23 +24,36 @@ namespace Meadow.SqlServer
         public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable, MeadowConfiguration configuration, bool returnsValue)
         {
             using var connection = new SqlConnection(configuration.ConnectionString);
+
+            try
+            {
+                carrier.Connection = connection;
+
+                connection.Open();
+
+                if (returnsValue)
+                {
+                    var dataReader = carrier.ExecuteReader(CommandBehavior.Default);
+
+                    onDataAvailable(dataReader);
+                }
+                else
+                {
+                    carrier.ExecuteNonQuery();
+
+                }
+            }
+            catch (Exception e)
+            {
+                SqlConnection.ClearPool(connection);
+                
+                throw;
+            }
+            finally
+            {
+                connection.Close();
+            }
             
-            carrier.Connection = connection;
-                
-            connection.Open();
-
-            if (returnsValue)
-            {
-                var dataReader = carrier.ExecuteReader(CommandBehavior.Default);
-
-                onDataAvailable(dataReader);
-            }
-            else
-            {
-                carrier.ExecuteNonQuery();
-            }
-                
-            connection.Close();
         }
     }
 }
