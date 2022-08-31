@@ -6,7 +6,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.0-b10" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.0" />
         <PackageReference Include="Microsoft.CodeAnalysis" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.Data.Sqlite" Version="7.0.0-preview.5.22302.2" />

@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd027FullTreeViewGenerator().Main();
+            new Tdd026SqlTranslatorTestCase().Main();
         }
     }
 }

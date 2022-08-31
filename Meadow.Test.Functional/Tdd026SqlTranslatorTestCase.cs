@@ -14,49 +14,57 @@ namespace Meadow.Test.Functional
     {
         public override void Main()
         {
-            var storageData = new List<Record>().LoadCached<List<Record>>( new DirectoryInfo(".").FullName,"unable-to-translate.json");
-            
-            storageData[0].Add("StrategyParameters.StrategyParameterDescriptor.QuantifierId",2L);
-            
-            var standardData = new FieldAddressTranslatedStandardDataTranslator(
-                new RelationalFieldAddressIdentifierTranslator(){Separator = '.',DataOwnerNameProvider = new PluralDataOwnerNameProvider()}
-                ).TranslateFromStorage(storageData, typeof(SupplementDal),true);
-            
-            List<SupplementDal> results = new List<SupplementDal>();
-            
-            foreach (var record in standardData)
-            {
-                // var evaluator = new ObjectEvaluator(typeof(SupplementDal));
-                //
-                // evaluator.LoadStandardData(record);
-                //
-                // var recordObject = evaluator.As<SupplementDal>();
-                //
-                // if (recordObject != null)
-                // {
-                //     results.Add(recordObject);
-                // }
-
-                Console.WriteLine("----------------------------------------------------------------");
-
-                foreach (var dataPoint in record)
-                {
-                    Console.WriteLine(dataPoint.Identifier+": " + dataPoint.Value);
-                }
-                
-                
-                Console.WriteLine("----------------------------------------------------------------");
-            }
-            
-            
-            // var translator = new RelationalFieldAddressIdentifierTranslator(){Separator = "_"};
+            // var storageData = new List<Record>().LoadCached<List<Record>>( new DirectoryInfo(".").FullName,"unable-to-translate.json");
             //
-            // var map = translator.MapAddressesByIdentifier<SupplementDal>();
+            // storageData[0].Add("StrategyParameters.StrategyParameterDescriptor.QuantifierId",2L);
             //
-            // foreach (var item in map)
+            // var standardData = new FieldAddressTranslatedStandardDataTranslator(
+            //     new RelationalFieldAddressIdentifierTranslator(){Separator = '.',DataOwnerNameProvider = new PluralDataOwnerNameProvider()}
+            //     ).TranslateFromStorage(storageData, typeof(SupplementDal),true);
+            //
+            // List<SupplementDal> results = new List<SupplementDal>();
+            //
+            // foreach (var record in standardData)
             // {
-            //     Console.WriteLine(item.Key + ": " + item.Value);
+            //     // var evaluator = new ObjectEvaluator(typeof(SupplementDal));
+            //     //
+            //     // evaluator.LoadStandardData(record);
+            //     //
+            //     // var recordObject = evaluator.As<SupplementDal>();
+            //     //
+            //     // if (recordObject != null)
+            //     // {
+            //     //     results.Add(recordObject);
+            //     // }
+            //
+            //     Console.WriteLine("----------------------------------------------------------------");
+            //
+            //     foreach (var dataPoint in record)
+            //     {
+            //         Console.WriteLine(dataPoint.Identifier+": " + dataPoint.Value);
+            //     }
+            //     
+            //     
+            //     Console.WriteLine("----------------------------------------------------------------");
             // }
+            //
+            //
+            // // var translator = new RelationalFieldAddressIdentifierTranslator(){Separator = "_"};
+            // //
+            // // var map = translator.MapAddressesByIdentifier<SupplementDal>();
+            // //
+            // // foreach (var item in map)
+            // // {
+            // //     Console.WriteLine(item.Key + ": " + item.Value);
+            // // }
+            
+            var map = new RelationalFieldAddressIdentifierTranslator
+            {
+                Separator = '_',
+                DataOwnerNameProvider = new PluralDataOwnerNameProvider()
+            }.MapAddressesByIdentifier(typeof(AutobidStrategyDal),true);
+            
+            
         }
     }
 }
