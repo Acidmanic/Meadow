@@ -93,8 +93,8 @@ namespace Meadow.Sql
 
             foreach (var record in storageData)
             {
-                record.Sort(datapointComparator);
-
+                var translatedRecord = new Record();
+                
                 foreach (var data in record)
                 {
                     FieldKey key = null;
@@ -124,16 +124,81 @@ namespace Meadow.Sql
                     }
                     else
                     {
-                        recordAccumulator.Pass(data.Value, new FieldProfile
-                        {
-                            Key = key,
-                            Node = addressKeyNodeMap.NodeByKey(key)
-                        });
+                        translatedRecord.Add(key.ToString(),data.Value);
                     }
                 }
+                
+                translatedRecord.Sort(datapointComparator);
+                
+                translatedRecord.ForEach( dp =>
+                {
+                    var k = FieldKey.Parse(dp.Identifier);
+                    recordAccumulator.Pass(dp.Value, new FieldProfile
+                    {
+                        Key = k,
+                        Node = addressKeyNodeMap.NodeByKey(k)
+                    });
+                });
             }
 
             return recordAccumulator.StandardRecords;
         }
+        
+        // public List<Record> TranslateFromStorage(List<Record> storageData, Type targetType,bool fullTree)
+        // {
+        //     var map = Translator.MapAddressesByIdentifier(targetType,fullTree:fullTree);
+        //
+        //     var translated = new Record();
+        //
+        //     var addressKeyNodeMap = new ObjectEvaluator(targetType).Map;
+        //
+        //     var recordAccumulator = new SqlRecordAccumulator(addressKeyNodeMap);
+        //
+        //     var datapointComparator = new DpComparator(addressKeyNodeMap);
+        //
+        //     foreach (var record in storageData)
+        //     {
+        //         record.Sort(datapointComparator);
+        //
+        //         foreach (var data in record)
+        //         {
+        //             FieldKey key = null;
+        //
+        //             if (map.ContainsKey(data.Identifier))
+        //             {
+        //                 key = map[data.Identifier];
+        //             }
+        //
+        //             var idKey = FieldKey.Parse(data.Identifier).UnIndexAll();
+        //
+        //             while (key == null && idKey.Count > 0)
+        //             {
+        //                 idKey = idKey.Subkey(1, idKey.Count - 1);
+        //
+        //                 var id = idKey.ToString();
+        //
+        //                 if (map.ContainsKey(id))
+        //                 {
+        //                     key = map[id];
+        //                 }
+        //             }
+        //
+        //             if (key == null)
+        //             {
+        //                 Console.WriteLine($"Unable to find a field for {data.Identifier}");
+        //             }
+        //             else
+        //             {
+        //                 recordAccumulator.Pass(data.Value, new FieldProfile
+        //                 {
+        //                     Key = key,
+        //                     Node = addressKeyNodeMap.NodeByKey(key)
+        //                 });
+        //             }
+        //         }
+        //     }
+        //
+        //     return recordAccumulator.StandardRecords;
+        // }
     }
 }
