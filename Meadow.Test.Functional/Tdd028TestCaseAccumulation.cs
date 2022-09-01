@@ -46,29 +46,61 @@ namespace Meadow.Test.Functional
         {
              
 
-                var trans = new RelationalFieldAddressIdentifierTranslator()
+                // var trans = new RelationalFieldAddressIdentifierTranslator()
+                // {
+                //     Separator = '_',
+                //     DataOwnerNameProvider = new PluralDataOwnerNameProvider()
+                // };
+                //
+                // var adapt = new FieldAddressTranslatedStandardDataTranslator(trans);
+                //
+                // var record = new Record();
+                //
+                // record.Add("OuterModels_Id",1);
+                // record.Add("InnerModels_Id",11);
+                // record.Add("MostInners_Id",111);
+                // record.Add("InnerModels_Id",12);
+                // record.Add("MostInners_Id",121);
+                //
+                // var fromStorage = adapt.TranslateFromStorage(new List<Record>{record}, typeof(OuterModel),true);
+                //
+                // var evaluator = new ObjectEvaluator(typeof(OuterModel));
+                //
+                // evaluator.LoadStandardData(fromStorage[0]);
+                //
+                // var reconstructed = evaluator.RootObject;
+                
+                var obj = new OuterModel
                 {
-                    Separator = '_',
-                    DataOwnerNameProvider = new PluralDataOwnerNameProvider()
+                    Id = 1,
+                    Inners = new List<InnerModel>
+                    {
+                        new InnerModel
+                        {
+                            Id = 2,
+                            MostInner = new MostInner
+                            {
+                                Id = 3
+                            }
+                        },
+                        new InnerModel
+                        {
+                            MostInner = new MostInner
+                            {
+                                Id = 4
+                            }
+                        }
+                    }
                 };
                 
-                var adapt = new FieldAddressTranslatedStandardDataTranslator(trans);
-
-                var record = new Record();
+                var standardData = new ObjectEvaluator(obj).ToStandardFlatData();
                 
-                record.Add("OuterModels_Id",1);
-                record.Add("InnerModels_Id",11);
-                record.Add("MostInners_Id",111);
-                record.Add("InnerModels_Id",12);
-                record.Add("MostInners_Id",121);
-
-                var fromStorage = adapt.TranslateFromStorage(new List<Record>{record}, typeof(OuterModel),true);
+                var tr = new StandardIndexAccumulator();
                 
-                var evaluator = new ObjectEvaluator(typeof(OuterModel));
-
-                evaluator.LoadStandardData(fromStorage[0]);
+                standardData.ForEach(dp => tr.Pass(dp));
                 
-                var reconstructed = evaluator.RootObject;
+                
+                
         }
     }
 }
