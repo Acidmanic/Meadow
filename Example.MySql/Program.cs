@@ -43,7 +43,9 @@ namespace Example.MySql
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
-        }/// <summary>
+        }
+        
+        /// <summary>
         /// :D
         /// </summary>
         /// <returns>Sql server password</returns>

@@ -9,5 +9,10 @@ namespace Example.MySql.Requests
         public GetAllPersonsFullTreeRequest() : base(true)
         {
         }
+
+        protected override bool FullTreeReadWrite()
+        {
+            return true;
+        }
     }
 }
