@@ -44,7 +44,7 @@ namespace Meadow
         public Result(bool success, T value)
         {
             Success = success;
-            value = value;
+            Value = value;
         }
 
         public Result()

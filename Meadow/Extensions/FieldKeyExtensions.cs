@@ -47,5 +47,45 @@ namespace Meadow.Extensions
 
             return result;
         }
+        
+        public static FieldKey ClearIndexes(this FieldKey key)
+        {
+            var result = new FieldKey();
+
+            foreach (var segment in key)
+            {
+                if (segment.Indexed)
+                {
+                    result.Add(new Segment(segment.Name,-1));    
+                }
+                else
+                {
+                    result.Add(new Segment(segment.Name));
+                }
+                
+            }
+
+            return result;
+        }
+        
+        public static FieldKey ZeroIndexes(this FieldKey key)
+        {
+            var result = new FieldKey();
+
+            foreach (var segment in key)
+            {
+                if (segment.Indexed)
+                {
+                    result.Add(new Segment(segment.Name,0));    
+                }
+                else
+                {
+                    result.Add(new Segment(segment.Name));
+                }
+                
+            }
+
+            return result;
+        }
     }
 }

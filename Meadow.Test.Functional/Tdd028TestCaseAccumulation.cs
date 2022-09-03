@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Extensions;
 using Meadow.RelationalTranslation;
 using Meadow.Sql;
 using Meadow.Test.Functional.Models.BugCase;
@@ -77,30 +79,34 @@ namespace Meadow.Test.Functional
                     {
                         new InnerModel
                         {
-                            Id = 2,
+                            Id = 11,
                             MostInner = new MostInner
                             {
-                                Id = 3
+                                Id = 111
                             }
                         },
                         new InnerModel
                         {
+                            Id = 12,
                             MostInner = new MostInner
                             {
-                                Id = 4
+                                Id = 121
                             }
                         }
                     }
                 };
                 
                 var standardData = new ObjectEvaluator(obj).ToStandardFlatData();
+
+                var indexLessData = new Record();
                 
-                var tr = new StandardIndexAccumulator();
+                standardData.ForEach(dp => indexLessData.Add(FieldKey.Parse(dp.Identifier).ClearIndexes().ToString(),dp.Value));
                 
-                standardData.ForEach(dp => tr.Pass(dp));
+                var tr = new StandardIndexAccumulator<OuterModel>();
                 
-                
-                
+                indexLessData.ForEach(dp => tr.Pass(dp));
+
+                var reconstructed = tr.DeliverShit();
         }
     }
 }
