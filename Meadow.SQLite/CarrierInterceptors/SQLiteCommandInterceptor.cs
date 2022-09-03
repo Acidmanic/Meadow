@@ -5,12 +5,16 @@ using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Sql;
 
 namespace Meadow.SQLite.CarrierInterceptors
 {
     public class SQLiteCommandInterceptor:ICarrierInterceptor<IDbCommand,IDataReader>
     {
+        private  readonly RelationalRelationalIdentifierToStandardFieldMapper _mapper 
+            = new RelationalRelationalIdentifierToStandardFieldMapper();
+        
         public void InterceptBeforeCommunication(IDbCommand carrier, ObjectEvaluator evaluator)
         {
             var commandText = carrier.CommandText;
@@ -24,16 +28,13 @@ namespace Meadow.SQLite.CarrierInterceptors
                     .Where(dp =>
                     {
                         var node = evaluator.Map.NodeByAddress(dp.Identifier);
-
+                
                         return node.IsLeaf && node.Parent == evaluator.RootNode;
                     }));
 
-                List<DataPoint> data = new FieldAddressTranslatedStandardDataTranslator(
-                        new RelationalRelationalIdentifierToStandardFieldMapper())
-                    .TranslateToStorage(standardData, evaluator)
-                    .ToList();
+                standardData = standardData.StandardToRelational(_mapper, evaluator.RootNode.Type, false);
                 
-                var injectedCode = InjectValuesIntoCode(procedure, data);
+                var injectedCode = InjectValuesIntoCode(procedure, standardData);
             
                 commandText = injectedCode;   
             }

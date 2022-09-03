@@ -9,5 +9,10 @@ namespace Example.SqLite.Requests
         public GetAllPersonsFullTreeRequest() : base(true)
         {
         }
+
+        protected override bool FullTreeReadWrite()
+        {
+            return true;
+        }
     }
 }
