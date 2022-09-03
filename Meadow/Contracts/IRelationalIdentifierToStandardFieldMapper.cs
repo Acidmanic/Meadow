@@ -5,7 +5,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 
 namespace Meadow.Contracts
 {
-    public interface IFieldAddressIdentifierTranslator
+    public interface IRelationalIdentifierToStandardFieldMapper
     {
 
         Dictionary<string, FieldKey> MapAddressesByIdentifier<TModel>(bool fullTree=true);

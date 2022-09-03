@@ -58,7 +58,7 @@ namespace Meadow.Test.Functional
             // //     Console.WriteLine(item.Key + ": " + item.Value);
             // // }
             
-            var map = new RelationalFieldAddressIdentifierTranslator
+            var map = new RelationalRelationalIdentifierToStandardFieldMapper
             {
                 Separator = '_',
                 DataOwnerNameProvider = new PluralDataOwnerNameProvider()

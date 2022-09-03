@@ -6,23 +6,39 @@ using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Extensions;
 
-namespace Meadow.Test.Functional
+namespace Meadow.Sql
 {
     public class StandardIndexAccumulator<TModel>
     {
-        private readonly Dictionary<string, object> _addressedValues = new Dictionary<string, object>();
-        private readonly ObjectEvaluator _evaluator = new ObjectEvaluator(typeof(TModel));
-        private IndexMap _indexMap = new IndexMap(typeof(TModel), () => Console.WriteLine("Dude make new Object!"));
+        private readonly Dictionary<string, object> _addressedValues;
+        private readonly ObjectEvaluator _evaluator;
+        private readonly IndexMap _indexMap;
+        private readonly OuterKeyFirstDatapointComparer<TModel> _datapointComparer;
+
+        public List<Record> Records { get; }
 
         public StandardIndexAccumulator()
         {
+            _addressedValues = new Dictionary<string, object>();
+            _evaluator = new ObjectEvaluator(typeof(TModel));
+            _indexMap = new IndexMap(typeof(TModel), DeliverCurrent);
+            _datapointComparer = new OuterKeyFirstDatapointComparer<TModel>();
+            Records = new List<Record>();
         }
 
         public void Clear()
         {
+            _addressedValues.Clear();
+            _indexMap.Clear();
         }
 
-        public void Pass(DataPoint dp)
+        public void EndOfRecordStream()
+        {
+            DeliverCurrent();
+        }
+
+
+        private void Pass(DataPoint dp)
         {
             var incomingField = FieldKey.Parse(dp.Identifier).ClearIndexes();
 
@@ -43,22 +59,19 @@ namespace Meadow.Test.Functional
                         Console.WriteLine($"{incomingField} has been changed");
 
                         var isUnique = IsUnique(incomingField);
+                        Console.WriteLine($"An Increment will be applied on {key}  ,...");
 
-                        if (isUnique)
+                        _indexMap.Increment(latestAddress);
+
+                        latestAddress = _indexMap.GetLatest(latestAddress).ToString();
+
+                        Console.WriteLine($"... and New Entity will be put under {latestAddress}");
+
+                        _addressedValues.Add(latestAddress, dp.Value);
+
+                        if (!isUnique)
                         {
-                            Console.WriteLine($"An Increment will be applied on {key}  ,...");
-
-                            _indexMap.Increment(latestAddress);
-
-                            latestAddress = _indexMap.GetLatest(latestAddress).ToString();
-
-                            Console.WriteLine($"... and New Entity will be put under {latestAddress}");
-
-                            _addressedValues.Add(latestAddress, dp.Value);
-                        }
-                        else
-                        {
-                            Console.WriteLine($"Value change on not-unique field {key}, has been ignored. (bad sort)");
+                            Console.WriteLine($"Value change on not-unique field {key} has been detected. (bad sort)");
                         }
                     }
                 }
@@ -69,6 +82,40 @@ namespace Meadow.Test.Functional
             }
         }
 
+
+        public void PassAll(IEnumerable<Record> standardData)
+        {
+            Clear();
+
+            if (standardData.Any())
+            {
+                foreach (var record in standardData)
+                {
+                    record.Sort(_datapointComparer);
+
+                    foreach (var dp in record)
+                    {
+                        Pass(dp);
+                    }
+                }
+
+                EndOfRecordStream();
+            }
+        }
+
+        private void DeliverCurrent()
+        {
+            var record = new Record();
+
+            foreach (var dp in _addressedValues)
+            {
+                record.Add(dp.Key, dp.Value);
+            }
+
+            Records.Add(record);
+
+            Clear();
+        }
 
         private bool IsUnique(FieldKey key)
         {
@@ -109,19 +156,6 @@ namespace Meadow.Test.Functional
             }
 
             return !Equals(older, incomingValue);
-        }
-
-
-        public object DeliverShit()
-        {
-            var eva = new ObjectEvaluator(typeof(TModel));
-
-            foreach (var dp in _addressedValues)
-            {
-                eva.Write(dp.Key, dp.Value);
-            }
-
-            return eva.RootObject;
         }
     }
 }

@@ -104,9 +104,7 @@ namespace Meadow.Test.Functional
                 
                 var tr = new StandardIndexAccumulator<OuterModel>();
                 
-                indexLessData.ForEach(dp => tr.Pass(dp));
-
-                var reconstructed = tr.DeliverShit();
+                tr.PassAll(new []{indexLessData});
         }
     }
 }

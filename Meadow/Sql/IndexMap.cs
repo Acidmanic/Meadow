@@ -1,25 +1,23 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Extensions;
 
-namespace Meadow.Test.Functional
+namespace Meadow.Sql
 {
     public class IndexMap
     {
-        private readonly Action OnNewObject;
         private readonly Dictionary<string, IIndexMapNode> _nodesByAddress;
+        private readonly Type _type;
+        private readonly Action _onNewObject;
 
         public IndexMap(Type type, Action onNewObject)
         {
-            OnNewObject = onNewObject;
+            _type = type;
+            _onNewObject = onNewObject;
             _nodesByAddress = new Dictionary<string, IIndexMapNode>();
-
-            var evaluator = new ObjectEvaluator(type);
-
-            IndexNode(evaluator.RootNode, evaluator, _nodesByAddress, new NewObjectEventIndexMapNode(OnNewObject));
+            Clear();
         }
 
         private IIndexMapNode IndexNode(AccessNode accessNode,
@@ -96,6 +94,15 @@ namespace Meadow.Test.Functional
             var node = _nodesByAddress[clearAddress];
 
             node.Increment();
+        }
+
+        public void Clear()
+        {
+            _nodesByAddress.Clear();
+
+            var evaluator = new ObjectEvaluator(_type);
+
+            IndexNode(evaluator.RootNode, evaluator, _nodesByAddress, new NewObjectEventIndexMapNode(_onNewObject));
         }
     }
 }

@@ -3,6 +3,7 @@ using System.IO;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Log;
 using Meadow.Requests;
 using Meadow.SqlServer;
 
@@ -19,7 +20,12 @@ namespace Example.SqlServer
                 BuildupScriptDirectory = "Scripts"
             };
             // Create Engine:
-            var engine = new MeadowEngine(configuration).UseSqlServer();
+            var engine = new MeadowEngine(configuration,new ConsoleLogger()).UseSqlServer();
+
+            if (engine.DatabaseExists())
+            {
+                engine.DropDatabase();
+            }
             // Create Database if not exists
             engine.CreateIfNotExist();
             // Setup (update regarding scripts)

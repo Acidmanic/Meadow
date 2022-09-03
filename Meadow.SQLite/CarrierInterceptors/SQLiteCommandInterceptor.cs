@@ -29,7 +29,7 @@ namespace Meadow.SQLite.CarrierInterceptors
                     }));
 
                 List<DataPoint> data = new FieldAddressTranslatedStandardDataTranslator(
-                        new RelationalFieldAddressIdentifierTranslator())
+                        new RelationalRelationalIdentifierToStandardFieldMapper())
                     .TranslateToStorage(standardData, evaluator)
                     .ToList();
                 

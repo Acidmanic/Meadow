@@ -76,7 +76,7 @@ namespace Meadow.Sql
 
             var evaluator = new ObjectEvaluator(type);
 
-            var map = new RelationalFieldAddressIdentifierTranslator()
+            var map = new RelationalRelationalIdentifierToStandardFieldMapper()
                     {Separator = Delimiter, DataOwnerNameProvider = DataOwnerNameProvider}
                 .MapAddressesByIdentifier(type, true);
 
@@ -159,7 +159,7 @@ namespace Meadow.Sql
 
             var node = evaluator.RootNode;
 
-            var map = new RelationalFieldAddressIdentifierTranslator()
+            var map = new RelationalRelationalIdentifierToStandardFieldMapper()
             {
                 Separator = Delimiter,
                 DataOwnerNameProvider = DataOwnerNameProvider

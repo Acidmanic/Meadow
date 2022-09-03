@@ -42,7 +42,7 @@ namespace Meadow.Tools.Assistant.Commands
                 Console.WriteLine("----------------------------");
 
 
-                var translator = new RelationalFieldAddressIdentifierTranslator() {Separator = delimiter};
+                var translator = new RelationalRelationalIdentifierToStandardFieldMapper() {Separator = delimiter};
 
                 var map = translator.MapAddressesByIdentifier(modelType,fullTree);
 

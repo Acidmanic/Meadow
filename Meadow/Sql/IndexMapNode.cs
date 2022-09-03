@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 
-namespace Meadow.Test.Functional
+namespace Meadow.Sql
 {
     public interface IIndexMapNode
     {

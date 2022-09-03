@@ -12,7 +12,7 @@ namespace Meadow
     /// <summary>
     /// [OwnerName][MemberName]....[MemberName]
     /// </summary>
-    public class RelationalFieldAddressIdentifierTranslator : IFieldAddressIdentifierTranslator
+    public class RelationalRelationalIdentifierToStandardFieldMapper : IRelationalIdentifierToStandardFieldMapper
     {
         public char Separator { get; set; } = '_';
 

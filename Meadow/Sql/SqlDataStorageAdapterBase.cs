@@ -5,6 +5,7 @@ using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Requests.FieldManipulation;
 
 namespace Meadow.Sql
@@ -15,32 +16,39 @@ namespace Meadow.Sql
         {
             FieldNameDelimiter = fieldNameDelimiter;
             DataOwnerNameProvider = dataOwnerNameProvider;
-            
-            FieldAddressIdentifierTranslator = new RelationalFieldAddressIdentifierTranslator
+
+            RelationalIdentifierToStandardFieldMapper = new RelationalRelationalIdentifierToStandardFieldMapper
             {
                 Separator = FieldNameDelimiter,
                 DataOwnerNameProvider = DataOwnerNameProvider
             };
         }
 
-        public char FieldNameDelimiter { get;  } 
-        
-        public IDataOwnerNameProvider DataOwnerNameProvider { get; }
-        
-        public IFieldAddressIdentifierTranslator FieldAddressIdentifierTranslator { get; }
+        public char FieldNameDelimiter { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks,bool fullTreeRead)
+        public IDataOwnerNameProvider DataOwnerNameProvider { get; }
+
+        public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
+
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks,
+            bool fullTreeRead)
         {
             var storageData = ReadAllRecords(carrier);
 
             storageData = Filter(storageData, fromStorageMarks);
 
-            var standardData = new FieldAddressTranslatedStandardDataTranslator(FieldAddressIdentifierTranslator)
-                .TranslateFromStorage(storageData, typeof(TModel),fullTreeRead);
+            var unIndexedStandard = storageData.RelationalToStandard<TModel>
+                (RelationalIdentifierToStandardFieldMapper, fullTreeRead);
+
+            var accumulator = new StandardIndexAccumulator<TModel>();
+
+            accumulator.PassAll(unIndexedStandard);
+
+            var indexedStandard = accumulator.Records;
 
             List<TModel> results = new List<TModel>();
 
-            foreach (var record in standardData)
+            foreach (var record in indexedStandard)
             {
                 var evaluator = new ObjectEvaluator(typeof(TModel));
 
@@ -61,10 +69,12 @@ namespace Meadow.Sql
         {
             var standardData = evaluator.ToStandardFlatData(true);
 
-            List<DataPoint> data = new FieldAddressTranslatedStandardDataTranslator(FieldAddressIdentifierTranslator)
-                .TranslateToStorage(standardData, evaluator)
-                .Where(dp => toStorageMarks.IsIncluded(dp.Identifier))
-                .ToList();
+            var includedData = standardData.Where(dp => toStorageMarks.IsIncluded(dp.Identifier));
+
+            var data = includedData.StandardToRelational(
+                RelationalIdentifierToStandardFieldMapper,
+                evaluator.RootNode.Type, false);
+
 
             WriteAllToCommand(data, command);
         }

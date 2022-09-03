@@ -5,6 +5,7 @@ namespace Example.SqlServer.Models
     public class Job
     {
         [UniqueMember]
+        [AutoValuedMember]
         public long Id { get; set; }
 
         public string Title { get; set; }
