@@ -29,4 +29,6 @@
   * Make Meadow able to get Runner assembly so it would not get confused when running in unit tests
   * Update Reflection to 1.0.0
  
- 
+ 1.1.4
+ -------
+  * Update FieldManipulation and marking
