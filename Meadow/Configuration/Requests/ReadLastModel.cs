@@ -1,8 +1,7 @@
-using Meadow.BuildupScripts;
 using Meadow.Reflection.Conventions;
 using Meadow.Requests;
 
-namespace Meadow.Configuration.ConfigurationRequests
+namespace Meadow.Configuration.Requests
 {
     public class ReadLastModel<TModel> : MeadowRequest<MeadowVoid, TModel> where TModel : class, new()
     {
