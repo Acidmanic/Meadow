@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
 using Meadow.Extensions;
@@ -30,7 +31,7 @@ namespace Meadow.Sql
 
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks fromStorageMarks,
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks<TModel> fromStorageMarks,
             bool fullTreeRead)
         {
             var storageData = ReadAllRecords(carrier);
@@ -65,7 +66,7 @@ namespace Meadow.Sql
             return results;
         }
 
-        public virtual void WriteToStorage(IDbCommand command, IFieldMarks toStorageMarks, ObjectEvaluator evaluator)
+        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldMarks<TModel> toStorageMarks, ObjectEvaluator evaluator)
         {
             var standardData = evaluator.ToStandardFlatData(true);
 
@@ -93,15 +94,16 @@ namespace Meadow.Sql
         protected abstract void WriteIntoCommand(DataPoint dataPoint, IDbCommand command);
 
 
-        private Record Filter(Record record, IFieldMarks filter)
+        private Record Filter<TModel>(Record record, IFieldMarks<TModel> filter)
         {
+            
             var filteredRecord =
                 record.Where(dp => filter.IsIncluded(dp.Identifier));
 
             return new Record(filteredRecord);
         }
 
-        private List<Record> Filter(List<Record> records, IFieldMarks filter)
+        private List<Record> Filter<TModel>(List<Record> records, IFieldMarks<TModel> filter)
         {
             var filteredRecords = records.Select(r => Filter(r, filter));
 

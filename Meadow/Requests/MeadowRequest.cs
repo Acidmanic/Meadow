@@ -97,8 +97,8 @@ namespace Meadow.Requests
         }
 
 
-        internal IFieldMarks ToStorageMarks => _toStorageManipulator;
-        internal IFieldMarks FromStorageMarks => _fromStorageManipulator;
+        internal IFieldMarks<TIn> ToStorageMarks => _toStorageManipulator;
+        internal IFieldMarks<TOut> FromStorageMarks => _fromStorageManipulator;
 
         
     }

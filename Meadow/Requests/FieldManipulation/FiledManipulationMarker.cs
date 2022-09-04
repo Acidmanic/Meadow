@@ -9,7 +9,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 
 namespace Meadow.Requests.FieldManipulation
 {
-    public class FiledManipulationMarker<TModel> : IFieldMarks, IFieldManipulator<TModel>
+    public class FiledManipulationMarker<TModel> : IFieldMarks<TModel>, IFieldManipulator<TModel>
     {
         private readonly List<FieldKey> _excludedNames;
         private readonly Dictionary<FieldKey, string> _renames;
@@ -24,10 +24,7 @@ namespace Meadow.Requests.FieldManipulation
             _renames = new Dictionary<FieldKey, string>();
         }
 
-        
-        
-        
-        public Result<FieldKey> GetKey<T, TP>(Expression<Func<T, TP>> expr)
+        private Result<FieldKey> GetKey<T, TP>(Expression<Func<T, TP>> expr)
         {
             MemberExpression me;
             switch (expr.Body.NodeType)
@@ -47,9 +44,9 @@ namespace Meadow.Requests.FieldManipulation
             while (me != null)
             {
                 string propertyName = me.Member.Name;
-                
+
                 Type propertyType = me.Type;
-                
+
                 nameList.Add(propertyName);
 
                 me = me.Expression as MemberExpression;
@@ -81,42 +78,77 @@ namespace Meadow.Requests.FieldManipulation
             }
 
             var key = evaluator.Map.FieldKeyByNode(node);
-            
-            return  Result.Successful(key);
+
+            return Result.Successful(key);
         }
 
-        public FiledManipulationMarker<TModel> Exclude<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
+        public IFieldManipulator<TModel> Exclude<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
         {
-            var selectedPropertyName = GetKey(propertySelector);
+            var key = GetKey(propertySelector);
 
-            _excludedNames.Add(selectedPropertyName);
+            return Exclude(key);
+        }
+
+        public IFieldManipulator<TModel> Exclude(FieldKey key)
+        {
+            _excludedNames.Add(key);
 
             return this;
         }
 
-        public FiledManipulationMarker<TModel> Rename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector,
-            string newName)
+        public IFieldManipulator<TModel> UnExclude<TProperty>(
+            Expression<Func<TModel, TProperty>> propertySelector)
         {
-            var selectedPropertyName = GetKey(propertySelector);
+            var key = GetKey(propertySelector);
 
-            _renames.Add(selectedPropertyName, newName);
-
-            return this;
+            return UnExclude(key);
         }
 
-        public FiledManipulationMarker<TModel> UnRename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
+        public IFieldManipulator<TModel> UnExclude(FieldKey key)
         {
-            var selectedPropertyName = GetKey(propertySelector);
-
-            if (_renames.ContainsKey(selectedPropertyName))
+            if (_excludedNames.Contains(key))
             {
-                _renames.Remove(selectedPropertyName);
+                _excludedNames.Remove(key);
             }
 
             return this;
         }
 
-        public FiledManipulationMarker<TModel> Exclude(string name)
+        public IFieldManipulator<TModel> Rename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector,
+            string newName)
+        {
+            var key = GetKey(propertySelector);
+
+            return Rename(key, newName);
+        }
+
+        public IFieldManipulator<TModel> Rename(FieldKey key, string newName)
+        {
+            _renames.Add(key, newName);
+
+            return this;
+        }
+
+        public IFieldManipulator<TModel> UnRename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
+        {
+            var key = GetKey(propertySelector);
+
+            UnRename(key);
+
+            return this;
+        }
+
+        public IFieldManipulator<TModel> UnRename(FieldKey key)
+        {
+            if (_renames.ContainsKey(key))
+            {
+                _renames.Remove(key);
+            }
+
+            return this;
+        }
+
+        public IFieldManipulator<TModel> Exclude(string name)
         {
             var key = FieldKey.Parse(name);
 
@@ -131,37 +163,6 @@ namespace Meadow.Requests.FieldManipulation
         }
 
 
-        public FiledManipulationMarker<TModel> UnExclude(string name)
-        {
-            var key = FieldKey.Parse(name);
-
-            if (key == null)
-            {
-                throw new Exception("You should enter a valid standard address of the field.");
-            }
-
-            if (_excludedNames.Contains(key))
-            {
-                _excludedNames.Remove(key);
-            }
-
-            return this;
-        }
-
-        public FiledManipulationMarker<TModel> UnExclude<TProperty>(
-            Expression<Func<TModel, TProperty>> propertySelector)
-        {
-            var key = GetKey(propertySelector);
-
-
-            if (_excludedNames.Contains(key))
-            {
-                _excludedNames.Remove(key);
-            }
-
-            return this;
-        }
-
         public List<string> ExcludedNames()
         {
             return new List<string>(_excludedNames.Select(k => k.ToString()));
@@ -172,8 +173,20 @@ namespace Meadow.Requests.FieldManipulation
         {
             return !_excludedNames.Contains(key);
         }
-        
-        
+
+        public bool IsIncluded(string address)
+        {
+            var key = FieldKey.Parse(address);
+
+            if (key == null)
+            {
+                return false;
+            }
+
+            return IsIncluded(key);
+        }
+
+
         public bool IsIncluded<TP>(Expression<Func<TModel, TP>> expr)
         {
             var key = GetKey(expr);
@@ -185,34 +198,34 @@ namespace Meadow.Requests.FieldManipulation
 
             return !_excludedNames.Contains(key);
         }
-        
-        public bool IsIncluded(string fieldName)
+
+        public string GetPracticalName(FieldKey key)
         {
-            var key = FieldKey.Parse(fieldName);
-
-            if (key == null)
-            {
-                return false;
-            }
-
-            return !_excludedNames.Contains(key);
-        }
-
-        public string GetPracticalName(string fieldname)
-        {
-            var key = FieldKey.Parse(fieldname);
-
-            if (key == null)
-            {
-                throw new Exception("You should enter a valid standard address of the field.");
-            }
-
             if (_renames.ContainsKey(key))
             {
                 return _renames[key];
             }
 
-            return fieldname;
+            return null;
+        }
+
+        public string GetPracticalName(string address)
+        {
+            var key = FieldKey.Parse(address);
+
+            if (key == null)
+            {
+                return address;
+            }
+
+            return key.ToString();
+        }
+
+        public string GetPracticalName<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
+        {
+            var key = GetKey(propertySelector);
+
+            return GetPracticalName(key);
         }
 
         public void Clear()
