@@ -1,16 +1,33 @@
 ﻿using System;
 using System.IO;
+using Example.SqlServer.Models;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Log;
 using Meadow.Requests;
+using Meadow.Requests.FieldManipulation;
 using Meadow.SqlServer;
 
 namespace Example.SqlServer
 {
     class Program
     {
+
+        private sealed class InsertJobRequest : MeadowRequest<Job, Job>
+        {
+            public InsertJobRequest(Job job) : base(true)
+            {
+                ToStorage = job;
+            }
+
+            protected override void OnFieldManipulation(IFieldManipulator<Job> toStorage, IFieldManipulator<Job> fromStorage)
+            {
+                base.OnFieldManipulation(toStorage, fromStorage);
+
+                toStorage.Exclude(j => j.Id);
+            }
+        }
         static void Main(string[] args)
         {
             // Configure Meadow
@@ -41,6 +58,7 @@ namespace Example.SqlServer
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
+            
         }
 
 

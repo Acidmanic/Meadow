@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd028TestCaseAccumulation().Main();
+            new Tdd029ExpressionToFieldKey().Main();
         }
     }
 }
