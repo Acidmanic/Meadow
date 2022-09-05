@@ -6,45 +6,36 @@ using Meadow.Configuration;
 using Meadow.Configuration.Requests;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
-using Meadow.Log;
 using Meadow.Models;
 using Meadow.NullCore;
 using Meadow.Requests;
 using Meadow.Utility;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow
 {
     public class MeadowEngine
     {
         private readonly MeadowConfiguration _configuration;
-        private  EnhancedLogger MeadowLogger { get; }
+        private static ILogger _logger = NullLogger.Instance;
 
 
         private static IMeadowDataAccessCoreProvider _coreProvider = new CoreProvider<NullMeadowCore>();
-        public Assembly  MeadowRunnerAssembly {get;}
+        public Assembly MeadowRunnerAssembly { get; }
 
 
-        public MeadowEngine(MeadowConfiguration configuration, ILogger logger, Assembly meadowRunnerAssembly)
+        public MeadowEngine(MeadowConfiguration configuration, Assembly meadowRunnerAssembly)
         {
             MeadowRunnerAssembly = meadowRunnerAssembly;
-            MeadowLogger = new EnhancedLogger(logger);
             _configuration = configuration;
         }
 
-        public MeadowEngine(MeadowConfiguration configuration, ILogger logger) : 
-            this(configuration, logger, Assembly.GetCallingAssembly())
+        public MeadowEngine(MeadowConfiguration configuration) :
+            this(configuration, Assembly.GetCallingAssembly())
         {
         }
 
-        public MeadowEngine(MeadowConfiguration configuration, Assembly meadowRunnerAssembly)
-        :this(configuration,new NullLogger(),meadowRunnerAssembly)
-        {
-            
-        }
-
-        public MeadowEngine(MeadowConfiguration configuration) : this(configuration, new NullLogger(),Assembly.GetCallingAssembly())
-        {
-        }
 
         public static void UseDataAccess(IMeadowDataAccessCoreProvider provider)
         {
@@ -55,6 +46,18 @@ namespace Meadow
             else
             {
                 _coreProvider = provider;
+            }
+        }
+
+        public static void UseLogger(ILogger logger)
+        {
+            if (logger == null)
+            {
+                _logger = NullLogger.Instance;
+            }
+            else
+            {
+                _logger = logger;
             }
         }
 
@@ -174,16 +177,17 @@ namespace Meadow
 
             if (lastExecResult != null)
             {
-                MeadowLogger.Log($"Already built up, up to {lastExecResult.ScriptName}:{lastExecResult.ScriptOrder}");
+                _logger.LogInformation(
+                    $"Already built up, up to {lastExecResult.ScriptName}:{lastExecResult.ScriptOrder}");
 
                 lastAppliedOrder = lastExecResult.ScriptOrder;
             }
 
-            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory,MeadowRunnerAssembly);
+            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory, MeadowRunnerAssembly);
 
             if (manager.ScriptsCount == 0)
             {
-                MeadowLogger.Log(
+                _logger.LogError(
                     $@"No valid build-up scripts where found at given directory {_configuration.BuildupScriptDirectory}");
                 return;
             }
@@ -196,13 +200,13 @@ namespace Meadow
 
                 if (info.OrderIndex > lastAppliedOrder)
                 {
-                    MeadowLogger.Log($@"Applying {info.OrderIndex}, {info.Name}");
+                    _logger.LogInformation($@"Applying {info.OrderIndex}, {info.Name}");
 
                     var result = PerformScript(info);
 
                     if (result.Success)
                     {
-                        MeadowLogger.Log($@"{info.Order}, {info.Name} has been applied successfully.");
+                        _logger.LogInformation($@"{info.Order}, {info.Name} has been applied successfully.");
 
                         anyApplied = true;
 
@@ -210,9 +214,9 @@ namespace Meadow
                     }
                     else
                     {
-                        MeadowLogger.LogException(result.Exception, $@"Applying {info.Order}, {info.Name}");
+                        _logger.LogError(result.Exception, $@"Applying {info.Order}, {info.Name}");
 
-                        MeadowLogger.Log($@"*** Buildup process FAILED at {info.Order}.***");
+                        _logger.LogError($@"*** Buildup process FAILED at {info.Order}.***");
 
                         return;
                     }
@@ -221,11 +225,11 @@ namespace Meadow
 
             if (anyApplied)
             {
-                MeadowLogger.Log($@"*** Buildup process SUCCEEDED ***");
+                _logger.LogInformation($@"*** Buildup process SUCCEEDED ***");
             }
             else
             {
-                MeadowLogger.Log($@"*** Everything Already Up-to-date ***");
+                _logger.LogInformation($@"*** Everything Already Up-to-date ***");
             }
         }
 

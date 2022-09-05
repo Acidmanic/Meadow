@@ -3,7 +3,6 @@ using System.IO;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
-using Meadow.Log;
 using Meadow.SqlServer;
 
 namespace Example.SqlServer
@@ -19,7 +18,7 @@ namespace Example.SqlServer
                 BuildupScriptDirectory = "Scripts"
             };
             // Create Engine:
-            var engine = new MeadowEngine(configuration,new ConsoleLogger()).UseSqlServer();
+            var engine = new MeadowEngine(configuration).UseSqlServer();
 
             if (engine.DatabaseExists())
             {
@@ -40,8 +39,6 @@ namespace Example.SqlServer
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
-
-            
             
         }
 

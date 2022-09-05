@@ -1,6 +1,5 @@
 using System;
 using ConsoleAppFramework;
-using Meadow.Log;
 using Meadow.Scaffolding;
 using Meadow.Tools.Assistant.Compilation;
 using Meadow.Tools.Assistant.DotnetProject;

@@ -1,11 +1,10 @@
-using System;
 using System.IO;
 using Acidmanic.Utilities.Results;
-using ConsoleAppFramework.Logging;
 using Meadow.BuildupScripts;
-using Meadow.Log;
 using Meadow.Scaffolding.Contracts;
 using Meadow.Tools.Assistant.Compilation;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Tools.Assistant.Utils
 {
@@ -18,7 +17,7 @@ namespace Meadow.Tools.Assistant.Utils
             _logger = logger;
         }
 
-        public ScripUtils() : this(new NullLogger())
+        public ScripUtils() : this(NullLogger.Instance)
         {
         }
         
@@ -28,12 +27,12 @@ namespace Meadow.Tools.Assistant.Utils
 
             if (configurationProviders.Count == 0)
             {
-                _logger.Log("No ConfigurationProvider found.");
+                _logger.LogError("No ConfigurationProvider found.");
 
                 return new Result<string>().FailAndDefaultValue();
             }
 
-            _logger.Log(
+            _logger.LogInformation(
                 $"An instance of {configurationProviders[0].GetType()} is being used to get configurations from.");
 
             directory = Path.GetFullPath(directory);
@@ -92,11 +91,11 @@ namespace Meadow.Tools.Assistant.Utils
 
                 File.Create(scriptPath);
 
-                _logger.Log($"A new blank script file has been created at: {scriptPath}");
+                _logger.LogInformation($"A new blank script file has been created at: {scriptPath}");
             }
             else
             {
-                _logger.Log("Unable to find scripts directory.");
+                _logger.LogInformation("Unable to find scripts directory.");
             }
         }
 

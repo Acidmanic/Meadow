@@ -6,13 +6,13 @@ using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Acidmanic.Utilities.Results;
-using Meadow.Log;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
 using Meadow.Tools.Assistant.Extensions;
 using Meadow.Tools.Assistant.Nuget.PackageSources;
 using Meadow.Tools.Assistant.Utils;
-using Meadow.Tools.Assistant.Utils.ProjectReferences;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Tools.Assistant.Nuget
 {
@@ -24,7 +24,7 @@ namespace Meadow.Tools.Assistant.Nuget
         private readonly ILogger _logger;
 
 
-        public Nuget(string cacheDirectory) : this(cacheDirectory, new NullLogger())
+        public Nuget(string cacheDirectory) : this(cacheDirectory, NullLogger.Instance)
         {
         }
 
@@ -205,13 +205,13 @@ namespace Meadow.Tools.Assistant.Nuget
 
             if (nuspec == null)
             {
-                _logger.Log($"There was a problem getting information for package: {packageId}");
+                _logger.LogError($"There was a problem getting information for package: {packageId}");
 
                 return;
             }
             // package is valid and yet not investigated
 
-            _logger.Log($". Received nuspec metadata for {nuspec}.");
+            _logger.LogError($". Received nuspec metadata for {nuspec}.");
 
             hashes.Add(hash);
 
@@ -223,11 +223,11 @@ namespace Meadow.Tools.Assistant.Nuget
 
         private Nuspec ProvidePackageWithDependencies(PackageId packageId)
         {
-            _logger.Log($"Building Dependency Tree for {packageId}");
+            _logger.LogInformation($"Building Dependency Tree for {packageId}");
 
             var dependencies = BuildDependencyTree(packageId);
 
-            _logger.Log($"Restoring {dependencies.Count} Dependencies for {packageId}.");
+            _logger.LogInformation($"Restoring {dependencies.Count} Dependencies for {packageId}.");
 
             foreach (var dependency in dependencies)
             {
@@ -235,11 +235,11 @@ namespace Meadow.Tools.Assistant.Nuget
 
                 if (existence.Success)
                 {
-                    _logger.Log($"[OK] Package {dependency} already cached.");
+                    _logger.LogInformation($"[OK] Package {dependency} already cached.");
                 }
                 else
                 {
-                    _logger.Log($"[DL] Installing {dependency} into {_cacheDirectory}...");
+                    _logger.LogInformation($"[DL] Installing {dependency} into {_cacheDirectory}...");
 
                     var downloadResult = _packageSource.ProvidePackage(dependency);
 
@@ -249,7 +249,7 @@ namespace Meadow.Tools.Assistant.Nuget
                     }
                     else
                     {
-                        _logger.Log($"[ER] Unable to download package {dependency}");
+                        _logger.LogError($"[ER] Unable to download package {dependency}");
                     }
                 }
             }

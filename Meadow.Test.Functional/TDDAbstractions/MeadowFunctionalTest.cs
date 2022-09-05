@@ -2,12 +2,36 @@ using System;
 using System.Collections;
 using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
-using Meadow.Log;
+using Meadow.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional.TDDAbstractions
 {
     public abstract class MeadowFunctionalTest : IFunctionalTest
     {
+
+        public class TestLogger : ILogger
+        {
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            {
+                var message = logLevel.ToString();
+
+                message += ": " + formatter(state, exception);
+                
+                Console.WriteLine(message);
+            }
+
+            public bool IsEnabled(LogLevel logLevel)
+            {
+                return true;
+            }
+
+            public IDisposable BeginScope<TState>(TState state)
+            {
+                return null;
+            }
+        }
+        
         protected readonly string DbName;
 
         protected MeadowFunctionalTest(string dbName)
@@ -17,6 +41,9 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
         protected MeadowFunctionalTest()
         {
+
+            new TestLogger().UserForMeadow();
+            
             DbName = GetType().Name + "Db2BeDeleted";
 
             Console.WriteLine($@"****Database: '{DbName}' is being used for this test.*****");
@@ -38,8 +65,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
                 {
                     ConnectionString = GetConnectionString(),
                     BuildupScriptDirectory = "Scripts"
-                },
-                new ConsoleLogger());
+                });
         }
 
         protected void PrintObject(object o)

@@ -1,8 +1,6 @@
 using System.IO;
 using Meadow.Configuration;
-using Meadow.Log;
 using Meadow.SQLite;
-using Meadow.SqlServer;
 using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
@@ -41,7 +39,7 @@ namespace Meadow.Test.Functional
                 BuildupScriptDirectory = "SqLiteScripts"
             };
             
-            var engine = new MeadowEngine(sqliteConfig,new ConsoleLogger()).UseSQLite();
+            var engine = new MeadowEngine(sqliteConfig).UseSQLite();
             
             if (engine.DatabaseExists())
             {
