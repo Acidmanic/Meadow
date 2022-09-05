@@ -1,7 +1,7 @@
 using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
-using Meadow.Requests.FieldInclusion;
 
 namespace Meadow.Test.Functional.FakeEngine
 {

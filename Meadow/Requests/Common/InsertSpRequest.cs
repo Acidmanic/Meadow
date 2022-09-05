@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
-using Meadow.Reflection.Conventions;
 using Meadow.RelationalTranslation;
-using Meadow.Requests.FieldInclusion;
 
 namespace Meadow.Requests.Common
 {

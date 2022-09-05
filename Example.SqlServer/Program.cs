@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Example.SqlServer.Models;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Log;
 using Meadow.Requests;
-using Meadow.Requests.FieldInclusion;
 using Meadow.SqlServer;
 
 namespace Example.SqlServer

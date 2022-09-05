@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Requests.FieldInclusion;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 
 namespace Meadow.Requests
 {
@@ -65,14 +64,14 @@ namespace Meadow.Requests
             FromStorage = new List<TOut>();
         }
 
-        internal void InitializeBeforeExecution(IDataOwnerNameProvider dataOwnerNameProvider)
+        internal void InitializeBeforeExecution()
         {
             RequestText = GetProcedureNameFromRequestName();
 
             
 
-            _toStorageManipulator = new FiledManipulationMarker<TIn>(dataOwnerNameProvider,FullTree);
-            _fromStorageManipulator = new FiledManipulationMarker<TOut>(dataOwnerNameProvider,FullTree);
+            _toStorageManipulator = new FiledManipulationMarker<TIn>();
+            _fromStorageManipulator = new FiledManipulationMarker<TOut>();
 
             _toStorageManipulator.Clear();
             

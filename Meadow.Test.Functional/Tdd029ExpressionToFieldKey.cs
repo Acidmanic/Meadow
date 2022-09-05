@@ -1,19 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq.Expressions;
-using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.Attributes;
-using Acidmanic.Utilities.Reflection.ObjectTree;
-using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
-using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
-using Meadow.Extensions;
-using Meadow.RelationalTranslation;
-using Meadow.Requests.FieldInclusion;
-using Meadow.Sql;
-using Meadow.Test.Functional.Models.BugCase;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Meadow.Test.Functional.TDDAbstractions;
-using Meadow.Tools.Assistant.Extensions;
 
 namespace Meadow.Test.Functional
 {
@@ -41,7 +28,7 @@ namespace Meadow.Test.Functional
 
         public override void Main()
         {
-            var mp = new FiledManipulationMarker<OuterModel>(new PluralDataOwnerNameProvider(), true);
+            var mp = new FiledManipulationMarker<OuterModel>();
 
             mp.Exclude(o => o.Inner.MostInner.Id);
 

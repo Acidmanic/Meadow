@@ -28,7 +28,7 @@ namespace Meadow.DataAccessCore
             MeadowConfiguration configuration)
             where TOut : class, new()
         {
-            request.InitializeBeforeExecution(DataOwnerNameProvider);
+            request.InitializeBeforeExecution();
 
 
             var carrier = ProvideCarrier(request, configuration);
