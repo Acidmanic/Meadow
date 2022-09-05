@@ -17,6 +17,12 @@
         <ProjectReference Include="..\Meadow\Meadow.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Reference Include="Meadow, Version=1.1.4.0, Culture=neutral, PublicKeyToken=null">
+        <HintPath>..\Example.MySql\bin\Debug\netcoreapp3.1\Meadow.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
     <!-- Dotnet Tool Specific settings -->
     <PropertyGroup>
         <PackAsTool>true</PackAsTool>
