@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
@@ -23,7 +24,7 @@ namespace Meadow.Requests.Common
             
             var allLeaves = evaluator.RootNode.EnumerateLeavesBelow();
             
-            var idLeaf = IdHelper.GetIdLeaf(entityType);
+            var idLeaf = TypeIdentity.FindIdentityLeaf(entityType);
 
             FieldKey idKey = GetKey(idLeaf, evaluator, allLeaves);
 

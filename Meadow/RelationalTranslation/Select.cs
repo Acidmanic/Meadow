@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 
 namespace Meadow.RelationalTranslation
@@ -64,7 +65,7 @@ namespace Meadow.RelationalTranslation
         }
         private static string GetJunction(TableDouble main, TableDouble table,char delimiter)
         {
-            var childIdLeaf = IdHelper.GetIdLeaf(table.DataType);
+            var childIdLeaf = TypeIdentity.FindIdentityLeaf(table.DataType);
 
             if (childIdLeaf == null)
             {
