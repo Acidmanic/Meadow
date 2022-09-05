@@ -1,33 +1,15 @@
 ﻿using System;
 using System.IO;
-using Acidmanic.Utilities.Reflection.FieldInclusion;
-using Example.SqlServer.Models;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Log;
-using Meadow.Requests;
 using Meadow.SqlServer;
 
 namespace Example.SqlServer
 {
-    class Program
+    partial class Program
     {
-
-        private sealed class InsertJobRequest : MeadowRequest<Job, Job>
-        {
-            public InsertJobRequest(Job job) : base(true)
-            {
-                ToStorage = job;
-            }
-
-            protected override void OnFieldManipulation(IFieldInclusionMarker<Job> toStorage, IFieldInclusionMarker<Job> fromStorage)
-            {
-                base.OnFieldManipulation(toStorage, fromStorage);
-
-                toStorage.Exclude(j => j.Id);
-            }
-        }
         static void Main(string[] args)
         {
             // Configure Meadow
@@ -58,6 +40,8 @@ namespace Example.SqlServer
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
+
+            
             
         }
 
