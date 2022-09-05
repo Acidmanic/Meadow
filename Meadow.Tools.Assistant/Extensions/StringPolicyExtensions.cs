@@ -1,37 +1,37 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
+using Acidmanic.Utilities.Results;
 using Meadow.Scaffolding;
 using Meadow.Scaffolding.OnExistsPolicy;
 
-namespace Meadow.Tools.Assistant
+namespace Meadow.Tools.Assistant.Extensions
 {
     public static class StringPolicyExtensions
     {
         private static readonly Dictionary<string, OnExistsPolicies> PolicyMap =
             new Dictionary<string, OnExistsPolicies>
             {
-                {"skip", OnExistsPolicies.Skip},
-                {"alter", OnExistsPolicies.Alter},
-                {"drop", OnExistsPolicies.DropAndReCreate}
+                { "skip", OnExistsPolicies.Skip },
+                { "alter", OnExistsPolicies.Alter },
+                { "drop", OnExistsPolicies.DropAndReCreate }
             };
 
         private static readonly Dictionary<string, DbObjectTypes> DbTypeMap = new Dictionary<string, DbObjectTypes>
         {
-            {"t", DbObjectTypes.Tables},
-            {"p", DbObjectTypes.StoredProcedures}
+            { "t", DbObjectTypes.Tables },
+            { "p", DbObjectTypes.StoredProcedures }
         };
 
         public static Result<OnExistsRule> AsPolicy(this string value)
         {
             if (string.IsNullOrEmpty(value))
             {
-                return Result.Failure<OnExistsRule>();
+                return new Result<OnExistsRule>().FailAndDefaultValue();
             }
 
             if (PolicyMap.ContainsKey(value))
             {
-                return Result.Successful<OnExistsRule>(o => PolicyMap[value]);
+                return new Result<OnExistsRule>().Succeed(o => PolicyMap[value]);
             }
 
             var dash = value.LastIndexOf("-", StringComparison.Ordinal);
@@ -49,7 +49,8 @@ namespace Meadow.Tools.Assistant
                 {
                     var policy = PolicyMap[head];
 
-                    return Result.Successful<OnExistsRule>(o => o.Name == tail ? policy : OnExistsPolicies.NoPolicies);
+                    return new Result<OnExistsRule>().Succeed(
+                        o => o.Name == tail ? policy : OnExistsPolicies.NoPolicies);
                 }
                 else if (PolicyMap.ContainsKey(tail)) // Its By Type
                 {
@@ -58,13 +59,12 @@ namespace Meadow.Tools.Assistant
                         var policy = PolicyMap[tail];
                         var dbType = DbTypeMap[head];
 
-                        return Result.Successful<OnExistsRule>(o =>
+                        return new Result<OnExistsRule>().Succeed(o =>
                             o.Type == dbType ? policy : OnExistsPolicies.NoPolicies);
                     }
                 }
             }
-
-            return Result.Failure<OnExistsRule>();
+            return new Result<OnExistsRule>().FailAndDefaultValue();
         }
     }
 

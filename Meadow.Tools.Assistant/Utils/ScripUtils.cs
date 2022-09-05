@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Acidmanic.Utilities.Results;
 using ConsoleAppFramework.Logging;
 using Meadow.BuildupScripts;
 using Meadow.Log;
@@ -29,7 +30,7 @@ namespace Meadow.Tools.Assistant.Utils
             {
                 _logger.Log("No ConfigurationProvider found.");
 
-                return Result.Failure<string>();
+                return new Result<string>().FailAndDefaultValue();
             }
 
             _logger.Log(
@@ -46,7 +47,7 @@ namespace Meadow.Tools.Assistant.Utils
                 scriptsDirectory = Path.Join(directory, scriptsDirectory);
             }
 
-            return Result.Successful(scriptsDirectory);
+            return new Result<string>().Succeed(scriptsDirectory);
         }
 
         public Result<ScriptInfo> GetLatestScript(string directory = ".")
@@ -58,7 +59,7 @@ namespace Meadow.Tools.Assistant.Utils
                 return GetLatestScriptFromValidScriptsDirectory(scriptsDirectory);
             }
 
-            return Result.Failure<ScriptInfo>();
+            return new Result<ScriptInfo>().FailAndDefaultValue();
         }
 
         private Result<ScriptInfo> GetLatestScriptFromValidScriptsDirectory(string validatedScriptsDirectory)
@@ -69,10 +70,10 @@ namespace Meadow.Tools.Assistant.Utils
             {
                 var lastIndex = scriptManager.ScriptsCount - 1;
 
-                return Result.Successful(scriptManager[lastIndex]);
+                return new Result<ScriptInfo>().Succeed(scriptManager[lastIndex]);
             }
 
-            return Result.Failure<ScriptInfo>();
+            return new Result<ScriptInfo>().FailAndDefaultValue();
         }
         
         public void Blank(

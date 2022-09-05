@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Acidmanic.Utilities.Results;
 
 namespace Meadow.Tools.Assistant.Nuget.PackageSources
 {
@@ -30,7 +31,7 @@ namespace Meadow.Tools.Assistant.Nuget.PackageSources
                 }
             }
 
-            return Result.Failure<byte[]>();
+            return new Result<byte[]>().FailAndDefaultValue();
         }
 
         public string GetNuspec(PackageId packageId)

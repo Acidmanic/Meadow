@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
+using Acidmanic.Utilities.Results;
 using Meadow.Log;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
@@ -58,12 +59,12 @@ namespace Meadow.Tools.Assistant.Nuget
                     {
                         var bytes = await result.Content.ReadAsByteArrayAsync();
 
-                        return Result.Successful(bytes);
+                        return new Result<byte[]>().Succeed(bytes);
                     }
                 }
             }
 
-            return Result.Failure<byte[]>();
+            return new Result<byte[]>().FailAndDefaultValue();
         }
 
         private Nuspec DownloadNuspec(PackageId packageId)
@@ -348,12 +349,12 @@ namespace Meadow.Tools.Assistant.Nuget
 
                         Nuspec package = NugetPackage.GetNuspecFromXml(nuspecContent);
 
-                        return Result.Successful(package);
+                        return new Result<Nuspec>().Succeed(package);
                     }
                 }
             }
 
-            return Result.Failure<Nuspec>();
+            return new Result<Nuspec>().FailAndDefaultValue();
         }
 
 

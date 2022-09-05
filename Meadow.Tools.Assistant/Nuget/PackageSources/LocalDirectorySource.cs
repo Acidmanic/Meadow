@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Acidmanic.Utilities.Results;
 
 namespace Meadow.Tools.Assistant.Nuget.PackageSources
 {
@@ -30,7 +31,7 @@ namespace Meadow.Tools.Assistant.Nuget.PackageSources
 
                 if (fileVersion == packageId.Version)
                 {
-                    return Result.Successful(File.ReadAllBytes(packageFile.FullName));
+                    return new Result<byte[]>().Succeed(File.ReadAllBytes(packageFile.FullName));
                 }
 
                 Version version;
@@ -48,10 +49,10 @@ namespace Meadow.Tools.Assistant.Nuget.PackageSources
 
             if (latestFile != null)
             {
-                return Result.Successful(File.ReadAllBytes(latestFile.FullName));
+                return new Result<byte[]>().Succeed(File.ReadAllBytes(latestFile.FullName));
             }
 
-            return Result.Failure<byte[]>();
+            return new Result<byte[]>().FailAndDefaultValue();
         }
 
         public string GetNuspec(PackageId packageId)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Acidmanic.Utilities.Results;
 using Meadow.Reflection.FetchPlug;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
@@ -107,7 +108,8 @@ namespace Meadow.Tools.Assistant.Compilation
 
                 if (instances.Count > 0)
                 {
-                    return Result.Successful(instances);
+                    //return Result<List<T>>.Successful(instances);
+                    return new Result<List<T>>(true, instances);
                 }
             }
             catch (Exception e)
@@ -115,7 +117,7 @@ namespace Meadow.Tools.Assistant.Compilation
                 Console.WriteLine(e);
             }
 
-            return Result.Failure<List<T>>();
+            return new Result<List<T>>().FailAndDefaultValue();
         }
 
         private List<FileInfo> GetNugetianRuntimes(List<PackageReference> nuGets)

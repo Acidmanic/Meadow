@@ -1,6 +1,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Acidmanic.Utilities.Results;
 
 namespace Meadow.Tools.Assistant.Nuget.PackageSources
 {
@@ -61,12 +62,12 @@ namespace Meadow.Tools.Assistant.Nuget.PackageSources
                     {
                         var bytes = await result.Content.ReadAsByteArrayAsync();
 
-                        return Result.Successful(bytes);
+                        return new Result<byte[]>().Succeed(bytes);
                     }
                 }
             }
 
-            return Result.Failure<byte[]>();
+            return new Result<byte[]>().FailAndDefaultValue();
         }
     }
 }
