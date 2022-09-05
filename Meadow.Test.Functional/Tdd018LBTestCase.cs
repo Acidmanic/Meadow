@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.DataSource;
 using Meadow.Extensions;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 using Meadow.Sql;
 using Meadow.SqlServer;
 using Meadow.Test.Functional.Models.BugCase;

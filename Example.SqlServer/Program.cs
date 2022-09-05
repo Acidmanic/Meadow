@@ -6,7 +6,7 @@ using Meadow;
 using Meadow.Configuration;
 using Meadow.Log;
 using Meadow.Requests;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 using Meadow.SqlServer;
 
 namespace Example.SqlServer
@@ -21,7 +21,7 @@ namespace Example.SqlServer
                 ToStorage = job;
             }
 
-            protected override void OnFieldManipulation(IFieldManipulator<Job> toStorage, IFieldManipulator<Job> fromStorage)
+            protected override void OnFieldManipulation(IFieldInclusionMarker<Job> toStorage, IFieldInclusionMarker<Job> fromStorage)
             {
                 base.OnFieldManipulation(toStorage, fromStorage);
 

@@ -7,7 +7,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
 using Meadow.Extensions;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 
 namespace Meadow.Sql
 {
@@ -31,12 +31,12 @@ namespace Meadow.Sql
 
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldMarks<TModel> fromStorageMarks,
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion<TModel> fromStorageInclusion,
             bool fullTreeRead)
         {
             var storageData = ReadAllRecords(carrier);
 
-            storageData = Filter(storageData, fromStorageMarks);
+            storageData = Filter(storageData, fromStorageInclusion);
 
             var unIndexedStandard = storageData.RelationalToStandard<TModel>
                 (RelationalIdentifierToStandardFieldMapper, fullTreeRead);
@@ -66,11 +66,11 @@ namespace Meadow.Sql
             return results;
         }
 
-        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldMarks<TModel> toStorageMarks, ObjectEvaluator evaluator)
+        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldInclusion<TModel> toStorageInclusion, ObjectEvaluator evaluator)
         {
             var standardData = evaluator.ToStandardFlatData(true);
 
-            var includedData = standardData.Where(dp => toStorageMarks.IsIncluded(dp.Identifier));
+            var includedData = standardData.Where(dp => toStorageInclusion.IsIncluded(dp.Identifier));
 
             var data = includedData.StandardToRelational(
                 RelationalIdentifierToStandardFieldMapper,
@@ -94,7 +94,7 @@ namespace Meadow.Sql
         protected abstract void WriteIntoCommand(DataPoint dataPoint, IDbCommand command);
 
 
-        private Record Filter<TModel>(Record record, IFieldMarks<TModel> filter)
+        private Record Filter<TModel>(Record record, IFieldInclusion<TModel> filter)
         {
             
             var filteredRecord =
@@ -103,7 +103,7 @@ namespace Meadow.Sql
             return new Record(filteredRecord);
         }
 
-        private List<Record> Filter<TModel>(List<Record> records, IFieldMarks<TModel> filter)
+        private List<Record> Filter<TModel>(List<Record> records, IFieldInclusion<TModel> filter)
         {
             var filteredRecords = records.Select(r => Filter(r, filter));
 

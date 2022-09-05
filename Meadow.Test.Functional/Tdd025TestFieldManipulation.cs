@@ -8,7 +8,7 @@ using Meadow.DataAccessCore;
 using Meadow.Log;
 using Meadow.MySql;
 using Meadow.Requests;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 using Meadow.SqlServer;
 using Meadow.Test.Functional.FakeEngine;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -53,7 +53,7 @@ namespace Meadow.Test.Functional
                 return true;
             }
 
-            protected override void OnFieldManipulation(IFieldManipulator<Person> toStorage, IFieldManipulator<MeadowVoid> fromStorage)
+            protected override void OnFieldManipulation(IFieldInclusionMarker<Person> toStorage, IFieldInclusionMarker<MeadowVoid> fromStorage)
             {
                 toStorage.Exclude(p => p.Id);
 

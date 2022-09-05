@@ -4,7 +4,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Reflection.Conventions;
 using Meadow.RelationalTranslation;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 
 namespace Meadow.Requests.Common
 {
@@ -15,7 +15,7 @@ namespace Meadow.Requests.Common
         {
         }
 
-        protected override void OnFieldManipulation(IFieldManipulator<TModel> toStorage, IFieldManipulator<TModel> fromStorage)
+        protected override void OnFieldManipulation(IFieldInclusionMarker<TModel> toStorage, IFieldInclusionMarker<TModel> fromStorage)
         {
 
             var entityType = typeof(TModel);

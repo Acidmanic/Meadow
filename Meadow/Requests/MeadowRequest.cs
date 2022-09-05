@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 
 namespace Meadow.Requests
 {
@@ -91,14 +91,14 @@ namespace Meadow.Requests
             return "sp" + name;
         }
 
-        protected virtual void OnFieldManipulation(IFieldManipulator<TIn> toStorage,
-            IFieldManipulator<TOut> fromStorage)
+        protected virtual void OnFieldManipulation(IFieldInclusionMarker<TIn> toStorage,
+            IFieldInclusionMarker<TOut> fromStorage)
         {
         }
 
 
-        internal IFieldMarks<TIn> ToStorageMarks => _toStorageManipulator;
-        internal IFieldMarks<TOut> FromStorageMarks => _fromStorageManipulator;
+        internal IFieldInclusion<TIn> ToStorageInclusion => _toStorageManipulator;
+        internal IFieldInclusion<TOut> FromStorageInclusion => _fromStorageManipulator;
 
         
     }

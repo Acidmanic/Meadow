@@ -9,7 +9,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Extensions;
 using Meadow.RelationalTranslation;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 using Meadow.Sql;
 using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;

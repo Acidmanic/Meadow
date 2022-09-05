@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 
-namespace Meadow.Requests.FieldManipulation
+namespace Meadow.Requests.FieldInclusion
 {
-    public class FiledManipulationMarker<TModel> : IFieldMarks<TModel>, IFieldManipulator<TModel>
+    public class FiledManipulationMarker<TModel> : IFieldInclusion<TModel>, IFieldInclusionMarker<TModel>
     {
         private readonly List<FieldKey> _excludedNames;
         private readonly Dictionary<FieldKey, string> _renames;
@@ -82,21 +81,21 @@ namespace Meadow.Requests.FieldManipulation
             return Result.Successful(key);
         }
 
-        public IFieldManipulator<TModel> Exclude<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
+        public IFieldInclusionMarker<TModel> Exclude<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
         {
             var key = GetKey(propertySelector);
 
             return Exclude(key);
         }
 
-        public IFieldManipulator<TModel> Exclude(FieldKey key)
+        public IFieldInclusionMarker<TModel> Exclude(FieldKey key)
         {
             _excludedNames.Add(key);
 
             return this;
         }
 
-        public IFieldManipulator<TModel> UnExclude<TProperty>(
+        public IFieldInclusionMarker<TModel> UnExclude<TProperty>(
             Expression<Func<TModel, TProperty>> propertySelector)
         {
             var key = GetKey(propertySelector);
@@ -104,7 +103,7 @@ namespace Meadow.Requests.FieldManipulation
             return UnExclude(key);
         }
 
-        public IFieldManipulator<TModel> UnExclude(FieldKey key)
+        public IFieldInclusionMarker<TModel> UnExclude(FieldKey key)
         {
             if (_excludedNames.Contains(key))
             {
@@ -114,7 +113,7 @@ namespace Meadow.Requests.FieldManipulation
             return this;
         }
 
-        public IFieldManipulator<TModel> Rename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector,
+        public IFieldInclusionMarker<TModel> Rename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector,
             string newName)
         {
             var key = GetKey(propertySelector);
@@ -122,14 +121,14 @@ namespace Meadow.Requests.FieldManipulation
             return Rename(key, newName);
         }
 
-        public IFieldManipulator<TModel> Rename(FieldKey key, string newName)
+        public IFieldInclusionMarker<TModel> Rename(FieldKey key, string newName)
         {
             _renames.Add(key, newName);
 
             return this;
         }
 
-        public IFieldManipulator<TModel> UnRename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
+        public IFieldInclusionMarker<TModel> UnRename<TProperty>(Expression<Func<TModel, TProperty>> propertySelector)
         {
             var key = GetKey(propertySelector);
 
@@ -138,7 +137,7 @@ namespace Meadow.Requests.FieldManipulation
             return this;
         }
 
-        public IFieldManipulator<TModel> UnRename(FieldKey key)
+        public IFieldInclusionMarker<TModel> UnRename(FieldKey key)
         {
             if (_renames.ContainsKey(key))
             {
@@ -148,7 +147,7 @@ namespace Meadow.Requests.FieldManipulation
             return this;
         }
 
-        public IFieldManipulator<TModel> Exclude(string name)
+        public IFieldInclusionMarker<TModel> Exclude(string name)
         {
             var key = FieldKey.Parse(name);
 

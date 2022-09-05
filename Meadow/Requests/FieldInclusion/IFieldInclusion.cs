@@ -2,9 +2,9 @@ using System;
 using System.Linq.Expressions;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 
-namespace Meadow.Requests.FieldManipulation
+namespace Meadow.Requests.FieldInclusion
 {
-    public interface IFieldMarks<TModel>
+    public interface IFieldInclusion<TModel>
     {
 
         bool IsIncluded(FieldKey key);

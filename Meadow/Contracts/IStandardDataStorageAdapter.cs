@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
-using Meadow.Requests.FieldManipulation;
+using Meadow.Requests.FieldInclusion;
 
 namespace Meadow.Contracts
 {
@@ -19,23 +19,23 @@ namespace Meadow.Contracts
         ///  This method reads the data from the carrier.
         /// </summary>
         /// <param name="carrier">The object responsible for carrying data/information from the storage.</param>
-        /// <param name="fromStorageMarks">This object indicates each parts of data must be included/excluded to be read
+        /// <param name="fromStorageInclusion">This object indicates each parts of data must be included/excluded to be read
         /// from the carrier.
         /// </param>
         /// <typeparam name="TModel">The Type of data model corresponding to the data being read from storage.</typeparam>
         /// <returns>A List of TModels which are read from carrier.</returns>
-        List<TModel> ReadFromStorage<TModel>(TFromStorageCarrier carrier, IFieldMarks<TModel> fromStorageMarks,bool fullTreeRead);
+        List<TModel> ReadFromStorage<TModel>(TFromStorageCarrier carrier, IFieldInclusion<TModel> fromStorageInclusion,bool fullTreeRead);
 
         /// <summary>
         /// This method writes data into carrier.
         /// </summary>
         /// <param name="carrier">The object responsible for carrying data/information towards the storage.</param>
-        /// <param name="toStorageMarks">This object indicates each parts of data must be included/excluded to be written
+        /// <param name="toStorageInclusion">This object indicates each parts of data must be included/excluded to be written
         /// from the carrier.
         /// </param>
         /// <param name="evaluator">An Instance of ObjectEvaluator, initialized with actual object which is going to be
         /// written into carrier.
         /// </param>
-        void WriteToStorage<TModel>(TToStorageCarrier carrier, IFieldMarks<TModel> toStorageMarks, ObjectEvaluator evaluator);
+        void WriteToStorage<TModel>(TToStorageCarrier carrier, IFieldInclusion<TModel> toStorageInclusion, ObjectEvaluator evaluator);
     }
 }
