@@ -32,3 +32,9 @@
  1.1.4
  -------
   * Update FieldManipulation and marking
+  
+1.1.6
+-----
+ * Use Microsoft logging abstraction for logging
+ * Set Logging similar to MeadowCore at configuration time
+ 
