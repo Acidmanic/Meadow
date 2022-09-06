@@ -21,7 +21,8 @@ namespace Meadow.MySql
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             DataStorageAdapter =
-                new MySqlStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider);
+                new MySqlStorageAdapter(configuration.DatabaseFieldNameDelimiter,
+                    DataOwnerNameProvider,logger:Logger);
 
             StorageCommunication = new MySqlStorageCommunication();
 

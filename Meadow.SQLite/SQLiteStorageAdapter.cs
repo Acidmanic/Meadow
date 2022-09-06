@@ -6,6 +6,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Requests;
 using Meadow.Sql;
+using Microsoft.Extensions.Logging;
 
 namespace Meadow.SQLite
 {
@@ -18,7 +19,8 @@ namespace Meadow.SQLite
             //throw new NotImplementedException();
         }
 
-        public SqLiteStorageAdapter(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider) : base(fieldNameDelimiter, dataOwnerNameProvider)
+        public SqLiteStorageAdapter(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider ,ILogger logger)
+            : base(fieldNameDelimiter, dataOwnerNameProvider,logger)
         {
         }
     }

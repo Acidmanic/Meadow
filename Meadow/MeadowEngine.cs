@@ -63,7 +63,7 @@ namespace Meadow
 
         private IMeadowDataAccessCore CreateInitializedCore(MeadowConfiguration configuration)
         {
-            return _coreProvider.CreateDataAccessCore().Initialize(configuration);
+            return _coreProvider.CreateDataAccessCore().Initialize(configuration,_logger);
         }
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)

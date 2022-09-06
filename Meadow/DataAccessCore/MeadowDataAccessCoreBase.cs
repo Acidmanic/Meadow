@@ -4,11 +4,16 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.DataAccessCore
 {
     public abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier> : IMeadowDataAccessCore
     {
+
+        protected ILogger Logger { get; private set; }= NullLogger.Instance;
+        
         protected virtual IDataOwnerNameProvider DataOwnerNameProvider { get; private set; }
 
         private List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>> _carrierInterceptors;
@@ -22,7 +27,7 @@ namespace Meadow.DataAccessCore
 
         protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication { get; set; }
 
-
+        
         public virtual MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
@@ -63,10 +68,12 @@ namespace Meadow.DataAccessCore
         public abstract void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
         public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
 
-        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration)
+        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
         {
             // That must be read from configurations later on
             DataOwnerNameProvider = new PluralDataOwnerNameProvider();
+
+            Logger = logger;
 
             return InitializeDerivedClass(configuration);
         }

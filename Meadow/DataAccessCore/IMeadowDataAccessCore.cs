@@ -3,6 +3,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
+using Microsoft.Extensions.Logging;
 
 namespace Meadow.DataAccessCore
 {
@@ -37,6 +38,6 @@ namespace Meadow.DataAccessCore
 
         void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
 
-        IMeadowDataAccessCore Initialize(MeadowConfiguration configuration);
+        IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger);
     }
 }

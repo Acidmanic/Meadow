@@ -3,7 +3,9 @@ using System.IO;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Extensions;
 using Meadow.SqlServer;
+using Microsoft.Extensions.Logging;
 
 namespace Example.SqlServer
 {
@@ -11,6 +13,7 @@ namespace Example.SqlServer
     {
         static void Main(string[] args)
         {
+            new ConsoleLogger().UseForMeadow();
             // Configure Meadow
             var configuration = new MeadowConfiguration
             {

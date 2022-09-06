@@ -6,11 +6,14 @@ using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Acidmanic.Utilities.Results;
 using Meadow.Extensions;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Sql
 {
     public class StandardIndexAccumulator<TModel>
     {
+        private readonly ILogger _logger;
         private readonly Dictionary<string, object> _addressedValues;
         private readonly ObjectEvaluator _evaluator;
         private readonly IndexMap _indexMap;
@@ -18,8 +21,15 @@ namespace Meadow.Sql
 
         public List<Record> Records { get; }
 
-        public StandardIndexAccumulator()
+        public StandardIndexAccumulator():this(NullLogger.Instance)
         {
+            
+        }
+        
+        
+        public StandardIndexAccumulator(ILogger logger)
+        {
+            _logger = logger;
             _addressedValues = new Dictionary<string, object>();
             _evaluator = new ObjectEvaluator(typeof(TModel));
             _indexMap = new IndexMap(typeof(TModel), DeliverCurrent);
@@ -57,22 +67,22 @@ namespace Meadow.Sql
 
                     if (changed)
                     {
-                        Console.WriteLine($"{incomingField} has been changed");
+                        _logger.LogDebug($"{incomingField} has been changed");
 
                         var isUnique = IsUnique(incomingField);
-                        Console.WriteLine($"An Increment will be applied on {key}  ,...");
+                        _logger.LogDebug($"An Increment will be applied on {key}  ,...");
 
                         _indexMap.Increment(latestAddress);
 
                         latestAddress = _indexMap.GetLatest(latestAddress).ToString();
 
-                        Console.WriteLine($"... and New Entity will be put under {latestAddress}");
+                        _logger.LogDebug($"... and New Entity will be put under {latestAddress}");
 
                         _addressedValues.Add(latestAddress, dp.Value);
 
                         if (!isUnique)
                         {
-                            Console.WriteLine($"Value change on not-unique field {key} has been detected. (bad sort)");
+                            _logger.LogDebug($"Value change on not-unique field {key} has been detected. (bad sort)");
                         }
                     }
                 }

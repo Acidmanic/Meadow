@@ -4,7 +4,7 @@ namespace Meadow.Extensions
 {
     public static class LoggerExtensions
     {
-        public static ILogger UserForMeadow(this ILogger logger)
+        public static ILogger UseForMeadow(this ILogger logger)
         {
 
             MeadowEngine.UseLogger(logger);

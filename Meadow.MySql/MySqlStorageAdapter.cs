@@ -4,11 +4,12 @@ using System.Data.SqlClient;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Sql;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 
 namespace Meadow.MySql
 {
-    public class MySqlStorageAdapter:SqlDataStorageAdapterBase
+    public class MySqlStorageAdapter : SqlDataStorageAdapterBase
     {
         protected override void WriteIntoCommand(DataPoint dataPoint, IDbCommand command)
         {
@@ -20,7 +21,9 @@ namespace Meadow.MySql
             command.Parameters.Add(parameter);
         }
 
-        public MySqlStorageAdapter(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider) : base(fieldNameDelimiter, dataOwnerNameProvider)
+        public MySqlStorageAdapter(char fieldNameDelimiter,
+            IDataOwnerNameProvider dataOwnerNameProvider, ILogger logger) :
+            base(fieldNameDelimiter, dataOwnerNameProvider, logger)
         {
         }
     }

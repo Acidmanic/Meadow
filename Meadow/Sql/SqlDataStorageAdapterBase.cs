@@ -7,15 +7,20 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
 {
     public abstract class SqlDataStorageAdapterBase : IStandardDataStorageAdapter<IDbCommand, IDataReader>
     {
-        protected SqlDataStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider)
+
+        private readonly ILogger _logger;
+        
+        protected SqlDataStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider, ILogger logger)
         {
             FieldNameDelimiter = fieldNameDelimiter;
             DataOwnerNameProvider = dataOwnerNameProvider;
+            _logger = logger;
 
             RelationalIdentifierToStandardFieldMapper = new RelationalRelationalIdentifierToStandardFieldMapper
             {
@@ -40,7 +45,7 @@ namespace Meadow.Sql
             var unIndexedStandard = storageData.RelationalToStandard<TModel>
                 (RelationalIdentifierToStandardFieldMapper, fullTreeRead);
 
-            var accumulator = new StandardIndexAccumulator<TModel>();
+            var accumulator = new StandardIndexAccumulator<TModel>(_logger);
 
             accumulator.PassAll(unIndexedStandard);
 

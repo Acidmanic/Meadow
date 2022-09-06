@@ -34,7 +34,10 @@ namespace Meadow.SQLite
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             DataStorageAdapter =
-                new SqLiteStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider);
+                new SqLiteStorageAdapter(
+                    configuration.DatabaseFieldNameDelimiter,
+                    DataOwnerNameProvider,
+                    Logger);
             
             StorageCommunication = new SQLiteStorageCommunication();
 

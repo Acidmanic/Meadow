@@ -42,7 +42,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
         protected MeadowFunctionalTest()
         {
 
-            new TestLogger().UserForMeadow();
+            new TestLogger().UseForMeadow();
             
             DbName = GetType().Name + "Db2BeDeleted";
 

@@ -128,7 +128,7 @@ namespace Meadow.SqlServer
 
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
-            DataStorageAdapter = new SqlDataStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider);
+            DataStorageAdapter = new SqlDataStorageAdapter(configuration.DatabaseFieldNameDelimiter, DataOwnerNameProvider,Logger);
             StorageCommunication = new SqlCommunication();
 
             return this;

@@ -7,6 +7,7 @@ using Meadow.SqlServer;
 using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Test.Functional.TestDoubles;
+using Meadow.Tools.Assistant;
 
 namespace Meadow.Test.Functional
 {
@@ -20,7 +21,7 @@ namespace Meadow.Test.Functional
 
             dataReader.InsertData(testcaseData);
 
-            var adapter = new SqlDataStorageAdapter('.', new PluralDataOwnerNameProvider());
+            var adapter = new SqlDataStorageAdapter('.', new PluralDataOwnerNameProvider(), new ConsoleLogger());
 
             var manipulator = new FiledManipulationMarker<ProductClassDal>();
 

@@ -10,7 +10,7 @@ namespace Meadow.NullCore
     public class NullMeadowCore : IMeadowDataAccessCore
     {
 
-        private readonly ILogger _logger  ;
+        private ILogger _logger  ;
 
         public NullMeadowCore(ILogger logger)
         {
@@ -75,8 +75,10 @@ namespace Meadow.NullCore
         {
         }
 
-        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration)
+        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
         {
+            _logger = logger;
+            
             return this;
         }
 
