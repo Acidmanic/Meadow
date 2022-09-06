@@ -6,6 +6,7 @@ using Meadow.Tools.Assistant.DotnetProject;
 using Meadow.Tools.Assistant.Extensions;
 using Meadow.Tools.Assistant.Options;
 using Meadow.Tools.Assistant.Utils;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Tools.Assistant.Commands
 {
@@ -23,6 +24,8 @@ namespace Meadow.Tools.Assistant.Commands
             [NuGetsOption]
             string[] localNuGets = null)
         {
+            
+            
             var manager = policies.AsPolicyManager();
 
             var ns = string.IsNullOrEmpty(@namespace)

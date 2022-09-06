@@ -8,6 +8,7 @@ using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Test.Functional.TestDoubles;
 using Meadow.Tools.Assistant;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Test.Functional
 {

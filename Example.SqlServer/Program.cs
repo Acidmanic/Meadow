@@ -5,7 +5,7 @@ using Meadow;
 using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.SqlServer;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.SqlServer
 {
