@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd029ExpressionToFieldKey().Main();
+            new Tdd030InsertBinary().Main();
         }
     }
 }
