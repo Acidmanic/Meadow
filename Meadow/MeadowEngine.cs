@@ -63,7 +63,7 @@ namespace Meadow
 
         private IMeadowDataAccessCore CreateInitializedCore(MeadowConfiguration configuration)
         {
-            return _coreProvider.CreateDataAccessCore().Initialize(configuration,_logger);
+            return _coreProvider.CreateDataAccessCore().Initialize(configuration, _logger);
         }
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
@@ -168,17 +168,16 @@ namespace Meadow
         /// <returns>A list of log reports</returns>
         public void BuildUpDatabase()
         {
-            var core = CreateInitializedCore(_configuration);
-
-
+            CreateInitializedCore(_configuration);
+            
             var lastExecResult = ReadLastInsertedRecord<MeadowDatabaseHistory>();
 
             int lastAppliedOrder = -1;
 
             if (lastExecResult != null)
             {
-                _logger.LogInformation(
-                    $"Already built up, up to {lastExecResult.ScriptName}:{lastExecResult.ScriptOrder}");
+                _logger.LogInformation("Already built up, up to {LastExecResultScriptName}:{LastExecResultScriptOrder}",
+                    lastExecResult.ScriptName, lastExecResult.ScriptOrder);
 
                 lastAppliedOrder = lastExecResult.ScriptOrder;
             }
@@ -188,7 +187,8 @@ namespace Meadow
             if (manager.ScriptsCount == 0)
             {
                 _logger.LogError(
-                    $@"No valid build-up scripts where found at given directory {_configuration.BuildupScriptDirectory}");
+                    "No valid build-up scripts where found at given directory {ConfigurationBuildupScriptDirectory}",
+                    _configuration.BuildupScriptDirectory);
                 return;
             }
 
@@ -200,13 +200,15 @@ namespace Meadow
 
                 if (info.OrderIndex > lastAppliedOrder)
                 {
-                    _logger.LogInformation($@"Applying {info.OrderIndex}, {info.Name}");
+                    _logger.LogInformation("Applying {InfoOrderIndex}, {InfoName}",
+                        info.OrderIndex, info.Name);
 
                     var result = PerformScript(info);
 
                     if (result.Success)
                     {
-                        _logger.LogInformation($@"{info.Order}, {info.Name} has been applied successfully.");
+                        _logger.LogInformation("{InfoOrder}, {InfoName} has been applied successfully.",
+                            info.Order, info.Name);
 
                         anyApplied = true;
 
@@ -214,9 +216,10 @@ namespace Meadow
                     }
                     else
                     {
-                        _logger.LogError(result.Exception, $@"Applying {info.Order}, {info.Name}");
+                        _logger.LogError(result.Exception, "Applying {InfoOrder}, {InfoName}",
+                            info.Order, info.Name);
 
-                        _logger.LogError($@"*** Buildup process FAILED at {info.Order}.***");
+                        _logger.LogError("*** Buildup process FAILED at {InfoOrder}.***", info.Order);
 
                         return;
                     }
