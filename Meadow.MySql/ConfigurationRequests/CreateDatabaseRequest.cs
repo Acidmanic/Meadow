@@ -7,7 +7,7 @@ namespace Meadow.MySql.ConfigurationRequests
 {
     class CreateDatabaseRequest : ConfigurationCommandRequest
     {
-        private string _providedDbName = "MeadoDatabase";
+        private string _providedDbName = "MeadowDatabase";
 
         protected override MeadowConfiguration ReConfigure(MeadowConfiguration config,
             Dictionary<string, string> valuesMap)
