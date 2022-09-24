@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.MySql", "Example.My
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Postgre", "Meadow.Postgre\Meadow.Postgre.csproj", "{7D5ECB3F-C056-4718-AAD0-E598580FDB20}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Postgre", "Example.Postgre\Example.Postgre.csproj", "{ABAB10CB-5A24-4FDC-850E-3E14D09A2889}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,5 +75,9 @@ Global
 		{7D5ECB3F-C056-4718-AAD0-E598580FDB20}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7D5ECB3F-C056-4718-AAD0-E598580FDB20}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7D5ECB3F-C056-4718-AAD0-E598580FDB20}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ABAB10CB-5A24-4FDC-850E-3E14D09A2889}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ABAB10CB-5A24-4FDC-850E-3E14D09A2889}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ABAB10CB-5A24-4FDC-850E-3E14D09A2889}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ABAB10CB-5A24-4FDC-850E-3E14D09A2889}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
