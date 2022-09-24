@@ -200,15 +200,17 @@ namespace Meadow
 
                 if (info.OrderIndex > lastAppliedOrder)
                 {
-                    _logger.LogInformation("Applying {InfoOrderIndex}, {InfoName}",
-                        info.OrderIndex, info.Name);
+
+                    _logger.LogInformation("Applying {InfoOrder}:{InfoName}",
+                        info.Order,info.Name);
 
                     var result = PerformScript(info);
 
                     if (result.Success)
                     {
-                        _logger.LogInformation("{InfoOrder}, {InfoName} has been applied successfully.",
-                            info.Order, info.Name);
+
+                        _logger.LogInformation("{InfoOrder}:{InfoName} has been applied successfully.",
+                            info.Order,info.Name);
 
                         anyApplied = true;
 
@@ -216,11 +218,13 @@ namespace Meadow
                     }
                     else
                     {
-                        _logger.LogError(result.Exception, "Applying {InfoOrder}, {InfoName}",
-                            info.Order, info.Name);
 
+                        _logger.LogError(result.Exception, 
+                            "Error Occured While Applying {InfoOrder}:{InfoName}\n {Exception}",
+                        info.Order,info.Name,result.Exception);
+                        
                         _logger.LogError("*** Buildup process FAILED at {InfoOrder}.***", info.Order);
-
+                        
                         return;
                     }
                 }
@@ -228,11 +232,11 @@ namespace Meadow
 
             if (anyApplied)
             {
-                _logger.LogInformation($@"*** Buildup process SUCCEEDED ***");
+                _logger.LogInformation(@"*** Buildup process SUCCEEDED ***");
             }
             else
             {
-                _logger.LogInformation($@"*** Everything Already Up-to-date ***");
+                _logger.LogInformation(@"*** Everything Already Up-to-date ***");
             }
         }
 

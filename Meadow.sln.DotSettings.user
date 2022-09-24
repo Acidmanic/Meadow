@@ -1,5 +1,10 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:Boolean x:Key="/Default/AddReferences/RecentPaths/=_002Fhome_002Fdiego_002FProjects_002FReflections_002Enetcore_002FAcidmanic_002EUtilities_002EReflection_002Fbin_002FDebug_002Fnetstandard2_002E1_002FAcidmanic_002EUtilities_002EReflection_002Edll/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;
+  &lt;Assembly Path="/home/diego/.nuget/packages/corepluralizer/1.0.0/lib/netstandard2.1/CorePluralizer.dll" /&gt;
+  &lt;Assembly Path="/home/diego/.nuget/packages/acidmanic.utilities/1.0.0/lib/netstandard2.1/Acidmanic.Utilities.dll" /&gt;
+  &lt;Assembly Path="/home/diego/.nuget/packages/acidmanic.utilities.reflections/1.0.2/lib/netstandard2.1/Acidmanic.Utilities.Reflection.dll" /&gt;
+&lt;/AssemblyExplorer&gt;</s:String>
 	
 	
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/Initialized/@EntryValue">True</s:Boolean>

@@ -242,6 +242,38 @@ faced a bug or an issue. Very Thanks.
 
 
 
+Developing a new Database system Adapter
+==========================
+
+Meadow can recognize any database system through it's abstractions. The main enttry for 
+any database system is the interface ```IMeadowDataAccessCoreProvider``` which connects your database 
+system for the meadow engine and can make use of it in higher levels of your code seamlessly. 
+
+```IMeadowDataAccessCoreProvider``` provides your implementation of ```IMeadowDataAccessCore```. This interface 
+defines a database system via several functions to be implemented. The Main method to be implemented, would be 
+ ```IMeadowSataAccessCore.Perform<.>(.)```. Other methods are for creating and also providing the 
+basic functionalities meadow needs for it's internal buildup process.
+
+In most cases, you might not need to implement ```IMeadowDataAccessCore``` from scratch. Instead, you can
+ extend the ```MeadowDataAccessCoreBase``` class. This class handles a portion of implementation 
+and breaks down the remaining into the implementation of:
+
+ * ```IStandardDataStorageAdapter```
+ * ```IStorageCommunication```
+
+You still do not have to implement ```IStandardDataStorageAdapter``` from the scratch in all cases. For sql database systems,
+ you can extend ```SqlDataStorageAdapterBase```.
+
+
+Easier Implementation For Ado wrapped database systems
+---------------------
+
+If The database system of your interest, does already have an ADO implementation, you can write your adapter,
+just by extending the class ```AdoDataAccessCoreBase```. and implement its methods. You also would have to provide
+an implementation of ```IDbTypeNameMapper``` which is a dictionary, mapping the c# System types to proper data types 
+known in your database system.
+
+
 
 Contact
 -------

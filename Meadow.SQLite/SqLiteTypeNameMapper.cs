@@ -15,7 +15,7 @@ namespace Meadow.SQLite
             {
                 if (type.IsEnum)
                 {
-                    return SqlDbType.Int.ToString().ToLower();
+                    return _typeMap[typeof(int)];
                 }
 
                 return _typeMap[type];

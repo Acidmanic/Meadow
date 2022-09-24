@@ -1,13 +1,21 @@
+using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Models;
 using Meadow.Requests;
 using Meadow.Utility;
 
-namespace Meadow.MySql.ConfigurationRequests
+namespace Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests
 {
-    class CreateDatabaseRequest : ConfigurationCommandRequest
+    class DatabaseExistsRequest : ConfigurationFunctionRequest<BooleanResult>
     {
         private string _providedDbName = "MeadowDatabase";
+        private readonly Func<string, string> _databaseExistsQuery;
+
+        public DatabaseExistsRequest(Func<string, string> databaseExistsQuery)
+        {
+            _databaseExistsQuery = databaseExistsQuery;
+        }
 
         protected override MeadowConfiguration ReConfigure(MeadowConfiguration config,
             Dictionary<string, string> valuesMap)
@@ -28,7 +36,7 @@ namespace Meadow.MySql.ConfigurationRequests
 
         protected override string GetRequestText()
         {
-            return $@"CREATE DATABASE {_providedDbName}";
+            return _databaseExistsQuery(_providedDbName);
         }
     }
 }

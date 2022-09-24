@@ -2,14 +2,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Meadow\Meadow.csproj" />
-    <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
+    <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
   </ItemGroup>
+
 
   <ItemGroup>
     <Content Include="Scripts\*.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />

@@ -14,7 +14,7 @@ namespace Meadow.DataTypeMapping
             {
                 if (type.IsEnum)
                 {
-                    return SqlDbType.Int.ToString().ToLower();
+                    return _typeMap[typeof(int)];
                 }
 
                 return _typeMap[type];
