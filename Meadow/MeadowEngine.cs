@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Acidmanic.Utilities.Results;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.Requests;
@@ -200,13 +201,15 @@ namespace Meadow
 
                 if (info.OrderIndex > lastAppliedOrder)
                 {
-                    _logger.LogInformation($@"Applying {info.OrderIndex}, {info.Name}");
+                    _logger.LogInformation("Applying {InfoOrder}:{InfoName}",
+                        info.Order,info.Name);
 
                     var result = PerformScript(info);
 
                     if (result.Success)
                     {
-                        _logger.LogInformation($@"{info.Order}, {info.Name} has been applied successfully.");
+                        _logger.LogInformation("{InfoOrder}:{InfoName} has been applied successfully.",
+                            info.Order,info.Name);
 
                         anyApplied = true;
 
@@ -214,9 +217,11 @@ namespace Meadow
                     }
                     else
                     {
-                        _logger.LogError(result.Exception, $@"Applying {info.Order}, {info.Name}");
-
-                        _logger.LogError($@"*** Buildup process FAILED at {info.Order}.***");
+                        _logger.LogError(result.Exception, 
+                            "Error Occured While Applying {InfoOrder}:{InfoName}\n {Exception}",
+                        info.Order,info.Name,result.Exception);
+                        
+                        _logger.LogError($@"*** Buildup process FAILED at {info.Order} ***");
 
                         return;
                     }

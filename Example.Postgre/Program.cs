@@ -2,7 +2,9 @@
 using Example.SqLite.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Extensions;
 using Meadow.Postgre;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.Postgre
 {
@@ -20,6 +22,9 @@ namespace Example.Postgre
             };
             // Create Engine:
             var engine = new MeadowEngine(configuration).UsePostgre();
+
+            new ConsoleLogger().EnableAll().UseForMeadow();
+            
             // Create Database if not exists
             engine.CreateIfNotExist();
             // Setup (update regarding scripts)

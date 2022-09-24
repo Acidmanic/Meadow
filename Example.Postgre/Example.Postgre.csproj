@@ -5,10 +5,16 @@
     <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
   </ItemGroup>
 
+
   <ItemGroup>
-    <Resource Include="Scripts\*.sql">
+    <Content Include="Scripts\*.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    </Content>
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
   </ItemGroup>
 
   <PropertyGroup>
