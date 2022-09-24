@@ -1,76 +1,49 @@
-    
-create procedure spGetAllPersons
-    as
-        select * from Persons;
-go
+--     
+create or replace function "spGetAllPersons"() returns setof "Persons" as $$
+begin 
+    return QUERY
+    select * from "Persons";
+end;
+$$ language plpgsql;
+--SPLIT
+
+create or replace function "spGetPersonById"("par_Id" bigint) returns setof "Persons" as $$ 
+begin
+    return query
+    select * from "Persons" where "Id" = "par_Id";
+end;
+$$ language plpgsql ;
+--SPLIT
 
 
-create procedure spGetPersonById(@Id bigint)
-as
-    select * from Persons where Id = @Id
-go
+create type "PersonsFullTree" as (Persons_Id INT,"Name" TEXT,"Surname" TEXT,"Age" INT,"JobId" INT,
+                                    "Jobs_Id" INT,"Title" TEXT,"JobDescription" TEXT,"IncomeInRials" INT);
 
+--SPLIT
 
-create procedure spGetAllPersonsFullTree
-as
+create or replace function "spGetAllPersonsFullTree"() returns SETOF "PersonsFullTree"  as $$
+begin
+    return query
     select
-        P.Id 'Persons_Id', Name, Surname, Age, JobId,
-           J.Id 'Jobs_Id',Title,JobDescription,IncomeInRials
-    from Persons P join Jobs J on J.Id = P.JobId
-go
-
-create procedure spGetPersonByIdFullTree(@Id bigint)
-as
-    select P.Id  'Persons_Id',
-           Name, Surname,Age,JobId,J.Id 'Jobs_Id',
-           Title,IncomeInRials,JobDescription
-        from Persons P join Jobs J on J.Id = P.JobId where P.Id = @Id
-go
-
-create procedure spGetAllJobs
-as 
-    select * from Jobs
-go
-
-create procedure spGetJobById(@Id bigint)
-as
-    select * from Jobs where Id = @Id
-go
-
-create procedure spInsertPerson(
-    @Name nvarchar(100),
-    @Surname nvarchar(100),
-    @Age int,
-    @JobId bigint
-) as
-    insert into Persons (Name, Surname, Age, JobId) values (@Name,@Surname,@Age,@JobId)
-    declare @NewId bigint = (IDENT_CURRENT('Persons'));
-    select * from Persons where Id=@NewId;
-go
-
-create procedure spInsertJob(
-        @Title nvarchar(100),
-        @IncomeInRials bigint,
-        @JobDescription nvarchar(128)
-)as 
-    insert into Jobs (Title, IncomeInRials, JobDescription) values (@Title,@IncomeInRials,@JobDescription)  
-go 
-
-create procedure spDeletePersonById(@Id bigint) 
-as
-    delete from Persons where Persons.Id=@Id
-    select cast(1 as bit) success
-go
+        "Persons"."Id" as "Persons_Id", "Persons"."Name", "Persons"."Surname", "Persons"."Age",
+        "Persons"."JobId","Jobs"."Id" as "Jobs_Id","Jobs"."Title","Jobs"."JobDescription",
+        "Jobs"."IncomeInRials"
+    from "Persons" join "Jobs"  on "Jobs"."Id" = "Persons"."JobId";
+end;
+$$ language plpgsql;
 
 
-create procedure spDeleteJob(@Id bigint)
-as
-    if EXISTS(select Id from Persons where JobId=@Id)
-    begin 
-        delete from Jobs where Jobs.Id = @Id
-        select cast(1 as bit) success
-    end
-else
-    select cast(0 as bit) success
-go
+ 
+create or replace function "spInsertPerson"(
+    "par_Name" varchar(100),
+    "par_Surname" varchar(100),
+    "par_Age" int,
+    "par_JobId" int) returns setof "Persons" as $$
+begin
+    return query
+    insert into "Persons" ("Name", "Surname", "Age", "JobId") 
+    values ("par_Name","par_Surname","par_Age","par_JobId")
+    returning * ;
+end;
+$$ language plpgsql;
 
