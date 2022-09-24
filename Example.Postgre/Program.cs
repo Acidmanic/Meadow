@@ -16,8 +16,7 @@ namespace Example.Postgre
             var configuration = new MeadowConfiguration
             {
                 ConnectionString =  "User ID=postgres;Password=12345;Host=localhost;Port=5432;" +
-                                    "Database=MeadowScratch;Pooling=true;Min Pool Size=0;" +
-                                    "Max Pool Size=100;Connection Lifetime=0;",
+                                    "Database=MeadowScratch;",
                 
                 BuildupScriptDirectory = "Scripts"
             };
