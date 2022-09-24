@@ -13,11 +13,12 @@ namespace Example.Postgre
         static void Main(string[] args)
         {
             // Configure Meadow
-            var file = "meadow-sqlite.db";
-            
             var configuration = new MeadowConfiguration
             {
-                ConnectionString =  $"Data Source={file}",
+                ConnectionString =  "User ID=postgres;Password=12345;Host=localhost;Port=5432;" +
+                                    "Database=MeadowScratch;Pooling=true;Min Pool Size=0;" +
+                                    "Max Pool Size=100;Connection Lifetime=0;",
+                
                 BuildupScriptDirectory = "Scripts"
             };
             // Create Engine:

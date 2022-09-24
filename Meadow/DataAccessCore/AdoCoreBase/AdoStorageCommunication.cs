@@ -41,6 +41,8 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         {
             using (var connection = _connectionFactory.Invoke(configuration))
             {
+                connection.ConnectionString = configuration.ConnectionString;
+                
                 carrier.Connection = connection;
 
                 connection.Open();
