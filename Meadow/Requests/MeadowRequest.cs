@@ -87,9 +87,21 @@ namespace Meadow.Requests
                 name = name.Substring(0, name.Length - "request".Length);
             }
 
-            return "sp" + name;
+            name =  "sp" + name;
+
+            if (QuoteProcedureName())
+            {
+                name = $"\"{name}\"";
+            }
+
+            return name;
         }
 
+        protected virtual bool QuoteProcedureName()
+        {
+            return false;
+        }
+        
         protected virtual void OnFieldManipulation(IFieldInclusionMarker<TIn> toStorage,
             IFieldInclusionMarker<TOut> fromStorage)
         {
