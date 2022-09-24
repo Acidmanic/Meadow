@@ -28,17 +28,17 @@ namespace Meadow.Postgre
 
         protected override string GetSqlForCreatingDatabase(string databaseName)
         {
-            return $@"CREATE DATABASE {databaseName}";
+            return $"CREATE DATABASE \"{databaseName}\" ;";
         }
 
         protected override string GetSqlForDatabaseExists(string databaseName)
         {
-            return $@"SELECT true where exists (SELECT FROM pg_database WHERE datname = {databaseName})";
+            return $"SELECT true as \"Value\" where (SELECT Count(datname) FROM pg_database WHERE datname = '{databaseName}') > 0;";
         }
 
         protected override string GetSqlForDroppingDatabase(string databaseName)
         {
-            return $"DROP DATABASE {databaseName}";
+            return $"DROP DATABASE \"{databaseName}\"";
         }
 
         protected override string AsProcedureParameterName(string columnName)
@@ -48,16 +48,16 @@ namespace Meadow.Postgre
 
         protected override string GetSqlForCreatingTable(string tableName, TypeDatabaseDefinition parameters)
         {
-            var sql = $"CREATE TABLE {tableName}(";
+            var sql = $"CREATE TABLE \"{tableName}\"(";
 
             parameters = parameters.UpdateForSerialTypes();
 
             var parameterDefinition = parameters.FieldTypes
-                .Select(field => field.Key + " " + field.Value.DbTypeName).ToList();
+                .Select(field => $"\"{field.Key}\" {field.Value.DbTypeName}").ToList();
 
             if (parameters.HasId)
             {
-                parameterDefinition.Add($"PRIMARY KEY({parameters.IdField.ColumnName})");
+                parameterDefinition.Add($"PRIMARY KEY(\"{parameters.IdField.ColumnName}\")");
             }
 
             sql += string.Join(',', parameterDefinition) + ");";
@@ -71,7 +71,7 @@ namespace Meadow.Postgre
             string tableName,
             TypeDatabaseDefinition parameters)
         {
-            var sql = $"create or replace procedure {procedureName}(";
+            var sql = $"create or replace procedure \"{procedureName}\"(";
 
             parameters = parameters.UpdateForSerialTypes();
 
@@ -83,13 +83,13 @@ namespace Meadow.Postgre
 
             var columns = string.Join(',', parameters.FieldTypes
                 .Where(field => field.Value != parameters.IdField)
-                .Select(field => field.Key));
+                .Select(field => $"\"{field.Key}\""));
             
             var values = string.Join(',', parameters.FieldTypes
                 .Where(field => field.Value != parameters.IdField)
-                .Select(field => AsProcedureParameterName(field.Key)));
+                .Select(field => $"\"{AsProcedureParameterName(field.Key)}\""));
             
-            sql += $"insert into {tableName} ({columns}) \n values ({values}) returning * ;\n";
+            sql += $"insert into \"{tableName}\" ({columns}) \n values ({values}) returning * ;\n";
 
             sql += "commit \nend;$$;";
 
@@ -112,11 +112,11 @@ namespace Meadow.Postgre
                     .FirstOrDefault();
             }
 
-            var order = orderField == null ? " " : $" ORDER BY {orderField.ColumnName} DESC ";
+            var order = orderField == null ? " " : $" ORDER BY \"{orderField.ColumnName}\" DESC ";
             
             var sql = $"create or replace procedure {procedureName}(" +
                       $") language plpgsql as $$ \n begin \n" +
-                      $"SELECT * FROM {tableName}{order}LIMIT 1 ;\n" +
+                      $"SELECT * FROM \"{tableName}\"{order}LIMIT 1 ;\n" +
                       $"commit \nend;$$;";
 
 
