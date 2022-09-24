@@ -5,6 +5,12 @@
     <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Scripts\*.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
