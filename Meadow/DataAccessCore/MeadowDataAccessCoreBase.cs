@@ -117,12 +117,19 @@ namespace Meadow.DataAccessCore
             {
                 var config = request.PreConfigure(configuration);
 
-                return PerformRequest(request, config).FromStorage;
+                var response = PerformRequest(request, config);
+
+                if (response.Failed)
+                {
+                    Logger.LogError(response.FailureException,
+                        "Meadow Configuration Exception:\n {Exception}",response.FailureException);
+                }
+
+                return response.FromStorage;
             }
             catch (Exception e)
             {
-                //
-                Console.WriteLine(e);
+                Logger.LogError(e,"Meadow Configuration Exception:\n {Exception}",e);
             }
 
             return new List<TOut>();
