@@ -38,3 +38,10 @@
  * Use Microsoft logging abstraction for logging
  * Set Logging similar to MeadowCore at configuration time
  
+ 1.1.7
+ -----
+ * AdoDataAccessCoreBase has been added to make implementation of sql databases easier
+ * Logging issues in MeadowEngine Has been fixed
+ * Logging issues in MeadowDataAccessCoreBase has been fixed
+ * Detailed logs in StandardIndexAccumulator are being logged as trace logs.
+   
