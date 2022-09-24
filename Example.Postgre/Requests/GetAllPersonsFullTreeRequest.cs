@@ -2,7 +2,7 @@ using Example.SqLite.Models;
 using Meadow;
 using Meadow.Requests;
 
-namespace Example.SqLite.Requests
+namespace Example.Postgre.Requests
 {
     public class GetAllPersonsFullTreeRequest:MeadowRequest<MeadowVoid,Person>
     {
@@ -11,6 +11,11 @@ namespace Example.SqLite.Requests
         }
 
         protected override bool FullTreeReadWrite()
+        {
+            return true;
+        }
+
+        protected override bool QuoteProcedureName()
         {
             return true;
         }

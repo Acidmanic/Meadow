@@ -1,5 +1,5 @@
 ﻿using System;
-using Example.SqLite.Requests;
+using Example.Postgre.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Extensions;
@@ -24,7 +24,11 @@ namespace Example.Postgre
             var engine = new MeadowEngine(configuration).UsePostgre();
 
             new ConsoleLogger().EnableAll().UseForMeadow();
-            
+
+            if (engine.DatabaseExists())
+            {
+                engine.DropDatabase();
+            }
             // Create Database if not exists
             engine.CreateIfNotExist();
             // Setup (update regarding scripts)
@@ -36,6 +40,12 @@ namespace Example.Postgre
             var response = engine.PerformRequest(request);
 
             var allPersons = response.FromStorage;
+
+            if (response.Failed)
+            {
+                Console.WriteLine("Failed Reading  inserted Persons:");
+                Console.WriteLine(response.FailureException);
+            }
 
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
