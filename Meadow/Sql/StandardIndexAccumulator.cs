@@ -67,22 +67,22 @@ namespace Meadow.Sql
 
                     if (changed)
                     {
-                        _logger.LogDebug($"{incomingField} has been changed");
+                        _logger.LogTrace("{IncomingField} has been changed",incomingField);
 
                         var isUnique = IsUnique(incomingField);
-                        _logger.LogDebug($"An Increment will be applied on {key}  ,...");
+                        _logger.LogTrace("An Increment will be applied on {Key}  ,...",key);
 
                         _indexMap.Increment(latestAddress);
 
                         latestAddress = _indexMap.GetLatest(latestAddress).ToString();
 
-                        _logger.LogDebug($"... and New Entity will be put under {latestAddress}");
+                        _logger.LogTrace("... and New Entity will be put under {LatestAddress}",latestAddress);
 
                         _addressedValues.Add(latestAddress, dp.Value);
 
                         if (!isUnique)
                         {
-                            _logger.LogDebug($"Value change on not-unique field {key} has been detected. (bad sort)");
+                            _logger.LogTrace("Value change on not-unique field {Key} has been detected. (bad sort)",key);
                         }
                     }
                 }
