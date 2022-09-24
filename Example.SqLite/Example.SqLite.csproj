@@ -16,4 +16,8 @@
     <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
+  </ItemGroup>
+
 </Project>

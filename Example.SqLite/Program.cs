@@ -3,7 +3,9 @@ using System.IO;
 using Example.SqLite.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Extensions;
 using Meadow.SQLite;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.SqLite
 {
@@ -19,6 +21,8 @@ namespace Example.SqLite
                 ConnectionString =  $"Data Source={file}",
                 BuildupScriptDirectory = "Scripts"
             };
+            // Set an instance of ILogger (ConsoleLogger) as default logger for Meadow
+            new ConsoleLogger().UseForMeadow();
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseSQLite();
             // Create Database if not exists

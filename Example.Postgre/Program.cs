@@ -23,7 +23,7 @@ namespace Example.Postgre
             // Create Engine:
             var engine = new MeadowEngine(configuration).UsePostgre();
 
-            new ConsoleLogger().EnableAll().UseForMeadow();
+            new ConsoleLogger().UseForMeadow();
 
             if (engine.DatabaseExists())
             {
