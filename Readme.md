@@ -13,7 +13,7 @@
  Features
  --------
  
-  * It Supports __MS-SqlServer__, __My Sql__ and __SQLite__ database frameworks. 
+  * It Supports __MS-SqlServer__, __My Sql__, __SQLite__ and __Postgre__ database frameworks. 
   * The application would create/buildup and update database by itself after deployments.
   * Your data access logic will be fully implemented in SQL language, therefore:
     * You would have access to what ever feature your database framework provides with no limitations.
@@ -126,8 +126,14 @@ Meadow libraries are available on Nuget.  To use meadow, you would add
         |PackageManager|```Install-Package Meadow.MySql -Version 1.0.0```|
         |Dotnet CLI|```dotnet add package Meadow.MySql --version 1.0.0```|
 
+   4. [Postgre](https://www.nuget.org/packages/Meadow.Postgre)
 
-
+      |  |  |
+      |:--------:|:---------------:|
+      |Postgre Related Considerations| [Postgre Readme](https://github.com/Acidmanic/Meadow/blob/master/Meadow.Postgre/Readme.md)|
+      |PackageReference |```<PackageReference Include="Meadow.Postgre" Version="1.0.0" />```|
+      |PackageManager|```Install-Package Meadow.Postgre -Version 1.0.0```|
+      |Dotnet CLI|```dotnet add package Meadow.Postgre --version 1.0.0```|
 
 * ⚠️ NOTE: _VERSIONS APPEARING IN THIS SECTION ARE NOT NECESSARILY LATEST. PLEASE CHECK OUT THE NUGET PAGE FOR EACH TO SEE THE LATEST VERSION_
 
@@ -227,7 +233,7 @@ You can also instantiate the ```MeadowEngine``` also by passing an object of Typ
 Examples
 --------
 
-Meadow can be used to connect to Ms-SqlServer, My-Sql and SQLite. For each of these databases, these is an examples in the project. You can see that using Meadow is the same in each example, but the only difference is in the actual sql scripts written for each database.
+Meadow can be used to connect to Ms-SqlServer, My-Sql, SQLite and Postgre. For each of these databases, these is an examples in the project. You can see that using Meadow is the same in each example, but the only difference is in the actual sql scripts written for each database.
 
 
 ℹ️ NOTE: SQLITE, DOES NOT SUPPORT STORED PROCEDURES, AND MEADOW IS BASED ON STORED PROCEDURES. SO MEADOW DOES STORE YOUR PROCEDURES SEAMLESSLY.
@@ -236,9 +242,9 @@ Meadow can be used to connect to Ms-SqlServer, My-Sql and SQLite. For each of th
 When The Darkness Caresses The Meadows...[^2] (Bugs and Issues)
 -------------------------------------------
 
-Meadow For Ms-SqlServer is currently being tested in my other projects, but for MySql and SQLite,
-It still has not being tested in practice. So Please consider dropping a mail or comment if you 
-faced a bug or an issue. Very Thanks.
+Meadow For Ms-SqlServer is currently being tested in my other projects, but for MySql, SQLite and Postgre,
+It still has not being tested in practice. So Please consider dropping a mail or comment or opening 
+a github issue if you faced a bug or an issue. Very Thanks.
 
 
 
