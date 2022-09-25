@@ -43,7 +43,7 @@ namespace Example.Postgre
 
             if (response.Failed)
             {
-                Console.WriteLine("Failed Reading  inserted Persons:");
+                Console.WriteLine("Failed Reading inserted Persons:");
                 Console.WriteLine(response.FailureException);
             }
 
