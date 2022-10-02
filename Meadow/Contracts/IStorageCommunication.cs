@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Requests;
 
@@ -13,5 +14,8 @@ namespace Meadow.Contracts
 
         void Communicate(TToStorageCarrier carrier,Action<TFromStorageCarrier> onDataAvailable, MeadowConfiguration configuration, bool returnsValue);
 
+        
+        Task CommunicateAsync(TToStorageCarrier carrier,Action<TFromStorageCarrier> onDataAvailable, MeadowConfiguration configuration, bool returnsValue);
     }
 }
+

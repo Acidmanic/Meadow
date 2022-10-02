@@ -1,18 +1,19 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
 
 namespace Meadow.DataAccessCore.AdoCoreBase
 {
-    internal class AdoStorageCommunication:IStorageCommunication<IDbCommand,IDataReader>
+    internal class AdoStorageCommunication : IStorageCommunication<IDbCommand, IDataReader>
     {
-
         private readonly Func<IDbCommand> _commandFactory;
-        private readonly Func<MeadowConfiguration,IDbConnection> _connectionFactory;
+        private readonly Func<MeadowConfiguration, IDbConnection> _connectionFactory;
 
-        public AdoStorageCommunication(Func<IDbCommand> commandFactory, Func<MeadowConfiguration,IDbConnection> connectionFactory)
+        public AdoStorageCommunication(Func<IDbCommand> commandFactory,
+            Func<MeadowConfiguration, IDbConnection> connectionFactory)
         {
             _commandFactory = commandFactory;
             _connectionFactory = connectionFactory;
@@ -37,12 +38,13 @@ namespace Meadow.DataAccessCore.AdoCoreBase
             return carrier;
         }
 
-        public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable, MeadowConfiguration configuration, bool returnsValue)
+        public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable,
+            MeadowConfiguration configuration, bool returnsValue)
         {
             using (var connection = _connectionFactory.Invoke(configuration))
             {
                 connection.ConnectionString = configuration.ConnectionString;
-                
+
                 carrier.Connection = connection;
 
                 connection.Open();
@@ -58,6 +60,12 @@ namespace Meadow.DataAccessCore.AdoCoreBase
                     carrier.ExecuteNonQuery();
                 }
             }
+        }
+
+        public Task CommunicateAsync(IDbCommand carrier, Action<IDataReader> onDataAvailable,
+            MeadowConfiguration configuration, bool returnsValue)
+        {
+            return new Task(() => { Communicate(carrier, onDataAvailable, configuration, returnsValue); });
         }
     }
 }

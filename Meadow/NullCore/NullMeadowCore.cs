@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.DataAccessCore;
 using Meadow.Requests;
 using Microsoft.Extensions.Logging;
@@ -35,8 +37,18 @@ namespace Meadow.NullCore
             return request;
         }
 
+        public Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
+        {
+            return Task.Run(() => PerformRequest(request, configuration));
+        }
+
         public void CreateDatabase(MeadowConfiguration configuration)
         {
+        }
+
+        public Task CreateDatabaseAsync(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
@@ -44,8 +56,18 @@ namespace Meadow.NullCore
             return false;
         }
 
+        public Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => false);
+        }
+
         public void DropDatabase(MeadowConfiguration configuration)
         {
+        }
+
+        public Task DropDatabaseAsync(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public bool DatabaseExists(MeadowConfiguration configuration)
@@ -53,9 +75,19 @@ namespace Meadow.NullCore
             return false;
         }
 
+        public Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => false);
+        }
+
         public List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
             return new List<string>();
+        }
+
+        public Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => new List<string>());
         }
 
         public List<string> EnumerateTables(MeadowConfiguration configuration)
@@ -63,16 +95,36 @@ namespace Meadow.NullCore
             return new List<string>();
         }
 
+        public Task<List<string>> EnumerateTablesAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => new List<string>());
+        }
+
         public void CreateTable<TModel>(MeadowConfiguration configuration)
         {
+        }
+
+        public Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
         }
 
+        public Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
+        }
+
         public void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
+        }
+
+        public Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)

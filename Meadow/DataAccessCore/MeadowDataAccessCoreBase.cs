@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -28,10 +29,15 @@ namespace Meadow.DataAccessCore
         protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication { get; set; }
 
         
-        public virtual MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
+        public  MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
             where TOut : class, new()
+        {
+            return PerformRequestAsync(request, configuration).Result;
+        }
+
+        public virtual async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
         {
             request.InitializeBeforeExecution();
 
@@ -48,7 +54,7 @@ namespace Meadow.DataAccessCore
             
             try
             {
-                StorageCommunication.Communicate(carrier, OnDataAvailable, configuration, request.ReturnsValue);
+                await StorageCommunication.CommunicateAsync(carrier, OnDataAvailable, configuration, request.ReturnsValue);
             }
             catch (Exception e)
             {
@@ -59,15 +65,32 @@ namespace Meadow.DataAccessCore
         }
 
         public abstract void CreateDatabase(MeadowConfiguration configuration);
-        public abstract bool CreateDatabaseIfNotExists(MeadowConfiguration configuration);
-        public abstract void DropDatabase(MeadowConfiguration configuration);
-        public abstract bool DatabaseExists(MeadowConfiguration configuration);
-        public abstract List<string> EnumerateProcedures(MeadowConfiguration configuration);
-        public abstract List<string> EnumerateTables(MeadowConfiguration configuration);
-        public abstract void CreateTable<TModel>(MeadowConfiguration configuration);
-        public abstract void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
-        public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
+        public abstract Task CreateDatabaseAsync(MeadowConfiguration configuration);
 
+        public abstract bool CreateDatabaseIfNotExists(MeadowConfiguration configuration);
+        public abstract Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration);
+
+        public abstract void DropDatabase(MeadowConfiguration configuration);
+        public abstract Task DropDatabaseAsync(MeadowConfiguration configuration);
+
+        public abstract bool DatabaseExists(MeadowConfiguration configuration);
+        public abstract Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration);
+
+        public abstract List<string> EnumerateProcedures(MeadowConfiguration configuration);
+        public abstract Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration);
+
+        public abstract List<string> EnumerateTables(MeadowConfiguration configuration);
+        public abstract Task<List<string>> EnumerateTablesAsync(MeadowConfiguration configuration);
+
+        public abstract void CreateTable<TModel>(MeadowConfiguration configuration);
+        public abstract Task CreateTableAsync<TModel>(MeadowConfiguration configuration);
+
+        public abstract void CreateInsertProcedure<TModel>(MeadowConfiguration configuration);
+        public abstract Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration);
+
+        public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
+        public abstract Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration);
+        
         public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
         {
             // That must be read from configurations later on
