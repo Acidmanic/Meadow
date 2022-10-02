@@ -136,11 +136,18 @@ namespace Meadow.DataAccessCore
             MeadowConfiguration configuration)
             where TOut : class, new()
         {
+            return PerformConfigurationRequestAsync(request, configuration).Result;
+        }
+        
+        protected async Task<List<TOut>> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request,
+            MeadowConfiguration configuration)
+            where TOut : class, new()
+        {
             try
             {
                 var config = request.PreConfigure(configuration);
 
-                var response = PerformRequest(request, config);
+                var response = await PerformRequestAsync(request, config);
 
                 if (response.Failed)
                 {

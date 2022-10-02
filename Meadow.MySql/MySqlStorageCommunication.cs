@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
@@ -45,6 +46,14 @@ namespace Meadow.MySql
                     carrier.ExecuteNonQuery();
                 }
             }
+        }
+
+        public Task CommunicateAsync(IDbCommand carrier, Action<IDataReader> onDataAvailable, MeadowConfiguration configuration, bool returnsValue)
+        {
+            return Task.Run(() =>
+            {
+                Communicate(carrier, onDataAvailable, configuration, returnsValue);
+            });
         }
     }
 }

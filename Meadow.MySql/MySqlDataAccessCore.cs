@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
@@ -36,11 +37,27 @@ namespace Meadow.MySql
             PerformConfigurationRequest(request, configuration);
         }
 
+        public override async Task CreateDatabaseAsync(MeadowConfiguration configuration)
+        {
+            var request = new CreateDatabaseRequest();
+
+            await PerformConfigurationRequestAsync(request, configuration);
+        }
+
         public override bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
             var request = new CreateIfNotExistRequest();
 
             var response = PerformConfigurationRequest(request, configuration);
+
+            return response.SingleOrDefault()?.Value ?? false;
+        }
+
+        public override async Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration)
+        {
+            var request = new CreateIfNotExistRequest();
+
+            var response = await PerformConfigurationRequestAsync(request, configuration);
 
             return response.SingleOrDefault()?.Value ?? false;
         }
@@ -52,6 +69,13 @@ namespace Meadow.MySql
             PerformConfigurationRequest(request, configuration);
         }
 
+        public override async Task DropDatabaseAsync(MeadowConfiguration configuration)
+        {
+            var request = new DropDatabaseRequest();
+
+            await PerformConfigurationRequestAsync(request, configuration);
+        }
+
         public override bool DatabaseExists(MeadowConfiguration configuration)
         {
             var request = new FindDatabase();
@@ -59,6 +83,22 @@ namespace Meadow.MySql
             var config = request.PreConfigure(configuration);
 
             var response = PerformRequest(request, config);
+
+            if (response.FromStorage != null && response.FromStorage.Count > 0 && response.FromStorage[0] != null)
+            {
+                return response.FromStorage.Count > 0;
+            }
+
+            return false;
+        }
+
+        public override async Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration)
+        {
+            var request = new FindDatabase();
+
+            var config = request.PreConfigure(configuration);
+
+            var response = await PerformRequestAsync(request, config);
 
             if (response.FromStorage != null && response.FromStorage.Count > 0 && response.FromStorage[0] != null)
             {
@@ -83,15 +123,41 @@ namespace Meadow.MySql
 
             return result;
         }
+        
+        private async Task<List<string>> EnumerateDbObjectAsync(bool dbProcedureNotTable, MeadowConfiguration configuration)
+        {
+            var response = dbProcedureNotTable
+                ? await PerformRequestAsync(new EnumerateProceduresRequest(), configuration)
+                : await PerformRequestAsync(new EnumerateTablesRequest(), configuration);
+
+            var result = new List<string>();
+
+            if (response.FromStorage != null)
+            {
+                result = response.FromStorage.Select(n => n.Name).ToList();
+            }
+
+            return result;
+        }
 
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
             return EnumerateDbObject(true, configuration);
         }
 
+        public override async Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration)
+        {
+            return await EnumerateDbObjectAsync(true, configuration);
+        }
+
         public override List<string> EnumerateTables(MeadowConfiguration configuration)
         {
             return EnumerateDbObject(false, configuration);
+        }
+
+        public override async Task<List<string>> EnumerateTablesAsync(MeadowConfiguration configuration)
+        {
+            return await EnumerateDbObjectAsync(false, configuration);
         }
 
         public override void CreateTable<TModel>(MeadowConfiguration configuration)
@@ -105,6 +171,17 @@ namespace Meadow.MySql
             PerformRequest(request, configuration);
         }
 
+        public override async Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var type = typeof(TModel);
+
+            var script = new TableScriptGenerator(type).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
+
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
@@ -116,6 +193,17 @@ namespace Meadow.MySql
             PerformRequest(request, configuration);
         }
 
+        public override async Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var type = typeof(TModel);
+
+            var script = new InsertProcedureGenerator(type).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
+
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
@@ -125,6 +213,17 @@ namespace Meadow.MySql
             var request = new SqlRequest(script);
 
             PerformRequest(request, configuration);
+        }
+
+        public override async Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var type = typeof(TModel);
+
+            var script = new ReadSequenceProcedureGenerator(type, false, 1, false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
         }
     }
 }

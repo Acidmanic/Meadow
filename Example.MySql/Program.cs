@@ -3,7 +3,9 @@ using System.IO;
 using Example.MySql.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Extensions;
 using Meadow.MySql;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.MySql
 {
@@ -11,6 +13,9 @@ namespace Example.MySql
     {
         static void Main(string[] args)
         {
+
+            new ConsoleLogger().UseForMeadow();
+            
             // Configure Meadow
             var configuration = new MeadowConfiguration
             {
