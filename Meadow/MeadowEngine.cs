@@ -182,11 +182,23 @@ namespace Meadow
             CreateInitializedCore(_configuration)
                 .DropDatabase(_configuration);
         }
+        
+        public Task DropDatabaseAsync()
+        {
+            return CreateInitializedCore(_configuration)
+                .DropDatabaseAsync(_configuration);
+        }
 
         public bool DatabaseExists()
         {
             return CreateInitializedCore(_configuration)
                 .DatabaseExists(_configuration);
+        }
+        
+        public Task<bool> DatabaseExistsAsync()
+        {
+            return CreateInitializedCore(_configuration)
+                .DatabaseExistsAsync(_configuration);
         }
 
         public void CreateIfNotExist()
@@ -317,11 +329,23 @@ namespace Meadow
             return CreateInitializedCore(_configuration)
                 .EnumerateProcedures(_configuration);
         }
+        
+        public Task<List<string>> EnumerateProceduresAsync()
+        {
+            return CreateInitializedCore(_configuration)
+                .EnumerateProceduresAsync(_configuration);
+        }
 
         public List<string> EnumerateTables()
         {
             return CreateInitializedCore(_configuration)
                 .EnumerateTables(_configuration);
+        }
+        
+        public Task<List<string>> EnumerateTablesAsync()
+        {
+            return CreateInitializedCore(_configuration)
+                .EnumerateTablesAsync(_configuration);
         }
 
 
