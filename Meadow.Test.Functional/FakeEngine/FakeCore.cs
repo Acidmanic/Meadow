@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Acidmanic.Utilities.Reflection.ObjectTree;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
@@ -15,44 +15,88 @@ namespace Meadow.Test.Functional.FakeEngine
             
         }
 
+        public override Task CreateDatabaseAsync(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
+        }
+
         public override bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            return false;
+        }
+
+        public override Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => false);
         }
 
         public override void DropDatabase(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+        }
+
+        public override Task DropDatabaseAsync(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public override bool DatabaseExists(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            return false;
+        }
+
+        public override Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => false);
         }
 
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            return new List<string>();
+        }
+
+        public override Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => new List<string>());
         }
 
         public override List<string> EnumerateTables(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            return new List<string>();
+        }
+
+        public override Task<List<string>> EnumerateTablesAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => new List<string>());
         }
 
         public override void CreateTable<TModel>(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            
+        }
+
+        public override Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            
+        }
+
+        public override Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
 
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
-            throw new System.NotImplementedException();
+            
+        }
+
+        public override Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
         }
     }
 }
