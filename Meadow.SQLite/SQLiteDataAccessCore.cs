@@ -19,8 +19,6 @@ namespace Meadow.SQLite
 {
     public class SqLiteDataAccessCore : MeadowDataAccessCoreBase<IDbCommand, IDataReader>
     {
-        //public override IDataOwnerNameProvider DataOwnerNameProvider { get; } = new PluralDataOwnerNameProvider();
-
         protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; }
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }

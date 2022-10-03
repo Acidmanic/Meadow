@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.Requests;
@@ -80,6 +81,21 @@ namespace Meadow
             // Run UserRequest as Procedure Request
             return CreateInitializedCore(_configuration).PerformRequest(request, _configuration);
         }
+        
+        public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request)
+            where TOut : class, new()
+        {
+            if (request is ConfigurationRequest<TOut> configRequest)
+            {
+                var result = await PerformConfigurationRequestAsync(configRequest);
+
+                configRequest.Result = result;
+
+                return request;
+            }
+            
+            return await  CreateInitializedCore(_configuration).PerformRequestAsync(request, _configuration);
+        }
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
             where TOut : class, new()
@@ -89,6 +105,31 @@ namespace Meadow
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
                 var meadowRequest = CreateInitializedCore(_configuration).PerformRequest(request, config);
+
+                return new ConfigurationRequestResult
+                {
+                    Success = !meadowRequest.Failed,
+                    Exception = meadowRequest.FailureException
+                };
+            }
+            catch (Exception e)
+            {
+                return new ConfigurationRequestResult
+                {
+                    Success = false,
+                    Exception = e
+                };
+            }
+        }
+        
+        private async Task<ConfigurationRequestResult> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request)
+            where TOut : class, new()
+        {
+            try
+            {
+                var config = request.PreConfigure(_configuration);
+                // Run Configuration Request As a Script Request
+                var meadowRequest =  await CreateInitializedCore(_configuration).PerformRequestAsync(request, config);
 
                 return new ConfigurationRequestResult
                 {
@@ -124,6 +165,17 @@ namespace Meadow
 
             core.CreateLastInsertedProcedure<MeadowDatabaseHistory>(_configuration);
         }
+        
+        private async Task PerformPostDatabaseCreationTasksAsync()
+        {
+            var core = CreateInitializedCore(_configuration);
+
+            await core.CreateTableAsync<MeadowDatabaseHistory>(_configuration);
+
+            await core.CreateInsertProcedureAsync<MeadowDatabaseHistory>(_configuration);
+
+            await core.CreateLastInsertedProcedureAsync<MeadowDatabaseHistory>(_configuration);
+        }
 
         public void DropDatabase()
         {
@@ -147,11 +199,22 @@ namespace Meadow
                 PerformPostDatabaseCreationTasks();
             }
         }
-
-
-        private TModel ReadLastInsertedRecord<TModel>() where TModel : class, new()
+        
+        public async Task CreateIfNotExistAsync()
         {
-            var response = PerformRequest(new ReadLastModel<TModel>());
+            var  created =await CreateInitializedCore(_configuration)
+                .CreateDatabaseIfNotExistsAsync(_configuration);
+
+            if (created)
+            {
+                await PerformPostDatabaseCreationTasksAsync();
+            }
+        }
+
+
+        private async Task<TModel> ReadLastInsertedRecordAsync<TModel>() where TModel : class, new()
+        {
+            var response = await PerformRequestAsync(new ReadLastModel<TModel>());
 
             if (response.FromStorage != null && response.FromStorage.Count == 1)
             {
@@ -167,9 +230,18 @@ namespace Meadow
         /// <returns>A list of log reports</returns>
         public void BuildUpDatabase()
         {
+            BuildUpDatabaseAsync().Wait();
+        }
+
+        /// <summary>
+        /// Applies all available buildup scripts
+        /// </summary>
+        /// <returns>A list of log reports</returns>
+        public async Task BuildUpDatabaseAsync()
+        {
             CreateInitializedCore(_configuration);
             
-            var lastExecResult = ReadLastInsertedRecord<MeadowDatabaseHistory>();
+            var lastExecResult = await ReadLastInsertedRecordAsync<MeadowDatabaseHistory>();
 
             int lastAppliedOrder = -1;
 
@@ -203,7 +275,7 @@ namespace Meadow
                     _logger.LogInformation("Applying {InfoOrder}:{InfoName}",
                         info.Order,info.Name);
 
-                    var result = PerformScript(info);
+                    var result = await PerformScriptAsync(info);
 
                     if (result.Success)
                     {
@@ -213,7 +285,7 @@ namespace Meadow
 
                         anyApplied = true;
 
-                        PerformRequest(new MarkExecutionInHistoryRequest(info));
+                        await PerformRequestAsync(new MarkExecutionInHistoryRequest(info));
                     }
                     else
                     {
@@ -253,7 +325,7 @@ namespace Meadow
         }
 
 
-        private ConfigurationRequestResult PerformScript(ScriptInfo scriptInfo)
+        private async Task<ConfigurationRequestResult> PerformScriptAsync(ScriptInfo scriptInfo)
         {
             var sqls = scriptInfo.SplitScriptIntoBatches();
 
@@ -261,7 +333,7 @@ namespace Meadow
             {
                 var request = new SqlRequest(sql);
 
-                var result = PerformConfigurationRequest(request);
+                var result = await PerformConfigurationRequestAsync(request);
 
                 if (!result.Success)
                 {

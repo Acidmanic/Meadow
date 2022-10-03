@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Example.Postgre.Requests;
 using Meadow;
 using Meadow.Configuration;
@@ -10,7 +11,7 @@ namespace Example.Postgre
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Configure Meadow
             var configuration = new MeadowConfiguration
@@ -30,14 +31,14 @@ namespace Example.Postgre
                 engine.DropDatabase();
             }
             // Create Database if not exists
-            engine.CreateIfNotExist();
+            await engine.CreateIfNotExistAsync();
             // Setup (update regarding scripts)
-            engine.BuildUpDatabase();
+            await engine.BuildUpDatabaseAsync();
             // ready to use
             // Make a request
             var request = new GetAllPersonsFullTreeRequest();
 
-            var response = engine.PerformRequest(request);
+            var response = await engine.PerformRequestAsync(request);
 
             var allPersons = response.FromStorage;
 
@@ -50,6 +51,8 @@ namespace Example.Postgre
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
+            
         }
+        
     }
 }
