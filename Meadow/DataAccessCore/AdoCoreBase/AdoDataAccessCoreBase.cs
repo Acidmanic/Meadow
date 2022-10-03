@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
+using System.Threading.Tasks;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -10,8 +10,6 @@ using Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests;
 using Meadow.DataTypeMapping;
 using Meadow.Reflection.Conventions;
 using Meadow.Requests;
-using Meadow.Scaffolding.SqlScriptsGenerators;
-using Newtonsoft.Json.Serialization;
 
 namespace Meadow.DataAccessCore.AdoCoreBase
 {
@@ -129,6 +127,22 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             return result;
         }
+        
+        private async Task<List<string>>  EnumerateDbObjectAsync(bool dbProcedureNotTable, MeadowConfiguration configuration)
+        {
+            var response = dbProcedureNotTable
+                ? await  PerformRequestAsync(new NameResultQuery(GetSqlForListingAllProcedureNames()), configuration)
+                : await PerformRequestAsync(new NameResultQuery(GetSqlForListingAllTableNames()), configuration);
+
+            var result = new List<string>();
+
+            if (response.FromStorage != null)
+            {
+                result = response.FromStorage.Select(n => n.Name).ToList();
+            }
+
+            return result;
+        }
 
         
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
@@ -184,5 +198,93 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         
         protected abstract string GetSqlForListingAllTableNames();
         protected abstract IDbTypeNameMapper GetDbTypeNameMapper();
+        
+        
+        
+        public override async Task CreateDatabaseAsync(MeadowConfiguration configuration)
+        {
+            var request = new CreateDatabaseRequest(GetSqlForCreatingDatabase);
+
+            await PerformConfigurationRequestAsync(request, configuration);
+        }
+
+        public override async Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration)
+        {
+            if (! await DatabaseExistsAsync(configuration))
+            {
+                await CreateDatabaseAsync(configuration);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public override async Task DropDatabaseAsync(MeadowConfiguration configuration)
+        {
+            var request = new DropDatabaseRequest(GetSqlForDroppingDatabase);
+
+            await PerformConfigurationRequestAsync(request, configuration);
+        }
+
+        public override async Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration)
+        {
+            var request = new DatabaseExistsRequest(GetSqlForDatabaseExists);
+
+            var response = await PerformConfigurationRequestAsync(request, configuration);
+
+            return response.SingleOrDefault()?.Value ?? false;
+        }
+
+        public override async Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration)
+        {
+            return await EnumerateDbObjectAsync(true, configuration);
+        }
+
+        public override async Task<List<string>> EnumerateTablesAsync(MeadowConfiguration configuration)
+        {
+            return await EnumerateDbObjectAsync(true, configuration);
+        }
+
+        public override async Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var parameters = TypeDatabaseDefinition.FromType<TModel>(GetDbTypeNameMapper());
+
+            var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
+
+            var script = GetSqlForCreatingTable(tableName, parameters);
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
+
+        public override async Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var parameters = TypeDatabaseDefinition.FromType<TModel>(GetDbTypeNameMapper());
+
+            var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
+
+            var script = GetSqlForCreatingTable(tableName, parameters);
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
+
+        public override async Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var parameters = TypeDatabaseDefinition.FromType<TModel>(GetDbTypeNameMapper());
+
+            var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
+
+            var procedureName = new NameConvention<TModel>().InsertProcedureName;
+
+            var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters);
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
     }
 }

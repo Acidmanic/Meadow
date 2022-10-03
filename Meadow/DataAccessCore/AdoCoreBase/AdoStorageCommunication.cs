@@ -65,7 +65,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         public Task CommunicateAsync(IDbCommand carrier, Action<IDataReader> onDataAvailable,
             MeadowConfiguration configuration, bool returnsValue)
         {
-            return new Task(() => { Communicate(carrier, onDataAvailable, configuration, returnsValue); });
+            return Task.Run(() => { Communicate(carrier, onDataAvailable, configuration, returnsValue); });
         }
     }
 }
