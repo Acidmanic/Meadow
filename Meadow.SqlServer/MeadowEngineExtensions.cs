@@ -7,7 +7,7 @@ namespace Meadow.SqlServer
         public static MeadowEngine UseSqlServer(this MeadowEngine engine)
         {
 
-            MeadowEngine.UseDataAccess(new CoreProvider<SqlDataAccessCore>());
+            MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
 
             return engine;
         }

@@ -105,7 +105,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var procedureName = new NameConvention<TModel>().InsertProcedureName;
 
-            var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters);
+            var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
 
             var request = new SqlRequest(script);
 

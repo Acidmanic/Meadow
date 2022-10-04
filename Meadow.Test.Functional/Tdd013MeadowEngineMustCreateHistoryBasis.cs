@@ -18,7 +18,7 @@ namespace Meadow.Test.Functional
         public override void Main()
         {
             
-            MeadowEngine.UseDataAccess(new CoreProvider<SqlDataAccessCore>());
+            MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
             
             var engine = SetupClearDatabase(true);
         }

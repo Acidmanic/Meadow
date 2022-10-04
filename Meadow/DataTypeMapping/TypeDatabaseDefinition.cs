@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
@@ -12,6 +13,9 @@ namespace Meadow.DataTypeMapping
         public  FieldType IdField { get; set; }
         
         public bool HasId { get; set; }
+        
+        
+        public Type CorrespondingType { get; set; }
 
         public static TypeDatabaseDefinition FromType<T>(IDbTypeNameMapper mapper)
         {
@@ -41,6 +45,8 @@ namespace Meadow.DataTypeMapping
                     .FirstOrDefault();
             }
 
+            definition.CorrespondingType = typeof(T);
+            
             return definition;
         }   
         
