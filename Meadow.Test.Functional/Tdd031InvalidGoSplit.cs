@@ -18,50 +18,62 @@ namespace Meadow.Test.Functional
         public override void Main()
         {
 
-            var script = @"----------------------------------------------------------------
-----------------------------------------------------------------
-----------------------------------------------------------------
-create table PostCategories(
-    Id bigint primary key identity(1,1),
-    Name nvarchar(32),
-    DefinitionUniqueId varchar(64)
-)
-----------------------------------------------------------------
---SPLIT
-----------------------------------------------------------------
-create procedure spInsertPostCategoryDal(
-    Name nvarchar(32),
-    DefinitionUniqueId varchar(64)
-    ) as 
-    begin
-        insert into PostCategories (Name,DefinitionUniqueId) 
-                values (@Name,@DefinitionUniqueId)
+            var script = @"
 
-        declare @newId bigint=(IDENT_CURRENT('PostCategories'));
-        select * from PostCategories where Id=@newId;
-    end
+
+
+
+
+create table Posts(
+    Id bigint primary key not null identity (1,1),
+    Title nvarchar(128),
+    Descriptions nvarchar(512),
+    DefinitionUniqueId varchar(64),
+    PostDate varchar(64)
+)
+
+--SPLIT
+
+create procedure spInsertPost(@Title nvarchar(128),
+    @Descriptions nvarchar(512),
+    @DefinitionUniqueId varchar(64),
+    @PostDate varchar(64))
+as
+    insert into Posts (Title, Descriptions,DefinitionUniqueId,PostDate) values (@Title,@Descriptions,@DefinitionUniqueId,@PostDate)
+    DECLARE @newId bigint=(IDENT_CURRENT('Posts'));
+    SELECT * FROM Posts WHERE Id=@newId;
 go
-----------------------------------------------------------------
-create procedure spReadAllPostCategoryDals() as
-begin
+
+create procedure spReadPostById(@Id bigint) as
+    select * from Posts where Posts.Id=@Id
+go
+
+ 
+
+create procedure spReadAllPosts as 
     
-        select * from PostCategories
-    end
+    select * from Posts;    
 go
-----------------------------------------------------------------
-create procedure spReadPostCategoryDalById(@Id bigint) as
-    begin
-        select * from PostCategories where Id=@Id
-    end
-go
-----------------------------------------------------------------
-create procedure spDeletePostCategoryDalById(@Id bigint) as
-begin
-        delete from PostCategories where Id=@Id
-    end
-go
-----------------------------------------------------------------
-        ";
+
+
+create procedure spSavePost(@Id bigint,@Title nvarchar(128),
+        @Descriptions nvarchar(512),@DefinitionUniqueId varchar(64),
+        @PostDate varchar(64)) as
+
+    IF EXISTS (SELECT 1 FROM Posts WHERE DefinitionUniqueId like @DefinitionUniqueId)
+        BEGIN
+            update Posts set Title=@Title, Descriptions=@Descriptions
+                             where DefinitionUniqueId like @DefinitionUniqueId
+            SELECT * FROM Posts WHERE DefinitionUniqueId like @DefinitionUniqueId
+        END
+    ELSE
+        BEGIN
+            insert into Posts (Title, Descriptions,DefinitionUniqueId,PostDate)
+            values (@Title,@Descriptions,@DefinitionUniqueId,@PostDate)
+            DECLARE @newId bigint=(IDENT_CURRENT('Posts'));
+            SELECT * FROM Posts WHERE Id=@newId;
+        END
+go";
 
 
             
