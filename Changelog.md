@@ -45,3 +45,8 @@
  * Logging issues in MeadowDataAccessCoreBase has been fixed
  * Detailed logs in StandardIndexAccumulator are being logged as trace logs.
    
+
+1.2.1
+-----
+ * implement async functionality
+ * fix 'go' in model name issue
