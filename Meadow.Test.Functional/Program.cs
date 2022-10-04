@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd030InsertBinary().Main();
+            new Tdd031InvalidGoSplit().Main();
         }
     }
 }
