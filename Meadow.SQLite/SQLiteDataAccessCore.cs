@@ -4,6 +4,7 @@ using System.Data;
 using System.IO;
 using System.Linq;
 using System.Reflection.Emit;
+using System.Threading.Tasks;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -14,6 +15,7 @@ using Meadow.SQLite.CarrierInterceptors;
 using Meadow.SQLite.Requests;
 using Meadow.SQLite.SqlScriptsGenerators;
 using Meadow.Utility;
+using Microsoft.Extensions.Logging;
 
 namespace Meadow.SQLite
 {
@@ -55,6 +57,19 @@ namespace Meadow.SQLite
             });
         }
 
+        public override Task CreateDatabaseAsync(MeadowConfiguration configuration)
+        {
+            return TryDbFileAsync(configuration, async file =>
+            {
+                if (File.Exists(file))
+                {
+                    throw new Exception("The Database already exists");
+                }
+
+                await PerformRequestAsync(new CreateDatabaseRequest(), configuration);
+            });
+        }
+
         public override bool CreateDatabaseIfNotExists(MeadowConfiguration configuration)
         {
             return TryDbFile(configuration, file =>
@@ -70,11 +85,36 @@ namespace Meadow.SQLite
             });
         }
 
+        public override Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration)
+        {
+            return TryDbFileAsync(configuration, async file =>
+            {
+                if (!File.Exists(file))
+                {
+                    await PerformRequestAsync(new CreateDatabaseRequest(), configuration);
+
+                    return true;
+                }
+
+                return false;
+            });
+        }
+
         private void TryDbFile(MeadowConfiguration configuration, Action<string> code)
         {
             TryDbFile(configuration, s =>
             {
                 code(s);
+
+                return true;
+            });
+        }
+        
+        private async Task TryDbFileAsync(MeadowConfiguration configuration, Func<string,Task> code)
+        {
+            await TryDbFileAsync(configuration, async s =>
+            {
+                await code(s);
 
                 return true;
             });
@@ -96,7 +136,30 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Logger.LogError(e,"{Exception}",e);
+                }
+            }
+
+            return false;
+        }
+        
+        private async Task<bool> TryDbFileAsync(MeadowConfiguration configuration, Func<string, Task<bool>> code)
+        {
+            var conInfo = new ConnectionStringParser().Parse(configuration.ConnectionString);
+
+            if (conInfo.ContainsKey("Data Source"))
+            {
+                var filename = conInfo["Data Source"];
+
+                SqLiteProcedureManager.Instance.AssignDatabase(filename);
+
+                try
+                {
+                    return await code(filename);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e,"{Exception}",e);
                 }
             }
 
@@ -113,6 +176,22 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
+                    Logger.LogError(e,"Error deleting File:{File}\n{Exception}",file,e);
+                }
+            });
+        }
+
+        public override Task DropDatabaseAsync(MeadowConfiguration configuration)
+        {
+            return TryDbFileAsync(configuration, async file =>
+            {
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e,"Error deleting File:{File}\n{Exception}",file,e);
                 }
             });
         }
@@ -126,14 +205,42 @@ namespace Meadow.SQLite
             return exists;
         }
 
+        public override async Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration)
+        {
+            var exists = false;
+
+            await TryDbFileAsync(configuration, async file => { exists = File.Exists(file); });
+
+            return exists;
+        }
+
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
             return SqLiteProcedureManager.Instance.ListProcedures();
         }
 
+        public override Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => SqLiteProcedureManager.Instance.ListProcedures());
+        }
+
         public override List<string> EnumerateTables(MeadowConfiguration configuration)
         {
             var response = PerformRequest(new EnumerateTablesRequest(), configuration);
+
+            var result = new List<string>();
+
+            if (response.FromStorage != null)
+            {
+                result.AddRange(response.FromStorage.Select(nr => nr.Name));
+            }
+
+            return result;
+        }
+
+        public override async Task<List<string>> EnumerateTablesAsync(MeadowConfiguration configuration)
+        {
+            var response = await PerformRequestAsync(new EnumerateTablesRequest(), configuration);
 
             var result = new List<string>();
 
@@ -156,6 +263,17 @@ namespace Meadow.SQLite
             PerformRequest(request, configuration);
         }
 
+        public override Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var type = typeof(TModel);
+
+            var script = new TableScriptGenerator(type).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            return PerformRequestAsync(request, configuration);
+        }
+
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
@@ -169,6 +287,11 @@ namespace Meadow.SQLite
             SqLiteProcedureManager.Instance.AddProcedure(procedure);
         }
 
+        public override Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => CreateInsertProcedure<TModel>(configuration));
+        }
+
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
             var type = typeof(TModel);
@@ -180,6 +303,11 @@ namespace Meadow.SQLite
             var procedure = SqLiteProcedure.Parse(script);
 
             SqLiteProcedureManager.Instance.AddProcedure(procedure);
+        }
+
+        public override Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.Run(() => CreateLastInsertedProcedure<TModel>(configuration));
         }
 
         private string ClearGo(string script)
