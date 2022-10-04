@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
@@ -11,7 +12,7 @@ namespace Example.SqlServer
 {
     partial class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             new ConsoleLogger().UseForMeadow();
             // Configure Meadow
@@ -23,19 +24,19 @@ namespace Example.SqlServer
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseSqlServer();
 
-            if (engine.DatabaseExists())
+            if (await engine.DatabaseExistsAsync())
             {
-                engine.DropDatabase();
+                await engine.DropDatabaseAsync();
             }
             // Create Database if not exists
-            engine.CreateIfNotExist();
+            await engine.CreateIfNotExistAsync();
             // Setup (update regarding scripts)
-            engine.BuildUpDatabase();
+            await engine.BuildUpDatabaseAsync();
             // ready to use
             // Make a request
             var request = new GetAllPersonsFullTreeRequest();
 
-            var response = engine.PerformRequest(request);
+            var response = await engine.PerformRequestAsync(request);
 
             var allPersons = response.FromStorage;
 
