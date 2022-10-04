@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Example.SqLite.Requests;
 using Meadow;
 using Meadow.Configuration;
@@ -11,7 +12,7 @@ namespace Example.SqLite
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             // Configure Meadow
             var file = "meadow-sqlite.db";
@@ -25,15 +26,20 @@ namespace Example.SqLite
             new ConsoleLogger().UseForMeadow();
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseSQLite();
+            //Delete database if already exists
+            if (await engine.DatabaseExistsAsync())
+            {
+                await engine.DropDatabaseAsync();
+            }
             // Create Database if not exists
-            engine.CreateIfNotExist();
+            await engine.CreateIfNotExistAsync();
             // Setup (update regarding scripts)
-            engine.BuildUpDatabase();
+            await engine.BuildUpDatabaseAsync();
             // ready to use
             // Make a request
             var request = new GetAllPersonsFullTreeRequest();
 
-            var response = engine.PerformRequest(request);
+            var response = await engine.PerformRequestAsync(request);
 
             var allPersons = response.FromStorage;
 
