@@ -21,5 +21,10 @@ namespace Meadow.Tools.Assistant.Nuget
         {
             return Id?.Trim() + ":" + Version?.Trim();
         }
+
+        public string AsFileName()
+        {
+            return Id?.ToLower().Trim() + Version?.Trim() +".nupkg";
+        }
     }
 }

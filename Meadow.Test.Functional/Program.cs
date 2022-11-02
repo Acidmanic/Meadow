@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd031InvalidGoSplit().Main();
+            new Tdd032ListNugetReferences().Main();
         }
     }
 }
