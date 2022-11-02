@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -11,12 +12,14 @@ namespace Meadow.DataAccessCore.AdoCoreBase
     {
         private readonly Func<IDbCommand> _commandFactory;
         private readonly Func<MeadowConfiguration, IDbConnection> _connectionFactory;
+        private readonly Action<IDbConnection> _clearPoolAction;
 
         public AdoStorageCommunication(Func<IDbCommand> commandFactory,
-            Func<MeadowConfiguration, IDbConnection> connectionFactory)
+            Func<MeadowConfiguration, IDbConnection> connectionFactory, Action<IDbConnection> clearPoolAction)
         {
             _commandFactory = commandFactory;
             _connectionFactory = connectionFactory;
+            _clearPoolAction = clearPoolAction;
         }
 
 
@@ -59,6 +62,8 @@ namespace Meadow.DataAccessCore.AdoCoreBase
                 {
                     carrier.ExecuteNonQuery();
                 }
+
+                _clearPoolAction(connection);
             }
         }
 

@@ -26,7 +26,8 @@ namespace Meadow.DataAccessCore.AdoCoreBase
                 Logger,
                 WriteIntoCommand);
 
-            StorageCommunication = new AdoStorageCommunication(InstantiateCommand, InstantiateConnection);
+            StorageCommunication =
+                new AdoStorageCommunication(InstantiateCommand, InstantiateConnection, OnClearConnectionPool);
 
 
             return this;
@@ -127,11 +128,12 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             return result;
         }
-        
-        private async Task<List<string>>  EnumerateDbObjectAsync(bool dbProcedureNotTable, MeadowConfiguration configuration)
+
+        private async Task<List<string>> EnumerateDbObjectAsync(bool dbProcedureNotTable,
+            MeadowConfiguration configuration)
         {
             var response = dbProcedureNotTable
-                ? await  PerformRequestAsync(new NameResultQuery(GetSqlForListingAllProcedureNames()), configuration)
+                ? await PerformRequestAsync(new NameResultQuery(GetSqlForListingAllProcedureNames()), configuration)
                 : await PerformRequestAsync(new NameResultQuery(GetSqlForListingAllTableNames()), configuration);
 
             var result = new List<string>();
@@ -144,7 +146,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
             return result;
         }
 
-        
+
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
             return EnumerateDbObject(true, configuration);
@@ -172,10 +174,14 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         {
             return columnName;
         }
-        
+
         protected abstract IDbDataParameter InstantiateParameter();
-        
+
         protected abstract IDbCommand InstantiateCommand();
+
+        protected virtual void OnClearConnectionPool(IDbConnection connection)
+        {
+        }
 
         protected abstract IDbConnection InstantiateConnection(MeadowConfiguration configuration);
 
@@ -195,12 +201,11 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
 
         protected abstract string GetSqlForListingAllProcedureNames();
-        
+
         protected abstract string GetSqlForListingAllTableNames();
         protected abstract IDbTypeNameMapper GetDbTypeNameMapper();
-        
-        
-        
+
+
         public override async Task CreateDatabaseAsync(MeadowConfiguration configuration)
         {
             var request = new CreateDatabaseRequest(GetSqlForCreatingDatabase);
@@ -210,7 +215,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override async Task<bool> CreateDatabaseIfNotExistsAsync(MeadowConfiguration configuration)
         {
-            if (! await DatabaseExistsAsync(configuration))
+            if (!await DatabaseExistsAsync(configuration))
             {
                 await CreateDatabaseAsync(configuration);
 
