@@ -50,3 +50,9 @@
 -----
  * implement async functionality
  * fix 'go' in model name issue
+
+1.2.3
+-----
+ * Splitting issues are fixed
+ * Connection pool clearing for Ado based data bases is managed
+ * Connection pool is cleared in SqlServer and open-connection issue got solved
