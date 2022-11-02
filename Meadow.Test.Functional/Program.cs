@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd33SplittingIssue().Main();
+            new Tdd34UnClosedConnections().Main();
         }
     }
 }

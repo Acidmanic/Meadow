@@ -3,7 +3,9 @@ using System.Collections;
 using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
 using Meadow.Extensions;
+using Meadow.SqlServer;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Test.Functional.TDDAbstractions
 {
@@ -161,6 +163,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         protected MeadowEngine SetupClearDatabase(bool fromScratch = true)
         {
             var engine = CreateEngine();
+
+            engine.UseSqlServer();
 
             if (fromScratch)
             {
