@@ -102,5 +102,9 @@ namespace Meadow.SqlServer
                 ?.Trim();
         }
 
+        protected override void OnClearConnectionPool(IDbConnection connection)
+        {
+            SqlConnection.ClearPool((SqlConnection)connection);
+        }
     }
 }
