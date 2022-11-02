@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd032ListNugetReferences().Main();
+            new Tdd33SplittingIssue().Main();
         }
     }
 }
