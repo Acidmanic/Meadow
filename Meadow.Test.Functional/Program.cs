@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd34UnClosedConnections().Main();
+            new Tdd35ClearMySqlComments().Main();
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Data;
 using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.MySql.Comments;
 using Meadow.Requests;
 using MySql.Data.MySqlClient;
 
@@ -13,22 +14,32 @@ namespace Meadow.MySql
         
         public IDbCommand CreateToStorageCarrier(MeadowRequest request, MeadowConfiguration configuration)
         {
-            var carrier =  new MySqlCommand(request.RequestText);
+            
 
             if (request.Execution == RequestExecution.RequestTextIsNameOfRoutine)
             {
-                carrier.CommandType = CommandType.StoredProcedure;
+                var procedureCarrier =  new MySqlCommand(request.RequestText);
+                
+                procedureCarrier.CommandType = CommandType.StoredProcedure;
+            
+                return procedureCarrier;
             }
-            else
-            {
-                carrier.CommandType = CommandType.Text;
-            }
+            
+            var textCarrier =  new MySqlCommand(request.RequestText?.ClearMySqlComments());
+            
+            textCarrier.CommandType = CommandType.Text;
 
-            return carrier;
+            return textCarrier;
         }
 
         public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable, MeadowConfiguration configuration, bool returnsValue)
         {
+
+            if (string.IsNullOrWhiteSpace(carrier.CommandText))
+            {
+                return;
+            }
+            
             using (var connection = new MySqlConnection(configuration.ConnectionString))
             {
                 carrier.Connection = connection;
