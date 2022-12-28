@@ -1,8 +1,9 @@
 create table Tags(
                      PropertyId bigint,
                      ProductClassId bigint
-)
---SPLIT
+);
+
+#SPLIT
 
 create table Jobs
 (
@@ -10,9 +11,9 @@ create table Jobs
     Title          nvarchar(100),
     IncomeInRials  bigint(16),
     JobDescription nvarchar(128)
-)
+);
 
---SPLIT
+#SPLIT
 
 create table Person(
                      Id bigint(16) AUTO_INCREMENT PRIMARY KEY,
@@ -21,6 +22,6 @@ create table Person(
                      Age int(16),
                      JobId bigint(16),
                     FOREIGN KEY (JobId) REFERENCES Jobs(Id)
-)
+);
 
---SPLIT
+#SPLIT

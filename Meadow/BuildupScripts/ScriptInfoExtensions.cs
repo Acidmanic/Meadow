@@ -6,7 +6,7 @@ namespace Meadow.BuildupScripts
 {
     public static class ScriptInfoExtensions
     {
-        private static readonly Regex Splitter = new Regex("\\s+go\\s+|--SPLIT",RegexOptions.IgnoreCase); 
+        private static readonly Regex Splitter = new Regex("\\s+go\\s+|--SPLIT|#SPLIT",RegexOptions.IgnoreCase); 
         
         public static string[] SplitScriptIntoBatches(this ScriptInfo info)
         {
