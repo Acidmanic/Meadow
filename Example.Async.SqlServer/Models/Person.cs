@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.Attributes;
 
-namespace Example.SqlServer.Models
+namespace Example.Async.SqlServer.Models
 {
     public class Person
     {

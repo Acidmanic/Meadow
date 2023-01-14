@@ -1,8 +1,8 @@
 using Acidmanic.Utilities.Reflection.FieldInclusion;
-using Example.SqlServer.Models;
+using Example.Async.SqlServer.Models;
 using Meadow.Requests;
 
-namespace Example.SqlServer.Requests
+namespace Example.Async.SqlServer.Requests
 {
     public sealed class InsertJobRequest : MeadowRequest<Job, Job>
     {

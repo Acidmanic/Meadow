@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
-using Example.SqlServer.Requests;
+using Example.Async.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.SqlServer;
 using Microsoft.Extensions.Logging.LightWeight;
 
-namespace Example.SqlServer
+namespace Example.Async.SqlServer
 {
     class Program
     {
