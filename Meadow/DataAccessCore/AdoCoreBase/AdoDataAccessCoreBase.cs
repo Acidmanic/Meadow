@@ -104,7 +104,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var procedureName = new NameConvention<TModel>().InsertProcedureName;
+            var procedureName = new NameConvention<TModel>().SelectLastProcedureName;
 
             var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
 
@@ -270,8 +270,11 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var script = GetSqlForCreatingTable(tableName, parameters);
+            var procedureName = new NameConvention<TModel>().InsertProcedureName;
+            
+            var script = GetSqlForCreatingInsertProcedure(procedureName,procedureName,parameters);
 
+            
             var request = new SqlRequest(script);
 
             await PerformRequestAsync(request, configuration);
@@ -283,9 +286,9 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var procedureName = new NameConvention<TModel>().InsertProcedureName;
+            var procedureName = new NameConvention<TModel>().SelectLastProcedureName;
 
-            var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters);
+            var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
 
             var request = new SqlRequest(script);
 

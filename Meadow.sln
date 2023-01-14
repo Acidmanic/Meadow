@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow", "Meadow\Meadow.csproj", "{85B53D4D-A410-4573-A49D-23EF1BD3E167}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{4EC7AF28-92F5-47AB-BE1D-6C660D5C0466}"
@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.SqlServer", "Meadow.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.MySql", "Meadow.MySql\Meadow.MySql.csproj", "{D2457DAC-1E49-48CF-89E6-A70E33E96812}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SqlServer", "Example.SqlServer\Example.SqlServer.csproj", "{B735BB25-9247-43EF-A10B-B476F0858990}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Async.SqlServer", "Example.Async.SqlServer\Example.Async.SqlServer.csproj", "{B735BB25-9247-43EF-A10B-B476F0858990}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SqLite", "Example.SqLite\Example.SqLite.csproj", "{42F3D93F-74A3-443D-94E7-AF8B4BF5B3B7}"
 EndProject

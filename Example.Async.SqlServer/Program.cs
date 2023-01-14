@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.SqlServer
 {
-    partial class Program
+    class Program
     {
         static async Task Main(string[] args)
         {
