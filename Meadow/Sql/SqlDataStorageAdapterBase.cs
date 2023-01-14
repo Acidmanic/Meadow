@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
+using Acidmanic.Utilities.Reflection.Attributes;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
@@ -13,10 +16,10 @@ namespace Meadow.Sql
 {
     public abstract class SqlDataStorageAdapterBase : IStandardDataStorageAdapter<IDbCommand, IDataReader>
     {
-
         private readonly ILogger _logger;
-        
-        protected SqlDataStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider, ILogger logger)
+
+        protected SqlDataStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider,
+            ILogger logger)
         {
             FieldNameDelimiter = fieldNameDelimiter;
             DataOwnerNameProvider = dataOwnerNameProvider;
@@ -45,6 +48,8 @@ namespace Meadow.Sql
             var unIndexedStandard = storageData.RelationalToStandard<TModel>
                 (RelationalIdentifierToStandardFieldMapper, fullTreeRead);
 
+            unIndexedStandard = CastBackAlteredTypes<TModel>(unIndexedStandard);
+
             var accumulator = new StandardIndexAccumulator<TModel>(_logger);
 
             accumulator.PassAll(unIndexedStandard);
@@ -70,9 +75,52 @@ namespace Meadow.Sql
             return results;
         }
 
-        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldInclusion<TModel> toStorageInclusion, ObjectEvaluator evaluator)
+        private List<Record> CastBackAlteredTypes<TModel>(List<Record> records)
         {
-            var standardData = evaluator.ToStandardFlatData(true);
+            var data = new List<Record>();
+
+            var evaluator = new ObjectEvaluator(typeof(TModel));
+
+            foreach (var record in records)
+            {
+                var castedRecord = new Record();
+
+                foreach (var dataPoint in record)
+                {
+                    var value = dataPoint.Value;
+
+                    if (value != null)
+                    {
+                        var address = dataPoint.Identifier;
+
+                        var node = evaluator.Map.NodeByAddress(address);
+
+                        var expectedType = node.Type;
+
+                        var alterCast = expectedType.GetCustomAttribute<AlteredTypeAttribute>();
+
+                        var actualType = value.GetType();
+                        
+                        if (alterCast != null && alterCast.AlternativeType==actualType)
+                        {
+                            value = value.CastTo(expectedType);
+                        }
+                    }
+
+                    castedRecord.Add(dataPoint.Identifier, value);
+                }
+
+                data.Add(castedRecord);
+            }
+
+            return data;
+        }
+
+        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldInclusion<TModel> toStorageInclusion,
+            ObjectEvaluator evaluator)
+        {
+            var standardData = evaluator.ToStandardFlatData(o =>
+                o.DirectLeavesOnly().UseAlternativeTypes());
 
             var includedData = standardData.Where(dp => toStorageInclusion.IsIncluded(dp.Identifier));
 
@@ -100,7 +148,6 @@ namespace Meadow.Sql
 
         private Record Filter<TModel>(Record record, IFieldInclusion<TModel> filter)
         {
-            
             var filteredRecord =
                 record.Where(dp => filter.IsIncluded(dp.Identifier));
 
