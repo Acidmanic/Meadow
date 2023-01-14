@@ -41,10 +41,12 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
-<!--    <ItemGroup>-->
-<!--        <Reference Include="Acidmanic.Utilities.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
-<!--            <HintPath>..\..\Reflections.netcore\Acidmanic.Utilities.Reflection\bin\Debug\netstandard2.1\Acidmanic.Utilities.Reflection.dll</HintPath>-->
-<!--        </Reference>-->
-<!--    </ItemGroup>-->
+
+
+    <ItemGroup>
+      <None Update="TestCaseData\**">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 
 </Project>

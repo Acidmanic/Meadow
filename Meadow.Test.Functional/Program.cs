@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd35ClearMySqlComments().Main();
+            new Tdd36UnExpectedRepeatation().Main();
         }
     }
 }
