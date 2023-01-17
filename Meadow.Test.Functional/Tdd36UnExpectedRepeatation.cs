@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Extensions;
-using Meadow.MySql.Comments;
 using Meadow.Sql;
 using Meadow.Test.Functional.Models.Bug2;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -14,9 +14,9 @@ namespace Meadow.Test.Functional
 {
     public class Tdd36UnExpectedRepeatation : MeadowFunctionalTest
     {
-        private class UseCaseCsv : CsvData
+        private class ProjectsUseCaseCsv : CsvData
         {
-            public UseCaseCsv()
+            public ProjectsUseCaseCsv()
             {
                 //Projects_Name
                 AddColumnType<string>();
@@ -67,12 +67,47 @@ namespace Meadow.Test.Functional
             }
         }
 
-
+        private class IterationsUseCaseCsv : CsvData
+        {
+            public IterationsUseCaseCsv()
+            {
+                //Iterations_Id
+                AddColumnType<long>();
+                //Iterations_ProjectId
+                AddColumnType<long>();
+                //Iterations_Name
+                AddColumnType<string>();
+                //Iterations_Description
+                AddColumnType<string>();
+                //Tasks_Description
+                AddColumnType<string>();
+                //Tasks_ProjectId
+                AddColumnType<long>();
+                //Tasks_Id
+                AddColumnType<long>();
+                //Tasks_IterationId
+                AddColumnType<long>();
+                //StepId
+                AddColumnType<long>();
+                //Tasks_GoalId
+                AddColumnType<long>();
+                //Tasks_Title
+                AddColumnType<string>();
+            }
+        }
+        
         public override void Main()
         {
-            var path = Path.Combine("TestCaseData", "douplicated-data.csv");
 
-            var csv = new UseCaseCsv();
+            var items = new List<string> { " - " ,"1-1", "1-3" , "2-2" , "2-4" , "1-5" , "2-6" , "1-7" , "2-8"};
+            
+            
+            StandardIndexAccumulator<Iteration>.MoveInto(items,5,2);
+            
+            
+            var path = Path.Combine("TestCaseData", "itr-should-have-tasks.csv");
+
+            var csv = new IterationsUseCaseCsv();
 
             csv.Load(path);
 
@@ -84,23 +119,23 @@ namespace Meadow.Test.Functional
                 DataOwnerNameProvider = new PluralDataOwnerNameProvider()
             };
 
-            var standardUnIndexed = relationalData.RelationalToStandard<Project>(mapper, true);
+            var standardUnIndexed = relationalData.RelationalToStandard<Iteration>(mapper, true);
 
-            var acc = new StandardIndexAccumulator<Project>();
+            var acc = new StandardIndexAccumulator<Iteration>(new ConsoleLogger().Shorten().EnableAll());
 
             acc.PassAll(standardUnIndexed);
 
             var indexedStandard = acc.Records;
 
-            var results = new List<Project>();
+            var results = new List<Iteration>();
 
             foreach (var record in indexedStandard)
             {
-                var evaluator = new ObjectEvaluator(typeof(Project));
+                var evaluator = new ObjectEvaluator(typeof(Iteration));
 
                 evaluator.LoadStandardData(record);
 
-                var recordObject = evaluator.As<Project>();
+                var recordObject = evaluator.As<Iteration>();
 
                 if (recordObject != null)
                 {
@@ -110,38 +145,7 @@ namespace Meadow.Test.Functional
 
             Console.WriteLine("----------------------------------------");
 
-            foreach (var record in indexedStandard)
-            {
-                foreach (var datapoint in record)
-                {
-                    Console.WriteLine(datapoint);
-                }
-            }
-
-            var p = new Project
-            {
-                Description = results[0].Description,
-                Id = results[0].Id,
-                Iterations = results[0].Iterations,
-                Name = results[0].Name,
-                Goals = new List<Goal>
-                {
-                    results[0].Goals[0],
-                    results[0].Goals[1]
-                }
-            };
-
-            var ev = new ObjectEvaluator(p);
-
-            var expected = ev.ToStandardFlatData(o => o.IncludeNulls().FullTree());
-
-            Console.WriteLine("----------------------------------------");
-
-
-            foreach (var datapoint in expected)
-            {
-                Console.WriteLine(datapoint);
-            }
+            
         }
     }
 }

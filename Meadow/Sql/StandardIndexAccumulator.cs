@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
@@ -18,15 +19,14 @@ namespace Meadow.Sql
         private readonly ObjectEvaluator _evaluator;
         private readonly IndexMap _indexMap;
         private readonly OuterKeyFirstDatapointComparer<TModel> _datapointComparer;
-
+        private readonly HashSet<string> _appliedDataPoints;
         public List<Record> Records { get; }
 
-        public StandardIndexAccumulator():this(NullLogger.Instance)
+        public StandardIndexAccumulator() : this(NullLogger.Instance)
         {
-            
         }
-        
-        
+
+
         public StandardIndexAccumulator(ILogger logger)
         {
             _logger = logger;
@@ -34,6 +34,7 @@ namespace Meadow.Sql
             _evaluator = new ObjectEvaluator(typeof(TModel));
             _indexMap = new IndexMap(typeof(TModel), DeliverCurrent);
             _datapointComparer = new OuterKeyFirstDatapointComparer<TModel>();
+            _appliedDataPoints = new HashSet<string>();
             Records = new List<Record>();
         }
 
@@ -48,6 +49,15 @@ namespace Meadow.Sql
             DeliverCurrent();
         }
 
+
+        private string GetUniqueKey(DataPoint dataPoint)
+        {
+            var valueString = dataPoint.Value == null
+                ? "null:null"
+                : dataPoint.Value.GetType().FullName + ":" + dataPoint.Value.ToString();
+
+            return dataPoint.Identifier + ":" + valueString;
+        }
 
         private void Pass(DataPoint dp)
         {
@@ -65,24 +75,37 @@ namespace Meadow.Sql
                 {
                     var changed = IsChanged(key, dp.Value);
 
+                    var isApplied = IsApplied(dp);
+
                     if (changed)
                     {
-                        _logger.LogTrace("{IncomingField} has been changed",incomingField);
+                        _logger.LogTrace("{IncomingField} has been changed", incomingField);
 
-                        var isUnique = IsUnique(incomingField);
-                        _logger.LogTrace("An Increment will be applied on {Key}  ,...",key);
-
-                        _indexMap.Increment(latestAddress);
-
-                        latestAddress = _indexMap.GetLatest(latestAddress).ToString();
-
-                        _logger.LogTrace("... and New Entity will be put under {LatestAddress}",latestAddress);
-
-                        _addressedValues.Add(latestAddress, dp.Value);
-
-                        if (!isUnique)
+                        if (isApplied)
                         {
-                            _logger.LogTrace("Value change on not-unique field {Key} has been detected. (bad sort)",key);
+                            _logger.LogTrace("{IncomingField} is already applied. Will Switch related " +
+                                             "address without incrementation.", incomingField);
+                            SwitchToValue(key, dp.Value);
+                        }
+                        else
+                        {
+                            var isUnique = IsUnique(incomingField);
+
+                            _logger.LogTrace("An Increment will be applied on {Key}  ,...", key);
+
+                            _indexMap.Increment(latestAddress);
+
+                            latestAddress = _indexMap.GetLatest(latestAddress).ToString();
+
+                            _logger.LogTrace("... and New Entity will be put under {LatestAddress}", latestAddress);
+
+                            _addressedValues.Add(latestAddress, dp.Value);
+
+                            if (!isUnique)
+                            {
+                                _logger.LogTrace("Value change on not-unique field {Key} has been detected. (bad sort)",
+                                    key);
+                            }
                         }
                     }
                 }
@@ -90,17 +113,81 @@ namespace Meadow.Sql
                 {
                     _addressedValues.Add(latestAddress, dp.Value);
                 }
+
+                MarkApplied(dp);
             }
         }
 
 
+        private List<Record> SortHomogeneously(IEnumerable<Record> records)
+        {
+            var idId = TypeIdentity.FindIdentityLeaf<TModel>().GetFullName();
+
+            var sorted = new List<Record>();
+
+            sorted.AddRange(records);
+
+            var dirty = true;
+            
+            while (dirty)
+            {
+                dirty = false;
+
+                var seen = new Dictionary<object, int>();
+
+                object lastId = null;
+
+                for (int i = 0; i < sorted.Count; i++)
+                {
+                    var idValue = sorted[i].FirstOrDefault(dp => dp.Identifier == idId)?.Value;
+
+                    if (idValue != null)
+                    {
+                        if (!idValue.Equals(lastId)) // if change
+                        {
+                            if (seen.ContainsKey(idValue)) // if seen before
+                            {
+                                dirty = true;
+
+                                MoveInto(sorted, i, seen[idValue] + 1);
+                                
+                                break;
+                            }
+
+                            lastId = idValue;
+
+                            seen.Add(idValue, i);
+                        }
+                    }
+                }
+            }
+
+            return sorted;
+        }
+
+        public static void MoveInto<T>(List<T> list, int index, int target)
+        {
+            var temp = list[index];
+
+            for (int i = index-1; i >= target; i--)
+            {
+                list[i + 1] = list[i];
+            }
+
+            list[target] = temp;
+        }
+        
         public void PassAll(IEnumerable<Record> standardData)
         {
             Clear();
 
-            if (standardData.Any())
+            _appliedDataPoints.Clear();
+
+            var records = SortHomogeneously(standardData); 
+
+            if (records.Count > 0)
             {
-                foreach (var record in standardData)
+                foreach (var record in records)
                 {
                     record.Sort(_datapointComparer);
 
@@ -137,12 +224,43 @@ namespace Meadow.Sql
             return node.IsAutoValued || node.IsUnique;
         }
 
+        private bool IsApplied(DataPoint dp)
+        {
+            var key = GetUniqueKey(dp);
+
+            return _appliedDataPoints.Contains(key);
+        }
+
+        private void MarkApplied(DataPoint dp)
+        {
+            var key = GetUniqueKey(dp);
+
+            if (!_appliedDataPoints.Contains(key))
+            {
+                _appliedDataPoints.Add(key);
+            }
+        }
+
         private Result<FieldKey> Belongs(FieldKey key)
         {
             var evKey = _evaluator.Map.Keys
                 .FirstOrDefault(k => k.Equals(key, FieldKeyComparisons.IgnoreAllIndexes));
 
             return new Result<FieldKey>(evKey != null, evKey);
+        }
+
+        private void SwitchToValue(FieldKey key, object incomingValue)
+        {
+            var address = key.ToString();
+
+            if (!_addressedValues.ContainsKey(address))
+            {
+                throw new Exception("What the hell?");
+            }
+
+            _addressedValues.Remove(address);
+
+            _addressedValues.Add(address, incomingValue);
         }
 
         private bool IsChanged(FieldKey key, object incomingValue)
