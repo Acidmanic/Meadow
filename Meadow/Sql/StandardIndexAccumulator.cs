@@ -14,7 +14,6 @@ namespace Meadow.Sql
 {
     public class StandardIndexAccumulator<TModel>
     {
-        private readonly ILogger _logger;
         private readonly Dictionary<string, object> _addressedValues;
         private readonly ObjectEvaluator _evaluator;
         private readonly IndexMap _indexMap;
@@ -23,25 +22,68 @@ namespace Meadow.Sql
         private readonly bool _hasId;
         private readonly AccessNode _idLeaf;
         private readonly string _idLeafIdentifier;
+        private readonly VerbositySelectLogger _logger; 
+
+        private class VerbositySelectLogger : ILogger
+        {
+
+            private readonly ILogger _logger;
+
+            public bool LogVerbose { get; set; } = false;
+            
+            public VerbositySelectLogger(ILogger logger)
+            {
+                _logger = logger;
+            }
+
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            {
+                if (logLevel == LogLevel.Trace || logLevel == LogLevel.Debug)
+                {
+                    if (!LogVerbose)
+                    {
+                        return;
+                    }
+                }
+                _logger.Log(logLevel,eventId,state,exception,formatter);
+            }
+
+            public bool IsEnabled(LogLevel logLevel)
+            {
+                return _logger.IsEnabled(logLevel);
+            }
+
+            public IDisposable BeginScope<TState>(TState state)
+            {
+                return _logger.BeginScope(state);
+            }
+        }
+
+
+        public bool LogVerbose
+        {
+            get => _logger.LogVerbose;
+            set => _logger.LogVerbose = value;
+        }
+
 
         public List<Record> Records { get; }
 
         public StandardIndexAccumulator() : this(NullLogger.Instance)
         {
-            
         }
 
 
         public StandardIndexAccumulator(ILogger logger)
         {
-            _logger = logger;
+            _logger = new VerbositySelectLogger(logger);
             _addressedValues = new Dictionary<string, object>();
             _evaluator = new ObjectEvaluator(typeof(TModel));
             _indexMap = new IndexMap(typeof(TModel), DeliverCurrent);
             _datapointComparer = new OuterKeyFirstDatapointComparer<TModel>();
             _appliedDataPoints = new HashSet<string>();
             Records = new List<Record>();
-            
+
             _idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
 
             _hasId = _idLeaf != null;
@@ -128,7 +170,7 @@ namespace Meadow.Sql
                 MarkApplied(dp);
             }
         }
-
+        
 
         private List<Record> SortHomogeneously(IEnumerable<Record> records)
         {

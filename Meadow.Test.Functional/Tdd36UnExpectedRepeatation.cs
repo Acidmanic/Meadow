@@ -123,6 +123,8 @@ namespace Meadow.Test.Functional
 
             var acc = new StandardIndexAccumulator<Iteration>(new ConsoleLogger().Shorten().EnableAll());
 
+            acc.LogVerbose = true;
+            
             acc.PassAll(standardUnIndexed);
 
             var indexedStandard = acc.Records;
