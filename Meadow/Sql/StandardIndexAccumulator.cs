@@ -28,11 +28,7 @@ namespace Meadow.Sql
 
         public StandardIndexAccumulator() : this(NullLogger.Instance)
         {
-            _idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
-
-            _hasId = _idLeaf != null;
-
-            _idLeafIdentifier = _hasId ? _idLeaf.GetFullName() : null;
+            
         }
 
 
@@ -45,6 +41,12 @@ namespace Meadow.Sql
             _datapointComparer = new OuterKeyFirstDatapointComparer<TModel>();
             _appliedDataPoints = new HashSet<string>();
             Records = new List<Record>();
+            
+            _idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
+
+            _hasId = _idLeaf != null;
+
+            _idLeafIdentifier = _hasId ? _idLeaf.GetFullName() : null;
         }
 
         public void Clear()
