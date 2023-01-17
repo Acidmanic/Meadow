@@ -56,3 +56,10 @@
  * Splitting issues are fixed
  * Connection pool clearing for Ado based data bases is managed
  * Connection pool is cleared in SqlServer and open-connection issue got solved
+
+
+1.2.4
+-----
+ * Supports alternative types
+ * Un ordered full-tree requests would be processed and converted to objects correctly
+ 

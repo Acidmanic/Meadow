@@ -2,6 +2,7 @@ using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Example.SqLite.Models
 {
+
     public class Address
     {
         public string City { get; set; }

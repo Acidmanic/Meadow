@@ -218,6 +218,55 @@ procedures and tables regarding given type (TEntity).
    
 [^ [Back to How To Use]](https://github.com/Acidmanic/Meadow#how-to-use)
 
+Models
+------
+
+Models would be simple POCO objects. Meadow only supports properties. 
+Properties of a class would be considered the fields of a models. 
+internal variable or public class-fields or etc, are considered to be  
+the state of a class not the data that it presents as a Model.
+
+You can use attributes from __Acidmanic.Reflection__ library to mark important, 
+characteristics of fields:
+
+* [```AutoValuedMember```] Marks fields that their value is generated in database-system. (usually Identity fields)
+* [```UniqueMember```] Marks a field to have unique value for each individual entity.
+* [```OwnerName```] This helps when the data-source in database system should have a different name from the EntityModel's name. 
+By default, meadow Uses the plural form of model's class name as the data source name. (table name in relational database systems). 
+This can be override by using ```OwnerName``` attribute.
+* [```AlteredType```] Marks a class for Reflection library therefore for **Meadow** to be known 
+as implicitly or explicitly castable to another class which would be the originals alternative.
+ * [```TreatAsLeaf```] Marks a property to be treated like a property with an effectively primitive type. 
+regardless of it's actual type. So by putting this attribute on a property, Meadow would try
+to store that property into a single database field.
+ * [```MemberName```]: By default, **Meadow** considers your database field name exactly the same as the 
+property name. Whenever you want to override this behavior and use a custom name for your field, you can use 
+this attribute to specify the name for database field.
+
+
+
+Altered Types
+-------------
+
+Consider a case that you have a model with several fields, but actually in practice the whole entity 
+can be represented with only one primitive-like value. 
+ Using altered types attribute, You can store your model in a single database field, but retrieve it 
+as a complete model. For example assume you have an implementation of Color which is a field of your parent 
+model and you want it to be stored as an integer value. For that you need to do these steps:
+
+ * Write your model class the way you want to use it. For example a Color class with properties ```Red```,
+```Green```, ```Blue``` and ```Alpha```.
+ * Create implicit/explicit operator overloads in your Color class to and from ```int```.
+ * Put ```[AlteredType(int)]``` on your Color class.
+ * In your parent model, define the ```Color``` property with type ```Color``` you just created and put 
+ a ```[TreatAsLeaf]``` attribute on the property.
+
+That's all. now **Meadow** would know your Color property would be stored and retrieved in/from a 
+single field and it should be casted to/from Color type using implicit/explicit operators.
+
+
+
+
 Using Meadow In Your Project
 ----------------------------
 
