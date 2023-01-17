@@ -20,10 +20,19 @@ namespace Meadow.Sql
         private readonly IndexMap _indexMap;
         private readonly OuterKeyFirstDatapointComparer<TModel> _datapointComparer;
         private readonly HashSet<string> _appliedDataPoints;
+        private readonly bool _hasId;
+        private readonly AccessNode _idLeaf;
+        private readonly string _idLeafIdentifier;
+
         public List<Record> Records { get; }
 
         public StandardIndexAccumulator() : this(NullLogger.Instance)
         {
+            _idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
+
+            _hasId = _idLeaf != null;
+
+            _idLeafIdentifier = _hasId ? _idLeaf.GetFullName() : null;
         }
 
 
@@ -121,14 +130,17 @@ namespace Meadow.Sql
 
         private List<Record> SortHomogeneously(IEnumerable<Record> records)
         {
-            var idId = TypeIdentity.FindIdentityLeaf<TModel>().GetFullName();
-
             var sorted = new List<Record>();
 
             sorted.AddRange(records);
 
+            if (!_hasId)
+            {
+                return sorted;
+            }
+
             var dirty = true;
-            
+
             while (dirty)
             {
                 dirty = false;
@@ -139,7 +151,7 @@ namespace Meadow.Sql
 
                 for (int i = 0; i < sorted.Count; i++)
                 {
-                    var idValue = sorted[i].FirstOrDefault(dp => dp.Identifier == idId)?.Value;
+                    var idValue = sorted[i].FirstOrDefault(dp => dp.Identifier == _idLeafIdentifier)?.Value;
 
                     if (idValue != null)
                     {
@@ -150,7 +162,7 @@ namespace Meadow.Sql
                                 dirty = true;
 
                                 MoveInto(sorted, i, seen[idValue] + 1);
-                                
+
                                 break;
                             }
 
@@ -169,21 +181,21 @@ namespace Meadow.Sql
         {
             var temp = list[index];
 
-            for (int i = index-1; i >= target; i--)
+            for (int i = index - 1; i >= target; i--)
             {
                 list[i + 1] = list[i];
             }
 
             list[target] = temp;
         }
-        
+
         public void PassAll(IEnumerable<Record> standardData)
         {
             Clear();
 
             _appliedDataPoints.Clear();
 
-            var records = SortHomogeneously(standardData); 
+            var records = SortHomogeneously(standardData);
 
             if (records.Count > 0)
             {

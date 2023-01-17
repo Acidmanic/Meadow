@@ -62,4 +62,5 @@
 -----
  * Supports alternative types
  * Un ordered full-tree requests would be processed and converted to objects correctly
+ * Fixed null IdLeaf issue for types without id fields 
  
