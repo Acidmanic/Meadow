@@ -13,9 +13,8 @@ namespace Example.MySql
     {
         static void Main(string[] args)
         {
-
             new ConsoleLogger().UseForMeadow();
-            
+
             // Configure Meadow
             var configuration = new MeadowConfiguration
             {
@@ -26,15 +25,21 @@ namespace Example.MySql
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseMySql();
 
+            // if (engine.DatabaseExists())
+            // {
+            //     engine.DropDatabase();
+            // }
 
-            if (engine.DatabaseExists())
-            {
-                engine.DropDatabase();
-            }
-            
             
             // Create Database if not exists
-            engine.CreateIfNotExist();
+            if (!engine.DatabaseExists())
+            {
+                engine.CreateDatabase();
+            }
+            // // Create Database if not exists
+            // engine.CreateIfNotExist();
+            
+            
             // Setup (update regarding scripts)
             engine.BuildUpDatabase();
             // ready to use
@@ -46,10 +51,10 @@ namespace Example.MySql
             var allPersons = response.FromStorage;
 
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
-            
-            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
+
+            allPersons.ForEach(p => Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
         }
-        
+
         /// <summary>
         /// :D
         /// </summary>
@@ -58,7 +63,7 @@ namespace Example.MySql
         {
             try
             {
-                return File.ReadAllText(Path.Join("..","..","..","..", "sa-pass"));
+                return File.ReadAllText(Path.Join("..", "..", "..", "..", "sa-pass"));
             }
             catch (Exception e)
             {
