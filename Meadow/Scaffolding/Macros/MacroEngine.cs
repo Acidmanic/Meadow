@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -8,8 +10,7 @@ namespace Meadow.Scaffolding.Macros;
 public class MacroEngine
 {
     private readonly Assembly[] _assemblies;
-
-
+    
     public MacroEngine(params Assembly[] assemblies)
     {
         if (assemblies.Length == 0)
@@ -21,35 +22,59 @@ public class MacroEngine
             _assemblies = assemblies;
         }
     }
-
-    public void ExecuteMacrosFor(string directory)
+    /// <summary>
+    /// Enumerates '.sql' files inside the directory (matching with filter if not null), then applies detected macros on
+    /// each file. This method does update the file on disk. 
+    /// </summary>
+    /// <param name="directory">Where .sql files are expected to be.</param>
+    /// <param name="filter">If returns 'True', the file would be processed, otherwise the file would be ignored. </param>
+    public void ExecuteMacrosFor(string directory, Func<FileInfo, bool> filter = null)
     {
         var files = new DirectoryInfo(directory).GetFiles("*.sql");
+        
+        filter ??= (f => true);
 
-        ExecuteMacrosFor(files);
+        files = files.Where(filter).ToArray();
+
+        ExecuteMacrosFor(files, (det,content) => true);
     }
-    
-    
-    public void ExecuteMacrosFor(FileInfo[] files)
+    /// <summary>
+    /// Enumerates over given files to apply macros. For each file calls macroEvaluation, so that user can make use of
+    /// updated file content and choose to update the file content or not.
+    /// </summary>
+    /// <param name="files">List of script files to go through</param>
+    /// <param name="macroEvaluation">
+    /// This expression, provides a bool value to indicate if any macros where detected for each file. and a string
+    /// value which is the updated content of the file. If this expression, returns 'True' the updated content would be
+    /// saved into the file.
+    /// </param>
+    public void ExecuteMacrosFor(FileInfo[] files,Func<bool,string,bool> macroEvaluation)
     {
         foreach (var file in files)
         {
-            if (IsScriptFile(file))
+            var filePath = file.FullName;
+
+            var ex = new ScriptMacroExtractor();
+
+            var pointers = ex.ExtractMacros(filePath);
+
+            var updates = EvaluateMacros(pointers);
+
+            var anyMacros = pointers.Count > 0;
+
+            var content = GetMacroAppliedContent(file, updates);
+
+            if (macroEvaluation(anyMacros, content))
             {
-                var filePath = file.FullName;
-
-                var ex = new ScriptMacroExtractor();
-
-                var stickers = ex.ExtractMacros(filePath);
-
-                Execute(stickers, file);
+                EnsureContentWritten(file,content);
             }
         }
     }
 
-    private void Execute(List<DetectedMacroPointer> stickers, FileInfo file)
+
+    private Dictionary<long, string> EvaluateMacros(List<DetectedMacroPointer> pointers)
     {
-        var stickersByLine = GroupByLine(stickers);
+        var stickersByLine = GroupByLine(pointers);
 
         var factory = new MacroFactory();
 
@@ -57,7 +82,7 @@ public class MacroEngine
         {
             factory.ScanAssembly(assembly);
         }
-        
+
         var updateLines = new Dictionary<long, string>();
 
         foreach (var stickerGroup in stickersByLine)
@@ -86,10 +111,11 @@ public class MacroEngine
             updateLines.Add(stickerGroup.Key, content);
         }
 
-        UpdateFileLines(file, updateLines);
+        return updateLines;
     }
 
-    private void UpdateFileLines(FileInfo file, Dictionary<long, string> updateLines)
+    
+    private string GetMacroAppliedContent(FileInfo file, Dictionary<long, string> updateLines)
     {
         var lines = File.ReadAllLines(file.FullName);
 
@@ -107,12 +133,18 @@ public class MacroEngine
             }
         }
 
+        return content.ToString();
+    }
+    
+    private void EnsureContentWritten(FileInfo file, string content)
+    {
+
         if (file.Exists)
         {
             file.Delete();
         }
 
-        File.WriteAllText(file.FullName, content.ToString());
+        File.WriteAllText(file.FullName, content);
     }
 
     private Dictionary<long, List<DetectedMacroPointer>> GroupByLine(List<DetectedMacroPointer> stickers)
@@ -132,27 +164,4 @@ public class MacroEngine
         return stickersByLine;
     }
 
-    private bool IsScriptFile(FileInfo file)
-    {
-        var name = file.Name;
-
-        if (name.Length < 10)
-        {
-            return false;
-        }
-
-        if (name[4] != '-')
-        {
-            return false;
-        }
-
-        if (!name.ToLower().EndsWith(".sql"))
-        {
-            return false;
-        }
-
-        var numberString = name[0..4];
-
-        return int.TryParse(numberString, out _);
-    }
 }
