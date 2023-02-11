@@ -10,7 +10,7 @@ namespace Meadow.Scaffolding.Macros;
 public class MacroEngine
 {
     private readonly Assembly[] _assemblies;
-    
+
     public MacroEngine(params Assembly[] assemblies)
     {
         if (assemblies.Length == 0)
@@ -22,6 +22,7 @@ public class MacroEngine
             _assemblies = assemblies;
         }
     }
+
     /// <summary>
     /// Enumerates '.sql' files inside the directory (matching with filter if not null), then applies detected macros on
     /// each file. This method does update the file on disk. 
@@ -31,13 +32,14 @@ public class MacroEngine
     public void ExecuteMacrosFor(string directory, Func<FileInfo, bool> filter = null)
     {
         var files = new DirectoryInfo(directory).GetFiles("*.sql");
-        
+
         filter ??= (f => true);
 
         files = files.Where(filter).ToArray();
 
-        ExecuteMacrosFor(files, (det,content) => true);
+        ExecuteMacrosFor(files, (det, content) => true);
     }
+
     /// <summary>
     /// Enumerates over given files to apply macros. For each file calls macroEvaluation, so that user can make use of
     /// updated file content and choose to update the file content or not.
@@ -48,26 +50,41 @@ public class MacroEngine
     /// value which is the updated content of the file. If this expression, returns 'True' the updated content would be
     /// saved into the file.
     /// </param>
-    public void ExecuteMacrosFor(FileInfo[] files,Func<bool,string,bool> macroEvaluation)
+    public void ExecuteMacrosFor(FileInfo[] files, Func<bool, string, bool> macroEvaluation)
     {
         foreach (var file in files)
         {
-            var filePath = file.FullName;
+           ExecuteMacrosFor(file,macroEvaluation);
+        }
+    }
 
-            var ex = new ScriptMacroExtractor();
+    /// <summary>
+    /// For the given file, calls macroEvaluation, so that user can make use of
+    /// updated file content and choose to update the file content or not.
+    /// </summary>
+    /// <param name="file">The file to be processed</param>
+    /// <param name="macroEvaluation">
+    /// This expression, provides a bool value to indicate if any macros where detected for each file. and a string
+    /// value which is the updated content of the file. If this expression, returns 'True' the updated content would be
+    /// saved into the file.
+    /// </param>
+    public void ExecuteMacrosFor(FileInfo file, Func<bool, string, bool> macroEvaluation)
+    {
+        var filePath = file.FullName;
 
-            var pointers = ex.ExtractMacros(filePath);
+        var ex = new ScriptMacroExtractor();
 
-            var updates = EvaluateMacros(pointers);
+        var pointers = ex.ExtractMacros(filePath);
 
-            var anyMacros = pointers.Count > 0;
+        var updates = EvaluateMacros(pointers);
 
-            var content = GetMacroAppliedContent(file, updates);
+        var anyMacros = pointers.Count > 0;
 
-            if (macroEvaluation(anyMacros, content))
-            {
-                EnsureContentWritten(file,content);
-            }
+        var content = GetMacroAppliedContent(file, updates);
+
+        if (macroEvaluation(anyMacros, content))
+        {
+            EnsureContentWritten(file, content);
         }
     }
 
@@ -114,7 +131,7 @@ public class MacroEngine
         return updateLines;
     }
 
-    
+
     private string GetMacroAppliedContent(FileInfo file, Dictionary<long, string> updateLines)
     {
         var lines = File.ReadAllLines(file.FullName);
@@ -135,10 +152,9 @@ public class MacroEngine
 
         return content.ToString();
     }
-    
+
     private void EnsureContentWritten(FileInfo file, string content)
     {
-
         if (file.Exists)
         {
             file.Delete();
@@ -163,5 +179,4 @@ public class MacroEngine
 
         return stickersByLine;
     }
-
 }

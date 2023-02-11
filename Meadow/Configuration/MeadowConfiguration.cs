@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Reflection;
+
 namespace Meadow.Configuration
 {
     public class MeadowConfiguration
@@ -9,5 +12,8 @@ namespace Meadow.Configuration
         public char DatabaseFieldNameDelimiter { get; set; } = '_';
 
         public MacroPolicies MacroPolicy { get; set; } = MacroPolicies.Ignore;
+
+
+        public List<Assembly> MacroContainingAssemblies { get; set; } = new List<Assembly>();
     }
 }

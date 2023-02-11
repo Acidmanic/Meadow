@@ -1,5 +1,4 @@
 
-
 create procedure spGetPersonById(IN Id bigint(16))
 begin
     select * from Persons where Id = Id;

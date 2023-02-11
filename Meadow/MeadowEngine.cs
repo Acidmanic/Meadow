@@ -265,8 +265,7 @@ namespace Meadow
                 lastAppliedOrder = lastExecResult.ScriptOrder;
             }
 
-            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory,
-                _configuration.MacroPolicy, MeadowRunnerAssembly);
+            var manager = CreateBuildupScriptManager();
 
             if (manager.ScriptsCount == 0)
             {
@@ -322,6 +321,17 @@ namespace Meadow
             {
                 _logger.LogInformation(@"*** Everything Already Up-to-date ***");
             }
+        }
+
+        private BuildupScriptManager CreateBuildupScriptManager()
+        {
+
+            var assemblies = new List<Assembly>(_configuration.MacroContainingAssemblies);
+            // Builtin assemblies
+            assemblies.Add(this.GetType().Assembly);
+
+            return new BuildupScriptManager(_configuration.BuildupScriptDirectory,
+                _configuration.MacroPolicy,  assemblies.ToArray());
         }
 
 

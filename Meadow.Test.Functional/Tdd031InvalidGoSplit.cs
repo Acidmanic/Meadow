@@ -5,6 +5,7 @@ using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
+using Meadow.Configuration;
 using Meadow.Requests;
 using Meadow.SqlServer;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -80,7 +81,7 @@ go";
             
             File.WriteAllText("0000-temp.sql",script);
             
-            var man = new BuildupScriptManager(".");
+            var man = new BuildupScriptManager(".",MacroPolicies.Ignore);
 
             var sinfo = man[0];
 

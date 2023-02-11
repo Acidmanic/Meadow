@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Meadow.Configuration;
 using Meadow.Exceptions;
+using Meadow.Scaffolding.Macros;
 
 namespace Meadow.BuildupScripts
 {
@@ -13,22 +15,20 @@ namespace Meadow.BuildupScripts
         private readonly List<ScriptInfo> _scripts;
 
 
-        public BuildupScriptManager(string directory, MacroPolicies macroPolicy)
-            : this(directory, macroPolicy, Assembly.GetEntryAssembly())
+        public BuildupScriptManager(string directory, MacroPolicies macroPolicy,
+            params Assembly[] macroContainingAssemblies)
         {
-        }
+            Assembly entryAssembly = Assembly.GetEntryAssembly();
 
-        public BuildupScriptManager(string directory, MacroPolicies macroPolicy, Assembly assembly)
-        {
             if (Path.IsPathFullyQualified(directory))
             {
                 _directory = new DirectoryInfo(directory);
             }
             else
             {
-                if (assembly != null)
+                if (entryAssembly != null)
                 {
-                    var path = new FileInfo(assembly.Location).Directory?.FullName;
+                    var path = new FileInfo(entryAssembly.Location).Directory?.FullName;
 
                     if (path != null)
                     {
@@ -51,42 +51,55 @@ namespace Meadow.BuildupScripts
             }
 
             _scripts = new List<ScriptInfo>();
-            Update();
+
+            Update(macroPolicy, macroContainingAssemblies);
         }
 
 
-        public void Update()
+        public void Update(MacroPolicies macroPolicy, params Assembly[] macroContainingAssemblies)
         {
-            var files = _directory.EnumerateFiles();
+            var macroEngine = new MacroEngine(macroContainingAssemblies);
 
             _scripts.Clear();
+
+            var files = _directory.EnumerateFiles().ToArray();
 
             foreach (var file in files)
             {
                 var name = file.Name;
+
                 var result = IsValidBuildupScriptName(name);
 
                 if (result.IsValid)
                 {
                     try
                     {
-                        var content = File.ReadAllText(file.FullName);
-
-                        content = Normalize(content);
-
-                        var scriptInfo = new ScriptInfo
+                        macroEngine.ExecuteMacrosFor(file, (hadMacro, content) =>
                         {
-                            Name = result.Name,
-                            Script = content,
-                            OrderIndex = result.OrderIndex,
-                            Order = result.Order,
-                            ScriptFile = file
-                        };
-                        _scripts.Add(scriptInfo);
+                            if (hadMacro && macroPolicy == MacroPolicies.Ignore)
+                            {
+                                //Revert
+                                content = File.ReadAllText(file.FullName);
+                            }
+
+                            content = Normalize(content);
+
+                            var scriptInfo = new ScriptInfo
+                            {
+                                Name = result.Name,
+                                Script = content,
+                                OrderIndex = result.OrderIndex,
+                                Order = result.Order,
+                                ScriptFile = file
+                            };
+
+                            _scripts.Add(scriptInfo);
+
+                            return hadMacro && macroPolicy == MacroPolicies.UpdateScripts;
+                        });
                     }
-                    catch (Exception e)
+                    finally
                     {
-                        // ignored
                     }
                 }
             }
@@ -98,7 +111,7 @@ namespace Meadow.BuildupScripts
         {
             content = content.Replace('\r', '\n');
 
-            while (content.IndexOf("\n\n") > -1)
+            while (content.IndexOf("\n\n", StringComparison.Ordinal) > -1)
             {
                 content = content.Replace("\n\n", "\n");
             }

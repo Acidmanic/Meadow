@@ -25,10 +25,10 @@ namespace Example.MySql
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseMySql();
 
-            // if (engine.DatabaseExists())
-            // {
-            //     engine.DropDatabase();
-            // }
+            if (engine.DatabaseExists())
+            {
+                engine.DropDatabase();
+            }
 
             
             // Create Database if not exists

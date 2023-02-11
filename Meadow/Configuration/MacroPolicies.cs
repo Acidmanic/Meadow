@@ -4,6 +4,5 @@ public enum MacroPolicies
 {
     Ignore,
     InterpretAtRuntime,
-    UpdateProductionFiles,
-    UpdateSourceCode
+    UpdateScripts
 }
