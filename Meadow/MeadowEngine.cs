@@ -265,7 +265,8 @@ namespace Meadow
                 lastAppliedOrder = lastExecResult.ScriptOrder;
             }
 
-            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory, MeadowRunnerAssembly);
+            var manager = new BuildupScriptManager(_configuration.BuildupScriptDirectory,
+                _configuration.MacroPolicy, MeadowRunnerAssembly);
 
             if (manager.ScriptsCount == 0)
             {

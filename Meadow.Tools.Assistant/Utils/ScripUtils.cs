@@ -1,6 +1,7 @@
 using System.IO;
 using Acidmanic.Utilities.Results;
 using Meadow.BuildupScripts;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Contracts;
 using Meadow.Tools.Assistant.Compilation;
 using Microsoft.Extensions.Logging;
@@ -63,7 +64,7 @@ namespace Meadow.Tools.Assistant.Utils
 
         private Result<ScriptInfo> GetLatestScriptFromValidScriptsDirectory(string validatedScriptsDirectory)
         {
-            var scriptManager = new BuildupScriptManager(validatedScriptsDirectory);
+            var scriptManager = new BuildupScriptManager(validatedScriptsDirectory,MacroPolicies.Ignore);
 
             if (scriptManager.ScriptsCount > 0)
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using Meadow.Configuration;
 using Meadow.Exceptions;
 
 namespace Meadow.BuildupScripts
@@ -12,12 +13,12 @@ namespace Meadow.BuildupScripts
         private readonly List<ScriptInfo> _scripts;
 
 
-        public BuildupScriptManager(string directory):this( directory,Assembly.GetEntryAssembly())
+        public BuildupScriptManager(string directory, MacroPolicies macroPolicy)
+            : this(directory, macroPolicy, Assembly.GetEntryAssembly())
         {
-            
         }
-        
-        public BuildupScriptManager(string directory,Assembly assembly)
+
+        public BuildupScriptManager(string directory, MacroPolicies macroPolicy, Assembly assembly)
         {
             if (Path.IsPathFullyQualified(directory))
             {
@@ -27,20 +28,22 @@ namespace Meadow.BuildupScripts
             {
                 if (assembly != null)
                 {
-                    var path  =  new FileInfo(assembly.Location).Directory?.FullName;
+                    var path = new FileInfo(assembly.Location).Directory?.FullName;
 
                     if (path != null)
                     {
-                        path = Path.Combine(path??"", directory);
-                    
-                        _directory = new DirectoryInfo(path);    
+                        path = Path.Combine(path ?? "", directory);
+
+                        _directory = new DirectoryInfo(path);
                     }
                 }
-                if(_directory==null)
+
+                if (_directory == null)
                 {
                     //TODO: Warn
                     _directory = new DirectoryInfo(directory);
                 }
+
                 if (!_directory.Exists)
                 {
                     throw new MissingDirectoryScriptsException();
