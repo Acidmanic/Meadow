@@ -8,7 +8,7 @@
     <ItemGroup>
         <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
         <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b01" />
-        <PackageReference Include="ConsoleAppFramework" Version="4.1.0" />
+        <PackageReference Include="CoreCommandLine" Version="1.0.6" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0-1.final" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -19,25 +19,32 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Reference Include="Meadow, Version=1.1.4.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>..\Example.MySql\bin\Debug\netcoreapp3.1\Meadow.dll</HintPath>
-      </Reference>
+        <None Include="../Graphics/MeadowIcon.png">
+            <Pack>true</Pack>
+            <PackagePath>Graphics/MeadowIcon.png</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Include="../LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath>LICENSE.txt</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Commands\Arguments" />
+    </ItemGroup>
     <!-- Dotnet Tool Specific settings -->
     <PropertyGroup>
+        <Version>1.0.0-b01</Version>
         <PackAsTool>true</PackAsTool>
         <PackageId>Meadow.Tools.Assistant</PackageId>
         <ToolCommandName>mat</ToolCommandName>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     </PropertyGroup>
 
-
-<!--    <ItemGroup>-->
-<!--        <Reference Include="Acidmanic.Utilities.Reflection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">-->
-<!--            <HintPath>..\..\Reflections.netcore\Acidmanic.Utilities.Reflection\bin\Debug\netstandard2.1\Acidmanic.Utilities.Reflection.dll</HintPath>-->
-<!--        </Reference>-->
-<!--    </ItemGroup>-->
     
 </Project>

@@ -1,5 +1,6 @@
 ﻿using System;
-using ConsoleAppFramework;
+using CoreCommandLine.DotnetDi;
+using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Tools.Assistant
 {
@@ -7,12 +8,16 @@ namespace Meadow.Tools.Assistant
     {
         static void Main(string[] args)
         {
-            var app = ConsoleApp.Create(args);
-            
-            app.AddAllCommandType();
-            
-            app.Run();
 
+            var logger = new ConsoleLogger().Shorten();
+
+            var app = new DotnetCommandlineApplicationBuilder<MatApplication>()
+                .Describe("Meadow Assistant Tool", "Helper Tool For Meadow Framework.")
+                .UseLogger(logger).UseStartup<Startup>()
+                .Build();
+            
+            
+            app.ExecuteInteractive();
             
         }
     }
