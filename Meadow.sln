@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow", "Meadow\Meadow.csproj", "{85B53D4D-A410-4573-A49D-23EF1BD3E167}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{4EC7AF28-92F5-47AB-BE1D-6C660D5C0466}"
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.AlteredType", "Example.AlteredType\Example.AlteredType.csproj", "{570FF7CB-FD19-43C9-95EB-6617DDF9B6B8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.SqlServer", "Example.SqlServer\Example.SqlServer.csproj", "{71153B50-0A5B-4E4E-9D4D-6486DC08CD4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.Macros.MySql", "Example.Macros.MySql\Example.Macros.MySql.csproj", "{5F6B8538-1482-44DA-9A59-C5054DBEBA1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -91,5 +93,9 @@ Global
 		{71153B50-0A5B-4E4E-9D4D-6486DC08CD4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71153B50-0A5B-4E4E-9D4D-6486DC08CD4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71153B50-0A5B-4E4E-9D4D-6486DC08CD4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F6B8538-1482-44DA-9A59-C5054DBEBA1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F6B8538-1482-44DA-9A59-C5054DBEBA1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F6B8538-1482-44DA-9A59-C5054DBEBA1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F6B8538-1482-44DA-9A59-C5054DBEBA1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
