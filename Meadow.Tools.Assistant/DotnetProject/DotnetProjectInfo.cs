@@ -19,6 +19,13 @@ namespace Meadow.Tools.Assistant.DotnetProject
 
             _directory = projectFile.Directory;
         }
+        
+        public DotnetProjectInfo(string projectDirectory)
+        {
+            _directory = new DirectoryInfo(projectDirectory);
+            
+            _projectFile = new FileInfo(GetProjectFile(projectDirectory));
+        }
 
         public FileInfo ProjectFile => _projectFile;
 
