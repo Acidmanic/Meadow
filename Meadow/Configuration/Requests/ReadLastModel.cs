@@ -1,4 +1,4 @@
-using Meadow.Reflection.Conventions;
+using Meadow.Contracts;
 using Meadow.Requests;
 
 namespace Meadow.Configuration.Requests

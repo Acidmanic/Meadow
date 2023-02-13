@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Contracts;
 using Meadow.DataTypeMapping;
-using Meadow.Reflection.Conventions;
 
 namespace Meadow.Scaffolding.CodeGenerators
 {

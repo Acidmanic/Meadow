@@ -1,8 +1,7 @@
 using System;
-using System.Data;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 
-namespace Meadow.Reflection.Conventions
+namespace Meadow.Contracts
 {
     public class NameConvention
     {

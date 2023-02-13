@@ -1,8 +1,8 @@
 using System;
 using Meadow.BuildupScripts;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Models;
-using Meadow.Reflection.Conventions;
 using Meadow.Requests.Common;
 
 namespace Meadow.Configuration.Requests

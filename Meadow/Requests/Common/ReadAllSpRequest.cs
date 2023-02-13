@@ -1,5 +1,3 @@
-using Meadow.Reflection.Conventions;
-
 namespace Meadow.Requests.Common
 {
     public abstract class ReadAllSpRequest<TModel> : MeadowRequest<MeadowVoid, TModel>

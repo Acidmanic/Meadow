@@ -8,7 +8,6 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests;
 using Meadow.DataTypeMapping;
-using Meadow.Reflection.Conventions;
 using Meadow.Requests;
 
 namespace Meadow.DataAccessCore.AdoCoreBase
