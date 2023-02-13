@@ -8,7 +8,7 @@
     <ItemGroup>
         <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
         <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b01" />
-        <PackageReference Include="CoreCommandLine" Version="1.0.6" />
+        <PackageReference Include="CoreCommandLine" Version="1.0.7" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0-1.final" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -29,10 +29,6 @@
             <PackagePath>LICENSE.txt</PackagePath>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Commands\Arguments" />
     </ItemGroup>
     <!-- Dotnet Tool Specific settings -->
     <PropertyGroup>

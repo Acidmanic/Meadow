@@ -11,12 +11,17 @@ using CoreCommandLine;
 using CoreCommandLine.Attributes;
 using Meadow.Scaffolding.Contracts;
 using Meadow.Scaffolding.Macros;
+using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.DotnetProject;
 using Microsoft.Extensions.Logging;
 
-namespace Meadow.Tools.Assistant.Commands.Macros
+namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 {
     [CommandName("apply-macros", "am")]
+    [Subcommands(
+        typeof(TargetProjectPath),
+        typeof(ScriptsDirectory)
+    )]
     public class ApplyMacros : CommandBase
     {
         public override bool Execute(Context context, string[] args)
@@ -26,89 +31,121 @@ namespace Meadow.Tools.Assistant.Commands.Macros
                 return false;
             }
 
-            var projectDirectory = new DirectoryInfo(".").FullName;
+            var projectDirectory = context.GetTargetProjectPath();
 
-            if (args.Length > 1)
+            var projectInfo = TryOpenProject(projectDirectory);
+
+            if (projectInfo)
             {
-                if (Directory.Exists(args[1]))
+                projectDirectory = projectInfo.Value.ProjectFile.Directory!.FullName;
+
+                Logger.LogInformation("Building {Project}", projectInfo.Value.ProjectFile.Name);
+
+                var compiled = DotnetBuild(projectDirectory);
+
+                if (compiled)
                 {
-                    projectDirectory = new DirectoryInfo(args[1]).FullName;
+                    var assemblies = LoadAllAssemblies(compiled.Value);
+
+                    PerformApplyingMacros(assemblies, projectDirectory,context.GetScriptsDirectoryPath());
+
+                    Logger.LogInformation("Applied Any found Macros");
                 }
-                else if (File.Exists(args[1]) && args[0].ToLower().EndsWith(".csproj"))
+                else
                 {
-                    projectDirectory = new FileInfo(args[0]).Directory?.FullName ?? projectDirectory;
+                    Logger.LogError("Unable to build the target project.");
                 }
             }
 
-            var projectInfo = DotnetProjectInfo.FromDirectory(projectDirectory);
-
-            Logger.LogInformation("Build {Project}", projectInfo.ProjectFile.Name);
-
-            var compiled = DotnetBuild(projectDirectory);
-
-            if (compiled)
-            {
-                var assemblies = LoadEveryFuckingThing(compiled.Value);
-
-                GoNuts(assemblies, projectDirectory);
-                
-                Console.WriteLine("meeh");
-            }
-
-            return false;
+            return true;
         }
 
-        private void GoNuts(List<Assembly> assemblies, string projectDirectory)
+        private Result<DotnetProjectInfo> TryOpenProject(string projectDirectory)
         {
-            var everyFuckingClass = GetEveryFuckingClass(assemblies);
+            try
+            {
+                projectDirectory = new DirectoryInfo(projectDirectory).FullName;
 
-            var meadowConfigurationProvider = everyFuckingClass
+                var info = DotnetProjectInfo.FromDirectory(projectDirectory);
+
+                return new Result<DotnetProjectInfo>(true, info);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Unable to load target project.\n{Exception}", e);
+            }
+
+            return new Result<DotnetProjectInfo>().FailAndDefaultValue();
+        }
+
+
+        private Result PerformApplyingMacros(List<Assembly> assemblies, string projectDirectory,string scriptsDir)
+        {
+            var allAvailableClasses = ListAllAvailableClasses(assemblies);
+
+            var configurationProviderType = allAvailableClasses
                 .FirstOrDefault(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
                                      && !c.IsAbstract && !c.IsInterface);
 
-            var provider = new ObjectInstantiator()
-                .BlindInstantiate(meadowConfigurationProvider) as IMeadowConfigurationProvider;
+            if (configurationProviderType == null)
+            {
+                Logger.LogError(
+                    "Target project must contain/reference one implementation of IMeadowConfigurationProvider");
 
-            var configurations = provider.GetConfigurations();
+                return false;
+            }
 
-            var scriptsDirectory = configurations.BuildupScriptDirectory;
+            var configurationProvider = new ObjectInstantiator()
+                .BlindInstantiate(configurationProviderType) as IMeadowConfigurationProvider;
+
+            if (configurationProvider == null)
+            {
+                Logger.LogError("IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
+
+                return false;
+            }
+
+            var configurations = configurationProvider.GetConfigurations();
+
+            var scriptsDirectory = scriptsDir ?? configurations.BuildupScriptDirectory;
 
             if (!Path.IsPathFullyQualified(scriptsDirectory))
             {
-                scriptsDirectory = Path.Join(projectDirectory,scriptsDirectory) ;   
+                scriptsDirectory = Path.Join(projectDirectory, scriptsDirectory);
             }
 
             var engin = new MacroEngine(assemblies.ToArray());
-            
-            engin.ExecuteMacrosFor(scriptsDirectory,f => true);
 
+            engin.ExecuteMacrosFor(scriptsDirectory, f => true);
+
+            return true;
         }
 
-        private List<Type> GetEveryFuckingClass(List<Assembly> assemblies)
+        private List<Type> ListAllAvailableClasses(List<Assembly> assemblies)
         {
             var types = new List<Type>();
 
             foreach (var assembly in assemblies)
             {
                 var fuckingTypes = assembly.GetAvailableTypes();
-                
+
                 types.AddRange(fuckingTypes);
             }
 
             return types;
         }
 
-        private List<Assembly> LoadEveryFuckingThing(string directory)
+        private List<Assembly> LoadAllAssemblies(string directory)
         {
             var assemblies = new List<Assembly>();
 
 
-            LoadEveryFuckingThing(directory, assemblies);
+            LoadAllAssemblies(directory, assemblies);
 
             return assemblies;
         }
 
-        private void LoadEveryFuckingThing(string directory, List<Assembly> assemblies)
+        private void LoadAllAssemblies(string directory, List<Assembly> assemblies)
         {
             var files = new DirectoryInfo(directory).GetFiles();
 
@@ -129,7 +166,7 @@ namespace Meadow.Tools.Assistant.Commands.Macros
 
             foreach (var subDirectory in directories)
             {
-                LoadEveryFuckingThing(subDirectory.FullName, assemblies);
+                LoadAllAssemblies(subDirectory.FullName, assemblies);
             }
         }
 

@@ -1,6 +1,6 @@
 using CoreCommandLine;
 using CoreCommandLine.Attributes;
-using Meadow.Tools.Assistant.Commands.Macros;
+using Meadow.Tools.Assistant.Commands.ApplyMacros;
 
 namespace Meadow.Tools.Assistant
 {
