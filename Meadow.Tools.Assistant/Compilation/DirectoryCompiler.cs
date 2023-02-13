@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Acidmanic.Utilities.Results;
-using Meadow.Reflection.FetchPlug;
+using Meadow.Reflection;
 using Meadow.Tools.Assistant.Compilation.ProjectReferences;
 using Meadow.Tools.Assistant.DotnetProject;
 using Meadow.Tools.Assistant.Extensions;

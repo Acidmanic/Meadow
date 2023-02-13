@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
 
-namespace Meadow.Reflection.FetchPlug
+namespace Meadow.Reflection
 {
     public class TypeAcquirer
     {
