@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Reflection;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.OnExistsPolicy;

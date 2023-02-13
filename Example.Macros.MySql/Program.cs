@@ -5,6 +5,7 @@ using System.Reflection;
 using Example.Macros.MySql.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.MySql;
 using Microsoft.Extensions.Logging.LightWeight;

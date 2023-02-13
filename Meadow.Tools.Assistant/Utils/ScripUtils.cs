@@ -2,6 +2,7 @@ using System.IO;
 using Acidmanic.Utilities.Results;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Tools.Assistant.Compilation;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;

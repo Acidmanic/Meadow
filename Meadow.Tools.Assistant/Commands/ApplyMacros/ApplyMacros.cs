@@ -10,6 +10,7 @@ using Acidmanic.Utilities.Results;
 using CoreCommandLine;
 using CoreCommandLine.Attributes;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Macros;
 using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.DotnetProject;
