@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Meadow.BuildupScripts;
+using Meadow.Configuration;
 using Meadow.Reflection.FetchPlug;
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Contracts;
 using Meadow.Scaffolding.OnExistsPolicy;
 using Meadow.Scaffolding.SqlScriptsGenerators;
 

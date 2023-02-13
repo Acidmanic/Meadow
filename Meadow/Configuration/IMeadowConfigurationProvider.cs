@@ -1,6 +1,4 @@
-using Meadow.Configuration;
-
-namespace Meadow.Scaffolding.Contracts
+namespace Meadow.Configuration
 {
     public interface IMeadowConfigurationProvider
     {
