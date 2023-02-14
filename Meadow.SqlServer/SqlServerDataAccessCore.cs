@@ -6,7 +6,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore.AdoCoreBase;
 using Meadow.DataTypeMapping;
-using Meadow.Scaffolding.SqlScriptsGenerators;
+using Meadow.SqlServer.SqlScriptsGenerators;
 
 namespace Meadow.SqlServer
 {

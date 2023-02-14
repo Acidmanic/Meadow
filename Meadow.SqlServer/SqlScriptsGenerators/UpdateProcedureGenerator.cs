@@ -1,8 +1,8 @@
 using System;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Contracts;
 
-namespace Meadow.Scaffolding.SqlScriptsGenerators
+namespace Meadow.SqlServer.SqlScriptsGenerators
 {
     public class UpdateProcedureGenerator : ProcedureGenerator
     {

@@ -1,11 +1,6 @@
 using System;
-using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.DataTypeMapping;
-using Meadow.Reflection;
-using Meadow.Scaffolding.CodeGenerators;
 
-namespace Meadow.Scaffolding.SqlScriptsGenerators
+namespace Meadow.SqlServer.SqlScriptsGenerators
 {
     public class InsertProcedureGenerator : ProcedureGenerator
     {

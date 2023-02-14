@@ -1,9 +1,9 @@
 using System;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Contracts;
 
-namespace Meadow.Scaffolding.SqlScriptsGenerators
+namespace Meadow.SqlServer.SqlScriptsGenerators
 {
     public class ReadSequenceProcedureGenerator : ProcedureGenerator
     {

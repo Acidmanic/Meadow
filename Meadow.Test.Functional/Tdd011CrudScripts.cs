@@ -2,7 +2,7 @@ using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.SqlScriptsGenerators;
+using Meadow.SqlServer.SqlScriptsGenerators;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
 

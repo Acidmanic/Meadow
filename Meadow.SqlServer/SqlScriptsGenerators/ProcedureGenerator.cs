@@ -1,7 +1,6 @@
 using System;
-using Meadow.Scaffolding.CodeGenerators;
 
-namespace Meadow.Scaffolding.SqlScriptsGenerators
+namespace Meadow.SqlServer.SqlScriptsGenerators
 {
     public abstract class ProcedureGenerator : SqlGeneratorBaseLegacy
     {

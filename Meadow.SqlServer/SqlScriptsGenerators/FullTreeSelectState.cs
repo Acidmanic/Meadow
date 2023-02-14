@@ -1,6 +1,6 @@
 using Acidmanic.Utilities.Reflection.ObjectTree;
 
-namespace Meadow.Scaffolding.SqlScriptsGenerators
+namespace Meadow.SqlServer.SqlScriptsGenerators
 {
     public class FullTreeSelectState
     {
