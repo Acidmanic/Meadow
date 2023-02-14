@@ -9,9 +9,12 @@ namespace Meadow.Scaffolding.Models
     /// </summary>
     public class ProcessedType
     {
-        public List<Parameter> Parameters { get; set; }
+        public List<Parameter> Parameters { get; set; } = new List<Parameter>();
         
-        public List<Parameter> NoneIdParameters { get; set; }
+        public List<Parameter> NoneIdParameters { get; set; }= new List<Parameter>();
+        
+        
+        public List<Parameter> NoneIdUniqueParameters { get; set; }= new List<Parameter>();
 
         public NameConvention NameConvention { get; set; }
         

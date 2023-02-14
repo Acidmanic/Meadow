@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
@@ -48,27 +49,38 @@ namespace Meadow.Scaffolding.CodeGenerators
             return ToParameters(typeof(TEntity));
         }
 
-        public List<Parameter> ToParameters(Type type)
+
+        protected void WalkThroughLeaves(Type type, Action<AccessNode> scan)
         {
             var rootOnlyNode = ObjectStructure.CreateStructure(type, false);
 
             var children = rootOnlyNode.GetChildren();
 
-            var parameters = new List<Parameter>();
-            
             foreach (var child in children)
             {
                 if (child.IsLeaf)
                 {
-                    var typeName = TypeNameMapper[child.Type];
-                    
-                    parameters.Add(new Parameter
-                    {
-                         Name = child.Name,
-                         Type = typeName
-                    });
+                    scan(child);
                 }
             }
+        }
+
+
+        public List<Parameter> ToParameters(Type type)
+        {
+            var parameters = new List<Parameter>();
+
+            WalkThroughLeaves(type,
+                l =>
+                {
+                    var typeName = TypeNameMapper[l.Type];
+
+                    parameters.Add(new Parameter
+                    {
+                        Name = l.Name,
+                        Type = typeName
+                    });
+                });
 
             return parameters;
         }
@@ -77,36 +89,52 @@ namespace Meadow.Scaffolding.CodeGenerators
         {
             return Process(typeof(TEntity));
         }
-        
+
         public ProcessedType Process(Type type)
         {
             var process = new ProcessedType
             {
-                Parameters = ToParameters(type),
                 NameConvention = new NameConvention(type),
                 IdField = TypeIdentity.FindIdentityLeaf(type),
                 HasId = false
             };
-
+            process.Parameters = new List<Parameter>();
             process.NoneIdParameters = new List<Parameter>();
-            
-            foreach (var parameter in process.Parameters)
+            process.NoneIdUniqueParameters = new List<Parameter>();
+
+            WalkThroughLeaves(type, leaf =>
             {
-                if (parameter.Name == process.IdField.Name)
+                var parameter = new Parameter
+                {
+                    Name = leaf.Name,
+                    Type = TypeNameMapper[leaf.Type]
+                };
+                
+                process.Parameters.Add(parameter);
+                
+                if (leaf.Name == process.IdField.Name)
                 {
                     process.HasId = true;
 
-                    process.IdParameter = parameter;
+                    process.IdParameter = parameter;                
                 }
                 else
                 {
                     process.NoneIdParameters.Add(parameter);
-                }
-            }
 
+                    if (leaf.IsUnique)
+                    {
+                        process.NoneIdUniqueParameters.Add(parameter);
+                    }
+                }
+            });
+     
             return process;
         }
-        
-        
+
+        protected string SqlProcedureDeclaration(Parameter p, string prefix = "")
+        {
+            return prefix + p.Name + " " + p.Type;
+        }
     }
 }

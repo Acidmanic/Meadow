@@ -126,7 +126,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected override string Template => @$"
 CREATE PROCEDURE {_keyProcedureName}({_keyIdParam})
 BEGIN
-    SELECT * FROM {_keyTableName} {_keyOrderClause} {_keyTopClause} {_keyWhereClause};
+    SELECT * FROM {_keyTableName} {_keyWhereClause} {_keyOrderClause} {_keyTopClause};
 END;
 ".Trim();
     }
