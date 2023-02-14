@@ -11,6 +11,7 @@ using CoreCommandLine;
 using CoreCommandLine.Attributes;
 using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Scaffolding.Macros;
 using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.DotnetProject;
@@ -82,7 +83,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
         private Result PerformApplyingMacros(List<Assembly> assemblies, string projectDirectory,string scriptsDir)
         {
-            var allAvailableClasses = ListAllAvailableClasses(assemblies);
+            var allAvailableClasses = assemblies.ListAllAvailableClasses();
 
             var configurationProviderType = allAvailableClasses
                 .FirstOrDefault(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
@@ -122,19 +123,6 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
             return true;
         }
 
-        private List<Type> ListAllAvailableClasses(List<Assembly> assemblies)
-        {
-            var types = new List<Type>();
-
-            foreach (var assembly in assemblies)
-            {
-                var fuckingTypes = assembly.GetAvailableTypes();
-
-                types.AddRange(fuckingTypes);
-            }
-
-            return types;
-        }
 
         private List<Assembly> LoadAllAssemblies(string directory)
         {

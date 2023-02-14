@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Reflection;
+
 namespace Meadow.Scaffolding.Macros;
 
 public class NullMacro : IMacro
@@ -16,4 +19,6 @@ public class NullMacro : IMacro
     {
         return "";
     }
+
+    public List<Assembly> LoadedAssemblies { get; set; } = new List<Assembly>();
 }

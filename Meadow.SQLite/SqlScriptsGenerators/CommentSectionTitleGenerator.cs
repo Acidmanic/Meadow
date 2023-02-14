@@ -1,5 +1,4 @@
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.SqlScriptsGenerators;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {

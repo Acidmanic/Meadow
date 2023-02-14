@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Reflection;
 using Meadow.Scaffolding.Macros;
 
 namespace Example.Macros.MySql.Macros
@@ -18,6 +20,8 @@ namespace Example.Macros.MySql.Macros
 
             return code;
         }
+
+        public List<Assembly> LoadedAssemblies { get; set; } 
 
 
         private string GetOrWhat(string[] values, int index, string orWhat)

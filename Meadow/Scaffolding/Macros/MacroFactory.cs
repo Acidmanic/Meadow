@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
+using System.Reflection;
 using Acidmanic.Utilities.Factories;
 using Acidmanic.Utilities.Reflection.Extensions;
 
 namespace Meadow.Scaffolding.Macros;
 
-public class MacroFactory:FactoryBase<IMacro,string>
+public class MacroFactory : FactoryBase<IMacro, string>
 {
     public MacroFactory() : base(FactoryMatching.MatchByInstance)
     {
@@ -17,12 +19,11 @@ public class MacroFactory:FactoryBase<IMacro,string>
 
     protected override bool MatchesByInstance(IMacro product, string value)
     {
-
         var productName = product?.Name?.ToLower();
 
         value = value?.ToLower();
-        
-        if(value.AreEqualAsNullables(productName))
+
+        if (value.AreEqualAsNullables(productName))
         {
             return value == productName;
         }
@@ -33,5 +34,13 @@ public class MacroFactory:FactoryBase<IMacro,string>
     protected override IMacro DefaultValue()
     {
         return NullMacro.Instance;
+    }
+
+    public void ScanAssemblies(IEnumerable<Assembly> assemblies)
+    {
+        foreach (var assembly in assemblies)
+        {
+            ScanAssembly(assembly);
+        }
     }
 }

@@ -95,10 +95,7 @@ public class MacroEngine
 
         var factory = new MacroFactory();
 
-        foreach (var assembly in _assemblies)
-        {
-            factory.ScanAssembly(assembly);
-        }
+       factory.ScanAssemblies(_assemblies);
 
         var updateLines = new Dictionary<long, string>();
 
@@ -114,6 +111,8 @@ public class MacroEngine
             {
                 var macro = factory.Make(sticker.Name);
 
+                macro.LoadedAssemblies = new List<Assembly>(_assemblies);
+                
                 content += macro.GenerateCode(sticker.Parameters) + "";
 
                 contentHeader += sep + sticker.Name +

@@ -5,7 +5,16 @@ using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class ReadSequenceProcedureGenerator<TEntity> : ByTemplateSqlGeneratorBase
+
+    public class ReadSequenceProcedureGenerator<TEntity> : ReadSequenceProcedureGenerator
+    {
+        public ReadSequenceProcedureGenerator(bool allNotById, int top, bool orderAscending) 
+            : base(typeof(TEntity), allNotById, top, orderAscending)
+        {
+        }
+    }
+    
+    public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         public bool AllNotById { get; }
 
@@ -14,8 +23,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         public bool OrderAscending { get; }
 
 
-        public ReadSequenceProcedureGenerator(bool allNotById, int top, bool orderAscending) : base(new MySqlDbTypeNameMapper())
+        private readonly Type _type;
+        
+        public ReadSequenceProcedureGenerator(Type type, bool allNotById, int top, bool orderAscending) : base(new MySqlDbTypeNameMapper())
         {
+            _type = type;
             AllNotById = allNotById;
             Top = top;
             OrderAscending = orderAscending;
@@ -82,7 +94,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var process = Process<TEntity>();
+            var process = Process(_type);
 
             var name = GetProcedureName(process.NameConvention);
             
@@ -116,6 +128,6 @@ CREATE PROCEDURE {_keyProcedureName}({_keyIdParam})
 BEGIN
     SELECT * FROM {_keyTableName} {_keyOrderClause} {_keyTopClause} {_keyWhereClause};
 END;
-";
+".Trim();
     }
 }

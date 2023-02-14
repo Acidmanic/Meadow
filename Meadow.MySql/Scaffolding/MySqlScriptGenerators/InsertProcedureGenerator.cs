@@ -1,13 +1,27 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class InsertProcedureGenerator<TEntity> : ByTemplateSqlGeneratorBase
+
+    public class InsertProcedureGenerator<TEntity> : InsertProcedureGenerator
     {
-        public InsertProcedureGenerator() : base(new MySqlDbTypeNameMapper())
+        public InsertProcedureGenerator() : base(typeof(TEntity))
         {
+        }
+    }
+    
+    public class InsertProcedureGenerator : ByTemplateSqlGeneratorBase
+    {
+
+        private readonly Type _type;
+        
+        public InsertProcedureGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+        {
+            _type = type;
         }
 
 
@@ -21,9 +35,9 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var processed = Process<TEntity>();
+            var processed = Process(_type);
             
-            replacementList.Add(_keyName,processed.NameConvention.TableName);
+            replacementList.Add(_keyName,processed.NameConvention.InsertProcedureName);
 
             var parameters = string.Join(',', processed.NoneIdParameters
                 .Select(p => "IN " + p.Name + " " + p.Type));
@@ -47,8 +61,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 CREATE PROCEDURE {_keyName}({_keyParameters})
 BEGIN
     INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
-    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=last_insert_id();
+    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=LAST_INSERT_ID();
 END;
-";
+".Trim();
+
+
     }
+    
 }

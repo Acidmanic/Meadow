@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Reflection;
+
 namespace Meadow.Scaffolding.Macros;
 
 public class Coffee:IMacro
@@ -21,4 +24,6 @@ public class Coffee:IMacro
 -- ----------------------------------------------------------------------------------
 ";
     }
+
+    public List<Assembly> LoadedAssemblies { get; set; } = new List<Assembly>();
 }
