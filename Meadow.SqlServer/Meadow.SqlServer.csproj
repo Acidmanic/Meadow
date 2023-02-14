@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Meadow.Scaffolding\Meadow.Scaffolding.csproj" />
     <ProjectReference Include="..\Meadow\Meadow.csproj" />
   </ItemGroup>
 
