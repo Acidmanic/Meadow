@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Scaffolding.Contracts;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.Scaffolding.Sqlable
 {

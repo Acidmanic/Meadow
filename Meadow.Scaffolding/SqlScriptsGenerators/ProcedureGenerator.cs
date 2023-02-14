@@ -3,7 +3,7 @@ using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
-    public abstract class ProcedureGenerator : SqlGeneratorBase
+    public abstract class ProcedureGenerator : SqlGeneratorBaseLegacy
     {
         protected ProcedureGenerator(Type type) : base(type)
         {

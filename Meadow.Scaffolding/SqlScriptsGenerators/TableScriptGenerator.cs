@@ -5,7 +5,7 @@ using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.Scaffolding.SqlScriptsGenerators
 {
-    public class TableScriptGenerator : SqlGeneratorBase
+    public class TableScriptGenerator : SqlGeneratorBaseLegacy
     {
         public override DbObjectTypes ObjectType => DbObjectTypes.Tables;
 

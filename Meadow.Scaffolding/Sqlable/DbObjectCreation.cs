@@ -1,4 +1,5 @@
 using System.Data.SqlClient;
+using Meadow.Scaffolding.Contracts;
 
 namespace Meadow.Scaffolding.Sqlable
 {

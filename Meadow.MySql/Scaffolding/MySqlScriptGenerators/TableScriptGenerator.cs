@@ -1,60 +1,58 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Meadow.Scaffolding;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class TableScriptGenerator : SqlGeneratorBase
+    public class TableScriptGenerator<TEntity> : ByTemplateSqlGeneratorBase
     {
-        public override DbObjectTypes ObjectType => DbObjectTypes.Tables;
-
-        public TableScriptGenerator(Type type) : base(type)
+        public TableScriptGenerator() : base(new MySqlDbTypeNameMapper())
         {
-            UseDbTypeMapper(new MySqlDbTypeNameMapper());
         }
 
-        public override Code Generate(SqlScriptActions action)
+
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyParameters = GenerateKey();
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var sep = "";
-            var parameters = "";
+            var process = Process<TEntity>();
 
-            WalkThroughLeaves(false, leaf =>
-            {
-                string fieldName = leaf.Name;
+            replacementList.Add(_keyTableName, process.NameConvention.TableName);
 
-                string typeName = TypeNameMapper[leaf.Type];
+            var parameters = GetParameters(process);
 
-                var id = "";
-
-                id += leaf.IsUnique ? " NOT NULL PRIMARY KEY" : "";
-
-                id += leaf.IsAutoValued ? " auto_increment":"";
-
-                parameters += sep + fieldName + " " + typeName + id;
-
-                sep = ", ";
-            });
-
-            var tableScript = "";
-            var createKeyword = "CREATE";
-            if (action == SqlScriptActions.DropCreate)
-            {
-                tableScript = $"DROP TABLE {NameConvention.TableName}\n\n";
-            }
-            else if (action == SqlScriptActions.Alter)
-            {
-                createKeyword = "ALTER";
-            }
-
-            tableScript = $"{createKeyword} TABLE {NameConvention.TableName} (\n\t{parameters}\n\t)\n\n";
-
-            return new Code
-            {
-                Name = NameConvention.TableName,
-                Text = tableScript
-            };
+            replacementList.Add(_keyParameters, parameters);
         }
 
-        public override string SqlObjectName => NameConvention.TableName;
+        private string GetParameters(ProcessedType process)
+        {
+            var parameters = string.Join(',', process.NoneIdParameters.Select(p => p.Name + " " + p.Type));
+
+            if (process.HasId)
+            {
+                var idParam = process.IdParameter.Name + " " + process.IdParameter.Type;
+
+                idParam += process.IdField.IsUnique ? " NOT NULL PRIMARY KEY" : "";
+
+                idParam += process.IdField.IsAutoValued ? " auto_increment" : "";
+
+                idParam += process.NoneIdParameters.Count > 0 ? "," : "";
+
+                parameters = idParam + parameters;
+            }
+
+            return parameters;
+        }
+
+        protected override string Template => $@"
+CREATE TABLE {_keyTableName}
+(
+    {_keyParameters}
+);
+";
     }
 }

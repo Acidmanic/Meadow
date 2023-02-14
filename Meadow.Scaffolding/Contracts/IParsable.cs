@@ -1,4 +1,4 @@
-namespace Meadow.Scaffolding.Sqlable
+namespace Meadow.Scaffolding.Contracts
 {
     public interface IParsable
     {

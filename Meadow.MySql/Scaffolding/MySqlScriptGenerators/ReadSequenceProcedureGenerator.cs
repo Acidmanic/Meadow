@@ -1,48 +1,24 @@
 using System;
-using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
+using System.Collections.Generic;
+using Meadow.Contracts;
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.SqlScriptsGenerators;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class ReadSequenceProcedureGenerator : ProcedureGenerator
+    public class ReadSequenceProcedureGenerator<TEntity> : ByTemplateSqlGeneratorBase
     {
-        public bool FullTree { get; }
+        public bool AllNotById { get; }
 
         public int Top { get; }
 
         public bool OrderAscending { get; }
 
 
-        public ReadSequenceProcedureGenerator(Type type, bool fullTree, int top, bool orderAscending) : base(type)
+        public ReadSequenceProcedureGenerator(bool allNotById, int top, bool orderAscending) : base(new MySqlDbTypeNameMapper())
         {
-            FullTree = fullTree;
+            AllNotById = allNotById;
             Top = top;
             OrderAscending = orderAscending;
-            UseDbTypeMapper(new MySqlDbTypeNameMapper());
-        }
-
-        protected override string GenerateScript(SqlScriptActions action, string snippet)
-        {
-            var script = $"{snippet} PROCEDURE {ProcedureName}()\nBEGIN\n";
-            
-            var top = GetTop();
-
-            var order = GetOrder(HasIdField, IdField.Name);
-
-            var select = $"SELECT * FROM {NameConvention.TableName} {order} \n{top}";
-
-            if (FullTree)
-            {
-                var sel = ExtractSelectInfo(TreeRoot);
-
-                select = sel.ToString();
-            }
-
-            script += $"\n\t{select};\nEND\n\n";
-
-            return script;
         }
 
         private string GetOrder(bool useIdField, string idFieldName)
@@ -70,91 +46,76 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             return "";
         }
 
-        protected override string GetProcedureName()
+        protected string GetProcedureName(NameConvention nameConvention)
         {
-            return OrderAscending
-                ? (FullTree ? NameConvention.SelectFirstProcedureNameFullTree : NameConvention.SelectFirstProcedureName)
-                : (FullTree ? NameConvention.SelectLastProcedureNameFullTree : NameConvention.SelectLastProcedureName);
+            if (AllNotById)
+            {
+                if (Top > 0)
+                {
+                    if (OrderAscending)
+                    {
+                        return nameConvention.SelectFirstProcedureName;
+                    }
+                    else
+                    {
+                        return nameConvention.SelectLastProcedureName;
+                    }
+                }
+                else
+                {
+                    return nameConvention.SelectAllProcedureName;
+                }
+            }
+            else
+            {
+                return nameConvention.SelectByIdProcedureName;
+            }
         }
 
-        private FullTreeSelectState ExtractSelectInfo(AccessNode node)
+        private readonly string _keyProcedureName = GenerateKey();
+        private readonly string _keyIdParam = GenerateKey();
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyWhereClause = GenerateKey();
+        private readonly string _keyTopClause = GenerateKey();
+        private readonly string _keyOrderClause = GenerateKey();
+        
+        
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var type = node.Type;
+            var process = Process<TEntity>();
 
-            var tableName = NameConvention.TableNameProvider.GetNameForOwnerType(type);
+            var name = GetProcedureName(process.NameConvention);
+            
+            replacementList.Add(_keyProcedureName,name);
 
-            var result = new FullTreeSelectState
+            if (!AllNotById && !process.HasId)
             {
-                TableName = tableName,
-                Parameters = "",
-                Joins = "",
-                Sep = "",
-                Info = new AccessTreeInformation(node)
-            };
-
-            ExtractSelectInfo(node, result);
-
-            var sep = "";
-            foreach (var filed in result.Info.OrderedFieldNames)
-            {
-                result.Parameters += sep + filed;
-
-                sep = ", ";
+                throw new Exception("To be able to create a read-by-id procedure for a type, the type" +
+                                    " must have an id field.");
             }
 
-            return result;
+            replacementList.Add(_keyIdParam,AllNotById?"":("IN " + process.IdParameter.Name + " " + process.IdParameter.Type));
+            
+            replacementList.Add(_keyTableName,process.NameConvention.TableName);
+            
+            replacementList.Add(_keyWhereClause,AllNotById?"":
+                ("WHERE " + process.NameConvention.TableName + "." 
+                 + process.IdParameter.Name + " = " + process.IdParameter.Name ));
+
+            var order = GetOrder(!AllNotById, process.IdParameter.Name);
+            
+            replacementList.Add(_keyOrderClause,order);
+
+            replacementList.Add(_keyTopClause,GetTop());
+            
+            
         }
 
-        private void ExtractSelectInfo(AccessNode node, FullTreeSelectState result)
-        {
-            if (node.IsCollectable)
-            {
-                var father = node.Parent.Parent;
-
-                result.Joins += result.Sep + "LEFT " + GetJoin(father, node, false);
-
-                result.Sep = " ";
-            }
-            else if (!node.IsLeaf && !node.IsCollection && !node.IsRoot)
-            {
-                var father = node.Parent;
-
-                result.Joins += result.Sep + GetJoin(father, node, true);
-
-                result.Sep = " ";
-            }
-
-            node.GetChildren().ForEach(child => ExtractSelectInfo(child, result));
-        }
-
-        private string GetJoin(AccessNode father, AccessNode joining, bool direction1Ton)
-        {
-            var jTableName = NameConvention.TableNameProvider.GetNameForOwnerType(joining.Type);
-
-            var fTableName = NameConvention.TableNameProvider.GetNameForOwnerType(father.Type);
-
-            string idCheck = "";
-
-            var from = direction1Ton ? joining : father;
-            var to = direction1Ton ? father : joining;
-            var fromTableName = direction1Ton ? jTableName : fTableName;
-            var toTableName = direction1Ton ? fTableName : jTableName;
-
-
-            var id = from.GetChildren()
-                .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
-
-            if (id == null)
-            {
-                // A Node without unique id cant participate in a join
-                return "";
-            }
-
-            var nodeId = from.Type.Name + id.Name;
-
-            idCheck = $"{toTableName}.{nodeId}={fromTableName}.{id.Name}";
-
-            return $"JOIN {jTableName} on {idCheck}";
-        }
+        protected override string Template => @$"
+CREATE PROCEDURE {_keyProcedureName}({_keyIdParam})
+BEGIN
+    SELECT * FROM {_keyTableName} {_keyOrderClause} {_keyTopClause} {_keyWhereClause};
+END;
+";
     }
 }

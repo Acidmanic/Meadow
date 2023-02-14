@@ -1,73 +1,39 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.Scaffolding.CodeGenerators
 {
     public abstract class SqlGeneratorBase : ICodeGenerator
     {
-        public Code Generate()
+        protected SqlGeneratorBase(IDbTypeNameMapper typeNameMapper)
         {
-            return Generate(SqlScriptActions.Create);
+            TypeNameMapper = typeNameMapper;
         }
 
-        public abstract DbObjectTypes ObjectType { get; }
-        public Type Type { get; }
+        public abstract Code Generate();
 
-        protected AccessNode TreeRoot { get; }
 
-        protected AccessNode RootOnlyNode { get; }
+        public IDbTypeNameMapper TypeNameMapper { get; }
 
-        protected AccessTreeInformation TreeInformation { get; }
 
-        protected IDbTypeNameMapper TypeNameMapper { get; private set; }
-
-        public abstract string SqlObjectName { get; }
-
-        protected NameConvention NameConvention { get; }
-
-        protected IEnumerable<AccessNode> UniqueNodes { get; }
-
-        protected AccessNode IdField => HasIdField ? UniqueNodes.FirstOrDefault() : null;
-
-        protected bool HasIdField => UniqueNodes.Any();
-
-        protected void UseDbTypeMapper(IDbTypeNameMapper mapper)
+        protected void WalkThroughLeaves<TEntity>(bool fullTree, Action<AccessNode> leafAction)
         {
-            this.TypeNameMapper = mapper;
-        }
-        
-        public SqlGeneratorBase(Type type)
-        {
-            Type = type;
-
-            TreeRoot = ObjectStructure.CreateStructure(Type, true);
-
-            RootOnlyNode = ObjectStructure.CreateStructure(Type, false);
-
-            TreeInformation = new AccessTreeInformation(TreeRoot);
-
-            TypeNameMapper = new SqlDbTypeNameMapper();
-
-            NameConvention = new NameConvention(type);
-
-            UniqueNodes = RootOnlyNode.GetDirectLeaves().Where(n => n.IsUnique);
+            WalkThroughLeaves(typeof(TEntity), fullTree, leafAction);
         }
 
-
-        public abstract Code Generate(SqlScriptActions action);
-
-        protected string CreateKeyWord(bool alreadyExists)
+        public void WalkThroughLeaves(Type type, bool fullTree, Action<AccessNode> leafAction)
         {
-            return alreadyExists ? "ALTER" : "CREATE";
-        }
+            var treeRoot = ObjectStructure.CreateStructure(type, true);
 
-        protected void WalkThroughLeaves(bool fullTree, Action<AccessNode> leafAction)
-        {
-            var node = fullTree ? TreeRoot : RootOnlyNode;
+            var rootOnlyNode = ObjectStructure.CreateStructure(type, false);
+
+            var node = fullTree ? treeRoot : rootOnlyNode;
 
             var info = new AccessTreeInformation(node);
 
@@ -76,5 +42,71 @@ namespace Meadow.Scaffolding.CodeGenerators
                 leafAction(leaf);
             }
         }
+
+        public List<Parameter> ToParameters<TEntity>()
+        {
+            return ToParameters(typeof(TEntity));
+        }
+
+        public List<Parameter> ToParameters(Type type)
+        {
+            var rootOnlyNode = ObjectStructure.CreateStructure(type, false);
+
+            var children = rootOnlyNode.GetChildren();
+
+            var parameters = new List<Parameter>();
+            
+            foreach (var child in children)
+            {
+                if (child.IsLeaf)
+                {
+                    var typeName = TypeNameMapper[child.Type];
+                    
+                    parameters.Add(new Parameter
+                    {
+                         Name = child.Name,
+                         Type = typeName
+                    });
+                }
+            }
+
+            return parameters;
+        }
+
+        public ProcessedType Process<TEntity>()
+        {
+            return Process(typeof(TEntity));
+        }
+        
+        public ProcessedType Process(Type type)
+        {
+            var process = new ProcessedType
+            {
+                Parameters = ToParameters(type),
+                NameConvention = new NameConvention(type),
+                IdField = TypeIdentity.FindIdentityLeaf(type),
+                HasId = false
+            };
+
+            process.NoneIdParameters = new List<Parameter>();
+            
+            foreach (var parameter in process.Parameters)
+            {
+                if (parameter.Name == process.IdField.Name)
+                {
+                    process.HasId = true;
+
+                    process.IdParameter = parameter;
+                }
+                else
+                {
+                    process.NoneIdParameters.Add(parameter);
+                }
+            }
+
+            return process;
+        }
+        
+        
     }
 }

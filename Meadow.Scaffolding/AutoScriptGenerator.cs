@@ -113,7 +113,7 @@ namespace Meadow.Scaffolding
             var proceduresCreated = 0;
             var script = "";
 
-            void Create(SqlGeneratorBase gen, SqlScriptActions action)
+            void Create(SqlGeneratorBaseLegacy gen, SqlScriptActions action)
             {
                 objectsCreated++;
                 if (gen.ObjectType == DbObjectTypes.Tables)
@@ -131,7 +131,7 @@ namespace Meadow.Scaffolding
 
             foreach (var generator in codeGenerators)
             {
-                if (generator is SqlGeneratorBase sqlGenerator)
+                if (generator is SqlGeneratorBaseLegacy sqlGenerator)
                 {
                     if (AlreadyExists(sqlGenerator.SqlObjectName, sqlGenerator.ObjectType))
                     {

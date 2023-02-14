@@ -6,10 +6,9 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
 using Meadow.MySql.ConfigurationRequests;
+using Meadow.MySql.Scaffolding.MySqlScriptGenerators;
 using Meadow.Requests;
-using InsertProcedureGenerator = Meadow.MySql.Scaffolding.MySqlScriptGenerators.InsertProcedureGenerator;
-using ReadSequenceProcedureGenerator = Meadow.MySql.Scaffolding.MySqlScriptGenerators.ReadSequenceProcedureGenerator;
-using TableScriptGenerator = Meadow.MySql.Scaffolding.MySqlScriptGenerators.TableScriptGenerator;
+
 
 namespace Meadow.MySql
 {
@@ -23,7 +22,7 @@ namespace Meadow.MySql
         {
             DataStorageAdapter =
                 new MySqlStorageAdapter(configuration.DatabaseFieldNameDelimiter,
-                    DataOwnerNameProvider,logger:Logger);
+                    DataOwnerNameProvider, logger: Logger);
 
             StorageCommunication = new MySqlStorageCommunication();
 
@@ -123,8 +122,9 @@ namespace Meadow.MySql
 
             return result;
         }
-        
-        private async Task<List<string>> EnumerateDbObjectAsync(bool dbProcedureNotTable, MeadowConfiguration configuration)
+
+        private async Task<List<string>> EnumerateDbObjectAsync(bool dbProcedureNotTable,
+            MeadowConfiguration configuration)
         {
             var response = dbProcedureNotTable
                 ? await PerformRequestAsync(new EnumerateProceduresRequest(), configuration)
@@ -162,9 +162,7 @@ namespace Meadow.MySql
 
         public override void CreateTable<TModel>(MeadowConfiguration configuration)
         {
-            var type = typeof(TModel);
-
-            var script = new TableScriptGenerator(type).Generate().Text;
+            var script = new TableScriptGenerator<TModel>().Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -173,9 +171,7 @@ namespace Meadow.MySql
 
         public override async Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
         {
-            var type = typeof(TModel);
-
-            var script = new TableScriptGenerator(type).Generate().Text;
+            var script = new TableScriptGenerator<TModel>().Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -184,9 +180,7 @@ namespace Meadow.MySql
 
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var type = typeof(TModel);
-
-            var script = new InsertProcedureGenerator(type).Generate().Text;
+            var script = new InsertProcedureGenerator<TModel>().Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -197,7 +191,7 @@ namespace Meadow.MySql
         {
             var type = typeof(TModel);
 
-            var script = new InsertProcedureGenerator(type).Generate().Text;
+            var script = new InsertProcedureGenerator<TModel>().Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -206,9 +200,8 @@ namespace Meadow.MySql
 
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var type = typeof(TModel);
-
-            var script = new ReadSequenceProcedureGenerator(type, false, 1, false).Generate().Text;
+            var script = new ReadSequenceProcedureGenerator<TModel>
+                (true, 1, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -217,9 +210,8 @@ namespace Meadow.MySql
 
         public override async Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var type = typeof(TModel);
-
-            var script = new ReadSequenceProcedureGenerator(type, false, 1, false).Generate().Text;
+            var script = new ReadSequenceProcedureGenerator<TModel>
+                (true, 1, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
