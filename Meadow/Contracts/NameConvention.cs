@@ -11,6 +11,19 @@ namespace Meadow.Contracts
 
         public IDataOwnerNameProvider TableNameProvider { get; }
         public Type EntityType { get; private set; }
+        
+        public string EventStreamTableName { get; private set; }
+        
+        public string InsertEvent { get; private set; }
+        
+        public string ReadAllStreams { get; private set; }
+        
+        public string ReadStreamByStreamId { get; private set; }
+        
+        public string ReadAllStreamsChunks { get; private set; }
+        
+        public string ReadStreamChunkByStreamId { get; private set; }
+        
 
         public NameConvention(Type entityType) : this(entityType, new PluralDataOwnerNameProvider())
         {
@@ -26,7 +39,8 @@ namespace Meadow.Contracts
 
             TableName = TableNameProvider.GetNameForOwnerType(EntityType);
 
-
+            EventStreamTableName = TableName + "EventStream";
+            
             DeleteAllProcedureName = "spDeleteAll" + TableName;
 
             DeleteByIdProcedureName = "spDelete" + EntityName + "ById";
@@ -49,6 +63,17 @@ namespace Meadow.Contracts
             InsertProcedureName = "spInsert" + EntityName;
 
             SaveProcedureName = "spSave" + EntityName;
+
+            InsertEvent = "spInsert" + EntityName + "Event";
+
+            ReadAllStreams = "spReadAll" + TableName + "Streams";
+            
+            ReadStreamByStreamId = "spRead" + TableName + "StreamByStreamId";
+            
+            ReadAllStreamsChunks = "spReadAll" + TableName + "StreamsChunk";
+            
+            ReadStreamChunkByStreamId = "spRead" + TableName + "StreamChunkByStreamId";
+
         }
 
         public string DeleteByIdProcedureName { get; }
