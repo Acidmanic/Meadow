@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Meadow.Contracts;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
 
 
@@ -39,6 +37,10 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
         
         protected string GetProcedureName()
         {
+            if (IsDatabaseObjectNameForced)
+            {
+                return ForcedDatabaseObjectName;
+            }
             return ById
                 ? ProcessedType.NameConvention.DeleteByIdProcedureName
                 : ProcessedType.NameConvention.DeleteAllProcedureName;

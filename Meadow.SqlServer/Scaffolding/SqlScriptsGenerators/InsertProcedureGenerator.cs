@@ -4,7 +4,7 @@ using System.Linq;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class InsertProcedureGenerator<TEntity> : InsertProcedureGenerator
     {
@@ -33,7 +33,10 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName);
+            replacementList.Add(_keyProcedureName,
+                IsDatabaseObjectNameForced
+                    ? ForcedDatabaseObjectName
+                    : ProcessedType.NameConvention.InsertProcedureName);
 
             var parameters = ProcessedType.NoneIdParameters.Select(p => SqlProcedureDeclaration(p, "@"));
             var parametersClause =
@@ -49,7 +52,7 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
                 string.Join(',', ProcessedType.NoneIdParameters.Select(p => "@" + p.Name)));
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
-            
+
             replacementList.Add(_keyIdFieldType, ProcessedType.IdParameter.Type);
 
             var recordItems = ProcessedType.Parameters.Select(p => p.Name + " @" + p.Name);

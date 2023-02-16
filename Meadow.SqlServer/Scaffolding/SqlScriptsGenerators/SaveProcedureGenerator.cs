@@ -40,9 +40,7 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
 
             replacementList.Add(_keyTableName, processed.NameConvention.TableName);
 
-            replacementList.Add(_keyProcedureName, processed.NameConvention.SaveProcedureName);
-
-            var whereClause = GetWhereClause(processed);
+            replacementList.Add(_keyProcedureName,IsDatabaseObjectNameForced?ForcedDatabaseObjectName: processed.NameConvention.SaveProcedureName);
 
             var parameters = string.Join(',', processed.Parameters.Select(p => SqlProcedureDeclaration(p, "@")));
 

@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class ReadProcedureGenerator<TEntity> : ReadProcedureGenerator
     {
@@ -28,6 +25,10 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
 
         private string GetProcedureName()
         {
+            if (IsDatabaseObjectNameForced)
+            {
+                return ForcedDatabaseObjectName;
+            }
             return ById
                 ? ProcessedType.NameConvention.SelectByIdProcedureName
                 : ProcessedType.NameConvention.SelectAllProcedureName;

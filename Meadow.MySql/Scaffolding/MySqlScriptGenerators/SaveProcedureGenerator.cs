@@ -33,14 +33,15 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyValues = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyIdColumn = GenerateKey();
-        
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             var processed = Process(_type);
 
             replacementList.Add(_keyTableName, processed.NameConvention.TableName);
 
-            replacementList.Add(_keyProcedureName, processed.NameConvention.SaveProcedureName);
+            replacementList.Add(_keyProcedureName,
+                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : processed.NameConvention.SaveProcedureName);
 
             var whereClause = GetWhereClause(processed);
 
@@ -53,17 +54,17 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keySetClause, setClause);
 
             replacementList.Add(_keyIdFieldName, processed.IdParameter.Name);
-            
-            replacementList.Add(_keyWhereClause,GetWhereClause(processed));
-            
+
+            replacementList.Add(_keyWhereClause, GetWhereClause(processed));
+
             var columnsAndValues = string.Join(',', processed.NoneIdParameters
                 .Select(p => p.Name));
-            
-            replacementList.Add(_keyColumns,columnsAndValues);
-            
-            replacementList.Add(_keyValues,columnsAndValues);
-            
-            replacementList.Add(_keyIdColumn,processed.IdField.Name);
+
+            replacementList.Add(_keyColumns, columnsAndValues);
+
+            replacementList.Add(_keyValues, columnsAndValues);
+
+            replacementList.Add(_keyIdColumn, processed.IdField.Name);
         }
 
         private bool IsString(Parameter p)

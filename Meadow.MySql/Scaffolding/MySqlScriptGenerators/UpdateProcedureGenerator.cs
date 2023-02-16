@@ -35,17 +35,18 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             replacementList.Add(_keyTableName, process.NameConvention.TableName);
 
-            replacementList.Add(_keyProcedureName,process.NameConvention.UpdateProcedureName);
-            
-            var parameters = string.Join(',',process.Parameters.Select(p =>  SqlProcedureDeclaration(p,"IN ")));
+            replacementList.Add(_keyProcedureName,
+                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.UpdateProcedureName);
+
+            var parameters = string.Join(',', process.Parameters.Select(p => SqlProcedureDeclaration(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 
             var setClause = string.Join(',', process.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
-            
+
             replacementList.Add(_keySetClause, setClause);
-            
-            replacementList.Add(_keyIdFieldName,process.IdParameter.Name);
+
+            replacementList.Add(_keyIdFieldName, process.IdParameter.Name);
         }
 
         protected override string Template => $@"

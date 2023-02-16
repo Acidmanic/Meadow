@@ -1,6 +1,6 @@
 using Meadow.Scaffolding.CodeGenerators;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class SqlSingleLineGenerator:ICodeGenerator
     {

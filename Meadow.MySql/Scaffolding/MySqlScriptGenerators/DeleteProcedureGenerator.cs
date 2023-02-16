@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
@@ -30,14 +31,24 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyIdFieldTypeName = GenerateKey();
 
+
+        private string GetProcedureName(ProcessedType processed)
+        {
+            if (IsDatabaseObjectNameForced)
+            {
+                return ForcedDatabaseObjectName;
+            }
+
+            return AllNotById
+                ? processed.NameConvention.DeleteAllProcedureName
+                : processed.NameConvention.DeleteByIdProcedureName;
+        }
+        
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             var processed = Process(_type);
             
-            replacementList.Add(_keyProcedureName,
-                AllNotById?
-                processed.NameConvention.DeleteAllProcedureName:
-                processed.NameConvention.DeleteByIdProcedureName);
+            replacementList.Add(_keyProcedureName,GetProcedureName(processed));
             
             replacementList.Add(_keyTableName,processed.NameConvention.TableName);
             

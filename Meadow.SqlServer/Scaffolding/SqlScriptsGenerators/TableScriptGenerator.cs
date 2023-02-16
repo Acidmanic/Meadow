@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class TableScriptGenerator<TEntity> : TableScriptGenerator
     {
@@ -31,7 +30,8 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
         {
             var process = Process(_type);
 
-            replacementList.Add(_keyTableName, process.NameConvention.TableName);
+            replacementList.Add(_keyTableName,
+                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
 
             var parameters = GetParameters(process);
 

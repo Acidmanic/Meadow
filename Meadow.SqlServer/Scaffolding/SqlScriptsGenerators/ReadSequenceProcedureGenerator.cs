@@ -28,12 +28,21 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
         private readonly string _keyOrder = GenerateKey();
 
 
+        private string GetProcedureName()
+        {
+            if (IsDatabaseObjectNameForced)
+            {
+                return ForcedDatabaseObjectName;
+            }
+
+            return OrderAscending
+                ? ProcessedType.NameConvention.SelectFirstProcedureName
+                : ProcessedType.NameConvention.SelectLastProcedureName;
+        }
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName,
-                OrderAscending
-                    ? ProcessedType.NameConvention.SelectFirstProcedureName
-                    : ProcessedType.NameConvention.SelectLastProcedureName);
+            replacementList.Add(_keyProcedureName, GetProcedureName());
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
 

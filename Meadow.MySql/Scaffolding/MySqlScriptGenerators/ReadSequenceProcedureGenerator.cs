@@ -60,6 +60,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected string GetProcedureName(NameConvention nameConvention)
         {
+            if (IsDatabaseObjectNameForced)
+            {
+                return ForcedDatabaseObjectName;
+            }
             if (AllNotById)
             {
                 if (Top > 0)

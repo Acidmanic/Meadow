@@ -23,11 +23,24 @@ namespace Meadow.Scaffolding.CodeGenerators
         public IDbTypeNameMapper TypeNameMapper { get; }
 
 
+        protected bool IsDatabaseObjectNameForced { get; private set; }
+        
+        protected string ForcedDatabaseObjectName { get; private set; }
+
         protected void WalkThroughLeaves<TEntity>(bool fullTree, Action<AccessNode> leafAction)
         {
             WalkThroughLeaves(typeof(TEntity), fullTree, leafAction);
         }
 
+        public SqlGeneratorBase ForceDatabaseObjectName(string forcedName)
+        {
+            IsDatabaseObjectNameForced = true;
+
+            ForcedDatabaseObjectName = forcedName;
+
+            return this;
+        }
+        
         public void WalkThroughLeaves(Type type, bool fullTree, Action<AccessNode> leafAction)
         {
             var treeRoot = ObjectStructure.CreateStructure(type, true);

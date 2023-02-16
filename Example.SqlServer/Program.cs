@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Example.SqlServer.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.SqlServer;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -12,15 +13,23 @@ namespace Example.SqlServer
 {
     class Program
     {
+        private class ConfigurationProvider : IMeadowConfigurationProvider
+        {
+            public MeadowConfiguration GetConfigurations()
+            {
+                return  new MeadowConfiguration
+                {
+                    ConnectionString = GetConnectionString(),
+                    BuildupScriptDirectory = "Scripts"
+                };
+            }
+        }
+        
         static void Main(string[] args)
         {
             new ConsoleLogger().UseForMeadow();
             // Configure Meadow
-            var configuration = new MeadowConfiguration
-            {
-                ConnectionString = GetConnectionString(),
-                BuildupScriptDirectory = "Scripts"
-            };
+            var configuration = new ConfigurationProvider().GetConfigurations();
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseSqlServer();
 

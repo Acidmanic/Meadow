@@ -33,7 +33,10 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.UpdateProcedureName);
+            replacementList.Add(_keyProcedureName,
+                IsDatabaseObjectNameForced
+                    ? ForcedDatabaseObjectName
+                    : ProcessedType.NameConvention.UpdateProcedureName);
 
             var parameters = string.Join(',', ProcessedType.Parameters
                 .Select(p => SqlProcedureDeclaration(p, "@")));

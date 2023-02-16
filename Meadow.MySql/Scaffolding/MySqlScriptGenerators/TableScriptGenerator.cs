@@ -30,7 +30,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
             var process = Process(_type);
 
-            replacementList.Add(_keyTableName, process.NameConvention.TableName);
+            replacementList.Add(_keyTableName,
+                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
 
             var parameters = GetParameters(process);
 
