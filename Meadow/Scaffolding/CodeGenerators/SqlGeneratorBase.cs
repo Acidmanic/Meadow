@@ -44,11 +44,6 @@ namespace Meadow.Scaffolding.CodeGenerators
             }
         }
 
-        public List<Parameter> ToParameters<TEntity>()
-        {
-            return ToParameters(typeof(TEntity));
-        }
-
 
         protected void WalkThroughLeaves(Type type, Action<AccessNode> scan)
         {
@@ -63,26 +58,6 @@ namespace Meadow.Scaffolding.CodeGenerators
                     scan(child);
                 }
             }
-        }
-
-
-        public List<Parameter> ToParameters(Type type)
-        {
-            var parameters = new List<Parameter>();
-
-            WalkThroughLeaves(type,
-                l =>
-                {
-                    var typeName = TypeNameMapper[l.Type];
-
-                    parameters.Add(new Parameter
-                    {
-                        Name = l.Name,
-                        Type = typeName
-                    });
-                });
-
-            return parameters;
         }
 
         public ProcessedType Process<TEntity>()
@@ -107,16 +82,16 @@ namespace Meadow.Scaffolding.CodeGenerators
                 var parameter = new Parameter
                 {
                     Name = leaf.Name,
-                    Type = TypeNameMapper[leaf.Type]
+                    Type = TypeNameMapper.GetDatabaseTypeName(leaf.Type, leaf.PropertyAttributes)
                 };
-                
+
                 process.Parameters.Add(parameter);
-                
+
                 if (leaf.Name == process.IdField.Name)
                 {
                     process.HasId = true;
 
-                    process.IdParameter = parameter;                
+                    process.IdParameter = parameter;
                 }
                 else
                 {
@@ -128,7 +103,7 @@ namespace Meadow.Scaffolding.CodeGenerators
                     }
                 }
             });
-     
+
             return process;
         }
 
