@@ -1,26 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Meadow.DataTypeMapping;
 
 namespace Meadow.Postgre
 {
-    public class PostgreDbTypeNameMapper : IDbTypeNameMapper
+    public class PostgreDbTypeNameMapper : DbTypeNameMapperBase
     {
         private readonly Dictionary<Type, string> _typeMap = new Dictionary<Type, string>();
 
-        public string this[Type type]
-        {
-            get
-            {
-                if (type.IsEnum)
-                {
-                    return _typeMap[typeof(int)];
-                }
-
-                return _typeMap[type];
-            }
-        }
 
         public PostgreDbTypeNameMapper()
         {
@@ -58,6 +45,11 @@ namespace Meadow.Postgre
             _typeMap[typeof(DateTime?)] = "TIMESTAMPTZ";
             _typeMap[typeof(DateTimeOffset?)] = "INTERVAL";
             //_typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;   
+        }
+
+        public override string GetDatabaseTypeName(Type type)
+        {
+            return _typeMap[type];
         }
     }
 }

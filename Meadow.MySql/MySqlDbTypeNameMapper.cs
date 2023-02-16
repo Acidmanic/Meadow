@@ -1,27 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Meadow.DataTypeMapping;
 using MySql.Data.MySqlClient;
 
 namespace Meadow.MySql
 {
-    public class MySqlDbTypeNameMapper : IDbTypeNameMapper
+    public class MySqlDbTypeNameMapper : SqlDbTypeNameMapperBase
     {
         private readonly Dictionary<Type, string> _typeMap = new Dictionary<Type, string>();
-
-        public string this[Type type]
-        {
-            get
-            {
-                if (type.IsEnum)
-                {
-                    return SqlDbType.Int.ToString().ToLower();
-                }
-
-                return _typeMap[type];
-            }
-        }
 
         public MySqlDbTypeNameMapper()
         {
@@ -60,6 +46,11 @@ namespace Meadow.MySql
             _typeMap[typeof(DateTime?)] = MySqlDbType.DateTime.ToString().ToLower();
             _typeMap[typeof(DateTimeOffset?)] = MySqlDbType.DateTime.ToString().ToLower();
             //_typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;   
+        }
+
+        public override string GetDatabaseTypeName(Type type)
+        {
+            return _typeMap[type];
         }
     }
 }

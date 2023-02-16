@@ -1,26 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
 using Meadow.DataTypeMapping;
 
 namespace Meadow.SQLite
 {
-    public class SqLiteTypeNameMapper : IDbTypeNameMapper
+    public class SqLiteTypeNameMapper : DbTypeNameMapperBase
     {
         private readonly Dictionary<Type, string> _typeMap = new Dictionary<Type, string>();
-
-        public string this[Type type]
-        {
-            get
-            {
-                if (type.IsEnum)
-                {
-                    return _typeMap[typeof(int)];
-                }
-
-                return _typeMap[type];
-            }
-        }
 
         public SqLiteTypeNameMapper()
         {
@@ -59,6 +45,11 @@ namespace Meadow.SQLite
             _typeMap[typeof(DateTime?)] = "TEXT";
             _typeMap[typeof(DateTimeOffset?)] = "TEXT";
             //_typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;   
+        }
+
+        public override string GetDatabaseTypeName(Type type)
+        {
+            return _typeMap[type];
         }
     }
 }

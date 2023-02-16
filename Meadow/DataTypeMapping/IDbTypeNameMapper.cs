@@ -1,10 +1,15 @@
 using System;
-using System.Data;
+using System.Collections.Generic;
 
 namespace Meadow.DataTypeMapping
 {
     public interface IDbTypeNameMapper
     {
-        string this[Type type] { get; }
+        
+        string GetDatabaseTypeName(Type type);
+        /// <summary>
+        /// If The Database would not be affected by any attributes, just forward the other method.
+        /// </summary>
+        string GetDatabaseTypeName(Type type,IEnumerable<Attribute> propertyAttributes);
     }
 }

@@ -26,7 +26,7 @@ namespace Meadow.MySql.Scaffolding.Macros
             
             
             
-            var streamIdType = _typeNameMap[streamIdLeaf.Type];
+            var streamIdType = _typeNameMap.GetDatabaseTypeName(streamIdLeaf.Type);
 
             var eventIdType = GetEventIdType(arguments);
 
@@ -59,7 +59,7 @@ namespace Meadow.MySql.Scaffolding.Macros
         {
             if (args.Any(a => a.ToLower() == "guid"))
             {
-                return _typeNameMap[typeof(Guid)];
+                return _typeNameMap.GetDatabaseTypeName(typeof(Guid));
             }
 
             return "bigint";
