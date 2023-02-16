@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Meadow.DataTypeMapping;
 
-namespace Meadow.DataTypeMapping
+namespace Meadow.SqlServer
 {
     public class SqlDbTypeNameMapper : SqlDbTypeNameMapperBase
     {
