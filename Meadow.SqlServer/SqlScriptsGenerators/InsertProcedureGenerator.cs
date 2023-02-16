@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -29,6 +28,7 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyValues = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyIdFieldType = GenerateKey();
         private readonly string _keyRecordPhrase = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -49,10 +49,14 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
                 string.Join(',', ProcessedType.NoneIdParameters.Select(p => "@" + p.Name)));
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
+            
+            replacementList.Add(_keyIdFieldType, ProcessedType.IdParameter.Type);
 
             var recordItems = ProcessedType.Parameters.Select(p => p.Name + " @" + p.Name);
 
             var recordPhrase = string.Join(',', recordItems);
+
+            replacementList.Add(_keyRecordPhrase, recordPhrase);
         }
 
         protected override string Template => ProcessedType.HasId ? ByIdTemplate : NoIdTemplate;
@@ -62,7 +66,7 @@ CREATE PROCEDURE {_keyProcedureName}{_keyParameters} AS
     
     INSERT INTO {_keyTableName} ({_keyColumns}) 
                    VALUES ({_keyValues})
-    DECLARE @newId bigint=(IDENT_CURRENT('{_keyTableName}'));
+    DECLARE @newId {_keyIdFieldType}=(IDENT_CURRENT('{_keyTableName}'));
     SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@newId;
 GO
 ";

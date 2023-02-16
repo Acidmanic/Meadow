@@ -55,7 +55,7 @@ CREATE PROCEDURE {_keyProcedureName}({_keyParameters}) AS
     WHERE {_keyIdFieldName}=@{_keyIdFieldName};
     
     SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@{_keyIdFieldName};
-go
+GO
 ".Trim();
     }
 }
