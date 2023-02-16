@@ -1,5 +1,6 @@
 
 using Acidmanic.Utilities.Reflection.Attributes;
+using Meadow.DataTypeMapping.Attributes;
 
 namespace Meadow.Models
 {
@@ -13,6 +14,7 @@ namespace Meadow.Models
 
         public string ScriptName { get; set; }
 
+        [ForceColumnSize(4096)]
         public string Script { get; set; }
     }
 }
