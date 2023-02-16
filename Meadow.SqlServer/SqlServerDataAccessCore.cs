@@ -71,8 +71,8 @@ namespace Meadow.SqlServer
             TypeDatabaseDefinition definition)
         {
           
-            var script = new ReadSequenceProcedureGenerator(definition.CorrespondingType,
-                false, 1, false).Generate().Text;
+            var script = new ReadSequenceProcedureGenerator(definition.CorrespondingType, 1, false)
+                .Generate().Text;
 
             script = ClearGo(script);
 

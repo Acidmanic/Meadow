@@ -1,70 +1,61 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
+using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.SqlScriptsGenerators
 {
-    public class UpdateProcedureGenerator : ProcedureGenerator
+    public class UpdateProcedureGenerator<TEntity> : UpdateProcedureGenerator
     {
-        public UpdateProcedureGenerator(Type type) : base(type)
+        public UpdateProcedureGenerator() : base(typeof(TEntity))
         {
         }
+    }
 
-        protected override string GetProcedureName()
+    public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
+    {
+        private ProcessedType ProcessedType { get; }
+
+        public UpdateProcedureGenerator(Type type) : base(new SqlDbTypeNameMapper())
         {
-            return NameConvention.UpdateProcedureName;
+            ProcessedType = Process(type);
         }
 
-        protected override string GenerateScript(SqlScriptActions action, string snippet)
+        private readonly string _keyProcedureName = GenerateKey();
+        private readonly string _keyParameters = GenerateKey();
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keySetValues = GenerateKey();
+        private readonly string _keyIdFieldName = GenerateKey();
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var sep = "";
-            var parameters = "";
-            var idFieldName = "";
-            var idFieldType = "";
-            var columnValues = "";
-            AccessNode idLeaf = null;
+            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.UpdateProcedureName);
 
-            WalkThroughLeaves(false, leaf =>
-            {
-                if (leaf.IsUnique)
-                {
-                    idFieldName = leaf.Name;
-                    idFieldType = TypeNameMapper[leaf.Type];
-                    idLeaf = leaf;
-                }
-                else
-                {
-                    string fieldName = leaf.Name;
+            var parameters = string.Join(',', ProcessedType.Parameters
+                .Select(p => SqlProcedureDeclaration(p, "@")));
 
-                    string typeName = TypeNameMapper[leaf.Type];
+            replacementList.Add(_keyParameters, parameters);
 
-                    parameters += sep + "@" + fieldName + " " + typeName;
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-                    columnValues += sep + fieldName + " = @" + fieldName;
+            replacementList.Add(_keySetValues, string.Join(',', ProcessedType.NoneIdParameters
+                .Select(p => p.Name + " = @" + p.Name)));
 
-                    sep = ", ";
-                }
-            });
-
-            if (idLeaf == null)
-            {
-                // An entity without Id, cant be updated by Id!!
-                return "";
-            }
-            
-            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t@{idFieldName} {idFieldType} ,{parameters})\nAS";
-
-            script += $"\n\tUPDATE {NameConvention.TableName}";
-
-            script += $"\n\tSET {columnValues}";
-
-            script += $"\n\tWHERE {idFieldName}=@{idFieldName}";
-
-            script += $"\n\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=@{idFieldName};";
-
-            script += "\nGO\n\n";
-
-            return script;
+            replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
         }
+
+        protected override string Template => $@"
+CREATE PROCEDURE {_keyProcedureName}({_keyParameters}) AS
+    UPDATE {_keyTableName}
+    SET {_keySetValues}
+    WHERE {_keyIdFieldName}=@{_keyIdFieldName};
+    
+    SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@{_keyIdFieldName};
+go
+".Trim();
     }
 }
