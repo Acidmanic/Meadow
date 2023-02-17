@@ -1,5 +1,8 @@
 using System;
+using System.Reflection;
+using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using CorePluralizer.Extensions;
 
 namespace Meadow.Contracts
 {
@@ -10,7 +13,12 @@ namespace Meadow.Contracts
         public string TableName { get; private set; }
 
         public IDataOwnerNameProvider TableNameProvider { get; }
+        
         public Type EntityType { get; private set; }
+        
+        /* Event Stream related */
+
+        public string EventStreamEntity { get; set; }
         
         public string EventStreamTableName { get; private set; }
         
@@ -39,8 +47,6 @@ namespace Meadow.Contracts
 
             TableName = TableNameProvider.GetNameForOwnerType(EntityType);
 
-            EventStreamTableName = TableName + "EventStream";
-            
             DeleteAllProcedureName = "spDeleteAll" + TableName;
 
             DeleteByIdProcedureName = "spDelete" + EntityName + "ById";
@@ -64,16 +70,46 @@ namespace Meadow.Contracts
 
             SaveProcedureName = "spSave" + EntityName;
 
-            InsertEvent = "spInsert" + EntityName + "Event";
+            
+            /* Event Streams */
+            
+            var eventStreamEntity = entityType.Name;
 
-            ReadAllStreams = "spReadAll" + TableName + "Streams";
-            
-            ReadStreamByStreamId = "spRead" + TableName + "StreamByStreamId";
-            
-            ReadAllStreamsChunks = "spReadAll" + TableName + "StreamsChunk";
-            
-            ReadStreamChunkByStreamId = "spRead" + TableName + "StreamChunkByStreamId";
+            if (eventStreamEntity.StartsWith("I"))
+            {
+                eventStreamEntity = eventStreamEntity.Substring(1, eventStreamEntity.Length - 1);
+            }
 
+            if (eventStreamEntity.EndsWith("Base"))
+            {
+                eventStreamEntity = eventStreamEntity.Substring(0, eventStreamEntity.Length - 4);
+            }
+            
+            if (eventStreamEntity.EndsWith("Event"))
+            {
+                eventStreamEntity = eventStreamEntity.Substring(0, eventStreamEntity.Length - 5);
+            }
+
+            EventStreamEntity = eventStreamEntity;
+
+            if (entityType.GetCustomAttribute<OwnerNameAttribute>() is { } attribute)
+            {
+                EventStreamTableName = attribute.TableName+ "EventStream";
+            }
+            else
+            {
+                EventStreamTableName = EventStreamEntity.ToPlural() + "EventStream";
+            }
+            
+            InsertEvent = "spInsert" + EventStreamEntity + "Event";
+
+            ReadAllStreams = "spReadAll" + EventStreamEntity + "Streams";
+            
+            ReadStreamByStreamId = "spRead" + EventStreamEntity + "StreamByStreamId";
+            
+            ReadAllStreamsChunks = "spReadAll" + EventStreamEntity + "StreamsChunk";
+            
+            ReadStreamChunkByStreamId = "spRead" + EventStreamEntity + "StreamChunkByStreamId";
         }
 
         public string DeleteByIdProcedureName { get; }
