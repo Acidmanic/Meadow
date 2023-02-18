@@ -7,7 +7,7 @@ namespace Meadow.MySql.Scaffolding.Macros
 {
     public class CrudMacro : MacroBase
     {
-        public override string Name { get; } = "Crud";
+        public override string Name { get; } = "CrudOut";
 
         private readonly string _line = new LineMacro().GenerateCode();
 

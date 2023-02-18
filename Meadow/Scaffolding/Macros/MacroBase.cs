@@ -21,7 +21,7 @@ public abstract class MacroBase : IMacro
     {
         if (index >= arguments.Length)
         {
-            throw new ArgumentException("Insert procedure macro, expects type argument which is not provided.");
+            throw new ArgumentException($"'{Name}' macro, expects type argument which is not provided.");
         }
 
         var allTypes = LoadedAssemblies.ListAllAvailableClasses();

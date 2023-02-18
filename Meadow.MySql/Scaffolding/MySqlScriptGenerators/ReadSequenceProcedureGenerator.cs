@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Contracts;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators

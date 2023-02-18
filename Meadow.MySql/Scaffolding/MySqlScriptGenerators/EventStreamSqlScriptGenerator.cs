@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -13,6 +13,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
+    [BuiltinMacroAdaptable(false,"EventStream")]
     public class EventStreamSqlScriptGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly string _keyTableName = GenerateKey();

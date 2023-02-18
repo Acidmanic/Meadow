@@ -91,7 +91,7 @@ public class MacroEngine
 
     private Dictionary<long, string> EvaluateMacros(List<DetectedMacroPointer> pointers)
     {
-        var stickersByLine = GroupByLine(pointers);
+        var pointerByLine = GroupByLine(pointers);
 
         var factory = new MacroFactory();
 
@@ -99,7 +99,7 @@ public class MacroEngine
 
         var updateLines = new Dictionary<long, string>();
 
-        foreach (var stickerGroup in stickersByLine)
+        foreach (var stickerGroup in pointerByLine)
         {
             string contentHeader = "-- ";
 

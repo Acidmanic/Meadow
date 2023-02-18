@@ -6,7 +6,7 @@ namespace Meadow.MySql.Scaffolding.Macros
 
     public class EventSourcingMySqlMacro : MacroBase
     {
-        public override string Name { get; } = "EventStream";
+        public override string Name { get; } = "EventStreamOut";
         
         public override string GenerateCode(params string[] arguments)
         {

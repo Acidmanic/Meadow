@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -14,6 +15,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
+    [BuiltinMacroAdaptable(false,"Crud","Save")]
     public class SaveProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;

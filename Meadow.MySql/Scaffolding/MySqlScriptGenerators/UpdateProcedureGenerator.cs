@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -13,6 +14,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
+    [BuiltinMacroAdaptable(false,"Crud","Update")]
     public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;

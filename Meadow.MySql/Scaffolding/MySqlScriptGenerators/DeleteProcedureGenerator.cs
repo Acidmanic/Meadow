@@ -13,15 +13,16 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
     
+    [BuiltinMacroAdaptable(false,"Crud","DeleteAll","DeleteById")]
     public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private bool AllNotById { get; }
 
         private readonly Type _type;
 
-        public DeleteProcedureGenerator(Type type, bool allNotById) : base(new MySqlDbTypeNameMapper())
+        public DeleteProcedureGenerator(Type type, bool byId) : base(new MySqlDbTypeNameMapper())
         {
-            AllNotById = allNotById;
+            AllNotById = !byId;
             _type = type;
         }
 
@@ -63,7 +64,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private string TemplateAll => $@"
 CREATE PROCEDURE {_keyProcedureName}() 
 BEGIN
-    DELETE FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
+    DELETE FROM {_keyTableName};
     SELECT TRUE Success;
 END;
 ".Trim();
