@@ -1,3 +1,4 @@
+using System;
 using System.Text;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros;
@@ -20,6 +21,10 @@ namespace Meadow.SqlServer.Scaffolding.Macros
             var sb = new StringBuilder();
 
             Append(sb,"Entity Table", new TableScriptGenerator(type));
+
+            sb.AppendLine(_line).Append("-- ")
+                .AppendLine("SPLIT")
+                .AppendLine(_line);
             
             Append(sb,"Insert New Entity", new InsertProcedureGenerator(type));
 
