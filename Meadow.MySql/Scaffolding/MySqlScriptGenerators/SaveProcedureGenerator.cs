@@ -15,7 +15,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    [BuiltinMacroAdaptable(false,"Crud","Save")]
+    [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;

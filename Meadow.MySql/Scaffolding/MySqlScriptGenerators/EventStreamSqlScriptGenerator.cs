@@ -13,7 +13,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    [BuiltinMacroAdaptable(false,"EventStream")]
+    [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamSqlScriptGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly string _keyTableName = GenerateKey();

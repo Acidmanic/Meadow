@@ -14,7 +14,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    [BuiltinMacroAdaptable(false,"Crud","Table")]
+    [CommonSnippet(CommonSnippets.CreateTable)]
     public class TableScriptGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;

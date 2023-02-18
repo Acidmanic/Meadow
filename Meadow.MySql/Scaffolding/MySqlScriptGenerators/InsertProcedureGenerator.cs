@@ -14,7 +14,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    [BuiltinMacroAdaptable(false,"Crud","Insert")]
+    [CommonSnippet(CommonSnippets.InsertProcedure)]
     public class InsertProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;

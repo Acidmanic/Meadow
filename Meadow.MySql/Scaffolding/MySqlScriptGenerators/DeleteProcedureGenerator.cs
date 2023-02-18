@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
@@ -13,7 +14,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
     
-    [BuiltinMacroAdaptable(false,"Crud","DeleteAll","DeleteById")]
+    [CommonSnippet(CommonSnippets.DeleteProcedure)]
     public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private bool AllNotById { get; }

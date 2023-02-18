@@ -20,10 +20,12 @@ public abstract class BuiltinMacroBase : MacroBase
     [Flags]
     protected enum CodeGenerateBehavior
     {
-        ById = 1,
-        All = 2,
-        ByIdAndAll = 3,
-        None = 0
+        UseById = 1,
+        UseAll = 2,
+        UseIdAware = UseById | UseAll,
+        UseIdAgnostic = 4,
+        UseEveryMethod = UseIdAware | UseIdAgnostic,
+        UseNone = 0
     }
 
     protected class CodeGeneratorConstruction
@@ -42,10 +44,22 @@ public abstract class BuiltinMacroBase : MacroBase
     {
         var type = GrabTypeArgument(arguments, 0);
 
-        var constructions = BelongingCodeGenerators();
+        var catalog = AvailableCodeGeneratorsCatalog();
+
+        var code = GenerateCode(type, catalog);
+
+        return code;
+    }
 
 
-        var sb = AssembleCodeGenerators(new StringBuilder(), type, constructions);
+    protected abstract Dictionary<CommonSnippets, CodeGenerateBehavior> GetAssemblyBehavior();
+
+
+    protected virtual string GenerateCode(Type type, Dictionary<CommonSnippets, CodeGeneratorConstruction> cgCatalog)
+    {
+        var behavior = GetAssemblyBehavior();
+
+        var sb = AssembleCodeGenerators(new StringBuilder(), type, cgCatalog, behavior);
 
         Title(sb, "</" + Name + ">");
 
@@ -53,41 +67,42 @@ public abstract class BuiltinMacroBase : MacroBase
     }
 
 
-    protected virtual CodeGenerateBehavior GetGeneratingBehavior(CodeGeneratorConstruction cgc)
+    private StringBuilder AssembleCodeGenerators(StringBuilder sb, Type entityType,
+        Dictionary<CommonSnippets, CodeGeneratorConstruction> generatorsCatalog,
+        Dictionary<CommonSnippets, CodeGenerateBehavior> codeGenerateBehaviors)
     {
-        return CodeGenerateBehavior.ByIdAndAll;
-    }
-
-
-    protected virtual StringBuilder AssembleCodeGenerators(StringBuilder sb, Type entityType,
-        List<CodeGeneratorConstruction> constructions)
-    {
-        foreach (var construction in constructions)
+        foreach (var behaviorItem in codeGenerateBehaviors)
         {
-            ICodeGenerator cg;
+            var snippet = behaviorItem.Key;
 
-            if (!construction.IdAware)
+            if (generatorsCatalog.ContainsKey(snippet))
             {
-                cg = construction.IdAgnosticCodeGenerator(entityType);
+                var behavior = behaviorItem.Value;
 
-                Append(sb, cg);
-            }
-            else
-            {
-                var behavior = GetGeneratingBehavior(construction);
+                var construction = generatorsCatalog[snippet];
 
-                if (behavior.Is(CodeGenerateBehavior.ById))
+                if (behavior.Is(CodeGenerateBehavior.UseIdAgnostic))
                 {
-                    cg = construction.ByIdCodeGenerator(entityType);
-
-                    Append(sb, cg);
+                    if (!construction.IdAware)
+                    {
+                        Append(sb, construction.IdAgnosticCodeGenerator(entityType));
+                    }
                 }
 
-                if (behavior.Is(CodeGenerateBehavior.All))
+                if (behavior.Is(CodeGenerateBehavior.UseById))
                 {
-                    cg = construction.AllCodeGenerator(entityType);
+                    if (construction.IdAware)
+                    {
+                        Append(sb, construction.ByIdCodeGenerator(entityType));
+                    }
+                }
 
-                    Append(sb, cg);
+                if (behavior.Is(CodeGenerateBehavior.UseAll))
+                {
+                    if (construction.IdAware)
+                    {
+                        Append(sb, construction.AllCodeGenerator(entityType));
+                    }
                 }
             }
         }
@@ -155,9 +170,9 @@ public abstract class BuiltinMacroBase : MacroBase
         return tModel => constructor.Invoke(new object[] { tModel }) as ICodeGenerator;
     }
 
-    protected List<CodeGeneratorConstruction> BelongingCodeGenerators()
+    protected Dictionary<CommonSnippets, CodeGeneratorConstruction> AvailableCodeGeneratorsCatalog()
     {
-        var result = new List<CodeGeneratorConstruction>();
+        var catalog = new Dictionary<CommonSnippets, CodeGeneratorConstruction>();
 
         foreach (var assembly in LoadedAssemblies)
         {
@@ -167,41 +182,47 @@ public abstract class BuiltinMacroBase : MacroBase
 
             foreach (var type in types)
             {
-                var builtinAdapter = type.GetCustomAttribute<BuiltinMacroAdaptableAttribute>();
+                var snippetInfo = type.GetCustomAttribute<CommonSnippetAttribute>();
 
-                if (builtinAdapter != null)
+                if (snippetInfo != null)
                 {
-                    if (builtinAdapter.BelongedMacros.Contains(Name))
+                    var idAware = new CommonSnippetsInfo().IsIdAware(snippetInfo.SnippetType);
+
+                    var foundConstructor = FindConstructor(type, idAware);
+
+                    if (foundConstructor)
                     {
-                        var foundConstructor = FindConstructor(type, builtinAdapter.IdAware);
-
-                        if (foundConstructor)
+                        var cons = new CodeGeneratorConstruction
                         {
-                            var cons = new CodeGeneratorConstruction
-                            {
-                                IdAware = builtinAdapter.IdAware
-                            };
+                            IdAware = idAware
+                        };
 
-                            if (builtinAdapter.IdAware)
-                            {
-                                cons.IdAgnosticCodeGenerator = t => new NullCodeGenerator();
-                                cons.ByIdCodeGenerator = CreateFactory(foundConstructor, true, true);
-                                cons.AllCodeGenerator = CreateFactory(foundConstructor, true, false);
-                            }
-                            else
-                            {
-                                cons.IdAgnosticCodeGenerator = CreateFactory(foundConstructor, false, false);
-                                cons.ByIdCodeGenerator = cons.IdAgnosticCodeGenerator;
-                                cons.AllCodeGenerator = cons.IdAgnosticCodeGenerator;
-                            }
+                        if (idAware)
+                        {
+                            cons.IdAgnosticCodeGenerator = t => new NullCodeGenerator();
+                            cons.ByIdCodeGenerator = CreateFactory(foundConstructor, true, true);
+                            cons.AllCodeGenerator = CreateFactory(foundConstructor, true, false);
+                        }
+                        else
+                        {
+                            cons.IdAgnosticCodeGenerator = CreateFactory(foundConstructor, false, false);
+                            cons.ByIdCodeGenerator = cons.IdAgnosticCodeGenerator;
+                            cons.AllCodeGenerator = cons.IdAgnosticCodeGenerator;
+                        }
 
-                            result.Add(cons);
+                        if (catalog.ContainsKey(snippetInfo.SnippetType))
+                        {
+                            //TODO: warning
+                        }
+                        else
+                        {
+                            catalog.Add(snippetInfo.SnippetType, cons);
                         }
                     }
                 }
             }
         }
 
-        return result;
+        return catalog;
     }
 }

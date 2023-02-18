@@ -14,7 +14,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    [BuiltinMacroAdaptable(false,"Crud","Update")]
+    [CommonSnippet(CommonSnippets.UpdateProcedure)]
     public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;
