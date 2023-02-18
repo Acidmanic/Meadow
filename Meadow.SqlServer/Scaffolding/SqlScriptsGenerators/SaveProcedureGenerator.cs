@@ -84,7 +84,7 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
 
         private string EqualityClause(string tableName, Parameter p)
         {
-            return tableName + "." + p.Name + " " + EqualityAssertion(p) + " " + p.Name;
+            return tableName + "." + p.Name + " " + EqualityAssertion(p) + " @" + p.Name;
         }
 
         private string GetWhereClause(ProcessedType process)
