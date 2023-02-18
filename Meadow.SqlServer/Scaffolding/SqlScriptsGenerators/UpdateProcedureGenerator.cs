@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Contracts;
-using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class UpdateProcedureGenerator<TEntity> : UpdateProcedureGenerator
     {
@@ -16,6 +14,7 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
         }
     }
 
+    [CommonSnippet(CommonSnippets.UpdateProcedure)]
     public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private ProcessedType ProcessedType { get; }

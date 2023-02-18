@@ -1,20 +1,25 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class ReadProcedureGenerator<TEntity> : ReadProcedureGenerator
     {
-        public ReadProcedureGenerator(bool byId) : base(typeof(TEntity), byId)
+        public ReadProcedureGenerator(bool byId, bool appendSplit) : base(typeof(TEntity), byId)
         {
         }
     }
 
+    [CommonSnippet(CommonSnippets.ReadProcedure)]
     public class ReadProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         public bool ById { get; }
+
+
         private ProcessedType ProcessedType { get; }
 
         public ReadProcedureGenerator(Type type, bool byId) : base(new SqlDbTypeNameMapper())
@@ -29,6 +34,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             {
                 return ForcedDatabaseObjectName;
             }
+
             return ById
                 ? ProcessedType.NameConvention.SelectByIdProcedureName
                 : ProcessedType.NameConvention.SelectAllProcedureName;
@@ -38,6 +44,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIdParameterDeclaration = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
+
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -61,7 +68,6 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         protected override string Template => $@"
 CREATE PROCEDURE {_keyProcedureName}{_keyIdParameterDeclaration} AS
     SELECT * FROM {_keyTableName}{_keyWhereClause};
-GO
-";
+GO".Trim();
     }
 }

@@ -1,30 +1,44 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class TableScriptGenerator<TEntity> : TableScriptGenerator
     {
-        public TableScriptGenerator() : base(typeof(TEntity))
+        public TableScriptGenerator(bool appendSplit) : base(typeof(TEntity), appendSplit)
         {
         }
     }
 
+    [CommonSnippet(CommonSnippets.CreateTable)]
+    public class CrudTableScriptGenerator : TableScriptGenerator
+    {
+        public CrudTableScriptGenerator(Type type) : base(type, true)
+        {
+        }
+    }
+
+
     public class TableScriptGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;
+        private readonly bool _appendSplitter;
 
-        public TableScriptGenerator(Type type) : base(new SqlDbTypeNameMapper())
+        public TableScriptGenerator(Type type, bool appendSplitter) : base(new SqlDbTypeNameMapper())
         {
             _type = type;
+            _appendSplitter = appendSplitter;
         }
 
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
+        private readonly string _keySplitTail = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -36,6 +50,12 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             var parameters = GetParameters(process);
 
             replacementList.Add(_keyParameters, parameters);
+
+            var line = new LineMacro().GenerateCode();
+
+            var splitTail = _appendSplitter ? ("\n" + line + "\n-- SPLIT\n" + line + "\n") : "";
+
+            replacementList.Add(_keySplitTail, splitTail);
         }
 
         private string GetParameters(ProcessedType process)
@@ -63,6 +83,7 @@ CREATE TABLE {_keyTableName}
 (
     {_keyParameters}
 );
+{_keySplitTail}
 ".Trim();
     }
 }

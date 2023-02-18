@@ -1,5 +1,4 @@
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.SqlServer.SqlScriptsGenerators;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {

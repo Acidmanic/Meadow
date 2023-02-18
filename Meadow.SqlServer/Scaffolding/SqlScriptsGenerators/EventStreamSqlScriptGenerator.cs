@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -12,6 +13,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
     }
 
+    [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamSqlScriptGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly string _keyTableName = GenerateKey();

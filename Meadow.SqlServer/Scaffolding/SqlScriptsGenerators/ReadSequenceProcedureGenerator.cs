@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
     {

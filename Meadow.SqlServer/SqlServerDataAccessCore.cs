@@ -7,7 +7,6 @@ using Meadow.Contracts;
 using Meadow.DataAccessCore.AdoCoreBase;
 using Meadow.DataTypeMapping;
 using Meadow.SqlServer.Scaffolding.SqlScriptsGenerators;
-using Meadow.SqlServer.SqlScriptsGenerators;
 
 namespace Meadow.SqlServer
 {
@@ -54,7 +53,7 @@ namespace Meadow.SqlServer
 
         protected override string GetSqlForCreatingTable(string tableName, TypeDatabaseDefinition parameters)
         {
-            var script = new TableScriptGenerator(parameters.CorrespondingType).Generate().Text;
+            var script = new TableScriptGenerator(parameters.CorrespondingType,false).Generate().Text;
 
             return script;
         }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -14,6 +15,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
     }
     
+    [CommonSnippet(CommonSnippets.DeleteProcedure)]
     public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         public bool ById { get; }

@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.SqlServer.SqlScriptsGenerators
+namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class SaveProcedureGenerator<TEntity> : SaveProcedureGenerator
     {
@@ -13,6 +14,7 @@ namespace Meadow.SqlServer.SqlScriptsGenerators
         }
     }
 
+    [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;
