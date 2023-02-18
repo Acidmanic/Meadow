@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Meadow.Scaffolding.Sqlable;
 
 namespace Meadow.SQLite
 {

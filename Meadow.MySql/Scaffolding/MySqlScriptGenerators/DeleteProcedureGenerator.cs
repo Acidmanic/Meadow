@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -12,7 +12,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
         }
     }
-
+    
     public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         private bool AllNotById { get; }

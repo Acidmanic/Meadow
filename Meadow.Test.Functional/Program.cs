@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd36UnExpectedRepeatation().Main();
+            new Tdd37FlagEnumIs().Main();
         }
     }
 }
