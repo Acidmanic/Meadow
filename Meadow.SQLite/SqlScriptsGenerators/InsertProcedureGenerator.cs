@@ -47,7 +47,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 CREATE PROCEDURE {_keyProcedureName} ({_keyParameters}) AS
     INSERT INTO {_keyTableName} ({_keyColumns})
     VALUES ({_keyValues});
-    SELECT * from {_keyTableName} where ROWID=LAST_INSERT_ROWID();
+    SELECT * FROM {_keyTableName} WHERE ROWID=LAST_INSERT_ROWID();
 GO
 ".Trim();
     }

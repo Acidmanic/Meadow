@@ -33,7 +33,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             if (ProcessedType.HasId)
             {
-                idParameters += ParameterNameTypeJoint(ProcessedType.IdParameter);
+                idParameters += "    " + ParameterNameTypeJoint(ProcessedType.IdParameter);
 
                 idParameters += " NOT NULL PRIMARY KEY";
 
