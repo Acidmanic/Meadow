@@ -17,8 +17,7 @@ namespace Meadow.Tools.Assistant
                 .Build();
             
             
-            app.ExecuteInteractive();
-            
+            app.Execute(args);
         }
     }
 }
