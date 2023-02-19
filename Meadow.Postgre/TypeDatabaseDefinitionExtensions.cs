@@ -13,8 +13,8 @@ namespace Meadow.Postgre
             {
                 if (field.Value == definition.IdField)
                 {
-                    var smallInt = mapper[typeof(byte)];
-                    var bigInt = mapper[typeof(long)];
+                    var smallInt = mapper.GetDatabaseTypeName(typeof(byte));
+                    var bigInt = mapper.GetDatabaseTypeName(typeof(long));
 
                     if (field.Value.DbTypeName == smallInt && field.Value.DbTypeName == bigInt)
                     {

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Meadow.SQLite
+namespace Meadow.SQLite.ProcedureProcessing
 {
     public class SqLiteProcedure
     {

@@ -47,7 +47,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             var whereClause = GetWhereClause(processed);
 
-            var parameters = string.Join(',', processed.Parameters.Select(p => SqlProcedureDeclaration(p, "IN ")));
+            var parameters = string.Join(',', processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 

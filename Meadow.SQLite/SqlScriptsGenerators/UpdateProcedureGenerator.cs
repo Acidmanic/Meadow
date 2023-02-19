@@ -1,70 +1,47 @@
 using System;
-using Acidmanic.Utilities.Reflection.ObjectTree;
+using System.Collections.Generic;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class UpdateProcedureGenerator : SQLite.SqlScriptsGenerators.ProcedureGenerator
+    [CommonSnippet(CommonSnippets.UpdateProcedure)]
+    public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
     {
-        public UpdateProcedureGenerator(Type type) : base(type)
+        private ProcessedType ProcessedType { get; }
+
+
+        public UpdateProcedureGenerator(Type type) : base(new SqLiteTypeNameMapper())
         {
+            ProcessedType = Process(type);
         }
 
-        protected override string GetProcedureName()
+        private readonly string _keyProcedureName = GenerateKey();
+        private readonly string _keyParameters = GenerateKey();
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyNoneIdParametersSet = GenerateKey();
+        private readonly string _keyIdFieldName = GenerateKey();
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            return NameConvention.UpdateProcedureName;
+            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.UpdateProcedureName);
+
+            replacementList.Add(_keyParameters, ParameterNameTypeJoint(ProcessedType.Parameters, ",", "@"));
+
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+
+            replacementList.Add(_keyNoneIdParametersSet,
+                ParameterNameValueSetJoint(ProcessedType.NoneIdParameters, ",", "@"));
+
+            replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
         }
 
-        protected override string GenerateScript(SqlScriptActions action, string snippet)
-        {
-            var sep = "";
-            var parameters = "";
-            var idFieldName = "";
-            var idFieldType = "";
-            var columnValues = "";
-            AccessNode idLeaf = null;
+        protected override string Template => $@"
+CREATE PROCEDURE {_keyProcedureName} ({_keyParameters}) AS
 
-            WalkThroughLeaves(false, leaf =>
-            {
-                if (leaf.IsUnique)
-                {
-                    idFieldName = leaf.Name;
-                    idFieldType = TypeNameMapper[leaf.Type];
-                    idLeaf = leaf;
-                }
-                else
-                {
-                    string fieldName = leaf.Name;
-
-                    string typeName = TypeNameMapper[leaf.Type];
-
-                    parameters += sep + "@" + fieldName + " " + typeName;
-
-                    columnValues += sep + fieldName + " = @" + fieldName;
-
-                    sep = ", ";
-                }
-            });
-
-            if (idLeaf == null)
-            {
-                // An entity without Id, cant be updated by Id!!
-                return "";
-            }
-            
-            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t@{idFieldName} {idFieldType} ,{parameters})\nAS";
-
-            script += $"\n\tUPDATE {NameConvention.TableName}";
-
-            script += $"\n\tSET {columnValues}";
-
-            script += $"\n\tWHERE {idFieldName}=@{idFieldName}";
-
-            script += $"\n\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=@{idFieldName};";
-
-            script += "\nGO\n\n";
-
-            return script;
-        }
+    UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName};
+GO
+".Trim();
     }
 }

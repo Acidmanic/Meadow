@@ -7,6 +7,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Sql;
+using Meadow.SQLite.ProcedureProcessing;
 
 namespace Meadow.SQLite.CarrierInterceptors
 {

@@ -1,158 +1,64 @@
 using System;
-using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
+using System.Collections.Generic;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class ReadSequenceProcedureGenerator : SQLite.SqlScriptsGenerators.ProcedureGenerator
+    public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
     {
-        public bool FullTree { get; }
+        public bool ById { get; }
 
         public int Top { get; }
 
         public bool OrderAscending { get; }
 
+        private ProcessedType ProcessedType { get; }
 
-        public ReadSequenceProcedureGenerator(Type type, bool fullTree, int top, bool orderAscending) : base(type)
+        public ReadSequenceProcedureGenerator(Type type, bool byId, int top, bool orderAscending) : base(
+            new SqLiteTypeNameMapper())
         {
-            FullTree = fullTree;
+            ById = byId;
             Top = top;
             OrderAscending = orderAscending;
+
+            ProcessedType = Process(type);
         }
 
-        protected override string GenerateScript(SqlScriptActions action, string snippet)
+
+        private readonly string _keyProcedureName = GenerateKey();
+        private readonly string _keyParametersDeclaration = GenerateKey();
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyWhereClause = GenerateKey();
+        private readonly string _keyOrderClause = GenerateKey();
+        private readonly string _keyTopClause = GenerateKey();
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var script = $"{snippet} PROCEDURE {ProcedureName}\nAS";
-            
-            var top = GetTop();
+            replacementList.Add(_keyProcedureName,
+                ById
+                    ? ProcessedType.NameConvention.SelectByIdProcedureName
+                    : ProcessedType.NameConvention.SelectAllProcedureName);
 
-            var order = GetOrder(HasIdField, IdField.Name);
+            replacementList.Add(_keyParametersDeclaration, ById ? 
+                $"({ParameterNameTypeJoint(ProcessedType.IdParameter,"@")})" : "");
 
-            var select = $"SELECT * FROM {NameConvention.TableName} {order} \n {top}";
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            if (FullTree)
-            {
-                var sel = ExtractSelectInfo(TreeRoot);
+            var whereClause =
+                ById ? $" WHERE {ProcessedType.IdParameter?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
 
-                select = sel.ToString();
-            }
+            replacementList.Add(_keyWhereClause, whereClause);
 
-            script += $"\n\t{select}\nGO\n\n";
+            replacementList.Add(_keyOrderClause, OrderAscending ? " ORDER BY ROWID ASC" : "ORDER BY ROWID DESC");
 
-            return script;
+            replacementList.Add(_keyTopClause, Top > 0 ? $" LIMIT {Top}" : "");
         }
 
-        private string GetOrder(bool useIdField, string idFieldName)
-        {
-            if (useIdField)
-            {
-                if (Top > 0)
-                {
-                    var ascDesc = OrderAscending ? "ASC" : "DESC";
-
-                    return $"ORDER BY {idFieldName} {ascDesc}";
-                }
-            }
-
-            return "";
-        }
-
-        private string GetTop()
-        {
-            if (Top > 0)
-            {
-                return $"LIMIT {Top}";
-            }
-
-            return "";
-        }
-
-        protected override string GetProcedureName()
-        {
-            return OrderAscending
-                ? (FullTree ? NameConvention.SelectFirstProcedureNameFullTree : NameConvention.SelectFirstProcedureName)
-                : (FullTree ? NameConvention.SelectLastProcedureNameFullTree : NameConvention.SelectLastProcedureName);
-        }
-
-        private FullTreeSelectState ExtractSelectInfo(AccessNode node)
-        {
-            var type = node.Type;
-
-            var tableName = NameConvention.TableNameProvider.GetNameForOwnerType(type);
-
-            var result = new FullTreeSelectState
-            {
-                TableName = tableName,
-                Parameters = "",
-                Joins = "",
-                Sep = "",
-                Info = new AccessTreeInformation(node)
-            };
-
-            ExtractSelectInfo(node, result);
-
-            var sep = "";
-            foreach (var filed in result.Info.OrderedFieldNames)
-            {
-                result.Parameters += sep + filed;
-
-                sep = ", ";
-            }
-
-            return result;
-        }
-
-        private void ExtractSelectInfo(AccessNode node, FullTreeSelectState result)
-        {
-            if (node.IsCollectable)
-            {
-                var father = node.Parent.Parent;
-
-                result.Joins += result.Sep + "LEFT " + GetJoin(father, node, false);
-
-                result.Sep = " ";
-            }
-            else if (!node.IsLeaf && !node.IsCollection && !node.IsRoot)
-            {
-                var father = node.Parent;
-
-                result.Joins += result.Sep + GetJoin(father, node, true);
-
-                result.Sep = " ";
-            }
-
-            node.GetChildren().ForEach(child => ExtractSelectInfo(child, result));
-        }
-
-        private string GetJoin(AccessNode father, AccessNode joining, bool direction1Ton)
-        {
-            var jTableName = NameConvention.TableNameProvider.GetNameForOwnerType(joining.Type);
-
-            var fTableName = NameConvention.TableNameProvider.GetNameForOwnerType(father.Type);
-
-            string idCheck = "";
-
-            var from = direction1Ton ? joining : father;
-            var to = direction1Ton ? father : joining;
-            var fromTableName = direction1Ton ? jTableName : fTableName;
-            var toTableName = direction1Ton ? fTableName : jTableName;
-
-
-            var id = from.GetChildren()
-                .SingleOrDefault(child => child.IsLeaf && child.IsUnique);
-
-            if (id == null)
-            {
-                // A Node without unique id cant participate in a join
-                return "";
-            }
-
-            var nodeId = from.Type.Name + id.Name;
-
-            idCheck = $"{toTableName}.{nodeId}={fromTableName}.{id.Name}";
-
-            return $"JOIN {jTableName} on {idCheck}";
-        }
+        protected override string Template => $@"
+CREATE PROCEDURE {_keyProcedureName}{_keyParametersDeclaration} AS
+    SELECT * FROM {_keyTableName}{_keyWhereClause}{_keyOrderClause}{_keyTopClause}
+GO
+".Trim();
     }
 }

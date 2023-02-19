@@ -44,7 +44,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
             replacementList.Add(_keyProcedureName,IsDatabaseObjectNameForced?ForcedDatabaseObjectName: processed.NameConvention.SaveProcedureName);
 
-            var parameters = string.Join(',', processed.Parameters.Select(p => SqlProcedureDeclaration(p, "@")));
+            var parameters = string.Join(',', processed.Parameters.Select(p => ParameterNameTypeJoint(p, "@")));
 
             replacementList.Add(_keyParameters, parameters);
 

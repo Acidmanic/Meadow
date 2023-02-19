@@ -1,68 +1,66 @@
 using System;
-using Meadow.Scaffolding;
+using System.Collections.Generic;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class TableScriptGenerator : SqlGeneratorBase
+    [CommonSnippet(CommonSnippets.CreateTable)]
+    public class TableScriptGenerator : ByTemplateSqlGeneratorBase
     {
-        public override DbObjectTypes ObjectType => DbObjectTypes.Tables;
+        private readonly string _line =
+            "------------------------------------------------------------" +
+            "------------------------------------------------------------";
 
-        public TableScriptGenerator(Type type) : base(type)
+        private ProcessedType ProcessedType { get; }
+
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyIdParameters = GenerateKey();
+        private readonly string _keyNoneIdParameters = GenerateKey();
+
+        public TableScriptGenerator(Type type) : base(new SqLiteTypeNameMapper())
         {
-            UseDbTypeMapper(new SqLiteTypeNameMapper());
+            ProcessedType = Process(type);
         }
 
-        public override Code Generate(SqlScriptActions action)
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var sep = "";
-            var parameters = "";
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            WalkThroughLeaves(false, leaf =>
+            var idParameters = "\n";
+
+            if (ProcessedType.HasId)
             {
-                string fieldName = leaf.Name;
+                idParameters += ParameterNameTypeJoint(ProcessedType.IdParameter);
 
-                string typeName = TypeNameMapper[leaf.Type];
+                idParameters += " NOT NULL PRIMARY KEY";
 
-                var id = "";
-                // For supported (by SQLite) types to be auto incremented
-                if (leaf.IsAutoValued && typeName=="INTEGER")
+                if (ProcessedType.IdField.IsAutoValued && IsNumeric(ProcessedType.IdField.Type))
                 {
-                    id = " PRIMARY KEY";
+                    idParameters += " AUTOINCREMENT";
                 }
-                else
-                {
-                    // For regular fields
-                    if (leaf.IsUnique)
-                    {
-                        id = " NOT NULL PRIMARY KEY";
-                    }
-                }
-                parameters += sep + fieldName + " " + typeName + id;
-
-                sep = ", ";
-            });
-
-            var tableScript = "";
-            var createKeyword = "CREATE";
-            if (action == SqlScriptActions.DropCreate)
-            {
-                tableScript = $"DROP TABLE {NameConvention.TableName}\n\n";
-            }
-            else if (action == SqlScriptActions.Alter)
-            {
-                createKeyword = "ALTER";
             }
 
-            tableScript = $"{createKeyword} TABLE {NameConvention.TableName} (\n\t{parameters}\n\t)\n\n";
-
-            return new Code
+            if (ProcessedType.NoneIdParameters.Count > 0)
             {
-                Name = NameConvention.TableName,
-                Text = tableScript
-            };
+                idParameters += ",\n";
+            }
+
+            replacementList.Add(_keyIdParameters, idParameters);
+
+            replacementList.Add(_keyNoneIdParameters,
+                ParameterNameTypeJoint(ProcessedType.NoneIdParameters, ","));
         }
 
-        public override string SqlObjectName => NameConvention.TableName;
+        protected override string Template => $@"
+CREATE TABLE {_keyTableName}({_keyIdParameters}
+    {_keyNoneIdParameters}
+);
+{_line}
+-- SPLIT
+{_line}
+".Trim();
     }
 }

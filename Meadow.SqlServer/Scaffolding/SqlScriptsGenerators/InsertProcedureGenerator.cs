@@ -40,7 +40,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                     ? ForcedDatabaseObjectName
                     : ProcessedType.NameConvention.InsertProcedureName);
 
-            var parameters = ProcessedType.NoneIdParameters.Select(p => SqlProcedureDeclaration(p, "@"));
+            var parameters = ProcessedType.NoneIdParameters.Select(p => ParameterNameTypeJoint(p, "@"));
             var parametersClause =
                 ProcessedType.NoneIdParameters.Count > 0 ? "(" + string.Join(',', parameters) + ")" : "";
 

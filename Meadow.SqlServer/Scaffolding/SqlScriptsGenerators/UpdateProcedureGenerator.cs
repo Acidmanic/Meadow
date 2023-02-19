@@ -38,7 +38,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                     : ProcessedType.NameConvention.UpdateProcedureName);
 
             var parameters = string.Join(',', ProcessedType.Parameters
-                .Select(p => SqlProcedureDeclaration(p, "@")));
+                .Select(p => ParameterNameTypeJoint(p, "@")));
 
             replacementList.Add(_keyParameters, parameters);
 

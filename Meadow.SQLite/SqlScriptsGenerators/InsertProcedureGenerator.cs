@@ -1,76 +1,54 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.SqlScriptsGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class InsertProcedureGenerator : ProcedureGenerator
+    [CommonSnippet(CommonSnippets.InsertProcedure)]
+    public class InsertProcedureGenerator : ByTemplateSqlGeneratorBase
     {
-       
+        private ProcessedType ProcessedType { get; }
 
-        public InsertProcedureGenerator(Type type) : base(type)
+        public InsertProcedureGenerator(Type type) : base(new SqLiteTypeNameMapper())
         {
-           
+            ProcessedType = Process(type);
         }
 
-        protected override string GenerateScript(SqlScriptActions action, string snippet)
+
+        private readonly string _keyProcedureName = GenerateKey();
+        private readonly string _keyParameters = GenerateKey();
+        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyColumns = GenerateKey();
+        private readonly string _keyValues = GenerateKey();
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var sep = "";
-            var fields = "";
-            var parameters = "";
-            var values = "";
-            var idFieldName = "";
-            var idFieldType = "";
-            var hadId = false;
+            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName);
 
-            WalkThroughLeaves(false, leaf =>
-            {
-                if (leaf.IsUnique)
-                {
-                    idFieldName = leaf.Name;
-                    idFieldType = TypeNameMapper[leaf.Type];
-                    hadId = true;
-                }
-                else
-                {
-                    string fieldName = leaf.Name;
+            var parameters = ParameterNameTypeJoint(ProcessedType.NoneIdParameters, ",", "@");
 
-                    string typeName = TypeNameMapper[leaf.Type];
+            replacementList.Add(_keyParameters, parameters);
 
-                    fields += sep + fieldName;
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-                    parameters += sep + "@" + fieldName + " " + typeName;
+            var columns = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name));
+            var values = string.Join(',', ProcessedType.NoneIdParameters.Select(p => "@" + p.Name));
 
-                    values += sep + "@" + fieldName;
-
-                    sep = ", ";
-                }
-            });
-
-            var script = $"{snippet} PROCEDURE {ProcedureName} (\n\t{parameters}\n)\nAS\n";
-
-            script += $"\tINSERT INTO {NameConvention.TableName} ({fields})";
-
-            if (!hadId)
-            {
-                script += "OUTPUT inserted.* ";
-            }
-
-            script += $" VALUES ({values});\n";
-
-            if (hadId)
-            {
-                script += $"\tSELECT * FROM {NameConvention.TableName} WHERE {idFieldName}=last_insert_rowid();\n";
-            }
-
-            script += "GO\n\n";
-
-            return script;
+            replacementList.Add(_keyColumns, columns);
+            replacementList.Add(_keyValues, values);
+            
+            
         }
 
-        protected override string GetProcedureName()
-        {
-            return NameConvention.InsertProcedureName;
-        }
+        protected override string Template => $@"
+CREATE PROCEDURE {_keyProcedureName} ({_keyParameters}) AS
+    INSERT INTO {_keyTableName} ({_keyColumns})
+    VALUES ({_keyValues});
+    SELECT * from {_keyTableName} where ROWID=LAST_INSERT_ROWID();
+GO
+".Trim();
     }
 }

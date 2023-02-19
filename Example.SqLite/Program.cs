@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Example.SqLite.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.SQLite;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -12,16 +13,24 @@ namespace Example.SqLite
 {
     class Program
     {
+        private const string DatabaseFilePath = "meadow-sqlite.db";
+
+        private class ConfigurationProvider : IMeadowConfigurationProvider
+        {
+            public MeadowConfiguration GetConfigurations()
+            {
+                return new MeadowConfiguration
+                {
+                    ConnectionString =  $"Data Source={DatabaseFilePath}",
+                    BuildupScriptDirectory = "Scripts"
+                };
+            }
+        }
         static async Task Main(string[] args)
         {
+
             // Configure Meadow
-            var file = "meadow-sqlite.db";
-            
-            var configuration = new MeadowConfiguration
-            {
-                ConnectionString =  $"Data Source={file}",
-                BuildupScriptDirectory = "Scripts"
-            };
+            var configuration = new ConfigurationProvider().GetConfigurations();
             // Set an instance of ILogger (ConsoleLogger) as default logger for Meadow
             new ConsoleLogger().UseForMeadow();
             // Create Engine:

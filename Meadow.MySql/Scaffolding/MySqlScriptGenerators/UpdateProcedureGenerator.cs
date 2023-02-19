@@ -40,7 +40,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyProcedureName,
                 IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.UpdateProcedureName);
 
-            var parameters = string.Join(',', process.Parameters.Select(p => SqlProcedureDeclaration(p, "IN ")));
+            var parameters = string.Join(',', process.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 

@@ -1,73 +1,60 @@
 using System;
 using System.Collections.Generic;
-using Meadow.Contracts;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class DeleteProcedureGenerator<TEntity> : ByTemplateSqlGeneratorBase
+    [CommonSnippet(CommonSnippets.DeleteProcedure)]
+    public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         public bool ById { get; }
 
-        public DeleteProcedureGenerator(bool byId) : base(new SqLiteTypeNameMapper())
+        private ProcessedType ProcessedType { get; }
+
+        public DeleteProcedureGenerator(Type type, bool byId) : base(new SqLiteTypeNameMapper())
         {
             ById = byId;
+            ProcessedType = Process(type);
         }
 
-        protected string GetProcedureName(NameConvention nameConvention)
-        {
-            return ById
-                ? nameConvention.DeleteByIdProcedureName
-                : nameConvention.DeleteAllProcedureName;
-        }
-
-        private readonly string _keyName = GenerateKey();
-        private readonly string _keyParams = GenerateKey();
+        private readonly string _keyProcedureName = GenerateKey();
+        private readonly string _keyParametersDeclaration = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
-        private readonly string _keyIdName = GenerateKey();
+        private readonly string _keyWhereClause = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var process = Process<TEntity>();
+            replacementList.Add(_keyProcedureName, ById
+                ? ProcessedType.NameConvention.DeleteByIdProcedureName
+                : ProcessedType.NameConvention.DeleteAllProcedureName);
 
-            var procName = GetProcedureName(process.NameConvention);
+            var parameters = ById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "";
 
-            replacementList.Add(_keyName, procName);
+            replacementList.Add(_keyParametersDeclaration, parameters);
 
-            var idPar = "IN " + process.IdParameter.Name + " " + process.IdParameter.Type;
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            replacementList.Add(_keyParams, idPar);
+            var whereClause = ById
+                ? $" WHERE {ProcessedType.NameConvention.TableName}.{ProcessedType.IdParameter.Name} = @{ProcessedType.IdParameter.Name}"
+                : "";
 
-            replacementList.Add(_keyTableName, process.NameConvention.TableName);
-
-            replacementList.Add(_keyIdName, process.IdField.Name);
+            replacementList.Add(_keyWhereClause, whereClause);
         }
 
-        protected override string Template => ById ? TemplateById : TemplateAll;
+        protected override string Template => $@"
+CREATE PROCEDURE {_keyProcedureName}{_keyParametersDeclaration} AS
 
-        private string TemplateAll => $@"
-CREATE PROCEDURE {_keyName}() 
-AS
-    DECLARE @existing int = (SELECT COUNT(*) FROM {_keyTableName})
-    DELETE FROM {_keyTableName};
-    DECLARE @delta int = @existing - (SELECT COUNT(*) FROM {_keyTableName})
-    IF @delta > 0 OR @existing = 0
-        SELECT CAST(1 as bit) Success
-    ELSE
-        SELECT CAST(0 as bit) Success
-GO
-";
-
-        private string TemplateById => $@"
-CREATE PROCEDURE {_keyName}({_keyParams}) 
-AS
-    DECLARE @existing int = (SELECT COUNT(*) FROM {_keyTableName})
-    DELETE FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdName} = {_keyIdName}
-    DECLARE @delta int = @existing - (SELECT COUNT(*) FROM {_keyTableName})
-    IF @delta > 0 OR @existing = 0
-        SELECT CAST(1 as bit) Success
-    ELSE
-        SELECT CAST(0 as bit) Success
+    PRAGMA temp_store = 2; /* 2 means use in-memory */
+    CREATE TEMP TABLE _Existing(Count INTEGER);
+    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {_keyTableName};
+    DELETE FROM {_keyTableName}{_keyWhereClause};
+    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {_keyTableName};
+    SELECT CASE WHEN Count(DISTINCT Count)=2 THEN CAST(1 as bit) ELSE CAST(0 as bit) 
+                END AS Success
+                FROM _Existing;
+    DROP TABLE _Existing;
 GO
 ";
     }

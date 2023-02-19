@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -139,9 +140,24 @@ namespace Meadow.Scaffolding.CodeGenerators
             return process;
         }
 
-        protected string SqlProcedureDeclaration(Parameter p, string prefix = "")
+        protected string ParameterNameTypeJoint(Parameter p, string namePrefix = "")
         {
-            return prefix + p.Name + " " + p.Type;
+            return namePrefix + p.Name + " " + p.Type;
+        }
+        
+        protected string ParameterNameValueSetJoint(Parameter p, string valuePrefix = "")
+        {
+            return p.Name + " = " + valuePrefix + p.Name;
+        }
+
+        protected string ParameterNameTypeJoint(IEnumerable<Parameter> parameters, string delimiter, string namePrefix = "")
+        {
+            return string.Join(delimiter, parameters.Select(p => ParameterNameTypeJoint(p, namePrefix)));
+        }
+        
+        protected string ParameterNameValueSetJoint(IEnumerable<Parameter> parameters, string delimiter, string valuePrefix = "")
+        {
+            return string.Join(delimiter, parameters.Select(p => ParameterNameValueSetJoint(p, valuePrefix)));
         }
 
         protected bool IsNumeric(Type type)
