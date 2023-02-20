@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Macros;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
