@@ -63,4 +63,9 @@
  * Supports alternative types
  * Un ordered full-tree requests would be processed and converted to objects correctly
  * Fixed null IdLeaf issue for types without id fields 
+ * Added mat for scaffolding and other helpful tools
+ * Added Macros
+ * Added Builtin macros for crud operations and event-streams
+ * Implement crud and event stream macros for sql-server, my-sql, sqlite and postgre
+ * Fixed postgre build-up issues 
  
