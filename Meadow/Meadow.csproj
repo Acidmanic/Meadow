@@ -19,7 +19,7 @@
         <!-- NuGet -->
         <Id>Meadow.Framework</Id>
         <PackageId>Meadow.Framework</PackageId>
-        <Version>1.2.4-b04</Version>
+        <Version>1.2.4-b05</Version>
         <Authors>Mani Moayedi</Authors>
         <Company>Acidmanic</Company>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
