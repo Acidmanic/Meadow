@@ -1,4 +1,4 @@
-namespace Example.SqLite.Models
+namespace Example.Postgre.Models
 {
     public class Tag
     {

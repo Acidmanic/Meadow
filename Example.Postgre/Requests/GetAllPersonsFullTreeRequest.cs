@@ -1,4 +1,4 @@
-using Example.SqLite.Models;
+using Example.Postgre.Models;
 using Meadow;
 using Meadow.Requests;
 

@@ -44,7 +44,7 @@ namespace Meadow.Postgre.Scaffolding
             parameters += string.Join(",\n    ", ProcessedType.NoneIdParameters
                 .Select(p => $"{p.Name.DoubleQuot()} {p.Type}"));
 
-            parameters += parametersTail;
+            parameters += ",\n    " + parametersTail;
 
             return parameters;
         }
@@ -52,7 +52,7 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 
             replacementList.Add(_keyParameters, GetParameters());
         }

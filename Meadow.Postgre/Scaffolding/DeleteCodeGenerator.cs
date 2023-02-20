@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
@@ -12,10 +11,11 @@ namespace Meadow.Postgre.Scaffolding
     {
         private ProcessedType ProcessedType { get; }
 
-        private bool ById { get; set; }
+        private bool ById { get; }
 
-        public DeleteCodeGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public DeleteCodeGenerator(Type type, bool byId) : base(new PostgreDbTypeNameMapper())
         {
+            ById = byId;
             ProcessedType = Process(type);
         }
 
@@ -39,7 +39,7 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 
             var whereClause = ById
-                ? $" where \"{ProcessedType.IdParameter.Name}\" = \"{ProcessedType.IdParameter.Name}\""
+                ? $" where \"{ProcessedType.IdParameter.Name}\" = \"par_{ProcessedType.IdParameter.Name}\""
                 : "";
 
             replacementList.Add(_keyWhereClause, whereClause);
@@ -48,12 +48,12 @@ namespace Meadow.Postgre.Scaffolding
         protected override string Template => $@"
 create or replace function {_keyProcedureName}({_keyParameters}) returns TABLE({"Success".DoubleQuot()} bool) as $$
         declare
-            count int : = 0;
-            change int : = 0;
+            count int := 0;
+            change int := 0;
         begin
-            count : = (select Count(*) from {_keyTableName});
+            count := (select Count(*) from {_keyTableName});
             delete from {_keyTableName}{_keyWhereClause};
-            change : = (select Count(*) from {_keyTableName});
+            change := (select Count(*) from {_keyTableName});
             if change<count THEN
                 return query select true as {"Success".DoubleQuot()};
             else

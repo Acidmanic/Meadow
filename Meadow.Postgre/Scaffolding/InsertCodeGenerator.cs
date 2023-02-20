@@ -28,9 +28,8 @@ namespace Meadow.Postgre.Scaffolding
         {
             replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName.DoubleQuot());
 
-            replacementList.Add(_keyParameters, ParameterNameTypeJoint(ProcessedType.Parameters
-                    .Select(p => new Parameter { Name = p.Name.DoubleQuot(), Type = p.Type })
-                , " par_"));
+            replacementList.Add(_keyParameters, string.Join(",",ProcessedType.NoneIdParameters
+                .Select(p=> $"\"par_{p.Name}\" {p.Type}")));
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 

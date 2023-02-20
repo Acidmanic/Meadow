@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Example.Postgre.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Postgre;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -11,16 +12,27 @@ namespace Example.Postgre
 {
     class Program
     {
+
+        private class ConfiProvider : IMeadowConfigurationProvider
+        {
+            public MeadowConfiguration GetConfigurations()
+            {
+                return new MeadowConfiguration
+                {
+                    ConnectionString =  "User ID=postgres;Password=12345;Host=localhost;Port=5432;" +
+                                        "Database=MeadowScratch;",
+                
+                    BuildupScriptDirectory = "Scripts"
+                };
+            }
+        }
+        
+        
         static async Task Main(string[] args)
         {
             // Configure Meadow
-            var configuration = new MeadowConfiguration
-            {
-                ConnectionString =  "User ID=postgres;Password=12345;Host=localhost;Port=5432;" +
-                                    "Database=MeadowScratch;",
-                
-                BuildupScriptDirectory = "Scripts"
-            };
+            var configuration = new ConfiProvider().GetConfigurations();
+            
             // Create Engine:
             var engine = new MeadowEngine(configuration).UsePostgre();
 

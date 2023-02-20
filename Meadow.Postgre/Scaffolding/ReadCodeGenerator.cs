@@ -29,7 +29,9 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName.DoubleQuot());
+            replacementList.Add(_keyProcedureName,ById?
+                ProcessedType.NameConvention.SelectByIdProcedureName.DoubleQuot():
+                ProcessedType.NameConvention.SelectAllProcedureName.DoubleQuot());
 
             replacementList.Add(_keyParameters, ("par_"+ProcessedType.IdParameter.Name).DoubleQuot() + " " + ProcessedType.IdParameter.Type);
 

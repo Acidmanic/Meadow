@@ -34,10 +34,10 @@ namespace Meadow.Postgre.Scaffolding
 
             replacementList.Add(_keyParameters, parameters);
 
-            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 
             var nameValuesSet = string.Join(",\n", ProcessedType.NoneIdParameters
-                .Select(p => ("par_" + p.Name).DoubleQuot() + " = " + p.Name));
+                .Select(p => p.Name.DoubleQuot() + " = " + ("par_" + p.Name).DoubleQuot()));
 
             replacementList.Add(_keyNameValuesSet, nameValuesSet);
 

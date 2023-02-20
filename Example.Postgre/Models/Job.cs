@@ -1,6 +1,6 @@
 using Acidmanic.Utilities.Reflection.Attributes;
 
-namespace Example.SqLite.Models
+namespace Example.Postgre.Models
 {
     public class Job
     {
