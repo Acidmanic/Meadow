@@ -90,6 +90,7 @@ namespace Meadow.Scaffolding.CodeGenerators
                 IdField = TypeIdentity.FindIdentityLeaf(type),
                 HasId = false
             };
+            process.HasId = process.IdField != null;
             process.Parameters = new List<Parameter>();
             process.NoneIdParameters = new List<Parameter>();
             process.NoneIdUniqueParameters = new List<Parameter>();
@@ -104,10 +105,8 @@ namespace Meadow.Scaffolding.CodeGenerators
 
                 process.Parameters.Add(parameter);
 
-                if (leaf.Name == process.IdField.Name)
+                if (process.HasId &&  leaf.Name == process.IdField.Name)
                 {
-                    process.HasId = true;
-
                     process.IdParameter = parameter;
                 }
                 else
