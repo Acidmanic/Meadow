@@ -15,9 +15,5 @@ namespace Example.Postgre.Requests
             return true;
         }
 
-        protected override bool QuoteProcedureName()
-        {
-            return true;
-        }
     }
 }

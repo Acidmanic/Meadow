@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.DataAccessCore.AdoCoreBase;
 using Meadow.DataTypeMapping;
@@ -27,6 +25,8 @@ namespace Meadow.Postgre
         {
             return new NpgsqlConnection();
         }
+
+        protected override bool QuotRoutineNames => true;
 
         protected override string GetSqlForCreatingDatabase(string databaseName)
         {
@@ -66,22 +66,21 @@ namespace Meadow.Postgre
 
             return sql;
         }
-
-
+        
         protected override string GetSqlForCreatingInsertProcedure(
             string procedureName, 
             string tableName,
             TypeDatabaseDefinition parameters)
         {
-            var sql = $"create or replace procedure \"{procedureName}\"(";
+            var sql = $"create or replace function \"{procedureName}\"(";
 
             parameters = parameters.UpdateForSerialTypes();
 
             var parameterDefinition = string.Join(',', parameters.FieldTypes
-                    .Where(field => field.Value != parameters.IdField)
-                    .Select(field =>AsProcedureParameterName(field.Key) + " " + field.Value.DbTypeName));
+                .Where(field => field.Value != parameters.IdField)
+                .Select(field =>AsProcedureParameterName(field.Key).DoubleQuot() + " " + field.Value.DbTypeName));
 
-            sql += parameterDefinition + ") language plpgsql as $$ \n begin \n";
+            sql += parameterDefinition + ") returns setof "+tableName.DoubleQuot()+" as $$ \n begin \n return query \n";
 
             var columns = string.Join(',', parameters.FieldTypes
                 .Where(field => field.Value != parameters.IdField)
@@ -93,11 +92,11 @@ namespace Meadow.Postgre
             
             sql += $"insert into \"{tableName}\" ({columns}) \n values ({values}) returning * ;\n";
 
-            sql += "commit \nend;$$;";
+            sql += "\nend;$$ language plpgsql;";
 
             return sql;
         }
-
+        
         protected override string GetSqlForCreatingGetLastInsertedProcedure(
             string procedureName,
             string tableName,
@@ -116,12 +115,11 @@ namespace Meadow.Postgre
 
             var order = orderField == null ? " " : $" ORDER BY \"{orderField.ColumnName}\" DESC ";
             
-            var sql = $"create or replace procedure {procedureName}(" +
-                      $") language plpgsql as $$ \n begin \n" +
+            var sql = $"create or replace function {procedureName.DoubleQuot()}(" +
+                      $") returns setof {tableName.DoubleQuot()} as $$ \n begin \n return query \n" +
                       $"SELECT * FROM \"{tableName}\"{order}LIMIT 1 ;\n" +
-                      $"commit \nend;$$;";
-
-
+                      $"end;$$ language plpgsql;";
+            
             return sql;
         }
 

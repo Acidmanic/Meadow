@@ -26,12 +26,14 @@ namespace Meadow.DataAccessCore.AdoCoreBase
                 WriteIntoCommand);
 
             StorageCommunication =
-                new AdoStorageCommunication(InstantiateCommand, InstantiateConnection, OnClearConnectionPool);
+                new AdoStorageCommunication(InstantiateCommand, InstantiateConnection, OnClearConnectionPool,QuotRoutineNames);
 
 
             return this;
         }
 
+        protected virtual bool QuotRoutineNames => false;
+        
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
             var request = new CreateDatabaseRequest(GetSqlForCreatingDatabase);
@@ -271,7 +273,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var procedureName = new NameConvention<TModel>().InsertProcedureName;
             
-            var script = GetSqlForCreatingInsertProcedure(procedureName,procedureName,parameters);
+            var script = GetSqlForCreatingInsertProcedure(procedureName,tableName,parameters);
 
             
             var request = new SqlRequest(script);

@@ -13,13 +13,16 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         private readonly Func<IDbCommand> _commandFactory;
         private readonly Func<MeadowConfiguration, IDbConnection> _connectionFactory;
         private readonly Action<IDbConnection> _clearPoolAction;
+        private readonly bool _quotesRoutineNames;
 
         public AdoStorageCommunication(Func<IDbCommand> commandFactory,
-            Func<MeadowConfiguration, IDbConnection> connectionFactory, Action<IDbConnection> clearPoolAction)
+            Func<MeadowConfiguration, IDbConnection> connectionFactory, Action<IDbConnection> clearPoolAction,
+            bool quotesRoutineNames)
         {
             _commandFactory = commandFactory;
             _connectionFactory = connectionFactory;
             _clearPoolAction = clearPoolAction;
+            _quotesRoutineNames = quotesRoutineNames;
         }
 
 
@@ -27,18 +30,23 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         {
             var carrier = _commandFactory.Invoke();
 
-            carrier.CommandText = request.RequestText;
-
             if (request.Execution == RequestExecution.RequestTextIsNameOfRoutine)
             {
                 carrier.CommandType = CommandType.StoredProcedure;
+                carrier.CommandText = _quotesRoutineNames ? Quot(request.RequestText) : request.RequestText;
             }
             else
             {
                 carrier.CommandType = CommandType.Text;
+                carrier.CommandText = request.RequestText;
             }
 
             return carrier;
+        }
+
+        private string Quot(string value)
+        {
+            return $"\"{value}\"";
         }
 
         public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable,

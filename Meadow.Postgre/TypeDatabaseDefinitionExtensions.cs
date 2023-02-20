@@ -16,7 +16,7 @@ namespace Meadow.Postgre
                     var smallInt = mapper.GetDatabaseTypeName(typeof(byte));
                     var bigInt = mapper.GetDatabaseTypeName(typeof(long));
 
-                    if (field.Value.DbTypeName == smallInt && field.Value.DbTypeName == bigInt)
+                    if (field.Value.DbTypeName == smallInt || field.Value.DbTypeName == bigInt)
                     {
                         field.Value.DbTypeName = "SERIAL";
                     }
