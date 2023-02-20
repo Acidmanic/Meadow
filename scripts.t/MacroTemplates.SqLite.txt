@@ -1,0 +1,82 @@
+-- am tp ../Example.SqLite sd ../scripts.t
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Table Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Insert Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{ReadAll Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{ReadById Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{DeleteById Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{DeleteAll Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Update Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Save Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Crud Example.SqLite.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Coffee}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{EventStream Example.SqLite.Models.IPersonEvent}}
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+exec spInsertPerson 'Mani','Moayedi',23,12
+
+exec spInsertPerson 'Mani','Moayedi',23,12
+
+exec spReadAllPersons
+
+exec spReadPersonById 2
+
+exec spUpdatePerson 2,'Mona','Moayedi',37,12
+
+exec spReadAllPersons
+
+exec spDeleteAllPersons
+
+exec spReadAllPersons
+
+exec spInsertPerson 'Mani','Moayedi',23,12
+
+exec spInsertPerson 'Mona','Moayedi',37,12
+
+exec spReadAllPersons
+
+exec spDeletePersonById 3
+
+exec spReadAllPersons
+
+exec spSavePerson 3,'Mani','Moayedi',23,12
+
+exec spReadAllPersons
+
+exec spSavePerson 5,'Acidmanic','Moayedi',37,12
+
+exec spReadAllPersons
+
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+exec spInsertPersonEvent 123,'System.Mani','some-jibberish'
+exec spInsertPersonEvent 123,'System.Mani','more-jibberish'
+exec spInsertPersonEvent 456,'System.Mona','some-more-jibber'
+exec spInsertPersonEvent 456,'System.Mona','some-more-jabber'
+
+exec spReadAllPersonStreams
+
+exec spReadPersonStreamByStreamId 123
+exec spReadPersonStreamByStreamId 456
+
+exec spReadAllPersonStreams
+
+exec spReadAllPersonStreamsChunk 0,100
+exec spReadAllPersonStreamsChunk 2,100
+exec spReadAllPersonStreamsChunk 0,1
+exec spReadAllPersonStreamsChunk 2,1
+

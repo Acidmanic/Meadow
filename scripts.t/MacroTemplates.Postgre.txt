@@ -1,0 +1,83 @@
+-- am tp ../Example.Postgre sd ../scripts.t
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Table Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Insert Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{ReadAll Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{ReadById Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{DeleteById Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{DeleteAll Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Update Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Save Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Crud Example.Postgre.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Coffee}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{EventStream Example.Postgre.Models.IPersonEvent}}
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+select * from "spInsertPerson"('Mani','Moayedi',23,12);
+
+select * from "spInsertPerson"('Mani','Moayedi',23,12);
+
+select * from "spReadAllPersons"();
+
+select * from "spReadPersonById"( 2);
+
+select * from "spUpdatePerson"( 2,'Mona','Moayedi',37,12);
+
+select * from "spReadAllPersons"();
+
+select * from "spDeleteAllPersons"();
+
+select * from "spReadAllPersons"();
+
+select * from "spInsertPerson"('Mani','Moayedi',23,12);
+
+select * from "spInsertPerson" ('Mona','Moayedi',37,12);
+
+select * from "spReadAllPersons"();
+
+select * from "spDeletePersonById" (3);
+
+select * from "spReadAllPersons"();
+
+select * from "spSavePerson"(3,'Mani','Moayedi',23,12);
+
+select * from "spReadAllPersons"();
+
+select * from "spSavePerson"(5,'Acidmanic','Moayedi',37,12);
+
+select * from "spReadAllPersons"();
+
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+
+select * from "spInsertPersonEvent" (123,'System.Mani','some-jibberish');
+select * from  "spInsertPersonEvent" (123,'System.Mani','more-jibberish');
+select * from  "spInsertPersonEvent" (456,'System.Mona','some-more-jibber');
+select * from  "spInsertPersonEvent" (456,'System.Mona','some-more-jabber');
+
+select * from  "spReadAllPersonStreams"();
+
+select * from  "spReadPersonStreamByStreamId" (123);
+select * from  "spReadPersonStreamByStreamId" (456);
+
+select * from  "spReadAllPersonStreams"();
+
+select * from  "spReadAllPersonStreamsChunk" (0,100);
+select * from  "spReadAllPersonStreamsChunk" (2,100);
+select * from  "spReadAllPersonStreamsChunk" (0,1);
+select * from  "spReadAllPersonStreamsChunk" (2,1);
+

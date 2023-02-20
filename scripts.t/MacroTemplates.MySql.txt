@@ -1,0 +1,74 @@
+-- am tp ../Example.Macros.MySql sd ../scripts.t
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Table Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Insert Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{ReadAll Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{ReadById Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{DeleteById Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{DeleteAll Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Update Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Save Example.Macros.MySql.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{Coffee}}
+-- ---------------------------------------------------------------------------------------------------------------------
+-- {{EventStream Example.Macros.MySql.Models.IPersonEvent}}
+-- ---------------------------------------------------------------------------------------------------------------------
+call spInsertPerson ('Mani','Moayedi',23,12);
+
+call spInsertPerson ('Mani','Moayedi',23,12);
+
+call spReadAllPersons();
+
+call spReadPersonById (2);
+
+call spUpdatePerson (2,'Mona','Moayedi',37,12);
+
+call spReadAllPersons();
+
+call spDeleteAllPersons();
+
+call spReadAllPersons();
+
+call spInsertPerson ('Mani','Moayedi',23,12);
+
+call spInsertPerson ('Mona','Moayedi',37,12);
+
+call spReadAllPersons();
+
+call spDeletePersonById (3);
+
+call spReadAllPersons();
+
+call spSavePerson (3,'Mani','Moayedi',23,12);
+
+call spReadAllPersons();
+
+call spSavePerson (5,'Acidmanic','Moayedi',37,12);
+
+call spReadAllPersons();
+
+------------------------------------------------------------------------------------------------------------------------
+
+call spInsertPersonEvent (123,'System.Mani','some-jibberish');
+call spInsertPersonEvent (123,'System.Mani','more-jibberish');
+call spInsertPersonEvent (456,'System.Mona','some-more-jibber');
+call spInsertPersonEvent (456,'System.Mona','some-more-jabber');
+
+call spReadAllPersonStreams();
+
+call spReadPersonStreamByStreamId (123);
+call spReadPersonStreamByStreamId (456);
+
+call spReadAllPersonStreams();
+
+call spReadAllPersonStreamsChunk (0,100);
+call spReadAllPersonStreamsChunk (2,100);
+call spReadAllPersonStreamsChunk (0,1);
+call spReadAllPersonStreamsChunk (2,1);
