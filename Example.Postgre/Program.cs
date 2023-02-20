@@ -38,10 +38,10 @@ namespace Example.Postgre
 
             new ConsoleLogger().UseForMeadow();
 
-            // if (engine.DatabaseExists())
-            // {
-            //     engine.DropDatabase();
-            // }
+            if (engine.DatabaseExists())
+            {
+                engine.DropDatabase();
+            }
             // Create Database if not exists
             await engine.CreateIfNotExistAsync();
             // Setup (update regarding scripts)
