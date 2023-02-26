@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b02" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b03" />
         <PackageReference Include="CoreCommandLine" Version="1.0.7" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0-1.final" />
@@ -32,7 +32,7 @@
     </ItemGroup>
     <!-- Dotnet Tool Specific settings -->
     <PropertyGroup>
-        <Version>1.0.0-b03</Version>
+        <Version>1.0.0-b04</Version>
         <PackAsTool>true</PackAsTool>
         <PackageId>Meadow.Tools.Assistant</PackageId>
         <ToolCommandName>mat</ToolCommandName>
@@ -42,5 +42,4 @@
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     </PropertyGroup>
 
-    
 </Project>
