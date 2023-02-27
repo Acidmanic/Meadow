@@ -23,7 +23,8 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
     [CommandName("apply-macros", "am")]
     [Subcommands(
         typeof(TargetProjectPath),
-        typeof(ScriptsDirectory)
+        typeof(ScriptsDirectory),
+        typeof(MeadowConfigurationProvider)
     )]
     public class ApplyMacros : CommandBase
     {
@@ -50,9 +51,21 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
                 {
                     var assemblies = LoadAllAssemblies(compiled.Value);
 
-                    PerformApplyingMacros(assemblies, projectDirectory, context.GetScriptsDirectoryPath());
+                    var providerType = GetMcpType(context, assemblies);
 
-                    Logger.LogInformation("Applied Any found Macros");
+                    if (providerType)
+                    {
+
+                        if (PerformApplyingMacros(providerType, assemblies, projectDirectory,
+                                context.GetScriptsDirectoryPath()))
+                        {
+                            Logger.LogInformation("Applied Any found Macros");    
+                        }
+                    }
+                    else
+                    {
+                        Logger.LogError("Unable to find correct proper implementation of IMeadowConfigurationProvider in target project.");
+                    }
                 }
                 else
                 {
@@ -82,47 +95,72 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
         }
 
 
-        private Result PerformApplyingMacros(List<Assembly> assemblies, string projectDirectory, string scriptsDir)
+        private Result<Type> GetMcpType(Context context, List<Assembly> assemblies)
         {
+            var providedName = context.GetMeadowConfigurationProvideTypeName();
+
             var allAvailableClasses = assemblies.ListAllAvailableClasses();
 
             var configurationProviderTypes = allAvailableClasses
                 .Where(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
                             && !c.IsAbstract && !c.IsInterface).ToArray();
-
-
             if (configurationProviderTypes.Length > 0)
             {
-                var providerType = new InteractiveParameter<Type>(
-                    configurationProviderTypes, Output, t => t.FullName
-                ).AskFor();
-
-                var instance = new ObjectInstantiator().BlindInstantiate(providerType);
-
-                if (instance is IMeadowConfigurationProvider configurationProvider)
+                if (string.IsNullOrWhiteSpace(providedName))
                 {
-                    var configurations = configurationProvider.GetConfigurations();
+                    var providerType = new InteractiveParameter<Type>(
+                        configurationProviderTypes, Output, t => t.FullName
+                    ).AskFor();
 
-                    var scriptsDirectory = scriptsDir ?? configurations.BuildupScriptDirectory;
-
-                    if (!Path.IsPathFullyQualified(scriptsDirectory))
-                    {
-                        scriptsDirectory = Path.Join(projectDirectory, scriptsDirectory);
-                    }
-
-                    var engin = new MacroEngine(assemblies.ToArray());
-
-                    engin.ExecuteMacrosFor(scriptsDirectory, f => true);
-
-                    return true;
+                    return providerType;
                 }
 
-                Logger.LogError(
-                    "IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
+                var foundType = configurationProviderTypes
+                    .FirstOrDefault(t => providedName.ToLower() == t.FullName?.ToLower());
+
+                if (foundType != null)
+                {
+                    return foundType;
+                }
             }
-            Logger.LogError(
-                "Target project must contain/reference one implementation of IMeadowConfigurationProvider. ");
+            else
+            {
+                Logger.LogError("Target project must contain/reference one implementation of IMeadowConfigurationProvider. ");
+            }
+
+            return new Result<Type>().FailAndDefaultValue();
+        }
+
+
+        private Result PerformApplyingMacros(Type providerType, List<Assembly> assemblies, string projectDirectory, string scriptsDir)
+        {
             
+
+            var instance = new ObjectInstantiator().BlindInstantiate(providerType);
+
+            if (instance is IMeadowConfigurationProvider configurationProvider)
+            {
+                var configurations = configurationProvider.GetConfigurations();
+
+                var scriptsDirectory = scriptsDir ?? configurations.BuildupScriptDirectory;
+
+                if (!Path.IsPathFullyQualified(scriptsDirectory))
+                {
+                    scriptsDirectory = Path.Join(projectDirectory, scriptsDirectory);
+                }
+
+                var engin = new MacroEngine(assemblies.ToArray());
+
+                engin.ExecuteMacrosFor(scriptsDirectory, f => true);
+
+                return true;
+            }
+
+            Logger.LogError(
+                "IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
+
+            
+
             return false;
         }
 
