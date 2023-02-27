@@ -49,7 +49,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
                 {
                     var assemblies = LoadAllAssemblies(compiled.Value);
 
-                    PerformApplyingMacros(assemblies, projectDirectory,context.GetScriptsDirectoryPath());
+                    PerformApplyingMacros(assemblies, projectDirectory, context.GetScriptsDirectoryPath());
 
                     Logger.LogInformation("Applied Any found Macros");
                 }
@@ -81,46 +81,43 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
         }
 
 
-        private Result PerformApplyingMacros(List<Assembly> assemblies, string projectDirectory,string scriptsDir)
+        private Result PerformApplyingMacros(List<Assembly> assemblies, string projectDirectory, string scriptsDir)
         {
             var allAvailableClasses = assemblies.ListAllAvailableClasses();
 
-            var configurationProviderType = allAvailableClasses
-                .FirstOrDefault(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
-                                     && !c.IsAbstract && !c.IsInterface);
+            var configurationProviderTypes = allAvailableClasses
+                .Where(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
+                            && !c.IsAbstract && !c.IsInterface);
 
-            if (configurationProviderType == null)
+            foreach (var providerType in configurationProviderTypes)
             {
-                Logger.LogError(
-                    "Target project must contain/reference one implementation of IMeadowConfigurationProvider");
+                var instance = new ObjectInstantiator().BlindInstantiate(providerType);
 
-                return false;
+                if (instance is IMeadowConfigurationProvider configurationProvider)
+                {
+                    var configurations = configurationProvider.GetConfigurations();
+
+                    var scriptsDirectory = scriptsDir ?? configurations.BuildupScriptDirectory;
+
+                    if (!Path.IsPathFullyQualified(scriptsDirectory))
+                    {
+                        scriptsDirectory = Path.Join(projectDirectory, scriptsDirectory);
+                    }
+
+                    var engin = new MacroEngine(assemblies.ToArray());
+
+                    engin.ExecuteMacrosFor(scriptsDirectory, f => true);
+
+                    return true;
+                }
             }
 
-            var configurationProvider = new ObjectInstantiator()
-                .BlindInstantiate(configurationProviderType) as IMeadowConfigurationProvider;
+            Logger.LogError(
+                "Target project must contain/reference one implementation of IMeadowConfigurationProvider. " +
+                "Also, IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
 
-            if (configurationProvider == null)
-            {
-                Logger.LogError("IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
 
-                return false;
-            }
-
-            var configurations = configurationProvider.GetConfigurations();
-
-            var scriptsDirectory = scriptsDir ?? configurations.BuildupScriptDirectory;
-
-            if (!Path.IsPathFullyQualified(scriptsDirectory))
-            {
-                scriptsDirectory = Path.Join(projectDirectory, scriptsDirectory);
-            }
-
-            var engin = new MacroEngine(assemblies.ToArray());
-
-            engin.ExecuteMacrosFor(scriptsDirectory, f => true);
-
-            return true;
+            return false;
         }
 
 
