@@ -103,7 +103,9 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
             var configurationProviderTypes = allAvailableClasses
                 .Where(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
-                            && !c.IsAbstract && !c.IsInterface).ToArray();
+                            && !c.IsAbstract && !c.IsInterface 
+                            && c.GetConstructor(new Type[]{})!=null).ToArray();
+            
             if (configurationProviderTypes.Length > 0)
             {
                 if (string.IsNullOrWhiteSpace(providedName))
