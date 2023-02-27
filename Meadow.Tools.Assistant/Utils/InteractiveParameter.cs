@@ -28,6 +28,18 @@ namespace Meadow.Tools.Assistant.Utils
 
         public T AskFor()
         {
+
+            if (Options == null || Options.Length == 0)
+            {
+                return default;
+            }
+            
+            if (Options.Length == 1)
+            {
+                return Options[0];
+            }
+            
+            
             while (true)
             {
                 int index = 1;
