@@ -15,6 +15,7 @@ using Meadow.Extensions;
 using Meadow.Scaffolding.Macros;
 using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.DotnetProject;
+using Meadow.Tools.Assistant.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Tools.Assistant.Commands.ApplyMacros
@@ -87,10 +88,15 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
             var configurationProviderTypes = allAvailableClasses
                 .Where(c => TypeCheck.Implements<IMeadowConfigurationProvider>(c)
-                            && !c.IsAbstract && !c.IsInterface);
+                            && !c.IsAbstract && !c.IsInterface).ToArray();
 
-            foreach (var providerType in configurationProviderTypes)
+
+            if (configurationProviderTypes.Length > 0)
             {
+                var providerType = new InteractiveParameter<Type>(
+                    configurationProviderTypes, Output, t => t.FullName
+                ).AskFor();
+
                 var instance = new ObjectInstantiator().BlindInstantiate(providerType);
 
                 if (instance is IMeadowConfigurationProvider configurationProvider)
@@ -110,13 +116,13 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
                     return true;
                 }
+
+                Logger.LogError(
+                    "IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
             }
-
             Logger.LogError(
-                "Target project must contain/reference one implementation of IMeadowConfigurationProvider. " +
-                "Also, IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
-
-
+                "Target project must contain/reference one implementation of IMeadowConfigurationProvider. ");
+            
             return false;
         }
 

@@ -39,15 +39,17 @@ namespace Meadow.Tools.Assistant.Utils
                     var text = _toString(option);
 
                     _output($"[{index}]: {text}");
+
+                    index++;
                 }
 
                 var input = Console.ReadLine();
 
                 if (int.TryParse(input, out var choice))
                 {
-                    if (choice > -1 && choice < Options.Length)
+                    if (choice > 0 && choice <= Options.Length)
                     {
-                        return Options[choice];
+                        return Options[choice-1];
                     }
                 }
             }
