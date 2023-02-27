@@ -184,15 +184,16 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
         {
             var buildPath = Path.Combine(projectDirectory, "build");
 
-            var startinfo = new ProcessStartInfo
+
+            var startInfo = new ProcessStartInfo
             {
-                Arguments = "build --output " + buildPath,
+                Arguments = "publish --force --self-contained --output " + buildPath,
                 FileName = "dotnet",
                 WorkingDirectory = projectDirectory,
                 CreateNoWindow = true
             };
 
-            var p = Process.Start(startinfo);
+            var p = Process.Start(startInfo);
 
             p.WaitForExit();
 
