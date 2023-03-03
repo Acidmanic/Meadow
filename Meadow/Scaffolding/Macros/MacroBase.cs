@@ -35,4 +35,5 @@ public abstract class MacroBase : IMacro
 
         return type;
     }
+    
 }
