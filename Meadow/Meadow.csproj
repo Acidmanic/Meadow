@@ -7,7 +7,7 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Acidmanic.Utilities" Version="1.0.4" />
+        <PackageReference Include="Acidmanic.Utilities" Version="1.0.5" />
         <PackageReference Include="CorePluralizer" Version="1.0.1" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />

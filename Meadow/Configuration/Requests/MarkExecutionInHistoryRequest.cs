@@ -1,4 +1,6 @@
 using System;
+using System.IO.Compression;
+using Acidmanic.Utilities;
 using Meadow.BuildupScripts;
 using Meadow.Contracts;
 using Meadow.Extensions;
@@ -13,7 +15,7 @@ namespace Meadow.Configuration.Requests
         {
             ToStorage = new MeadowDatabaseHistory
             {
-                Script = script.Script.ToBase64String(),
+                Script = script.Script.CompressAsync(Compressions.GZip,CompressionLevel.Optimal).Result,
                 ScriptName = script.Name,
                 ScriptOrder = script.OrderIndex
             };
