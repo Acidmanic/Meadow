@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd37FlagEnumIs().Main();
+            new Tdd38AlteredTypeBugCase().Main();
         }
     }
 }
