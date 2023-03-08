@@ -40,6 +40,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
     </PropertyGroup>
 
 </Project>
