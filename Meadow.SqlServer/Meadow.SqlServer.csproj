@@ -1,48 +1,56 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\Meadow\Meadow.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Meadow\Meadow.csproj"/>
+    </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+    </PropertyGroup>
 
 
-  <PropertyGroup>
-    <!-- NuGet -->
-    <Id>Meadow.SqlServer</Id>
-    <PackageId>Meadow.SqlServer</PackageId>
-    <Version>1.3.0-b03</Version>
-    <Authors>Mani Moayedi</Authors>
-    <Company>Acidmanic</Company>
-    <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
-    <Description>Meadow SqlServer Adapter</Description>
-    <Summary>This package allows to use meadow on top of SqlServer database</Summary>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    <RepositoryUrl>https://github.com/Acidmanic/Meadow</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
-    <Title>MEADOW - Managed and Enhanced ADO Wrapper - SqlServer Adapter</Title>
+    <ItemGroup>
+        <PackageReference Include="CorePluralizer" Version="1.0.1"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3"/>
+    </ItemGroup>
 
-  </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="../Graphics/MeadowIcon.png">
-      <Pack>true</Pack>
-      <PackagePath>Graphics/MeadowIcon.png</PackagePath>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="../LICENSE.txt">
-      <Pack>true</Pack>
-      <PackagePath>LICENSE.txt</PackagePath>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+    <PropertyGroup>
+        <!-- NuGet -->
+        <Id>Meadow.SqlServer</Id>
+        <PackageId>Meadow.SqlServer</PackageId>
+        <Version>1.3.0-b03</Version>
+        <Authors>Mani Moayedi</Authors>
+        <Company>Acidmanic</Company>
+        <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
+        <Description>Meadow SqlServer Adapter</Description>
+        <Summary>This package allows to use meadow on top of SqlServer database</Summary>
+        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+        <RepositoryUrl>https://github.com/Acidmanic/Meadow</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
+        <Title>MEADOW - Managed and Enhanced ADO Wrapper - SqlServer Adapter</Title>
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="CorePluralizer" Version="1.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
-  </ItemGroup>
-  
+    <ItemGroup>
+        <None Include="../Graphics/MeadowIcon.png">
+            <Pack>true</Pack>
+            <PackagePath>Graphics/MeadowIcon.png</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <None Include="../LICENSE.txt">
+            <Pack>true</Pack>
+            <PackagePath>LICENSE.txt</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
+        <Content Include="../Readme.md">
+            <Pack>true</Pack>
+            <Link>Readme.md</Link>
+            <PackagePath>/</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+
 </Project>

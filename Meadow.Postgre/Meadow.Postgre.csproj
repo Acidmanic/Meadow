@@ -17,7 +17,7 @@
     <!-- NuGet -->
     <Id>Meadow.Postgre</Id>
     <PackageId>Meadow.Postgre</PackageId>
-    <Version>1.2.0-b03</Version>
+    <Version>1.2.0-b04</Version>
     <Authors>Mani Moayedi</Authors>
     <Company>Acidmanic</Company>
     <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
@@ -28,7 +28,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
     <Title>MEADOW - Managed and Enhanced ADO Wrapper - Postgre Adapter</Title>
-
+    <PackageReadmeFile>Readme.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -42,6 +42,12 @@
       <PackagePath>LICENSE.txt</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <Content Include="../Readme.md">
+      <Pack>true</Pack>
+      <Link>Readme.md</Link>
+      <PackagePath>/</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

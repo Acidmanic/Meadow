@@ -31,7 +31,7 @@
         <RepositoryType>git</RepositoryType>
         <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
         <Title>MEADOW - Managed and Enhanced ADO Wrapper</Title>
-
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,6 +45,12 @@
             <PackagePath>LICENSE.txt</PackagePath>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <Content Include="../Readme.md">
+            <Pack>true</Pack>
+            <Link>Readme.md</Link>
+            <PackagePath>/</PackagePath>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 </Project>
