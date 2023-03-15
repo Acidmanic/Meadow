@@ -203,30 +203,11 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
         }
 
 
-        private void DotnetRun(string labDirectory, string targetDirectory)
-        {
-            var startinfo = new ProcessStartInfo
-            {
-                Arguments = "run " + new DirectoryInfo(labDirectory).FullName,
-                FileName = "dotnet",
-                WorkingDirectory = labDirectory,
-                CreateNoWindow = true
-            };
-
-            var p = Process.Start(startinfo);
-
-            p.WaitForExit();
-
-            if (p.ExitCode != 0)
-            {
-                Logger.LogError("Unable to build the project.");
-            }
-        }
-
         private Result<string> DotnetBuild(string projectDirectory)
         {
             var buildPath = Path.Combine(projectDirectory, "build");
 
+            new GitIgnore(projectDirectory).AppendIfNotExits(buildPath);
 
             var startInfo = new ProcessStartInfo
             {
