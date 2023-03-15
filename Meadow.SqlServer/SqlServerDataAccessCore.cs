@@ -2,10 +2,12 @@ using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore.AdoCoreBase;
 using Meadow.DataTypeMapping;
+using Meadow.Requests;
 using Meadow.SqlServer.Scaffolding.SqlScriptsGenerators;
 
 namespace Meadow.SqlServer
@@ -15,8 +17,25 @@ namespace Meadow.SqlServer
         protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; } 
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
-        
-        
+        public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadProcedureGenerator(typeof(TModel),false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            PerformRequest(request, configuration);
+        }
+
+        public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadProcedureGenerator(typeof(TModel),false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
+
+
         protected override IDbDataParameter InstantiateParameter()
         {
             return new SqlParameter();

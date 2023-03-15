@@ -1,8 +1,11 @@
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.DataAccessCore.AdoCoreBase;
 using Meadow.DataTypeMapping;
+using Meadow.Postgre.Scaffolding;
+using Meadow.Requests;
 using Npgsql;
 
 namespace Meadow.Postgre
@@ -138,5 +141,22 @@ namespace Meadow.Postgre
             return _typeNameMapper;
         }
 
+        public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadCodeGenerator(typeof(TModel),false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            PerformRequest(request, configuration);
+        }
+
+        public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadCodeGenerator(typeof(TModel),false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
     }
 }

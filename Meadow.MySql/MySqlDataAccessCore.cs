@@ -217,5 +217,23 @@ namespace Meadow.MySql
 
             await PerformRequestAsync(request, configuration);
         }
+
+        public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadProcedureGenerator<TModel>(false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            PerformRequest(request, configuration);
+        }
+
+        public override async  Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadProcedureGenerator<TModel>(false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
     }
 }

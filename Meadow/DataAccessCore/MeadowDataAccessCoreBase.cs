@@ -91,6 +91,9 @@ namespace Meadow.DataAccessCore
         public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
         public abstract Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration);
         
+        public abstract void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration);
+        public abstract Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration);
+
         public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
         {
             // That must be read from configurations later on

@@ -98,5 +98,15 @@ namespace Meadow.Test.Functional.FakeEngine
         {
             return Task.CompletedTask;
         }
+
+        public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
+        {
+            
+        }
+
+        public override Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
+        }
     }
 }

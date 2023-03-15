@@ -58,6 +58,10 @@ namespace Meadow.Contracts
         void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
         
         Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration);
+        
+        void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration);
+        
+        Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration);
 
         IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger);
     }

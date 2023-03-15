@@ -127,6 +127,15 @@ namespace Meadow.NullCore
             return Task.CompletedTask;
         }
 
+        public void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
+        {
+        }
+
+        public Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            return Task.CompletedTask;
+        }
+
         public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
         {
             _logger = logger;

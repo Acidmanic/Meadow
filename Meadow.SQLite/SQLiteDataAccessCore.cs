@@ -36,7 +36,7 @@ namespace Meadow.SQLite
                     configuration.DatabaseFieldNameDelimiter,
                     DataOwnerNameProvider,
                     Logger);
-            
+
             StorageCommunication = new SQLiteStorageCommunication();
 
             return this;
@@ -107,8 +107,8 @@ namespace Meadow.SQLite
                 return true;
             });
         }
-        
-        private async Task TryDbFileAsync(MeadowConfiguration configuration, Func<string,Task> code)
+
+        private async Task TryDbFileAsync(MeadowConfiguration configuration, Func<string, Task> code)
         {
             await TryDbFileAsync(configuration, async s =>
             {
@@ -134,13 +134,13 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e,"{Exception}",e);
+                    Logger.LogError(e, "{Exception}", e);
                 }
             }
 
             return false;
         }
-        
+
         private async Task<bool> TryDbFileAsync(MeadowConfiguration configuration, Func<string, Task<bool>> code)
         {
             var conInfo = new ConnectionStringParser().Parse(configuration.ConnectionString);
@@ -157,7 +157,7 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e,"{Exception}",e);
+                    Logger.LogError(e, "{Exception}", e);
                 }
             }
 
@@ -174,7 +174,7 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e,"Error deleting File:{File}\n{Exception}",file,e);
+                    Logger.LogError(e, "Error deleting File:{File}\n{Exception}", file, e);
                 }
             });
         }
@@ -189,7 +189,7 @@ namespace Meadow.SQLite
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e,"Error deleting File:{File}\n{Exception}",file,e);
+                    Logger.LogError(e, "Error deleting File:{File}\n{Exception}", file, e);
                 }
             });
         }
@@ -308,10 +308,28 @@ namespace Meadow.SQLite
             return Task.Run(() => CreateLastInsertedProcedure<TModel>(configuration));
         }
 
+        public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadProcedureGenerator(typeof(TModel), false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            PerformRequest(request, configuration);
+        }
+
+        public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        {
+            var script = new ReadProcedureGenerator(typeof(TModel), false).Generate().Text;
+
+            var request = new SqlRequest(script);
+
+            await PerformRequestAsync(request, configuration);
+        }
+
         private string ClearGo(string script)
         {
             return script
-                .Split(new string[] {"GO", "--SPLIT", "go", "Go", "gO"}, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new string[] { "GO", "--SPLIT", "go", "Go", "gO" }, StringSplitOptions.RemoveEmptyEntries)
                 .FirstOrDefault(s => !string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s))
                 ?.Trim();
         }
