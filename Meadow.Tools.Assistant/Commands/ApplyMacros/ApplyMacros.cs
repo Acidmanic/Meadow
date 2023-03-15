@@ -207,7 +207,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
         {
             var buildPath = Path.Combine(projectDirectory, "build");
 
-            new GitIgnore(projectDirectory).AppendIfNotExits(buildPath);
+            new GitIgnore(projectDirectory).AppendIfNotExits("build/");
 
             var startInfo = new ProcessStartInfo
             {
