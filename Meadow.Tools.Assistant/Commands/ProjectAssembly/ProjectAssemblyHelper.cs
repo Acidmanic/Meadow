@@ -10,6 +10,7 @@ using CoreCommandLine;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.DotnetProject;
 using Meadow.Tools.Assistant.Utils;
 using Microsoft.Extensions.Logging;
@@ -61,6 +62,14 @@ namespace Meadow.Tools.Assistant.Commands.ProjectAssembly
 
         public Result<MeadowConfiguration> GetMeadowConfiguration(Context context)
         {
+
+            var jsonConfiguration = context.GetMeadowJsonConfigurations();
+
+            if (jsonConfiguration)
+            {
+                return jsonConfiguration;
+            }
+            
             var providerType = GetMcpType(context);
 
             if (providerType)
