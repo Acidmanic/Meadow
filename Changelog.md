@@ -68,4 +68,8 @@
  * Added Builtin macros for crud operations and event-streams
  * Implement crud and event stream macros for sql-server, my-sql, sqlite and postgre
  * Fixed postgre build-up issues 
+ * Use compression for meadow history
+ * MAT is refactored, Added Apply macro command
+ * Added Extract history scripts command to MAT
+ * Added builtin JsonConfigurationProvider
  
