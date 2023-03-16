@@ -164,6 +164,8 @@ namespace Meadow
             core.CreateInsertProcedure<MeadowDatabaseHistory>(_configuration);
 
             core.CreateLastInsertedProcedure<MeadowDatabaseHistory>(_configuration);
+            
+            core.CreateReadAllProcedure<MeadowDatabaseHistory>(_configuration);
         }
         
         private async Task PerformPostDatabaseCreationTasksAsync()
@@ -175,6 +177,8 @@ namespace Meadow
             await core.CreateInsertProcedureAsync<MeadowDatabaseHistory>(_configuration);
 
             await core.CreateLastInsertedProcedureAsync<MeadowDatabaseHistory>(_configuration);
+
+            await core.CreateReadAllProcedureAsync<MeadowDatabaseHistory>(_configuration);
         }
 
         public void DropDatabase()
@@ -216,7 +220,7 @@ namespace Meadow
         {
             var  created =await CreateInitializedCore(_configuration)
                 .CreateDatabaseIfNotExistsAsync(_configuration);
-
+            
             if (created)
             {
                 await PerformPostDatabaseCreationTasksAsync();
