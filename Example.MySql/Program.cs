@@ -3,6 +3,7 @@ using System.IO;
 using Example.MySql.Requests;
 using Meadow;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.MySql;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -11,17 +12,27 @@ namespace Example.MySql
 {
     class Program
     {
+
+        public class ConfigurationProvider : IMeadowConfigurationProvider
+        {
+            public MeadowConfiguration GetConfigurations()
+            {
+                return new MeadowConfiguration
+                {
+                    ConnectionString = GetConnectionString(),
+                    BuildupScriptDirectory = "Scripts",
+                    DatabaseFieldNameDelimiter = '_'
+                };
+            }
+        }
+        
         static void Main(string[] args)
         {
             new ConsoleLogger().UseForMeadow();
 
             // Configure Meadow
-            var configuration = new MeadowConfiguration
-            {
-                ConnectionString = GetConnectionString(),
-                BuildupScriptDirectory = "Scripts",
-                DatabaseFieldNameDelimiter = '_'
-            };
+            var configuration = new ConfigurationProvider().GetConfigurations();
+            
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseMySql();
 
