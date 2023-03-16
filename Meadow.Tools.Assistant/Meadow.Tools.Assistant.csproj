@@ -8,13 +8,17 @@
     <ItemGroup>
         <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
         <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b06" />
-        <PackageReference Include="CoreCommandLine" Version="1.0.7" />
+        <PackageReference Include="CoreCommandLine" Version="1.0.8" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0-1.final" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
+        <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
+        <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
+        <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
         <ProjectReference Include="..\Meadow\Meadow.csproj" />
     </ItemGroup>
 
@@ -29,6 +33,9 @@
             <PackagePath>LICENSE.txt</PackagePath>
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+<!--        <None Include="Readme.md">-->
+<!--          <CopyToOutputDirectory>Always</CopyToOutputDirectory>-->
+<!--        </None>-->
     </ItemGroup>
     <!-- Dotnet Tool Specific settings -->
     <PropertyGroup>
@@ -40,7 +47,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
         <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-        <PackageReadmeFile>Readme.md</PackageReadmeFile>
+<!--        <PackageReadmeFile>Readme.md</PackageReadmeFile>-->
     </PropertyGroup>
 
 </Project>
