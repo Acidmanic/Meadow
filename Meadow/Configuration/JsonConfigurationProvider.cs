@@ -16,15 +16,43 @@ namespace Meadow.Configuration
 
         private class MeadowConfigurationData : MeadowConfigurationModel
         {
-            public List<string> MacroContainingAssemblyFiles { get; set; } = new List<string>();
+            public List<string> MacroContainingAssemblyFiles { get; } = new List<string>();
         }
 
-        public JsonConfigurationProvider(string filePath, ILogger logger)
+
+        public static readonly string JsonFileName = "Meadow.Configurations.json";
+
+
+        public JsonConfigurationProvider(ILogger logger) : this(GetExecutionDirectory(), logger)
+        {
+        }
+
+        private static string GetExecutionDirectory()
+        {
+            var directory = ".";
+
+            var assembly = Assembly.GetEntryAssembly();
+
+            if (assembly != null)
+            {
+                var execDir = new FileInfo(assembly.Location).Directory?.FullName;
+
+                directory = execDir ?? new DirectoryInfo(directory).FullName;
+            }
+
+            return directory;
+        }
+
+        public JsonConfigurationProvider(string workingDirectory, ILogger logger)
+            : this(logger, Path.Combine(workingDirectory, JsonFileName))
+        {
+        }
+
+        protected JsonConfigurationProvider(ILogger logger, string filePath)
         {
             _filePath = filePath;
             Logger = logger;
         }
-
 
         public MeadowConfiguration GetConfigurations()
         {
