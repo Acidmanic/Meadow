@@ -87,7 +87,7 @@ namespace Example.MySql
         {
             var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
 
-            return $"Allow User Variables=True;Server=localhost;Database=MeadowScratch;Uid=sa;Pwd='{password.Trim()}';";
+            return $"Allow User Variables=True;Server=localhost;Database=MeadowScratch;Uid=root;Pwd='{password.Trim()}';";
         }
     }
 }

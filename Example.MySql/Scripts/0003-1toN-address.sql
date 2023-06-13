@@ -100,3 +100,4 @@ select P.Id       'Persons_Id',
          left join Addresses A on P.Id = A.PersonId;
 end;
 
+SELECT * FROM MeadowDatabaseHistories  ORDER BY  Id DESC LIMIT 1;

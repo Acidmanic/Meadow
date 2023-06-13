@@ -6,15 +6,15 @@ using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-
     public class ReadSequenceProcedureGenerator<TEntity> : ReadSequenceProcedureGenerator
     {
-        public ReadSequenceProcedureGenerator(bool allNotById, int top, bool orderAscending) 
-            : base(typeof(TEntity), allNotById, top, orderAscending)
+        public ReadSequenceProcedureGenerator(bool allNotById, int top, bool orderById = false,
+            bool orderAscending = true)
+            : base(typeof(TEntity), allNotById, top, orderById, orderAscending)
         {
         }
     }
-    
+
     public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
     {
         public bool AllNotById { get; }
@@ -24,19 +24,23 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         public bool OrderAscending { get; }
 
 
+        public bool OrderById { get; }
+
         private readonly Type _type;
-        
-        public ReadSequenceProcedureGenerator(Type type, bool allNotById, int top, bool orderAscending) : base(new MySqlDbTypeNameMapper())
+
+        public ReadSequenceProcedureGenerator(Type type, bool allNotById, int top,
+            bool orderById = false, bool orderAscending = true) : base(new MySqlDbTypeNameMapper())
         {
             _type = type;
             AllNotById = allNotById;
             Top = top;
             OrderAscending = orderAscending;
+            OrderById = orderById;
         }
 
-        private string GetOrder(bool useIdField, string idFieldName)
+        private string GetOrder(string idFieldName)
         {
-            if (useIdField)
+            if (OrderById)
             {
                 if (Top > 0)
                 {
@@ -65,6 +69,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             {
                 return ForcedDatabaseObjectName;
             }
+
             if (AllNotById)
             {
                 if (Top > 0)
@@ -95,15 +100,15 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyTopClause = GenerateKey();
         private readonly string _keyOrderClause = GenerateKey();
-        
-        
+
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             var process = Process(_type);
 
             var name = GetProcedureName(process.NameConvention);
-            
-            replacementList.Add(_keyProcedureName,name);
+
+            replacementList.Add(_keyProcedureName, name);
 
             if (!AllNotById && !process.HasId)
             {
@@ -111,21 +116,21 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                                     " must have an id field.");
             }
 
-            replacementList.Add(_keyIdParam,AllNotById?"":("IN " + process.IdParameter.Name + " " + process.IdParameter.Type));
-            
-            replacementList.Add(_keyTableName,process.NameConvention.TableName);
-            
-            replacementList.Add(_keyWhereClause,AllNotById?"":
-                ("WHERE " + process.NameConvention.TableName + "." 
-                 + process.IdParameter.Name + " = " + process.IdParameter.Name ));
+            replacementList.Add(_keyIdParam,
+                AllNotById ? "" : ("IN " + process.IdParameter.Name + " " + process.IdParameter.Type));
 
-            var order = GetOrder(!AllNotById, process.IdParameter.Name);
-            
-            replacementList.Add(_keyOrderClause,order);
+            replacementList.Add(_keyTableName, process.NameConvention.TableName);
 
-            replacementList.Add(_keyTopClause,GetTop());
-            
-            
+            replacementList.Add(_keyWhereClause, AllNotById
+                ? ""
+                : ("WHERE " + process.NameConvention.TableName + "."
+                   + process.IdParameter.Name + " = " + process.IdParameter.Name));
+
+            var order = GetOrder(process.IdParameter.Name);
+
+            replacementList.Add(_keyOrderClause, order);
+
+            replacementList.Add(_keyTopClause, GetTop());
         }
 
         protected override string Template => @$"
