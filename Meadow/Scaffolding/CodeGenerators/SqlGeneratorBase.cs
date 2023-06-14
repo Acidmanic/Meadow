@@ -100,7 +100,7 @@ namespace Meadow.Scaffolding.CodeGenerators
                 var parameter = new Parameter
                 {
                     Name = leaf.Name,
-                    Type = TypeNameMapper.GetDatabaseTypeName(leaf.Type, leaf.PropertyAttributes)
+                    Type = TypeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginalType(), leaf.PropertyAttributes)
                 };
 
                 process.Parameters.Add(parameter);
