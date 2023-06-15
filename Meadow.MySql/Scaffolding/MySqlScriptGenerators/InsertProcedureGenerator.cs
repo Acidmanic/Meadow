@@ -60,7 +60,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 CREATE PROCEDURE {_keyName}({_keyParameters})
 BEGIN
     INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
-    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=LAST_INSERT_ID();
+    SET @nid = (select LAST_INSERT_ID());
+    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=@nid;
 END;
 ".Trim();
     }

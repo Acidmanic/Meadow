@@ -110,7 +110,8 @@ BEGIN
         
     ELSE
         INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
-        SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = LAST_INSERT_ID();
+        SET @nid = (select LAST_INSERT_ID());
+        SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @nid;
     END IF;
 END;
 ".Trim();
