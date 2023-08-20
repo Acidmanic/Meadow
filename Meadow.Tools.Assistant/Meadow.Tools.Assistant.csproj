@@ -39,7 +39,7 @@
     </ItemGroup>
     <!-- Dotnet Tool Specific settings -->
     <PropertyGroup>
-        <Version>1.0.0-b08</Version>
+        <Version>1.0.0-b09</Version>
         <PackAsTool>true</PackAsTool>
         <PackageId>Meadow.Tools.Assistant</PackageId>
         <ToolCommandName>mat</ToolCommandName>
