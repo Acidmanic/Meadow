@@ -12,7 +12,6 @@ namespace Example.MySql
 {
     class Program
     {
-
         public class ConfigurationProvider : IMeadowConfigurationProvider
         {
             public MeadowConfiguration GetConfigurations()
@@ -25,14 +24,14 @@ namespace Example.MySql
                 };
             }
         }
-        
+
         static void Main(string[] args)
         {
             new ConsoleLogger().UseForMeadow();
 
             // Configure Meadow
             var configuration = new ConfigurationProvider().GetConfigurations();
-            
+
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseMySql();
 
@@ -41,7 +40,7 @@ namespace Example.MySql
                 engine.DropDatabase();
             }
 
-            
+
             // Create Database if not exists
             if (!engine.DatabaseExists())
             {
@@ -49,8 +48,8 @@ namespace Example.MySql
             }
             // // Create Database if not exists
             // engine.CreateIfNotExist();
-            
-            
+
+
             // Setup (update regarding scripts)
             engine.BuildUpDatabase();
             // ready to use
@@ -72,22 +71,40 @@ namespace Example.MySql
         /// <returns>Sql server password</returns>
         private static string ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt()
         {
-            try
+            var reachedTheEnd = false;
+
+            var currentPath = new DirectoryInfo(".").FullName;
+
+            while (!reachedTheEnd)
             {
-                return File.ReadAllText(Path.Join("..", "..", "..", "..", "sa-pass"));
+                var currentFile = Path.Join(currentPath, "sa-pass");
+
+                if (File.Exists(currentFile))
+                {
+                    return File.ReadAllText(currentFile);
+                }
+
+                var currentDirectory = new DirectoryInfo(currentPath);
+
+                var parent = currentDirectory.Parent;
+                
+                reachedTheEnd = parent == null;
+
+                if (!reachedTheEnd)
+                {
+                    currentPath = parent.FullName;
+                }
             }
-            catch (Exception e)
-            {
-                throw new Exception("Please create a text file, named 'sa-pass' " +
-                                    "containing your password, and put it in the solution directory.");
-            }
+            throw new Exception("Please create a text file, named 'sa-pass' " +
+                                "containing your password, and put it in the solution directory.");
         }
 
         private static string GetConnectionString()
         {
             var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
 
-            return $"Allow User Variables=True;Server=localhost;Database=MeadowScratch;Uid=root;Pwd='{password.Trim()}';";
+            return
+                $"Allow User Variables=True;Server=localhost;Database=MeadowScratch;Uid=root;Pwd='{password.Trim()}';";
         }
     }
 }

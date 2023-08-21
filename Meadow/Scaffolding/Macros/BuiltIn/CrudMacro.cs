@@ -8,11 +8,11 @@ public class CrudMacro : BuiltinMacroBase
     public override string Name { get; } = "Crud";
 
 
-    protected override Dictionary<CommonSnippets, CodeGenerateBehavior> GetAssemblyBehavior()
+    protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
     {
-        return new Dictionary<CommonSnippets, CodeGenerateBehavior>
+        return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
         {
-            { CommonSnippets.CreateTable, CodeGenerateBehavior.UseIdAgnostic },
+            { CommonSnippets.CreateTable,  CodeGenerateBehavior.UseIdAgnostic },
             { CommonSnippets.InsertProcedure, CodeGenerateBehavior.UseIdAgnostic },
             { CommonSnippets.ReadProcedure, CodeGenerateBehavior.UseIdAware },
             { CommonSnippets.DeleteProcedure, CodeGenerateBehavior.UseById | CodeGenerateBehavior.UseAll },

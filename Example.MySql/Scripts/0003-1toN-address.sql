@@ -101,3 +101,67 @@ select P.Id       'Persons_Id',
 end;
 
 SELECT * FROM MeadowDatabaseHistories  ORDER BY  Id DESC LIMIT 1;
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS FilterResults
+(
+    FilterHash        nvarchar(128),
+    ResultId      bigint(16),
+    ExpirationTimeStamp      bigint(16)
+);
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS spRemoveExpiredFilterResults;
+CREATE PROCEDURE spRemoveExpiredFilterResults(IN ExpirationTimeStamp bigint(16))
+BEGIN
+    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= ExpirationTimeStamp;
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS spPerformAddressesFilterIfNeeded;
+CREATE PROCEDURE spPerformAddressesFilterIfNeeded(IN FilterHash nvarchar(128),
+                                                  IN ExpirationTimeStamp bigint(16),
+                                                  IN WhereClause nvarchar(1024))
+BEGIN
+    if not exists(select 1 from FilterResults where FilterResults.FilterHash=FilterHash) then
+        set @query = CONCAT(
+            'insert into FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
+            'select \'',FilterHash,'\',Addresses.Id,',ExpirationTimeStamp,' from Addresses ' , WhereClause,';');
+        PREPARE stmt FROM @query;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt;
+            
+    end if;
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------
+DROP PROCEDURE IF EXISTS spReadAddressesChunk;
+CREATE PROCEDURE spReadAddressesChunk(IN Offset bigint(16),
+                                      IN Size bigint(16),
+                                      IN FilterHash nvarchar(128))
+BEGIN
+    select Addresses.* from Addresses inner join FilterResults on Addresses.Id = FilterResults.ResultId
+    where FilterResults.FilterHash=FilterHash limit offset,size;  
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+delete from Addresses where true;
+delete from FilterResults where true;
+
+insert into Addresses (City, Street, AddressName, Block, Plate, PersonId)
+values ('Tehran', 'FirstSt', 'Home', 1, 12, 1);
+
+insert into Addresses (City, Street, AddressName, Block, Plate, PersonId)
+values ('Tehran', 'SecondSt', 'Work', 1, 14, 1);
+
+insert into Addresses (City, Street, AddressName, Block, Plate, PersonId)
+values ('Tehran', 'MoonSt', 'Home', 12, 1, 2);
+
+set @hash = 'shash';
+
+call spPerformAddressesFilterIfNeeded(@hash,1000,'where Addresses.Plate < 10');
+
+call spReadAddressesChunk(0,100,@hash);

@@ -17,8 +17,16 @@ public abstract class MacroBase : IMacro
     public List<Assembly> LoadedAssemblies { get; set; }
 
 
+    protected virtual bool TakesTypeArgument => true;
+
     protected Type GrabTypeArgument(string[] arguments, int index)
     {
+
+        if (!TakesTypeArgument)
+        {
+            return typeof(object);
+        }
+        
         if (index >= arguments.Length)
         {
             throw new ArgumentException($"'{Name}' macro, expects type argument which is not provided.");

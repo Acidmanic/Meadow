@@ -173,7 +173,7 @@ namespace Meadow
             var core = CreateInitializedCore(_configuration);
 
             await core.CreateTableAsync<MeadowDatabaseHistory>(_configuration);
-
+            
             await core.CreateInsertProcedureAsync<MeadowDatabaseHistory>(_configuration);
 
             await core.CreateLastInsertedProcedureAsync<MeadowDatabaseHistory>(_configuration);

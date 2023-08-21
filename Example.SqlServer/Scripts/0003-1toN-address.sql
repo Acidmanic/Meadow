@@ -93,3 +93,19 @@ from Persons P
          left join Addresses A on P.Id = A.PersonId
 go
 
+-- IF OBJECT_ID(N'[lusers]', N'U') IS NULL
+-- BEGIN
+-- CREATE TABLE lusers (
+--     [id] INT IDENTITY(1,1),
+--     [name] VARCHAR(100) NOT NULL,
+--     [role] VARCHAR(15) NOT NULL,
+--     PRIMARY KEY ([id])
+--     );
+-- END;
+-- 
+-- 
+-- create or alter procedure spWhatTheFuck 
+--     as 
+--     select 'WhatTheFuck' as 'Message'
+-- go
+

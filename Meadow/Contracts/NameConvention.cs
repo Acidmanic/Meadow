@@ -110,6 +110,12 @@ namespace Meadow.Contracts
             ReadAllStreamsChunks = "spReadAll" + EventStreamEntity + "StreamsChunk";
             
             ReadStreamChunkByStreamId = "spRead" + EventStreamEntity + "StreamChunkByStreamId";
+
+            PerformFilterIfNeededProcedureName = "spPerform" + TableName + "FilterIfNeeded";
+
+            ReadChunkProcedureName = "spRead" + TableName + "Chunk";
+            
+            ReadChunkProcedureNameFullTree = "spRead" + TableName + "ChunkFullTree";
         }
 
         public string DeleteByIdProcedureName { get; }
@@ -141,6 +147,14 @@ namespace Meadow.Contracts
         
         
         public string SaveProcedureName { get; }
+
+        public string RemoveExpiredFilterResultsProcedureName => "spRemoveExpiredFilterResults";
+        
+        public string PerformFilterIfNeededProcedureName { get; }
+        
+        public string ReadChunkProcedureName { get; }
+        
+        public string ReadChunkProcedureNameFullTree { get; }
     }
 
     public class NameConvention<TEntity> : NameConvention

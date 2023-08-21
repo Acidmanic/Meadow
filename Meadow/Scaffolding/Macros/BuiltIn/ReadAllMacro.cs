@@ -9,9 +9,9 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
         public override string Name { get; } = "ReadAll";
 
 
-        protected override Dictionary<CommonSnippets, CodeGenerateBehavior> GetAssemblyBehavior()
+        protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
         {
-            return new Dictionary<CommonSnippets, CodeGenerateBehavior>
+            return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
             {
                 { CommonSnippets.ReadProcedure ,CodeGenerateBehavior.UseAll}
             };

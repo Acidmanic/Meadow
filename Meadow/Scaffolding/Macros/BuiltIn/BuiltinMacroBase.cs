@@ -17,17 +17,6 @@ public abstract class BuiltinMacroBase : MacroBase
     private readonly string _line = "-- ---------------------------------------------------------" +
                                     "------------------------------------------------------------";
 
-    [Flags]
-    protected enum CodeGenerateBehavior
-    {
-        UseById = 1,
-        UseAll = 2,
-        UseIdAware = UseById | UseAll,
-        UseIdAgnostic = 4,
-        UseEveryMethod = UseIdAware | UseIdAgnostic,
-        UseNone = 0
-    }
-
     protected class CodeGeneratorConstruction
     {
         public Func<Type, ICodeGenerator> ByIdCodeGenerator { get; set; }
@@ -52,14 +41,14 @@ public abstract class BuiltinMacroBase : MacroBase
     }
 
 
-    protected abstract Dictionary<CommonSnippets, CodeGenerateBehavior> GetAssemblyBehavior();
+    protected abstract Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior();
 
 
     protected virtual string GenerateCode(Type type, Dictionary<CommonSnippets, CodeGeneratorConstruction> cgCatalog)
     {
-        var behavior = GetAssemblyBehavior();
+        var behaviorsBySnippets = GetAssemblyBehavior();
 
-        var sb = AssembleCodeGenerators(new StringBuilder(), type, cgCatalog, behavior);
+        var sb = AssembleCodeGenerators(new StringBuilder(), type, cgCatalog, behaviorsBySnippets);
 
         Title(sb, "</" + Name + ">");
 
@@ -69,11 +58,14 @@ public abstract class BuiltinMacroBase : MacroBase
 
     private StringBuilder AssembleCodeGenerators(StringBuilder sb, Type entityType,
         Dictionary<CommonSnippets, CodeGeneratorConstruction> generatorsCatalog,
-        Dictionary<CommonSnippets, CodeGenerateBehavior> codeGenerateBehaviors)
+        Dictionary<CommonSnippets, SnippetInstantiationInstruction> codeGenerateBehaviors)
     {
+        
         foreach (var behaviorItem in codeGenerateBehaviors)
         {
             var snippet = behaviorItem.Key;
+
+            var finalEntityType = behaviorItem.Value.OverrideEntity ? behaviorItem.Value.OverrideEntity.Value : entityType;
 
             if (generatorsCatalog.ContainsKey(snippet))
             {
@@ -81,27 +73,27 @@ public abstract class BuiltinMacroBase : MacroBase
 
                 var construction = generatorsCatalog[snippet];
 
-                if (behavior.Is(CodeGenerateBehavior.UseIdAgnostic))
+                if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseIdAgnostic))
                 {
                     if (!construction.IdAware)
                     {
-                        Append(sb, construction.IdAgnosticCodeGenerator(entityType));
+                        Append(sb, construction.IdAgnosticCodeGenerator(finalEntityType));
                     }
                 }
 
-                if (behavior.Is(CodeGenerateBehavior.UseById))
+                if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseById))
                 {
                     if (construction.IdAware)
                     {
-                        Append(sb, construction.ByIdCodeGenerator(entityType));
+                        Append(sb, construction.ByIdCodeGenerator(finalEntityType));
                     }
                 }
 
-                if (behavior.Is(CodeGenerateBehavior.UseAll))
+                if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseAll))
                 {
                     if (construction.IdAware)
                     {
-                        Append(sb, construction.AllCodeGenerator(entityType));
+                        Append(sb, construction.AllCodeGenerator(finalEntityType));
                     }
                 }
             }
