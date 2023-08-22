@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Results;
 using Meadow.Contracts;
+using Meadow.Utility;
 
 namespace Meadow.Requests
 {
@@ -28,7 +29,7 @@ namespace Meadow.Requests
 
         protected virtual bool FullTreeReadWrite()
         {
-            return false;
+            return FullTreeMark.IsMarkedFullTreeRead();
         }
 
         public RequestExecution Execution { get; protected set; }
