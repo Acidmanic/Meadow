@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn
 {
@@ -7,14 +8,10 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
     public class EventSourcingMacro : BuiltinMacroBase
     {
         public override string Name { get; } = "EventStream";
-
-
-        protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
+        
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
-            return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
-            {
-                { CommonSnippets.EventSteamScript ,CodeGenerateBehavior.UseIdAgnostic}
-            };
+            builder.Add(CommonSnippets.EventSteamScript).BehaviorUseIdAgnostic();
         }
     }
 }

@@ -1,9 +1,12 @@
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     public class SqlSingleLineGenerator:ICodeGenerator
     {
+        public RepetitionHandling RepetitionHandling { get; set; } = RepetitionHandling.Create;
+        
         public static string LineString =
             "--------------------------------------------------------------------------------------------\n";
         public Code Generate()

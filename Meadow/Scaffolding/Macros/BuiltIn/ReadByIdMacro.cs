@@ -1,20 +1,15 @@
-using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn
 {
-
     public class ReadByIdMacro : BuiltinMacroBase
     {
         public override string Name { get; } = "ReadById";
 
-
-        protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
-            return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
-            {
-                { CommonSnippets.ReadProcedure ,CodeGenerateBehavior.UseById}
-            };
+            builder.Add(CommonSnippets.ReadProcedure).BehaviorUseById();
         }
     }
 }

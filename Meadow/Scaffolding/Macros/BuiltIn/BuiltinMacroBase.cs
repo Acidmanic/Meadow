@@ -9,6 +9,7 @@ using Acidmanic.Utilities.Results;
 using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn;
 
@@ -41,12 +42,16 @@ public abstract class BuiltinMacroBase : MacroBase
     }
 
 
-    protected abstract Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior();
+    protected abstract void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder);
 
 
     protected virtual string GenerateCode(Type type, Dictionary<CommonSnippets, CodeGeneratorConstruction> cgCatalog)
     {
-        var behaviorsBySnippets = GetAssemblyBehavior();
+        var builder = new AssemblingBehaviorBuilder();
+
+        BuildUpAssemblingBehavior(builder);
+
+        var behaviorsBySnippets = builder.Build();
 
         var sb = AssembleCodeGenerators(new StringBuilder(), type, cgCatalog, behaviorsBySnippets);
 
@@ -58,14 +63,14 @@ public abstract class BuiltinMacroBase : MacroBase
 
     private StringBuilder AssembleCodeGenerators(StringBuilder sb, Type entityType,
         Dictionary<CommonSnippets, CodeGeneratorConstruction> generatorsCatalog,
-        Dictionary<CommonSnippets, SnippetInstantiationInstruction> codeGenerateBehaviors)
+        Dictionary<CommonSnippets, SnippetConfigurations> codeGenerateBehaviors)
     {
-        
         foreach (var behaviorItem in codeGenerateBehaviors)
         {
             var snippet = behaviorItem.Key;
 
-            var finalEntityType = behaviorItem.Value.OverrideEntity ? behaviorItem.Value.OverrideEntity.Value : entityType;
+            var finalEntityType =
+                behaviorItem.Value.OverrideEntity ? behaviorItem.Value.OverrideEntity.Value : entityType;
 
             if (generatorsCatalog.ContainsKey(snippet))
             {
@@ -73,34 +78,50 @@ public abstract class BuiltinMacroBase : MacroBase
 
                 var construction = generatorsCatalog[snippet];
 
-                if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseIdAgnostic))
-                {
-                    if (!construction.IdAware)
-                    {
-                        Append(sb, construction.IdAgnosticCodeGenerator(finalEntityType));
-                    }
-                }
+                var codeGeneratorConstructed = ConstructCodeGenerator(construction, behavior, finalEntityType);
 
-                if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseById))
+                if (codeGeneratorConstructed)
                 {
-                    if (construction.IdAware)
-                    {
-                        Append(sb, construction.ByIdCodeGenerator(finalEntityType));
-                    }
-                }
-
-                if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseAll))
-                {
-                    if (construction.IdAware)
-                    {
-                        Append(sb, construction.AllCodeGenerator(finalEntityType));
-                    }
+                    codeGeneratorConstructed.Value.RepetitionHandling = behaviorItem.Value.RepetitionHandling;
+                    
+                    Append(sb, codeGeneratorConstructed.Value);
                 }
             }
         }
 
         return sb;
     }
+
+    private Result<ICodeGenerator> ConstructCodeGenerator(CodeGeneratorConstruction construction,
+        SnippetConfigurations behavior, Type finalEntityType)
+    {
+        if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseIdAgnostic))
+        {
+            if (!construction.IdAware)
+            {
+                return new Result<ICodeGenerator>(true, construction.IdAgnosticCodeGenerator(finalEntityType));
+            }
+        }
+
+        if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseById))
+        {
+            if (construction.IdAware)
+            {
+                return new Result<ICodeGenerator>(true, construction.ByIdCodeGenerator(finalEntityType));
+            }
+        }
+
+        if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseAll))
+        {
+            if (construction.IdAware)
+            {
+                return new Result<ICodeGenerator>(true, construction.AllCodeGenerator(finalEntityType));
+            }
+        }
+
+        return new Result<ICodeGenerator>().FailAndDefaultValue();
+    }
+
 
     private StringBuilder Append(StringBuilder sb, ICodeGenerator cg)
     {
@@ -121,6 +142,8 @@ public abstract class BuiltinMacroBase : MacroBase
 
     private class NullCodeGenerator : ICodeGenerator
     {
+        public RepetitionHandling RepetitionHandling { get; set; } = RepetitionHandling.Create;
+
         public Code Generate()
         {
             return new Code

@@ -1,20 +1,15 @@
-using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn
 {
-
     public class UpdateMacro : BuiltinMacroBase
     {
         public override string Name { get; } = "Update";
 
-
-        protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
-            return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
-            {
-                { CommonSnippets.UpdateProcedure ,CodeGenerateBehavior.UseIdAgnostic}
-            };
+            builder.Add(CommonSnippets.UpdateProcedure).BehaviorUseIdAgnostic();
         }
     }
 }

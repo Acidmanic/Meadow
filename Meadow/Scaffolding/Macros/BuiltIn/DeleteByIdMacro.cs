@@ -1,20 +1,16 @@
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn
 {
-
     public class DeleteByIdMacro : BuiltinMacroBase
     {
         public override string Name { get; } = "DeleteById";
 
-
-        protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
-            return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
-            {
-                { CommonSnippets.DeleteProcedure ,CodeGenerateBehavior.UseById}
-            };
+            builder.Add(CommonSnippets.DeleteProcedure).BehaviorUseById();
         }
     }
 }

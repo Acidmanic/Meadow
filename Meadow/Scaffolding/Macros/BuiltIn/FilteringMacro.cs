@@ -4,12 +4,9 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn;
 
-public class FilterResultsTableMacro : BuiltinMacroBase
+public class FilteringMacro : BuiltinMacroBase
 {
-    public override string Name => "FilterResultsTable";
-
-    protected override bool TakesTypeArgument => false;
-
+    public override string Name => "Filtering";
 
     protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
     {
@@ -17,5 +14,6 @@ public class FilterResultsTableMacro : BuiltinMacroBase
             .BehaviorUseIdAgnostic()
             .OverrideEntityType<FilterResult>()
             .OnRepetitionSkipNewOne();
+        builder.Add(CommonSnippets.FilteringProcedures).BehaviorUseIdAgnostic();
     }
 }

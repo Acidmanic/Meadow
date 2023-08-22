@@ -1,29 +1,33 @@
 using System;
 using Acidmanic.Utilities.Results;
 
-namespace Meadow.Scaffolding.Macros.BuiltIn;
+namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
-public class SnippetInstantiationInstruction
+public class SnippetConfigurations
 {
     public CodeGenerateBehavior CodeGenerateBehavior { get; set; }
     
     public Result<Type> OverrideEntity { get; set; }
+    
+    
+    public RepetitionHandling RepetitionHandling { get; set; }
 
-    public SnippetInstantiationInstruction( CodeGenerateBehavior codeGenerateBehavior)
+    
+    public SnippetConfigurations( CodeGenerateBehavior codeGenerateBehavior)
     {
         CodeGenerateBehavior = codeGenerateBehavior;
 
         OverrideEntity = new Result<Type>().FailAndDefaultValue();
     }
 
-    public SnippetInstantiationInstruction(CodeGenerateBehavior codeGenerateBehavior,Result<Type> overrideEntity)
+    public SnippetConfigurations(CodeGenerateBehavior codeGenerateBehavior,Result<Type> overrideEntity)
     {
         CodeGenerateBehavior = codeGenerateBehavior;
 
         OverrideEntity = overrideEntity;
     }
 
-    public SnippetInstantiationInstruction()
+    public SnippetConfigurations()
     {
         CodeGenerateBehavior = CodeGenerateBehavior.UseNone;
 
@@ -31,13 +35,16 @@ public class SnippetInstantiationInstruction
     }
 
 
-    public static implicit operator CodeGenerateBehavior(SnippetInstantiationInstruction value)
+    public static implicit operator CodeGenerateBehavior(SnippetConfigurations value)
     {
         return value.CodeGenerateBehavior;
     }
 
-    public static implicit operator SnippetInstantiationInstruction(CodeGenerateBehavior value)
+    public static implicit operator SnippetConfigurations(CodeGenerateBehavior value)
     {
-        return new SnippetInstantiationInstruction(value);
+        return new SnippetConfigurations(value);
     }
+    
+    
+    
 }

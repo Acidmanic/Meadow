@@ -10,6 +10,7 @@ using Meadow.DataTypeMapping;
 using Meadow.DataTypeMapping.Attributes;
 using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.Scaffolding.CodeGenerators
@@ -21,6 +22,8 @@ namespace Meadow.Scaffolding.CodeGenerators
             TypeNameMapper = typeNameMapper;
         }
 
+        public RepetitionHandling RepetitionHandling { get; set; } = RepetitionHandling.Create;
+        
         public abstract Code Generate();
 
 

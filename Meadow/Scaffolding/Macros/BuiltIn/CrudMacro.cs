@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn;
 
@@ -7,17 +8,13 @@ public class CrudMacro : BuiltinMacroBase
 {
     public override string Name { get; } = "Crud";
 
-
-    protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
+    protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
     {
-        return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
-        {
-            { CommonSnippets.CreateTable,  CodeGenerateBehavior.UseIdAgnostic },
-            { CommonSnippets.InsertProcedure, CodeGenerateBehavior.UseIdAgnostic },
-            { CommonSnippets.ReadProcedure, CodeGenerateBehavior.UseIdAware },
-            { CommonSnippets.DeleteProcedure, CodeGenerateBehavior.UseById | CodeGenerateBehavior.UseAll },
-            { CommonSnippets.UpdateProcedure, CodeGenerateBehavior.UseIdAgnostic },
-            { CommonSnippets.SaveProcedure, CodeGenerateBehavior.UseIdAgnostic }
-        };
+        builder.Add(CommonSnippets.CreateTable).BehaviorUseIdAgnostic();
+        builder.Add(CommonSnippets.InsertProcedure).BehaviorUseIdAgnostic();
+        builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
+        builder.Add(CommonSnippets.DeleteProcedure).Behavior(CodeGenerateBehavior.UseById | CodeGenerateBehavior.UseAll);
+        builder.Add(CommonSnippets.UpdateProcedure).BehaviorUseIdAgnostic();
+        builder.Add(CommonSnippets.SaveProcedure).BehaviorUseIdAgnostic();
     }
 }

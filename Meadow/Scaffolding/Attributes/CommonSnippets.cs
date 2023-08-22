@@ -11,7 +11,8 @@ public enum CommonSnippets
     ReadProcedure,
     UpdateProcedure,
     SaveProcedure,
-    EventSteamScript
+    EventSteamScript,
+    FilteringProcedures,
 }
 
 public class CommonSnippetsInfo
@@ -30,6 +31,7 @@ public class CommonSnippetsInfo
         _idAwares.Add(CommonSnippets.UpdateProcedure,false);
         _idAwares.Add(CommonSnippets.SaveProcedure,false);
         _idAwares.Add(CommonSnippets.EventSteamScript,false);
+        _idAwares.Add(CommonSnippets.FilteringProcedures,false);
     }
 
     public bool IsIdAware(CommonSnippets snippet)

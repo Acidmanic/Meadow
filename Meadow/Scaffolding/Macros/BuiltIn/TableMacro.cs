@@ -1,20 +1,16 @@
-using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn
 {
-
     public class TableMacro : BuiltinMacroBase
     {
         public override string Name { get; } = "Table";
 
 
-        protected override Dictionary<CommonSnippets, SnippetInstantiationInstruction> GetAssemblyBehavior()
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
-            return new Dictionary<CommonSnippets, SnippetInstantiationInstruction>
-            {
-                { CommonSnippets.CreateTable ,CodeGenerateBehavior.UseIdAgnostic}
-            };
+            builder.Add(CommonSnippets.CreateTable).BehaviorUseIdAgnostic();
         }
     }
 }

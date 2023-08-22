@@ -1,4 +1,5 @@
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
@@ -10,6 +11,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         private string Title { get; }
+
+        public RepetitionHandling RepetitionHandling { get; set; } = RepetitionHandling.Create;
 
         public Code Generate()
         {

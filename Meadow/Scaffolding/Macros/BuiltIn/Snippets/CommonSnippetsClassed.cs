@@ -1,4 +1,4 @@
-namespace Meadow.Scaffolding.Macros.BuiltIn;
+namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 public class CommonSnippetsClassed
 {
@@ -11,6 +11,7 @@ public class CommonSnippetsClassed
     public static CommonSnippetsClassed UpdateProcedure { get; } = new CommonSnippetsClassed("UpdateProcedure", false);
     public static CommonSnippetsClassed SaveProcedure { get; } = new CommonSnippetsClassed("SaveProcedure", false);
     public static CommonSnippetsClassed EventSteamScript { get; } = new CommonSnippetsClassed("EventSteamScript", false);
+    public static CommonSnippetsClassed FilteringProcedures { get; } = new CommonSnippetsClassed("FilteringProcedures", false);
     
     public string Name { get; }
     

@@ -1,6 +1,6 @@
 using System;
 
-namespace Meadow.Scaffolding.Macros.BuiltIn;
+namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 [Flags]
 public enum CodeGenerateBehavior
