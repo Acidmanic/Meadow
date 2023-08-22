@@ -11,7 +11,7 @@ using Meadow.Utility;
 
 namespace Meadow.Test.Functional
 {
-    public class TestMeadowFiltering : MeadowFunctionalTest
+    public class Tdd38MeadowFiltering : MeadowFunctionalTest
     {
         private class ReadAllPersonsRequest : MeadowRequest<MeadowVoid, Person>
         {
