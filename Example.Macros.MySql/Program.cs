@@ -75,15 +75,32 @@ namespace Example.Macros.MySql
         /// <returns>Sql server password</returns>
         private static string ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt()
         {
-            try
+            var reachedTheEnd = false;
+
+            var currentPath = new DirectoryInfo(".").FullName;
+
+            while (!reachedTheEnd)
             {
-                return File.ReadAllText(Path.Join("..", "..", "..", "..", "sa-pass"));
+                var currentFile = Path.Join(currentPath, "sa-pass");
+
+                if (File.Exists(currentFile))
+                {
+                    return File.ReadAllText(currentFile);
+                }
+
+                var currentDirectory = new DirectoryInfo(currentPath);
+
+                var parent = currentDirectory.Parent;
+                
+                reachedTheEnd = parent == null;
+
+                if (!reachedTheEnd)
+                {
+                    currentPath = parent.FullName;
+                }
             }
-            catch (Exception e)
-            {
-                throw new Exception("Please create a text file, named 'sa-pass' " +
-                                    "containing your password, and put it in the solution directory.");
-            }
+            throw new Exception("Please create a text file, named 'sa-pass' " +
+                                "containing your password, and put it in the solution directory.");
         }
 
         private static string GetConnectionString()

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
@@ -20,6 +21,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         public FilteringProceduresGenerator(Type type) : base(new MySqlDbTypeNameMapper())
         {
+            if (RepetitionHandling != RepetitionHandling.Create)
+            {
+                Console.WriteLine("WARNING: FilteringProcedures Snippet does not support repetition handling." );
+            }
+            
             ProcessedType = Process(type);
         }
 

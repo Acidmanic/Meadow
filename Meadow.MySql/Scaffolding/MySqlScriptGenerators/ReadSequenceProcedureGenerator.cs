@@ -15,7 +15,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class ReadSequenceProcedureGenerator : MySqlProcedureGeneratorBase
     {
         public bool AllNotById { get; }
 
@@ -25,13 +25,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
 
         public bool OrderById { get; }
-
-        private readonly Type _type;
-
+        
         public ReadSequenceProcedureGenerator(Type type, bool allNotById, int top,
-            bool orderById = false, bool orderAscending = true) : base(new MySqlDbTypeNameMapper())
+            bool orderById = false, bool orderAscending = true) : base(type)
         {
-            _type = type;
             AllNotById = allNotById;
             Top = top;
             OrderAscending = orderAscending;
@@ -63,8 +60,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             return "";
         }
 
-        protected string GetProcedureName(NameConvention nameConvention)
+        protected override string GetProcedureName()
         {
+            var nameConvention = Processed.NameConvention;
+            
             if (IsDatabaseObjectNameForced)
             {
                 return ForcedDatabaseObjectName;
@@ -94,7 +93,6 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             }
         }
 
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyIdParam = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
@@ -102,31 +100,26 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyOrderClause = GenerateKey();
 
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            var process = Process(_type);
-
-            var name = GetProcedureName(process.NameConvention);
-
-            replacementList.Add(_keyProcedureName, name);
-
-            if (!AllNotById && !process.HasId)
+            
+            if (!AllNotById && !Processed.HasId)
             {
                 throw new Exception("To be able to create a read-by-id procedure for a type, the type" +
                                     " must have an id field.");
             }
 
             replacementList.Add(_keyIdParam,
-                AllNotById ? "" : ("IN " + process.IdParameter.Name + " " + process.IdParameter.Type));
+                AllNotById ? "" : ("IN " + Processed.IdParameter.Name + " " + Processed.IdParameter.Type));
 
-            replacementList.Add(_keyTableName, process.NameConvention.TableName);
+            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
 
             replacementList.Add(_keyWhereClause, AllNotById
                 ? ""
-                : ("WHERE " + process.NameConvention.TableName + "."
-                   + process.IdParameter.Name + " = " + process.IdParameter.Name));
+                : ("WHERE " + Processed.NameConvention.TableName + "."
+                   + Processed.IdParameter.Name + " = " + Processed.IdParameter.Name));
 
-            var order = GetOrder(process.IdParameter.Name);
+            var order = GetOrder(Processed.IdParameter.Name);
 
             replacementList.Add(_keyOrderClause, order);
 
@@ -134,7 +127,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
 
         protected override string Template => @$"
-CREATE PROCEDURE {_keyProcedureName}({_keyIdParam})
+{KeyCreationHeader} {KeyProcedureName}({_keyIdParam})
 BEGIN
     SELECT * FROM {_keyTableName} {_keyWhereClause} {_keyOrderClause} {_keyTopClause};
 END;

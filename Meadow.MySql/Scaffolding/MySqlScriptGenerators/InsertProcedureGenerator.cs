@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
@@ -14,17 +13,12 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     }
 
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class InsertProcedureGenerator : MySqlProcedureGeneratorBase
     {
-        private readonly Type _type;
-
-        public InsertProcedureGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+        public InsertProcedureGenerator(Type type) : base(type)
         {
-            _type = type;
         }
-
-
-        private readonly string _keyName = GenerateKey();
+        
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
@@ -32,32 +26,32 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyIdColumn = GenerateKey();
 
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override string GetProcedureName()
         {
-            var processed = Process(_type);
+            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.InsertProcedureName;
+        }
 
-            replacementList.Add(_keyName,
-                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : processed.NameConvention.InsertProcedureName);
-
-            var parameters = string.Join(',', processed.NoneIdParameters
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
+            var parameters = string.Join(',', Processed.NoneIdParameters
                 .Select(p => "IN " + p.Name + " " + p.Type));
 
             replacementList.Add(_keyParameters, parameters);
 
-            replacementList.Add(_keyTableName, processed.NameConvention.TableName);
+            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
 
-            var columnsAndValues = string.Join(',', processed.NoneIdParameters
+            var columnsAndValues = string.Join(',', Processed.NoneIdParameters
                 .Select(p => p.Name));
 
             replacementList.Add(_keyColumns, columnsAndValues);
 
             replacementList.Add(_keyValues, columnsAndValues);
 
-            replacementList.Add(_keyIdColumn, processed.IdField.Name);
+            replacementList.Add(_keyIdColumn, Processed.IdField.Name);
         }
 
         protected override string Template => @$"
-CREATE PROCEDURE {_keyName}({_keyParameters})
+{KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
     INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
     SET @nid = (select LAST_INSERT_ID());

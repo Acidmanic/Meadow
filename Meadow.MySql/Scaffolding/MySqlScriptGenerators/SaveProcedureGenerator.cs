@@ -1,9 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
@@ -16,18 +14,15 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     }
 
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class SaveProcedureGenerator : MySqlProcedureGeneratorBase
     {
-        private readonly Type _type;
 
-        public SaveProcedureGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+        public SaveProcedureGenerator(Type type) : base(type)
         {
-            _type = type;
         }
 
 
         private readonly string _keyTableName = GenerateKey();
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keySetClause = GenerateKey();
@@ -36,37 +31,37 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyIdColumn = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+
+        protected override string GetProcedureName()
         {
-            var processed = Process(_type);
+            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.SaveProcedureName;
+        }
 
-            replacementList.Add(_keyTableName, processed.NameConvention.TableName);
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
 
-            replacementList.Add(_keyProcedureName,
-                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : processed.NameConvention.SaveProcedureName);
-
-            var whereClause = GetWhereClause(processed);
-
-            var parameters = string.Join(',', processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
+            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            
+            var parameters = string.Join(',', Processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 
-            var setClause = string.Join(',', processed.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
+            var setClause = string.Join(',', Processed.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
 
             replacementList.Add(_keySetClause, setClause);
 
-            replacementList.Add(_keyIdFieldName, processed.IdParameter.Name);
+            replacementList.Add(_keyIdFieldName, Processed.IdParameter.Name);
 
-            replacementList.Add(_keyWhereClause, GetWhereClause(processed));
+            replacementList.Add(_keyWhereClause, GetWhereClause(Processed));
 
-            var columnsAndValues = string.Join(',', processed.NoneIdParameters
+            var columnsAndValues = string.Join(',', Processed.NoneIdParameters
                 .Select(p => p.Name));
 
             replacementList.Add(_keyColumns, columnsAndValues);
 
             replacementList.Add(_keyValues, columnsAndValues);
 
-            replacementList.Add(_keyIdColumn, processed.IdField.Name);
+            replacementList.Add(_keyIdColumn, Processed.IdField.Name);
         }
 
         private bool IsString(Parameter p)
@@ -100,7 +95,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}({_keyParameters})
+{KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
     IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause}) then
         

@@ -15,44 +15,43 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     }
 
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class UpdateProcedureGenerator : MySqlProcedureGeneratorBase
     {
-        private readonly Type _type;
 
-        public UpdateProcedureGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+        public UpdateProcedureGenerator(Type type) : base(type)
         {
-            _type = type;
         }
 
 
         private readonly string _keyTableName = GenerateKey();
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keySetClause = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+
+        protected override string GetProcedureName()
         {
-            var process = Process(_type);
+            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.UpdateProcedureName;
+        }
 
-            replacementList.Add(_keyTableName, process.NameConvention.TableName);
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
 
-            replacementList.Add(_keyProcedureName,
-                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.UpdateProcedureName);
+            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
 
-            var parameters = string.Join(',', process.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
+            var parameters = string.Join(',', Processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 
-            var setClause = string.Join(',', process.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
+            var setClause = string.Join(',', Processed.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
 
             replacementList.Add(_keySetClause, setClause);
 
-            replacementList.Add(_keyIdFieldName, process.IdParameter.Name);
+            replacementList.Add(_keyIdFieldName, Processed.IdParameter.Name);
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}({_keyParameters})
+{KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
     UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
     SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
