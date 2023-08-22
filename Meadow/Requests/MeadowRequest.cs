@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
+using Acidmanic.Utilities.Results;
+using Meadow.Contracts;
 
 namespace Meadow.Requests
 {
@@ -44,6 +46,14 @@ namespace Meadow.Requests
             
             FailureException = new Exception(reason);
         }
+
+        internal void SetFilterQueryTranslator(IFilterQueryTranslator translator)
+        {
+            FilterQueryTranslator = translator;
+        } 
+        
+        protected IFilterQueryTranslator FilterQueryTranslator { get; private set; } = IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
+        
     }
     
     

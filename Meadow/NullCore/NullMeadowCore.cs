@@ -11,17 +11,15 @@ namespace Meadow.NullCore
 {
     public class NullMeadowCore : IMeadowDataAccessCore
     {
-
-        private ILogger _logger  ;
+        private ILogger _logger;
 
         public NullMeadowCore(ILogger logger)
         {
             _logger = logger;
         }
 
-        public NullMeadowCore():this(NullLogger.Instance)
+        public NullMeadowCore() : this(NullLogger.Instance)
         {
-            
         }
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request,
@@ -37,7 +35,8 @@ namespace Meadow.NullCore
             return request;
         }
 
-        public Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
+        public Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request,
+            MeadowConfiguration configuration) where TOut : class, new()
         {
             return Task.Run(() => PerformRequest(request, configuration));
         }
@@ -136,11 +135,16 @@ namespace Meadow.NullCore
             return Task.CompletedTask;
         }
 
-        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
+        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration, ILogger logger)
         {
             _logger = logger;
-            
+
             return this;
+        }
+
+        public IFilterQueryTranslator ProvideFilterQueryTranslator()
+        {
+            return IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
         }
 
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Acidmanic.Utilities.Filtering;
 using Meadow.Configuration;
 using Meadow.Requests;
 using Microsoft.Extensions.Logging;
@@ -64,5 +65,7 @@ namespace Meadow.Contracts
         Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration);
 
         IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger);
+
+        IFilterQueryTranslator ProvideFilterQueryTranslator();
     }
 }

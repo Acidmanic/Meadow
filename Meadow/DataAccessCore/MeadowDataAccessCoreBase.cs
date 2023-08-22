@@ -104,6 +104,8 @@ namespace Meadow.DataAccessCore
             return InitializeDerivedClass(configuration);
         }
 
+        public abstract IFilterQueryTranslator ProvideFilterQueryTranslator();
+
         protected virtual IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             return this;

@@ -66,9 +66,38 @@ namespace Meadow
             return _coreProvider.CreateDataAccessCore().Initialize(configuration, _logger);
         }
 
+
+        private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class, new()
+        {
+            var translator = IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
+
+            try
+            {
+                var core = _coreProvider.CreateDataAccessCore();
+
+                var t = core.ProvideFilterQueryTranslator();
+
+                if (t != null)
+                {
+                    translator = t;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e,"Error getting query translator.");
+            }
+
+            translator.Logger = _logger;
+            
+            request.SetFilterQueryTranslator(translator);
+        }
+        
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
             where TOut : class, new()
         {
+            
+            SetupQueryTranslator(request);
+            
             if (request is ConfigurationRequest<TOut> configRequest)
             {
                 var result = PerformConfigurationRequest(configRequest);
@@ -85,6 +114,9 @@ namespace Meadow
         public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request)
             where TOut : class, new()
         {
+            
+            SetupQueryTranslator(request);
+            
             if (request is ConfigurationRequest<TOut> configRequest)
             {
                 var result = await PerformConfigurationRequestAsync(configRequest);
