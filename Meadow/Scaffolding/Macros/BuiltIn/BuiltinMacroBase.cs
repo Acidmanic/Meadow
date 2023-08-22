@@ -80,11 +80,11 @@ public abstract class BuiltinMacroBase : MacroBase
 
                 var codeGeneratorConstructed = ConstructCodeGenerator(construction, behavior, finalEntityType);
 
-                if (codeGeneratorConstructed)
+                foreach (var generator in codeGeneratorConstructed)
                 {
-                    codeGeneratorConstructed.Value.RepetitionHandling = behaviorItem.Value.RepetitionHandling;
-                    
-                    Append(sb, codeGeneratorConstructed.Value);
+                    generator.RepetitionHandling = behaviorItem.Value.RepetitionHandling;
+
+                    Append(sb, generator);
                 }
             }
         }
@@ -92,34 +92,37 @@ public abstract class BuiltinMacroBase : MacroBase
         return sb;
     }
 
-    private Result<ICodeGenerator> ConstructCodeGenerator(CodeGeneratorConstruction construction,
+    private List<ICodeGenerator> ConstructCodeGenerator(CodeGeneratorConstruction construction,
         SnippetConfigurations behavior, Type finalEntityType)
     {
+        var generators = new List<ICodeGenerator>();
+
         if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseIdAgnostic))
         {
             if (!construction.IdAware)
             {
-                return new Result<ICodeGenerator>(true, construction.IdAgnosticCodeGenerator(finalEntityType));
+                generators.Add(construction.IdAgnosticCodeGenerator(finalEntityType));
             }
         }
-
-        if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseById))
+        else
         {
-            if (construction.IdAware)
+            if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseById))
             {
-                return new Result<ICodeGenerator>(true, construction.ByIdCodeGenerator(finalEntityType));
+                if (construction.IdAware)
+                {
+                    generators.Add(construction.ByIdCodeGenerator(finalEntityType));
+                }
+            }
+
+            if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseAll))
+            {
+                if (construction.IdAware)
+                {
+                    generators.Add(construction.AllCodeGenerator(finalEntityType));
+                }
             }
         }
-
-        if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseAll))
-        {
-            if (construction.IdAware)
-            {
-                return new Result<ICodeGenerator>(true, construction.AllCodeGenerator(finalEntityType));
-            }
-        }
-
-        return new Result<ICodeGenerator>().FailAndDefaultValue();
+        return generators;
     }
 
 

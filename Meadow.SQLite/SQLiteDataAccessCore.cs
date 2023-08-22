@@ -29,6 +29,11 @@ namespace Meadow.SQLite
         }
 
 
+        public override IFilterQueryTranslator ProvideFilterQueryTranslator()
+        {
+            return new SqLiteFilterQueryTranslator();
+        }
+
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             DataStorageAdapter =

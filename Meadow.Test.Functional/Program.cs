@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd38AlteredTypeBugCase().Main();
+            new TestMeadowFiltering().Main();
         }
     }
 }

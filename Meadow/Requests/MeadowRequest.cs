@@ -11,26 +11,30 @@ namespace Meadow.Requests
         public virtual string RequestText { get; protected set; }
 
         public bool ReturnsValue { get; }
-        
+
         internal bool FullTree => FullTreeReadWrite();
-        
+
+
+        private readonly List<Action<IFilterQueryTranslator>> _translationTasks;
+
         public MeadowRequest(bool returnsValue)
         {
             ReturnsValue = returnsValue;
 
             Execution = RequestExecution.RequestTextIsNameOfRoutine;
+            _translationTasks = new List<Action<IFilterQueryTranslator>>();
         }
-        
-        
+
+
         protected virtual bool FullTreeReadWrite()
         {
             return false;
         }
-        
+
         public RequestExecution Execution { get; protected set; }
 
         public bool Failed { get; private set; } = false;
-        
+
         public Exception FailureException { get; private set; }
 
         public void SetFailure(Exception exception)
@@ -43,33 +47,37 @@ namespace Meadow.Requests
         public void SetFailure(string reason)
         {
             Failed = true;
-            
+
             FailureException = new Exception(reason);
         }
 
         internal void SetFilterQueryTranslator(IFilterQueryTranslator translator)
         {
-            FilterQueryTranslator = translator;
-        } 
-        
-        protected IFilterQueryTranslator FilterQueryTranslator { get; private set; } = IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
-        
+            foreach (var translationTask in _translationTasks)
+            {
+                translationTask(translator);
+            }
+        }
+
+        protected void RegisterTranslationTask(Action<IFilterQueryTranslator> task)
+        {
+            _translationTasks.Add(task);
+        }
     }
-    
-    
-    public class MeadowRequest<TIn, TOut>:MeadowRequest
+
+
+    public class MeadowRequest<TIn, TOut> : MeadowRequest
         where TOut : class, new()
     {
         public virtual TIn ToStorage { get; set; }
 
         public List<TOut> FromStorage { get; set; }
 
-        
 
         private FiledManipulationMarker<TIn> _toStorageManipulator;
         private FiledManipulationMarker<TOut> _fromStorageManipulator;
 
-        public MeadowRequest(bool returnsValue):base(returnsValue)
+        public MeadowRequest(bool returnsValue) : base(returnsValue)
         {
             FromStorage = new List<TOut>();
         }
@@ -78,13 +86,12 @@ namespace Meadow.Requests
         {
             RequestText = GetProcedureNameFromRequestName();
 
-            
 
             _toStorageManipulator = new FiledManipulationMarker<TIn>();
             _fromStorageManipulator = new FiledManipulationMarker<TOut>();
 
             _toStorageManipulator.Clear();
-            
+
             OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
         }
 
@@ -97,7 +104,7 @@ namespace Meadow.Requests
                 name = name.Substring(0, name.Length - "request".Length);
             }
 
-            name =  "sp" + name;
+            name = "sp" + name;
 
             if (QuoteProcedureName())
             {
@@ -111,7 +118,7 @@ namespace Meadow.Requests
         {
             return false;
         }
-        
+
         protected virtual void OnFieldManipulation(IFieldInclusionMarker<TIn> toStorage,
             IFieldInclusionMarker<TOut> fromStorage)
         {
@@ -120,7 +127,5 @@ namespace Meadow.Requests
 
         internal IFieldInclusion<TIn> ToStorageInclusion => _toStorageManipulator;
         internal IFieldInclusion<TOut> FromStorageInclusion => _fromStorageManipulator;
-
-        
     }
 }

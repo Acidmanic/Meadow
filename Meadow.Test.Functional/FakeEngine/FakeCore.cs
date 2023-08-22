@@ -108,5 +108,10 @@ namespace Meadow.Test.Functional.FakeEngine
         {
             return Task.CompletedTask;
         }
+
+        public override IFilterQueryTranslator ProvideFilterQueryTranslator()
+        {
+            return IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
+        }
     }
 }

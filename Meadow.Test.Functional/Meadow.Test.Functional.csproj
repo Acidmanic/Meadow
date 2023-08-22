@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
         <ProjectReference Include="..\Meadow\Meadow.csproj" />
         <ProjectReference Include="..\Meadow.Tools.Assistant\Meadow.Tools.Assistant.csproj" />
         <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
@@ -25,13 +26,13 @@
 
     <ItemGroup>
         <Content Include="Scripts\**">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Content Include="MySqlScripts\**">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
         <Content Include="SqLiteScripts\**">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
 

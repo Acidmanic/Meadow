@@ -6,6 +6,7 @@ namespace Meadow.Test.Functional.Models
     public class Person
     {
         [UniqueMember]
+        [AutoValuedMember]
         public long Id { get; set; }
 
         public string Name { get; set; }

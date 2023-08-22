@@ -1,25 +1,30 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Reflection;
 using Acidmanic.Utilities.Reflection;
+using Examples.Common;
 using Meadow.Configuration;
 using Meadow.Extensions;
+using Meadow.MySql;
+using Meadow.Scaffolding.Macros;
 using Meadow.SqlServer;
+using Meadow.Utility;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Test.Functional.TDDAbstractions
 {
     public abstract class MeadowFunctionalTest : IFunctionalTest
     {
-
         public class TestLogger : ILogger
         {
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+                Func<TState, Exception, string> formatter)
             {
                 var message = logLevel.ToString();
 
                 message += ": " + formatter(state, exception);
-                
+
                 Console.WriteLine(message);
             }
 
@@ -33,8 +38,11 @@ namespace Meadow.Test.Functional.TDDAbstractions
                 return null;
             }
         }
-        
+
         protected readonly string DbName;
+        protected string ConnectionString;
+        protected string ScriptsDirectory;
+        protected readonly List<Assembly> MeadowConfigurationAssemblies = new List<Assembly>();
 
         protected MeadowFunctionalTest(string dbName)
         {
@@ -43,21 +51,26 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
         protected MeadowFunctionalTest()
         {
-
             new TestLogger().UseForMeadow();
-            
+
             DbName = GetType().Name + "Db2BeDeleted";
 
             Console.WriteLine($@"****Database: '{DbName}' is being used for this test.*****");
         }
 
-        protected string GetConnectionString()
+        protected void UseMySql()
         {
-            return "Server=localhost;" +
-                   "User Id=sa; " +
-                   "Password=never54aga.1n;" +
-                   $@"Database={DbName}; " +
-                   "MultipleActiveResultSets=true";
+            
+            MeadowConfigurationAssemblies.Clear();
+            MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
+            MeadowConfigurationAssemblies.Add(typeof(MySqlDataAccessCore).Assembly);
+            
+            ScriptsDirectory = "MySqlScripts";
+            
+            ConnectionString= ExampleConnectionString.GetMySqlConnectionString(DbName);
+            
+            MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
         }
 
         protected MeadowEngine CreateEngine()
@@ -65,8 +78,10 @@ namespace Meadow.Test.Functional.TDDAbstractions
             return new MeadowEngine(
                 new MeadowConfiguration
                 {
-                    ConnectionString = GetConnectionString(),
-                    BuildupScriptDirectory = "Scripts"
+                    ConnectionString = ConnectionString,
+                    BuildupScriptDirectory = ScriptsDirectory,
+                    MacroPolicy = MacroPolicies.UpdateScripts,
+                    MacroContainingAssemblies = new List<Assembly>(MeadowConfigurationAssemblies)
                 });
         }
 
@@ -157,7 +172,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
             return false;
         }
-        
+
         public abstract void Main();
 
         protected MeadowEngine SetupClearDatabase(bool fromScratch = true)
@@ -173,8 +188,9 @@ namespace Meadow.Test.Functional.TDDAbstractions
                     engine.DropDatabase();
                 }
 
-                engine.CreateDatabase();    
+                engine.CreateDatabase();
             }
+
             engine.BuildUpDatabase();
 
             return engine;

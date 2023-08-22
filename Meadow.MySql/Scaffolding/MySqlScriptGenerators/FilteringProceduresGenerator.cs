@@ -57,9 +57,9 @@ BEGIN
             'select \'',FilterHash,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,' from {_keyTableName} ' , WhereClause,';');
         PREPARE stmt FROM @query;
         EXECUTE stmt;
-        DEALLOCATE PREPARE stmt;
-            
+        DEALLOCATE PREPARE stmt; 
     end if;
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------

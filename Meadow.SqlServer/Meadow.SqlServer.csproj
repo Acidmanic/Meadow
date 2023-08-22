@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <ProjectReference Include="..\Meadow\Meadow.csproj"/>
+        <ProjectReference Include="..\Meadow\Meadow.csproj" />
     </ItemGroup>
 
     <PropertyGroup>
@@ -10,8 +10,8 @@
 
 
     <ItemGroup>
-        <PackageReference Include="CorePluralizer" Version="1.0.1"/>
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3"/>
+        <PackageReference Include="CorePluralizer" Version="1.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
     </ItemGroup>
 
 

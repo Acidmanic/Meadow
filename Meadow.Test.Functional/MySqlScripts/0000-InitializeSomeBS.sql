@@ -1,18 +1,12 @@
 
-create table Persons(Id bigint AUTO_INCREMENT primary key , Name nvarchar(100), Surname nvarchar(100));
 
-insert into Persons (Name, Surname) values ('Mani','Moayedi');
-insert into Persons (Name, Surname) values ('Farimehr','Ayerian');
+-- {{Crud Meadow.Test.Functional.Models.Person}}
 
-create procedure spInsertPerson(IN Name nvarchar(100),IN Surname nvarchar(100))
-begin
-    insert into Persons (Name,Surname) values (Name,Surname);
-    select * from Persons where Persons.Id=last_insert_id();
-end
+-- {{Filtering Meadow.Test.Functional.Models.Person}}
 
---SPLIT
-    
-create procedure spReadAllPersons()
-    begin 
-        select * from Persons;
-    end
+
+call spInsertPerson('Mani','Moayedi',37,1);
+call spInsertPerson('Mona','Moayedi',42,2);
+call spInsertPerson('Mina','Haddadi',55,3);
+call spInsertPerson('Farshid','Moayedi',63,4);
+call spInsertPerson('Farimehr','Ayerian',21,5);

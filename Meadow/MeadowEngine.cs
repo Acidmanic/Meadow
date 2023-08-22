@@ -363,8 +363,10 @@ namespace Meadow
         {
 
             var assemblies = new List<Assembly>(_configuration.MacroContainingAssemblies);
+            
             // Builtin assemblies
             assemblies.Add(this.GetType().Assembly);
+            assemblies.Add(Assembly.GetEntryAssembly());
 
             return new BuildupScriptManager(_configuration.BuildupScriptDirectory,
                 _configuration.MacroPolicy,  assemblies.ToArray());

@@ -2,6 +2,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.DataAccessCore.AdoCoreBase;
 using Meadow.DataTypeMapping;
 using Meadow.Postgre.Scaffolding;
@@ -157,6 +158,11 @@ namespace Meadow.Postgre
             var request = new SqlRequest(script);
 
             await PerformRequestAsync(request, configuration);
+        }
+
+        public override IFilterQueryTranslator ProvideFilterQueryTranslator()
+        {
+            return new PostgreFilterQueryTranslator();
         }
     }
 }
