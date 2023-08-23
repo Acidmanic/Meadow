@@ -34,6 +34,9 @@
         <Content Include="SqLiteScripts\**">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <Content Include="SqlServerScripts\**">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
 

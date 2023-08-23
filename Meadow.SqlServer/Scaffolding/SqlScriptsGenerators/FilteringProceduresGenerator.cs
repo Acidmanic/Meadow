@@ -58,8 +58,8 @@ BEGIN
     IF (SELECT Count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash) = 0
 
         declare @query nvarchar(1600) = CONCAT(
-            'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',CHAR(13),
-            'SELECT ''',@FilterHash,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName}' , @WhereClause,CHAR(13),'GO');
+            'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
+            'SELECT ''',@FilterHash,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} ' , @WhereClause);
         execute sp_executesql @query
     END  
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
@@ -78,8 +78,8 @@ CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset BIGINT,
               )
      SELECT {_keyEntityParameters}
      FROM Results_CTE
-     WHERE RowNum >= @Offset
-       AND RowNum < @Offset + @Size
+     WHERE RowNum >= (@Offset+1)
+       AND RowNum < (@Offset+1) + @Size
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

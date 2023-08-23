@@ -5,7 +5,7 @@ create database LitbidMeadowDb
 USE LitbidMeadowDb
 Go
 
--- Crud Example.SqlServer.Models.Person
+-- Table Example.SqlServer.Models.Person
 -- ---------------------------------------------------------------------------------------------------------------------
 -- CrudTableScriptGenerator
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -20,6 +20,12 @@ GO
 -- ---------------------------------------------------------------------------------------------------------------------
 
 -- ---------------------------------------------------------------------------------------------------------------------
+-- </Table>
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+-- Insert Example.SqlServer.Models.Person
+-- ---------------------------------------------------------------------------------------------------------------------
 -- InsertProcedureGenerator
 -- ---------------------------------------------------------------------------------------------------------------------
 
@@ -32,76 +38,7 @@ CREATE PROCEDURE spInsertPerson(@Name nvarchar(64),@Surname nvarchar(128),@Age i
 GO
 
 -- ---------------------------------------------------------------------------------------------------------------------
--- ReadProcedureGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spReadPersonById(@Id bigint) AS
-    SELECT * FROM Persons WHERE Persons.Id = @Id;
-GO
--- ---------------------------------------------------------------------------------------------------------------------
--- ReadProcedureGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spReadAllPersons AS
-    SELECT * FROM Persons;
-GO
--- ---------------------------------------------------------------------------------------------------------------------
--- DeleteProcedureGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-
-CREATE PROCEDURE spDeletePersonById( @Id bigint) AS
-    DECLARE @existing int = (SELECT COUNT(*) FROM Persons);
-    DELETE FROM Persons WHERE Id=@Id
-    DECLARE @delta int = @existing - (SELECT COUNT(*) FROM Persons);
-    IF @delta > 0 or @existing = 0
-        SELECT cast(1 as bit) Success
-    ELSE
-        select cast(0 as bit) Success
-GO
-
--- ---------------------------------------------------------------------------------------------------------------------
--- DeleteProcedureGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-
-CREATE PROCEDURE spDeleteAllPersons AS
-    DECLARE @existing int = (SELECT COUNT(*) FROM Persons);
-    DELETE FROM Persons 
-    DECLARE @delta int = @existing - (SELECT COUNT(*) FROM Persons);
-    IF @delta > 0 or @existing = 0
-        SELECT cast(1 as bit) Success
-    ELSE
-        select cast(0 as bit) Success
-GO
-
--- ---------------------------------------------------------------------------------------------------------------------
--- UpdateProcedureGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spUpdatePerson(@Id bigint,@Name nvarchar(64),@Surname nvarchar(128),@Age int,@JobId bigint) AS
-    UPDATE Persons
-    SET Name = @Name,Surname = @Surname,Age = @Age,JobId = @JobId
-    WHERE Id=@Id;
-    
-    SELECT * FROM Persons WHERE Id=@Id;
-GO
--- ---------------------------------------------------------------------------------------------------------------------
--- SaveProcedureGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spSavePerson(@Id bigint,@Name nvarchar(64),@Surname nvarchar(128),@Age int,@JobId bigint) AS
-    IF EXISTS(SELECT 1 FROM Persons WHERE Persons.Id = @Id)
-        BEGIN
-            UPDATE Persons SET Name= @Name,Surname= @Surname,Age= @Age,JobId= @JobId WHERE Persons.Id = @Id;
-        
-            SELECT TOP 1 * FROM Persons WHERE Persons.Id = @Id ORDER BY Id ASC;
-        END
-    ELSE
-        BEGIN
-            INSERT INTO Persons (Name,Surname,Age,JobId) VALUES (@Name,@Surname,@Age,@JobId);
-
-            DECLARE @newId bigint=(IDENT_CURRENT('Persons'));
-
-            SELECT * FROM Persons WHERE Persons.Id = @newId;
-        END
-GO
--- ---------------------------------------------------------------------------------------------------------------------
--- </Crud>
+-- </Insert>
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
@@ -141,8 +78,8 @@ BEGIN
     IF (SELECT Count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash) = 0
 
         declare @query nvarchar(1600) = CONCAT(
-            'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',CHAR(13),
-            'SELECT ''',@FilterHash,''',Id, ',@ExpirationTimeStamp,' FROM Persons' , @WhereClause,CHAR(13),'GO');
+            'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
+            'SELECT ''',@FilterHash,''',Id, ',@ExpirationTimeStamp,' FROM Persons ' , @WhereClause);
         execute sp_executesql @query
     END  
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
@@ -171,12 +108,18 @@ GO
 
 
 
+
 execute spInsertPerson 'Mani','Moayedi',37,1
 execute spInsertPerson 'Mona','Moayedi',42,2
 execute spInsertPerson 'Mina','Haddadi',56,3
 execute spInsertPerson 'Farshid','Moayedi',63,4
 execute spInsertPerson 'Farimehr','Ayerian',21,5
 
-execute spPerformPersonsFilterIfNeeded 'mash',12345,''
+declare @query nvarchar(256) = 'WHERE (Name = ''Mani'' OR Name = ''Mona'') AND ( Age > 40)';
+declare @hash nvarchar(128) = CONVERT(VARCHAR(32), HashBytes('MD5', @query), 2);
 
-execute spReadPersonsChunk 2,3,'mash'
+execute spPerformPersonsFilterIfNeeded @hash,12345,@query
+
+execute spReadPersonsChunk 0,20,@hash
+
+

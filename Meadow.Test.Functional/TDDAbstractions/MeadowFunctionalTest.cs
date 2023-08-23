@@ -60,17 +60,30 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
         protected void UseMySql()
         {
-            
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
             MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
             MeadowConfigurationAssemblies.Add(typeof(MySqlDataAccessCore).Assembly);
-            
+
             ScriptsDirectory = "MySqlScripts";
-            
-            ConnectionString= ExampleConnectionString.GetMySqlConnectionString(DbName);
-            
+
+            ConnectionString = ExampleConnectionString.GetMySqlConnectionString(DbName);
+
             MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
+        }
+
+        protected void UseSqlServer()
+        {
+            MeadowConfigurationAssemblies.Clear();
+            MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
+            MeadowConfigurationAssemblies.Add(typeof(SqlServerDataAccessCore).Assembly);
+
+            ScriptsDirectory = "SqlServerScripts";
+
+            ConnectionString = ExampleConnectionString.GetSqlServerConnectionString(DbName);
+
+            MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
         }
 
         protected MeadowEngine CreateEngine()

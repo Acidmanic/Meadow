@@ -83,7 +83,7 @@ namespace Meadow.SqlServer
 
             if (type == typeof(string))
             {
-                var escaped = value.Replace("'", "\\'");
+                var escaped = value.Replace("'", "''");
 
                 return $"'{escaped}'";
             }

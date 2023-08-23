@@ -90,12 +90,15 @@ create database LitbidMeadowDb
 USE LitbidMeadowDb
 Go
 
--- {{Crud Example.SqlServer.Models.Person}}
+-- {{Table Example.SqlServer.Models.Person}}
+GO
+-- {{Insert Example.SqlServer.Models.Person}}
 
 GO
 -- {{FilterResultsTable}}
 GO
 -- {{FilteringProcedures Example.SqlServer.Models.Person}}
+
 
 
 execute spInsertPerson 'Mani','Moayedi',37,1
@@ -104,6 +107,9 @@ execute spInsertPerson 'Mina','Haddadi',56,3
 execute spInsertPerson 'Farshid','Moayedi',63,4
 execute spInsertPerson 'Farimehr','Ayerian',21,5
 
-execute spPerformPersonsFilterIfNeeded 'mash',12345,''
+declare @query nvarchar(256) = 'WHERE (Name = ''Mani'' OR Name = ''Mona'') AND ( Age < 40)';
+declare @hash nvarchar(128) = CONVERT(VARCHAR(32), HashBytes('MD5', @query), 2);
 
-execute spReadPersonsChunk 2,3,'mash'
+execute spPerformPersonsFilterIfNeeded @hash,12345,@query
+
+execute spReadPersonsChunk 0,20,@hash

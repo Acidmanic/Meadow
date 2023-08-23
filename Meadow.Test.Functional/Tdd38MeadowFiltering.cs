@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
@@ -5,6 +7,7 @@ using Meadow.Requests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Test.Functional.TestCaseClasses;
+using Newtonsoft.Json;
 
 namespace Meadow.Test.Functional
 {
@@ -66,7 +69,7 @@ namespace Meadow.Test.Functional
         }
         public override void Main()
         {
-            UseMySql();
+            UseSqlServer();
 
             var engine = CreateEngine();
 
@@ -87,19 +90,19 @@ namespace Meadow.Test.Functional
 
             filter.FilterName = typeof(Person).FullName;
 
-            // filter.Add(new FilterItem
-            // {
-            //     Key = "Name",
-            //     EqualValues = new List<string> { "Mani", "Mona" },
-            //     ValueType = typeof(string),
-            //     ValueComparison = ValueComparison.Equal
-            // });
+            filter.Add(new FilterItem
+            {
+                Key = "Name",
+                EqualValues = new List<string> { "Mani", "Mona" },
+                ValueType = typeof(string),
+                ValueComparison = ValueComparison.Equal
+            });
 
             var filterRequest = new PerformPersonsFilterIfNeededRequest(filter);
 
             var allSearchResults = engine.PerformRequest(filterRequest).FromStorage;
 
-            var pagination = new { Offset = 0, Size = 2 };
+            var pagination = new { Offset = 0, Size = 20 };
             
             var chunkRequest = new ReadPersonsChunkRequest(pagination.Offset, pagination.Size, filter.Hash());
 
