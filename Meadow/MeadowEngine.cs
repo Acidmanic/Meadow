@@ -91,10 +91,14 @@ namespace Meadow
             
             request.SetFilterQueryTranslator(translator);
         }
-        
-        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request)
+
+        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
+            MeadowRequest<TIn, TOut> request,
+            bool suggestFullTreeAccess = false)
             where TOut : class, new()
         {
+            
+            request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
             
             SetupQueryTranslator(request);
             
@@ -111,9 +115,12 @@ namespace Meadow
             return CreateInitializedCore(_configuration).PerformRequest(request, _configuration);
         }
         
-        public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request)
+        public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
+            MeadowRequest<TIn, TOut> request,
+            bool suggestFullTreeAccess = false)
             where TOut : class, new()
         {
+            request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
             
             SetupQueryTranslator(request);
             

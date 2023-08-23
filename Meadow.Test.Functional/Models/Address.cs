@@ -15,6 +15,7 @@ namespace Meadow.Test.Functional.Models
         public int Plate { get; set; }
         
         [UniqueMember]
+        [AutoValuedMember]
         public long Id { get; set; }
         
         public long PersonId { get; set; }

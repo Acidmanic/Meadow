@@ -13,6 +13,33 @@ namespace Meadow.Requests
 
         public bool ReturnsValue { get; }
 
+        /// <summary>
+        /// Engine Can Suggest the request to consider itself a full-tree access request. This suggestion is made
+        /// by client code using Meadow. This way a request's full-tree access behavior can be determined out side of
+        /// the request. For example, you can Update the procedure's sql to fullTree access, and you dont have access
+        /// to the request's code, and the only thing you need to read the full-tree data, is to tell the request to be
+        /// a full-tree request.  
+        /// </summary>
+        private bool _suggestedFullTreeAccess = false;
+        internal void SuggestFullTreeReadWrite(bool fullTree)
+        {
+            _suggestedFullTreeAccess = fullTree;
+        }
+        /// <summary>
+        /// This is where a specific implementation of a request is able to discard the suggested full-tree behavior,
+        /// and override it the way that implementation see's suitable.
+        /// </summary>
+        /// <returns>The Request implementation's decision about full-tree behavior. Default is
+        /// to return the value of SuggestedFullTreeAccess which it's default is false.
+        /// </returns>
+        protected virtual bool FullTreeReadWrite()
+        {
+            return _suggestedFullTreeAccess;
+        }
+        /// <summary>
+        /// This is the outlet that meadow Engine/DataAccessCore would check to see If the request should be treated as
+        /// full-tree or not.  
+        /// </summary>
         internal bool FullTree => FullTreeReadWrite();
 
 
@@ -26,11 +53,6 @@ namespace Meadow.Requests
             _translationTasks = new List<Action<IFilterQueryTranslator>>();
         }
 
-
-        protected virtual bool FullTreeReadWrite()
-        {
-            return FullTreeMark.IsMarkedFullTreeRead();
-        }
 
         public RequestExecution Execution { get; protected set; }
 
@@ -128,7 +150,5 @@ namespace Meadow.Requests
 
         internal IFieldInclusion<TIn> ToStorageInclusion => _toStorageManipulator;
         internal IFieldInclusion<TOut> FromStorageInclusion => _fromStorageManipulator;
-        
-        
     }
 }

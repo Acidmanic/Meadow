@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd39FullTreeMarkingTest().Main();
+            new Tdd38MeadowFiltering().Main();
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Meadow.Models
 
         public string ScriptName { get; set; }
 
-        [ForceColumnSize(2048)]
+        [ForceColumnSize(4096)]
         public string Script { get; set; }
     }
 }

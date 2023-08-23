@@ -1,13 +1,10 @@
-using System.Collections.Generic;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
-using Meadow.MySql;
 using Meadow.Requests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Test.Functional.TestCaseClasses;
-using Meadow.Utility;
 
 namespace Meadow.Test.Functional
 {
@@ -67,7 +64,6 @@ namespace Meadow.Test.Functional
                 };
             }
         }
-
         public override void Main()
         {
             UseMySql();
@@ -107,7 +103,7 @@ namespace Meadow.Test.Functional
             
             var chunkRequest = new ReadPersonsChunkRequest(pagination.Offset, pagination.Size, filter.Hash());
 
-            var filteringResults = engine.PerformRequest(chunkRequest).FromStorage;
+            var filteringResults = engine.PerformRequest(chunkRequest,true).FromStorage;
 
             var paginatedData = new
             {
