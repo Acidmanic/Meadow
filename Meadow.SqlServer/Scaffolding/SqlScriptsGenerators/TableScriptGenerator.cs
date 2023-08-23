@@ -4,6 +4,7 @@ using System.Linq;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
@@ -39,10 +40,15 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keySplitTail = GenerateKey();
+        private readonly string _keyCreationHeader = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             var process = Process(_type);
+
+            var creationHeader = GetCreationHeader(process);
+
+            replacementList.Add(_keyCreationHeader, creationHeader);
 
             replacementList.Add(_keyTableName,
                 IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
@@ -56,6 +62,24 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             var splitTail = _appendSplitter ? ("\n" + line + "\n-- SPLIT\n" + line + "\n") : "";
 
             replacementList.Add(_keySplitTail, splitTail);
+        }
+
+        private string GetCreationHeader(ProcessedType process)
+        {
+            var creationHeader = "CREATE TABLE";
+
+            if (RepetitionHandling == RepetitionHandling.Alter)
+            {
+                creationHeader = "DROP TABLE IF EXISTS " + process.NameConvention.TableName +
+                                 "\nCREATE TABLE";
+            }
+            else if (RepetitionHandling == RepetitionHandling.Skip)
+            {
+                creationHeader = $"IF OBJECT_ID(N'{process.NameConvention.TableName}', N'U') IS NULL" +
+                                 "\nCREATE TABLE";
+            }
+
+            return creationHeader;
         }
 
         private string GetParameters(ProcessedType process)
@@ -79,7 +103,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE TABLE {_keyTableName}
+{_keyCreationHeader} {_keyTableName}
 (
     {_keyParameters}
 );
