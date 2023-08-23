@@ -15,20 +15,17 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.ReadProcedure)]
-    public class ReadProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class ReadProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
         public bool ById { get; }
 
 
-        private ProcessedType ProcessedType { get; }
-
-        public ReadProcedureGenerator(Type type, bool byId) : base(new SqlDbTypeNameMapper())
+        public ReadProcedureGenerator(Type type, bool byId) : base(type)
         {
             ById = byId;
-            ProcessedType = Process(type);
         }
 
-        private string GetProcedureName()
+        protected override string GetProcedureName()
         {
             if (IsDatabaseObjectNameForced)
             {
@@ -40,16 +37,13 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 : ProcessedType.NameConvention.SelectAllProcedureName;
         }
 
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyIdParameterDeclaration = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
 
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, GetProcedureName());
-
             var parameterDeclaration =
                 ById ? $"(@{ProcessedType.IdParameter.Name} {ProcessedType.IdParameter.Type})" : "";
 
@@ -66,7 +60,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyIdParameterDeclaration} AS
+{KeyCreationHeader} {KeyProcedureName}{_keyIdParameterDeclaration} AS
     SELECT * FROM {_keyTableName}{_keyWhereClause};
 GO".Trim();
     }

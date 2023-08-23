@@ -80,3 +80,30 @@ exec spReadAllPersonStreamsChunk 2,100
 exec spReadAllPersonStreamsChunk 0,1
 exec spReadAllPersonStreamsChunk 2,1
 
+
+
+
+
+use master
+drop database LitbidMeadowDb
+create database LitbidMeadowDb
+USE LitbidMeadowDb
+Go
+
+-- {{Crud Example.SqlServer.Models.Person}}
+
+GO
+-- {{FilterResultsTable}}
+GO
+-- {{FilteringProcedures Example.SqlServer.Models.Person}}
+
+
+execute spInsertPerson 'Mani','Moayedi',37,1
+execute spInsertPerson 'Mona','Moayedi',42,2
+execute spInsertPerson 'Mina','Haddadi',56,3
+execute spInsertPerson 'Farshid','Moayedi',63,4
+execute spInsertPerson 'Farimehr','Ayerian',21,5
+
+execute spPerformPersonsFilterIfNeeded 'mash',12345,''
+
+execute spReadPersonsChunk 2,3,'mash'

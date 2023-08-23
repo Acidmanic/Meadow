@@ -23,7 +23,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
-                Console.WriteLine("WARNING: FilteringProcedures Snippet does not support repetition handling." );
+                LogUnSupportedRepetitionHandling("FilteringProcedures");
             }
             
             ProcessedType = Process(type);

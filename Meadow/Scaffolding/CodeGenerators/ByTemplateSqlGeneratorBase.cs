@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Scaffolding.CodeGenerators
 {
@@ -11,14 +12,13 @@ namespace Meadow.Scaffolding.CodeGenerators
         }
 
         protected abstract void AddReplacements(Dictionary<string, string> replacementList);
-        
+
         protected abstract string Template { get; }
 
         public override Code Generate()
         {
-
             var replacements = new Dictionary<string, string>();
-            
+
             AddReplacements(replacements);
 
             var code = Replace(Template, replacements);
@@ -43,6 +43,20 @@ namespace Meadow.Scaffolding.CodeGenerators
         protected static string GenerateKey()
         {
             return "{" + Guid.NewGuid().ToString() + "}";
+        }
+
+        protected void LogUnSupportedRepetitionHandling(string databaseName,
+            string dbObjectTypeName,
+            RepetitionHandling handling)
+        {
+            Console.WriteLine($"WARNING: {databaseName} Does not support skip repetition handling strategy for " +
+                              $"{dbObjectTypeName}, so this code generator snippet would handle repetition as" +
+                              $" 'create' behavior.");
+        }
+
+        protected void LogUnSupportedRepetitionHandling(string snippetName)
+        {
+            Console.WriteLine($"WARNING: {snippetName} Snippets does not support repetition handling.");
         }
     }
 }

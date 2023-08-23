@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
@@ -37,6 +38,11 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         public EventStreamSqlScriptGenerator(Type type) : base(new SqlDbTypeNameMapper())
         {
             ProcessedType = Process(type);
+
+            if (RepetitionHandling != RepetitionHandling.Create)
+            {
+                LogUnSupportedRepetitionHandling("EventStream");
+            }
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)

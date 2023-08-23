@@ -27,8 +27,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
             if (RepetitionHandling == RepetitionHandling.Skip)
             {
-                Console.WriteLine("WARNING: MySql Does not support skip repetition handling strategy, so " +
-                                  "this code generator snippet would handle repetition as 'create' behavior.");
+                LogUnSupportedRepetitionHandling("MySql","Procedures",RepetitionHandling.Skip);
             }
 
             if (RepetitionHandling == RepetitionHandling.Alter)

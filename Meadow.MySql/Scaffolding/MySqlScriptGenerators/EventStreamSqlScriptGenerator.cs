@@ -39,7 +39,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
-                Console.WriteLine("WARNING: EventStream Snippets does not support repetition handling." );
+                LogUnSupportedRepetitionHandling("EventStream");
             }
             
             ProcessedType = Process(type);

@@ -5,29 +5,25 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class ReadSequenceProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
         public int Count { get; }
 
         public bool OrderAscending { get; }
 
-        private ProcessedType ProcessedType { get; }
 
-        public ReadSequenceProcedureGenerator(Type type, int count, bool orderAscending) : base(
-            new SqlDbTypeNameMapper())
+        public ReadSequenceProcedureGenerator(Type type, int count, bool orderAscending) : base(type)
         {
             Count = count;
             OrderAscending = orderAscending;
-            ProcessedType = Process(type);
         }
 
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyOrder = GenerateKey();
 
 
-        private string GetProcedureName()
+        protected override string GetProcedureName()
         {
             if (IsDatabaseObjectNameForced)
             {
@@ -39,10 +35,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 : ProcessedType.NameConvention.SelectLastProcedureName;
         }
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, GetProcedureName());
-
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
@@ -51,7 +45,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName} AS
+{KeyCreationHeader} {KeyProcedureName} AS
 
 	SELECT TOP {Count} * FROM {_keyTableName} ORDER BY {_keyIdFieldName} {_keyOrder};
 

@@ -1,73 +1,59 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-
-
     public class DeleteProcedureGenerator<TEntity> : DeleteProcedureGenerator
     {
         public DeleteProcedureGenerator(bool byId) : base(typeof(TEntity), byId)
         {
         }
     }
-    
+
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class DeleteProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
         public bool ById { get; }
 
-        private readonly Type _type;
-        
-        private ProcessedType ProcessedType { get; }
-
-        public DeleteProcedureGenerator(Type type, bool byId) : base(new SqlDbTypeNameMapper())
+        public DeleteProcedureGenerator(Type type, bool byId) : base(type)
         {
-            _type = type;
             ById = byId;
-            ProcessedType = Process(_type);
         }
 
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParametersParentheses = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
-        
-        
-        protected string GetProcedureName()
+
+
+        protected override string GetProcedureName()
         {
             if (IsDatabaseObjectNameForced)
             {
                 return ForcedDatabaseObjectName;
             }
+
             return ById
                 ? ProcessedType.NameConvention.DeleteByIdProcedureName
                 : ProcessedType.NameConvention.DeleteAllProcedureName;
         }
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName,GetProcedureName());
-
             var idParameter = "( @" + ProcessedType.IdParameter.Name + " "
                               + ProcessedType.IdParameter.Type + ")";
-            
-            replacementList.Add(_keyParametersParentheses,ById?idParameter:"");
-            
-            replacementList.Add(_keyTableName,ProcessedType.NameConvention.TableName);
-            
+
+            replacementList.Add(_keyParametersParentheses, ById ? idParameter : "");
+
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+
             var whereClause = ById ? $"WHERE {ProcessedType.IdParameter.Name}=@{ProcessedType.IdParameter.Name}" : "";
-            
-            replacementList.Add(_keyWhereClause,whereClause);
-            
-            
+
+            replacementList.Add(_keyWhereClause, whereClause);
         }
-        
+
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyParametersParentheses} AS
+{KeyCreationHeader} {KeyProcedureName}{_keyParametersParentheses} AS
     DECLARE @existing int = (SELECT COUNT(*) FROM {_keyTableName});
     DELETE FROM {_keyTableName} {_keyWhereClause}
     DECLARE @delta int = @existing - (SELECT COUNT(*) FROM {_keyTableName});

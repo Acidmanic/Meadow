@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
@@ -15,16 +13,12 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class InsertProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-
-        public InsertProcedureGenerator(Type type) : base(new SqlDbTypeNameMapper())
+        public InsertProcedureGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
 
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
@@ -33,13 +27,16 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIdFieldType = GenerateKey();
         private readonly string _keyRecordPhrase = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
-        {
-            replacementList.Add(_keyProcedureName,
-                IsDatabaseObjectNameForced
-                    ? ForcedDatabaseObjectName
-                    : ProcessedType.NameConvention.InsertProcedureName);
 
+        protected override string GetProcedureName()
+        {
+            return IsDatabaseObjectNameForced
+                ? ForcedDatabaseObjectName
+                : ProcessedType.NameConvention.InsertProcedureName;
+        }
+
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
             var parameters = ProcessedType.NoneIdParameters.Select(p => ParameterNameTypeJoint(p, "@"));
             var parametersClause =
                 ProcessedType.NoneIdParameters.Count > 0 ? "(" + string.Join(',', parameters) + ")" : "";
@@ -67,7 +64,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         protected override string Template => ProcessedType.HasId ? ByIdTemplate : NoIdTemplate;
 
         private string ByIdTemplate => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyParameters} AS
+{KeyCreationHeader} {KeyProcedureName}{_keyParameters} AS
     
     INSERT INTO {_keyTableName} ({_keyColumns}) 
                    VALUES ({_keyValues})
@@ -77,7 +74,7 @@ GO
 ";
 
         private string NoIdTemplate => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyParameters} AS
+{KeyCreationHeader} {KeyProcedureName}{_keyParameters} AS
     
     INSERT INTO {_keyTableName} ({_keyColumns}) 
            VALUES ({_keyValues})

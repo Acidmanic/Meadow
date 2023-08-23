@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
@@ -15,18 +14,15 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class SaveProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
-        private readonly Type _type;
 
-        public SaveProcedureGenerator(Type type) : base(new SqlDbTypeNameMapper())
+        public SaveProcedureGenerator(Type type) : base(type)
         {
-            _type = type;
         }
 
 
         private readonly string _keyTableName = GenerateKey();
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keySetClause = GenerateKey();
@@ -35,39 +31,44 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyValues = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyIdColumn = GenerateKey();
-        
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+
+
+        protected override string GetProcedureName()
         {
-            var processed = Process(_type);
+            return IsDatabaseObjectNameForced
+                ? ForcedDatabaseObjectName
+                : ProcessedType.NameConvention.SaveProcedureName;
+        }
 
-            replacementList.Add(_keyTableName, processed.NameConvention.TableName);
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
 
-            replacementList.Add(_keyProcedureName,IsDatabaseObjectNameForced?ForcedDatabaseObjectName: processed.NameConvention.SaveProcedureName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var parameters = string.Join(',', processed.Parameters.Select(p => ParameterNameTypeJoint(p, "@")));
+            var parameters = string.Join(',', ProcessedType.Parameters.Select(p => ParameterNameTypeJoint(p, "@")));
 
             replacementList.Add(_keyParameters, parameters);
 
-            var setClause = string.Join(',', processed.NoneIdParameters.Select(p => p.Name + "= @" + p.Name));
+            var setClause = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name + "= @" + p.Name));
 
             replacementList.Add(_keySetClause, setClause);
 
-            replacementList.Add(_keyIdFieldName, processed.IdParameter.Name);
-            replacementList.Add(_keyIdFieldType, processed.IdParameter.Type);
+            replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
+            replacementList.Add(_keyIdFieldType, ProcessedType.IdParameter.Type);
             
-            replacementList.Add(_keyWhereClause,GetWhereClause(processed));
+            replacementList.Add(_keyWhereClause,GetWhereClause(ProcessedType));
             
-            var columns = string.Join(',', processed.NoneIdParameters
+            var columns = string.Join(',', ProcessedType.NoneIdParameters
                 .Select(p => p.Name));
             
-            var values = string.Join(',', processed.NoneIdParameters
+            var values = string.Join(',', ProcessedType.NoneIdParameters
                 .Select(p => "@"+p.Name));
             
             replacementList.Add(_keyColumns,columns);
             
             replacementList.Add(_keyValues,values);
             
-            replacementList.Add(_keyIdColumn,processed.IdField.Name);
+            replacementList.Add(_keyIdColumn,ProcessedType.IdField.Name);
         }
 
         private bool IsString(Parameter p)
@@ -101,7 +102,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}({_keyParameters}) AS
+{KeyCreationHeader} {KeyProcedureName}({_keyParameters}) AS
     IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause})
         BEGIN
             UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyWhereClause};
