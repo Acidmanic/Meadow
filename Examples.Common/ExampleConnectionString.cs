@@ -47,5 +47,16 @@ namespace Examples.Common
             return
                 $"Allow User Variables=True;Server=localhost;Database={databaseName};Uid=root;Pwd='{password.Trim()}';";
         }
+        
+        public static string GetSqlServerConnectionString(string databaseName="MeadowScratch")
+        {
+            var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
+
+            return "Server=localhost;" +
+                   "User Id=sa; " +
+                   $"Password={password.Trim()};" +
+                   $"Database={databaseName}; " +
+                   "MultipleActiveResultSets=true";
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Example.SqlServer.Requests;
+using Examples.Common;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -19,7 +20,7 @@ namespace Example.SqlServer
             {
                 return  new MeadowConfiguration
                 {
-                    ConnectionString = GetConnectionString(),
+                    ConnectionString = ExampleConnectionString.GetSqlServerConnectionString(),
                     BuildupScriptDirectory = "Scripts"
                 };
             }
@@ -57,33 +58,5 @@ namespace Example.SqlServer
             
         }
 
-
-        /// <summary>
-        /// :D
-        /// </summary>
-        /// <returns>Sql server password</returns>
-        private static string ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt()
-        {
-            try
-            {
-                return File.ReadAllText(Path.Join("..", "..", "..", "..", "sa-pass"));
-            }
-            catch (Exception e)
-            {
-                throw new Exception("Please create a text file, named 'sa-pass' " +
-                                    "containing your password, and put it in the solution directory.");
-            }
-        }
-
-        private static string GetConnectionString()
-        {
-            var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
-
-            return "Server=localhost;" +
-                   "User Id=sa; " +
-                   $"Password={password};" +
-                   "Database=MeadowTestDb; " +
-                   "MultipleActiveResultSets=true";
-        }
     }
 }
