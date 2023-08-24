@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Example.SqLite.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.Requests;
 using Meadow.SQLite;
 using Meadow.SQLite.Extensions;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -56,7 +58,25 @@ namespace Example.SqLite
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
+
+            var message = engine.PerformRequest(new ReadMessageRequest())
+                .FromStorage.FirstOrDefault().Message;
+
+            Console.WriteLine("Message: " + message);
         }
-        
+
+
+        private class ReadMessageRequest : MeadowRequest<MeadowVoid, MessageShell>
+        {
+            public ReadMessageRequest() : base(true)
+            {
+            }
+        }
+
+
+        private class MessageShell
+        {
+            public string Message { get; set; }
+        }
     }
 }

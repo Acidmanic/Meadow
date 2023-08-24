@@ -50,7 +50,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyWhereClause, whereClause);
 
-            replacementList.Add(_keyOrderClause, OrderAscending ? " ORDER BY ROWID ASC" : "ORDER BY ROWID DESC");
+            replacementList.Add(_keyOrderClause, OrderAscending ? " ORDER BY ROWID ASC" : " ORDER BY ROWID DESC");
 
             replacementList.Add(_keyTopClause, Top > 0 ? $" LIMIT {Top}" : "");
         }

@@ -65,7 +65,7 @@ namespace Meadow.SQLite.ProcedureProcessing
         public static readonly DbObjectCreation Drop = new ReadonlyDbObjectCreation("Drop");
         public static readonly DbObjectCreation DropIfExists = new ReadonlyDbObjectCreation("Drop If Exists");
         public static readonly DbObjectCreation Alter = new ReadonlyDbObjectCreation("Alter");
-        public static readonly DbObjectCreation CreateIfNotExists = new ReadonlyDbObjectCreation("Create If Exists");
+        public static readonly DbObjectCreation CreateIfNotExists = new ReadonlyDbObjectCreation("Create If Not Exists");
         public static readonly DbObjectCreation CreateOrAlter = new ReadonlyDbObjectCreation("Create Or Alter");
 
         private static readonly DbObjectCreation[] StandardDbObjectCreations =

@@ -49,6 +49,17 @@ namespace Meadow.SQLite.ProcedureProcessing
         }
 
 
+        public static string SubStringBetweenOrToTheEnd(this string main, string starterRegex, string finisherRegex,
+            string endingStr, bool ignoreCase = false)
+        {
+            if (main.EndsWith(endingStr, ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+            {
+                return main.SubStringBetween(starterRegex, finisherRegex, ignoreCase).SafeTrim();
+            }
+
+            return main.SubStringAfterTag(starterRegex, true).SafeTrim();
+        }
+
         public static string SubStringAfterTag(this string main, string starter, bool ignoreCase = false)
         {
             var strRegex = ignoreCase ? new Regex(starter, RegexOptions.IgnoreCase) : new Regex(starter);
@@ -83,7 +94,7 @@ namespace Meadow.SQLite.ProcedureProcessing
                 return new string[] { };
             }
 
-            return value.Split(new char[] {' ', '\t', '\n', '\r'}, options);
+            return value.Split(new char[] { ' ', '\t', '\n', '\r' }, options);
         }
     }
 }

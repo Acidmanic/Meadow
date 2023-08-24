@@ -77,3 +77,35 @@ else
     select cast(0 as bit) success
 go
 
+
+
+create procedure spReadMessage 
+    as
+    select 'Pre-First Version'
+go
+
+
+create or alter procedure spReadMessage 
+    as 
+        select 'First Version'
+go
+
+
+create or alter procedure spReadMessage 
+    as
+    select 'Second Version' as 'Message'
+go
+
+
+
+create if not exists procedure spReadMessage 
+    as
+    select 'never seen Version' as 'Message'
+go
+
+drop if exists procedure spReadMessage go
+
+create if not exists procedure spReadMessage 
+as
+    select 'Dropping worked' as 'Message'
+go 
