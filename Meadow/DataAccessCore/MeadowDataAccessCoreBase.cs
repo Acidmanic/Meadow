@@ -12,24 +12,31 @@ namespace Meadow.DataAccessCore
 {
     public abstract class MeadowDataAccessCoreBase<TToStorageCarrier, TFromStorageCarrier> : IMeadowDataAccessCore
     {
+        protected ILogger Logger { get; private set; } = NullLogger.Instance;
 
-        protected ILogger Logger { get; private set; }= NullLogger.Instance;
-        
         protected virtual IDataOwnerNameProvider DataOwnerNameProvider { get; private set; }
 
-        private List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>> _carrierInterceptors;
+        private readonly List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>> _carrierInterceptors;
 
         public MeadowDataAccessCoreBase()
         {
             _carrierInterceptors = new List<ICarrierInterceptor<TToStorageCarrier, TFromStorageCarrier>>();
         }
 
-        protected abstract IStandardDataStorageAdapter<TToStorageCarrier, TFromStorageCarrier> DataStorageAdapter { get; set; }
+        protected abstract IStandardDataStorageAdapter<TToStorageCarrier, TFromStorageCarrier> DataStorageAdapter
+        {
+            get;
+            set;
+        }
 
-        protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication { get; set; }
+        protected abstract IStorageCommunication<TToStorageCarrier, TFromStorageCarrier> StorageCommunication
+        {
+            get;
+            set;
+        }
 
-        
-        public  MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
+
+        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
             where TOut : class, new()
@@ -37,7 +44,8 @@ namespace Meadow.DataAccessCore
             return PerformRequestAsync(request, configuration).Result;
         }
 
-        public virtual async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
+        public virtual async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
+            MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
         {
             request.InitializeBeforeExecution();
 
@@ -47,14 +55,16 @@ namespace Meadow.DataAccessCore
 
             void OnDataAvailable(TFromStorageCarrier reader)
             {
-                InterceptFromStorage(reader);
+                InterceptFromStorage(reader, configuration);
 
-                request.FromStorage = DataStorageAdapter.ReadFromStorage<TOut>(reader, request.FromStorageInclusion,request.FullTree);
+                request.FromStorage =
+                    DataStorageAdapter.ReadFromStorage<TOut>(reader, request.FromStorageInclusion, request.FullTree);
             }
-            
+
             try
             {
-                await StorageCommunication.CommunicateAsync(carrier, OnDataAvailable, configuration, request.ReturnsValue);
+                await StorageCommunication.CommunicateAsync(carrier, OnDataAvailable, configuration,
+                    request.ReturnsValue);
             }
             catch (Exception e)
             {
@@ -90,11 +100,11 @@ namespace Meadow.DataAccessCore
 
         public abstract void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration);
         public abstract Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration);
-        
+
         public abstract void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration);
         public abstract Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration);
 
-        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger)
+        public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration, ILogger logger)
         {
             // That must be read from configurations later on
             DataOwnerNameProvider = new PluralDataOwnerNameProvider();
@@ -122,14 +132,14 @@ namespace Meadow.DataAccessCore
 
             if (storage is null)
             {
-                InterceptToStorage(carrier, new ObjectEvaluator(typeof(TIn)));
+                InterceptToStorage(carrier, new ObjectEvaluator(typeof(TIn)), configuration);
 
                 return carrier;
             }
 
             var evaluator = new ObjectEvaluator(storage);
 
-            InterceptToStorage(carrier, evaluator);
+            InterceptToStorage(carrier, evaluator, configuration);
 
             DataStorageAdapter.WriteToStorage(carrier, request.ToStorageInclusion, evaluator);
 
@@ -143,7 +153,7 @@ namespace Meadow.DataAccessCore
         {
             return PerformConfigurationRequestAsync(request, configuration).Result;
         }
-        
+
         protected async Task<List<TOut>> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
             where TOut : class, new()
@@ -157,14 +167,14 @@ namespace Meadow.DataAccessCore
                 if (response.Failed)
                 {
                     Logger.LogError(response.FailureException,
-                        "Meadow Configuration Exception:\n {Exception}",response.FailureException);
+                        "Meadow Configuration Exception:\n {Exception}", response.FailureException);
                 }
 
                 return response.FromStorage;
             }
             catch (Exception e)
             {
-                Logger.LogError(e,"Meadow Configuration Exception:\n {Exception}",e);
+                Logger.LogError(e, "Meadow Configuration Exception:\n {Exception}", e);
             }
 
             return new List<TOut>();
@@ -177,14 +187,15 @@ namespace Meadow.DataAccessCore
             _carrierInterceptors.Add(carrierInterceptor);
         }
 
-        private void InterceptToStorage(TToStorageCarrier carrier, ObjectEvaluator data)
+        private void InterceptToStorage(TToStorageCarrier carrier, ObjectEvaluator data,
+            MeadowConfiguration configuration)
         {
-            _carrierInterceptors.ForEach(i => i.InterceptBeforeCommunication(carrier, data));
+            _carrierInterceptors.ForEach(i => i.InterceptBeforeCommunication(carrier, data, configuration));
         }
 
-        private void InterceptFromStorage(TFromStorageCarrier carrier)
+        private void InterceptFromStorage(TFromStorageCarrier carrier, MeadowConfiguration configuration)
         {
-            _carrierInterceptors.ForEach(i => i.InterceptAfterCommunication(carrier));
+            _carrierInterceptors.ForEach(i => i.InterceptAfterCommunication(carrier, configuration));
         }
     }
 }

@@ -5,6 +5,7 @@ using CoreCommandLine.CommonCommandBases;
 using Meadow.MySql;
 using Meadow.Postgre;
 using Meadow.SQLite;
+using Meadow.SQLite.Extensions;
 using Meadow.SqlServer;
 
 namespace Meadow.Tools.Assistant.Commands.Arguments
@@ -30,7 +31,7 @@ namespace Meadow.Tools.Assistant.Commands.Arguments
                     context.Set<Action<MeadowEngine>>(Key,e => e.UsePostgre());
                     break;
                 case "sqlite":
-                    context.Set<Action<MeadowEngine>>(Key,e => e.UseSQLite());
+                    context.Set<Action<MeadowEngine>>(Key,e => e.UseSqLite());
                     break;
             }
         }

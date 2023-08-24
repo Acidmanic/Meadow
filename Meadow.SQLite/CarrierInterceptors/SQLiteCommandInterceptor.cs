@@ -4,24 +4,30 @@ using System.Data;
 using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Sql;
+using Meadow.SQLite.Exceptions;
+using Meadow.SQLite.Extensions;
 using Meadow.SQLite.ProcedureProcessing;
 
 namespace Meadow.SQLite.CarrierInterceptors
 {
-    public class SQLiteCommandInterceptor:ICarrierInterceptor<IDbCommand,IDataReader>
+    public class SQLiteCommandInterceptor : ICarrierInterceptor<IDbCommand, IDataReader>
     {
-        private  readonly RelationalRelationalIdentifierToStandardFieldMapper _mapper 
+        private readonly RelationalRelationalIdentifierToStandardFieldMapper _mapper
             = new RelationalRelationalIdentifierToStandardFieldMapper();
-        
-        public void InterceptBeforeCommunication(IDbCommand carrier, ObjectEvaluator evaluator)
+
+        public void InterceptBeforeCommunication(IDbCommand carrier, ObjectEvaluator evaluator,
+            MeadowConfiguration configuration)
         {
             var commandText = carrier.CommandText;
-            
-            var procedure = SqLiteProcedureManager.Instance.GetProcedureOrNull(commandText);
-            
+
+            var manager = configuration.GetSqLiteProcedureManager();
+
+            var procedure = manager.GetProcedureOrNull(commandText);
+
             if (procedure != null)
             {
                 var standardData = new Record(evaluator.ToStandardFlatData()
@@ -29,33 +35,32 @@ namespace Meadow.SQLite.CarrierInterceptors
                     .Where(dp =>
                     {
                         var node = evaluator.Map.NodeByAddress(dp.Identifier);
-                
+
                         return node.IsLeaf && node.Parent == evaluator.RootNode;
                     }));
 
                 standardData = standardData.StandardToRelational(_mapper, evaluator.RootNode.Type, false);
-                
+
                 var injectedCode = InjectValuesIntoCode(procedure, standardData);
-            
-                commandText = injectedCode;   
+
+                commandText = injectedCode;
             }
             else
             {
                 SqLiteProcedure p = SqLiteProcedure.Parse(commandText);
-            
-                if(p!=null)
+
+                if (p != null)
                 {
-                    SqLiteProcedureManager.Instance.AddProcedure(p);
-            
+                    manager.PerformProcedureCreation(p);
+
                     commandText = "";
                 }
             }
-            
+
             carrier.CommandText = commandText;
         }
-        
-        
-        
+
+
         private string InjectValuesIntoCode(SqLiteProcedure procedure, List<DataPoint> data)
         {
             var code = procedure.Code;
@@ -79,7 +84,7 @@ namespace Meadow.SQLite.CarrierInterceptors
         private string GetValueString(string parameterName, List<DataPoint> data)
         {
             var atlessName = parameterName.Substring(1, parameterName.Length - 1);
-            
+
             var dp = data.SingleOrDefault(dataPoint => dataPoint.Identifier == atlessName);
 
             var value = dp?.Value;
@@ -97,7 +102,7 @@ namespace Meadow.SQLite.CarrierInterceptors
             return value.ToString();
         }
 
-        public void InterceptAfterCommunication(IDataReader carrier)
+        public void InterceptAfterCommunication(IDataReader carrier, MeadowConfiguration configuration)
         {
             // Its OK.
         }

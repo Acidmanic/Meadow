@@ -38,7 +38,7 @@ namespace Meadow.SQLite.ProcedureProcessing
                 return false;
             }
 
-            var creation = DbObjectCreation.Create;
+            var creation = new DbObjectCreation("");
 
             if (!creation.Parse(subSql))
             {

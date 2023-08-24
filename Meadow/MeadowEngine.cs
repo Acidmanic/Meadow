@@ -207,8 +207,10 @@ namespace Meadow
             core.CreateReadAllProcedure<MeadowDatabaseHistory>(_configuration);
         }
         
+        
         private async Task PerformPostDatabaseCreationTasksAsync()
         {
+            
             var core = CreateInitializedCore(_configuration);
 
             await core.CreateTableAsync<MeadowDatabaseHistory>(_configuration);

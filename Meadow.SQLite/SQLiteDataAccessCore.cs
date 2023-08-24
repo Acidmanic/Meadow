@@ -9,6 +9,7 @@ using Meadow.Contracts;
 using Meadow.DataAccessCore;
 using Meadow.Requests;
 using Meadow.SQLite.CarrierInterceptors;
+using Meadow.SQLite.Extensions;
 using Meadow.SQLite.ProcedureProcessing;
 using Meadow.SQLite.Requests;
 using Meadow.SQLite.SqlScriptsGenerators;
@@ -130,9 +131,7 @@ namespace Meadow.SQLite
             if (conInfo.ContainsKey("Data Source"))
             {
                 var filename = conInfo["Data Source"];
-
-                SqLiteProcedureManager.Instance.AssignDatabase(filename);
-
+                
                 try
                 {
                     return code(filename);
@@ -153,9 +152,7 @@ namespace Meadow.SQLite
             if (conInfo.ContainsKey("Data Source"))
             {
                 var filename = conInfo["Data Source"];
-
-                SqLiteProcedureManager.Instance.AssignDatabase(filename);
-
+                
                 try
                 {
                     return await code(filename);
@@ -181,6 +178,8 @@ namespace Meadow.SQLite
                 {
                     Logger.LogError(e, "Error deleting File:{File}\n{Exception}", file, e);
                 }
+
+                configuration.GetSqLiteProcedureManager().DropStoredRoutines();
             });
         }
 
@@ -196,6 +195,8 @@ namespace Meadow.SQLite
                 {
                     Logger.LogError(e, "Error deleting File:{File}\n{Exception}", file, e);
                 }
+
+                configuration.GetSqLiteProcedureManager().DropStoredRoutines();
             });
         }
 
@@ -219,12 +220,12 @@ namespace Meadow.SQLite
 
         public override List<string> EnumerateProcedures(MeadowConfiguration configuration)
         {
-            return SqLiteProcedureManager.Instance.ListProcedures();
+            return SqLiteProcedureManager.Connect(configuration.ConnectionString).ListProcedures();
         }
 
         public override Task<List<string>> EnumerateProceduresAsync(MeadowConfiguration configuration)
         {
-            return Task.Run(() => SqLiteProcedureManager.Instance.ListProcedures());
+            return Task.Run(() => configuration.GetSqLiteProcedureManager().ListProcedures());
         }
 
         public override List<string> EnumerateTables(MeadowConfiguration configuration)
@@ -287,7 +288,7 @@ namespace Meadow.SQLite
 
             var procedure = SqLiteProcedure.Parse(script);
 
-            SqLiteProcedureManager.Instance.AddProcedure(procedure);
+            configuration.GetSqLiteProcedureManager().PerformProcedureCreation(procedure);
         }
 
         public override Task CreateInsertProcedureAsync<TModel>(MeadowConfiguration configuration)
@@ -305,7 +306,9 @@ namespace Meadow.SQLite
 
             var procedure = SqLiteProcedure.Parse(script);
 
-            SqLiteProcedureManager.Instance.AddProcedure(procedure);
+            procedure.Name = new NameConvention(type).SelectLastProcedureName;
+
+            configuration.GetSqLiteProcedureManager().PerformProcedureCreation(procedure);
         }
 
         public override Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)

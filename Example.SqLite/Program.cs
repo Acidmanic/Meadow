@@ -7,6 +7,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.SQLite;
+using Meadow.SQLite.Extensions;
 using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.SqLite
@@ -34,7 +35,7 @@ namespace Example.SqLite
             // Set an instance of ILogger (ConsoleLogger) as default logger for Meadow
             new ConsoleLogger().UseForMeadow();
             // Create Engine:
-            var engine = new MeadowEngine(configuration).UseSQLite();
+            var engine = new MeadowEngine(configuration).UseSqLite();
             //Delete database if already exists
             if (await engine.DatabaseExistsAsync())
             {
