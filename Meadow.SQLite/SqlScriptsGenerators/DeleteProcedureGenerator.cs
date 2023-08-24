@@ -7,16 +7,14 @@ using Meadow.Scaffolding.Models;
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class DeleteProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
         public bool ById { get; }
 
-        private ProcessedType ProcessedType { get; }
 
-        public DeleteProcedureGenerator(Type type, bool byId) : base(new SqLiteTypeNameMapper())
+        public DeleteProcedureGenerator(Type type, bool byId) : base(type)
         {
             ById = byId;
-            ProcessedType = Process(type);
         }
 
         private readonly string _keyProcedureName = GenerateKey();
@@ -24,7 +22,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyProcedureName, ById
                 ? ProcessedType.NameConvention.DeleteByIdProcedureName
@@ -44,7 +42,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyParametersDeclaration} AS
+{KeyHeaderCreation} {_keyProcedureName}{_keyParametersDeclaration} AS
 
     PRAGMA temp_store = 2; /* 2 means use in-memory */
     CREATE TEMP TABLE _Existing(Count INTEGER);

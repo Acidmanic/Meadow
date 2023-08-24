@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
@@ -16,6 +17,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         public EventStreamCodeGenerator(Type type) : base(new SqLiteTypeNameMapper())
         {
             ProcessedType = Process(type);
+
+            if (RepetitionHandling != RepetitionHandling.Create)
+            {
+                LogUnSupportedRepetitionHandling("EventStream");
+            }
         }
 
         private readonly string _keyTableName = GenerateKey();

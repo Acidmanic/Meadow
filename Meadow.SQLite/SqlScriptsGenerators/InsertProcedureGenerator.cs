@@ -8,13 +8,11 @@ using Meadow.Scaffolding.Models;
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class InsertProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
 
-        public InsertProcedureGenerator(Type type) : base(new SqLiteTypeNameMapper())
+        public InsertProcedureGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
 
 
@@ -24,7 +22,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyValues = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName);
 
@@ -44,7 +42,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName} ({_keyParameters}) AS
+{KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
     INSERT INTO {_keyTableName} ({_keyColumns})
     VALUES ({_keyValues});
     SELECT * FROM {_keyTableName} WHERE ROWID=LAST_INSERT_ROWID();

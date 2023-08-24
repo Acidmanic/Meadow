@@ -7,26 +7,22 @@ using Meadow.Scaffolding.Models;
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.ReadProcedure)]
-    public class ReadProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class ReadProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
         public bool ById { get; }
 
-        private ProcessedType ProcessedType { get; }
 
-        public ReadProcedureGenerator(Type type, bool byId) : base(new SqLiteTypeNameMapper())
+        public ReadProcedureGenerator(Type type, bool byId) : base(type)
         {
             ById = byId;
-
-            ProcessedType = Process(type);
         }
-
 
         private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParametersDeclaration = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyProcedureName,
                 ById
@@ -45,7 +41,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyParametersDeclaration} AS
+{KeyHeaderCreation} {_keyProcedureName}{_keyParametersDeclaration} AS
     SELECT * FROM {_keyTableName}{_keyWhereClause};
 GO
 ".Trim();

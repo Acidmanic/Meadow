@@ -8,14 +8,10 @@ using Meadow.Scaffolding.Models;
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class SaveProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-
-
-        public SaveProcedureGenerator(Type type) : base(new SqLiteTypeNameMapper())
+        public SaveProcedureGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
 
         private readonly string _keyProcedureName = GenerateKey();
@@ -27,7 +23,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyNoneIdParameterValues = GenerateKey();
 
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.SaveProcedureName);
 
@@ -39,7 +35,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             replacementList.Add(_keyNoneIdParametersSet,
                 ParameterNameValueSetJoint(ProcessedType.NoneIdParameters, ",", "@"));
 
-            replacementList.Add(_keyNonIdColumns, 
+            replacementList.Add(_keyNonIdColumns,
                 string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name)));
 
             var whereClause = ParameterNameValueSetJoint(ProcessedType.NoneIdUniqueParameters, " AND ", "@");
@@ -56,7 +52,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName} ({_keyParameters}) AS
+{KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
     UPDATE {_keyTableName}  SET {_keyNoneIdParametersSet} WHERE {_keyWhereClause};
     INSERT INTO {_keyTableName} ({_keyNonIdColumns}) SELECT {_keyNoneIdParameterValues}
         WHERE NOT EXISTS(SELECT * FROM {_keyTableName} WHERE {_keyWhereClause});

@@ -7,14 +7,10 @@ using Meadow.Scaffolding.Models;
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class UpdateProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-
-
-        public UpdateProcedureGenerator(Type type) : base(new SqLiteTypeNameMapper())
+        public UpdateProcedureGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
 
         private readonly string _keyProcedureName = GenerateKey();
@@ -23,7 +19,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyNoneIdParametersSet = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.UpdateProcedureName);
 
@@ -38,7 +34,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName} ({_keyParameters}) AS
+{KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
 
     UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName};
 GO

@@ -5,7 +5,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class ReadSequenceProcedureGenerator : ByTemplateSqlGeneratorBase
+    public class ReadSequenceProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
         public bool ById { get; }
 
@@ -13,16 +13,12 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         public bool OrderAscending { get; }
 
-        private ProcessedType ProcessedType { get; }
 
-        public ReadSequenceProcedureGenerator(Type type, bool byId, int top, bool orderAscending) : base(
-            new SqLiteTypeNameMapper())
+        public ReadSequenceProcedureGenerator(Type type, bool byId, int top, bool orderAscending) : base(type)
         {
             ById = byId;
             Top = top;
             OrderAscending = orderAscending;
-
-            ProcessedType = Process(type);
         }
 
 
@@ -33,15 +29,15 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyOrderClause = GenerateKey();
         private readonly string _keyTopClause = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyProcedureName,
                 ById
                     ? ProcessedType.NameConvention.SelectByIdProcedureName
                     : ProcessedType.NameConvention.SelectAllProcedureName);
 
-            replacementList.Add(_keyParametersDeclaration, ById ? 
-                $"({ParameterNameTypeJoint(ProcessedType.IdParameter,"@")})" : "");
+            replacementList.Add(_keyParametersDeclaration,
+                ById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "");
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
@@ -56,7 +52,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         protected override string Template => $@"
-CREATE PROCEDURE {_keyProcedureName}{_keyParametersDeclaration} AS
+{KeyHeaderCreation} {_keyProcedureName}{_keyParametersDeclaration} AS
     SELECT * FROM {_keyTableName}{_keyWhereClause}{_keyOrderClause}{_keyTopClause}
 GO
 ".Trim();
