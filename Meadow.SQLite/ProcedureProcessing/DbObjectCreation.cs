@@ -123,5 +123,10 @@ namespace Meadow.SQLite.ProcedureProcessing
 
             return _creation.GetHashCode();
         }
+
+        public override string ToString()
+        {
+            return _creation;
+        }
     }
 }
