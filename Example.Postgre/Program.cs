@@ -14,7 +14,7 @@ namespace Example.Postgre
     class Program
     {
 
-        private class ConfiProvider : IMeadowConfigurationProvider
+        private class PostgreExampleConfigurationProvider : IMeadowConfigurationProvider
         {
             public MeadowConfiguration GetConfigurations()
             {
@@ -30,7 +30,7 @@ namespace Example.Postgre
         static async Task Main(string[] args)
         {
             // Configure Meadow
-            var configuration = new ConfiProvider().GetConfigurations();
+            var configuration = new PostgreExampleConfigurationProvider().GetConfigurations();
             
             // Create Engine:
             var engine = new MeadowEngine(configuration).UsePostgre();

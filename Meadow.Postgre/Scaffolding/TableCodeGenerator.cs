@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
@@ -20,6 +21,7 @@ namespace Meadow.Postgre.Scaffolding
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
+        private readonly string _keyCreationHeader = GenerateKey();
 
 
         private string GetParameters()
@@ -52,13 +54,34 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
+            
+            replacementList.Add(_keyCreationHeader,GetCreationHeader());
+            
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 
             replacementList.Add(_keyParameters, GetParameters());
         }
 
+        private string GetCreationHeader()
+        {
+            var creationHeader = "create table";
+
+            if (RepetitionHandling == RepetitionHandling.Alter)
+            {
+                creationHeader = $"drop table if exists \"{ProcessedType.NameConvention.TableName}\";" +
+                                 $"\ncreate table"  ;
+            }
+
+            if (RepetitionHandling == RepetitionHandling.Skip)
+            {
+                creationHeader = "create table if not exists";
+            }
+
+            return creationHeader;
+        }
+
         protected override string Template => $@"
-create table {_keyTableName}({_keyParameters}
+{_keyCreationHeader} {_keyTableName}({_keyParameters}
 );
 ------------------------------------------------------------------------------------------------------------------------
 -- SPLIT
