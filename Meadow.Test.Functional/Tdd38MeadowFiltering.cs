@@ -69,7 +69,7 @@ namespace Meadow.Test.Functional
         }
         public override void Main()
         {
-            UseMySql();
+            UseSqlServer();
 
             var engine = CreateEngine();
 

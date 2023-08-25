@@ -15,7 +15,7 @@
 
 -- {{Crud Meadow.Test.Functional.Models.Person}}
 
--- SPLIT
+-- {{Filtering Meadow.Test.Functional.Models.Person}}
 
 
 CREATE VIEW PersonsFullTree AS
@@ -40,65 +40,7 @@ from Persons
          inner join Addresses on Persons.Id = Addresses.PersonId;
 GO
 
--- SPLIT
 
--- Filtering Meadow.Test.Functional.Models.Person
--- ---------------------------------------------------------------------------------------------------------------------
--- CrudTableScriptGenerator
--- ---------------------------------------------------------------------------------------------------------------------
-IF OBJECT_ID(N'FilterResults', N'U') IS NULL
-CREATE TABLE FilterResults
-(
-    Id bigint NOT NULL PRIMARY KEY IDENTITY(1,1),FilterHash nvarchar(256),ResultId bigint,ExpirationTimeStamp bigint
-);
-
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------
-
--- ---------------------------------------------------------------------------------------------------------------------
--- FilteringProceduresGenerator
--- ---------------------------------------------------------------------------------------------------------------------
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp BIGINT) AS
-DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= @ExpirationTimeStamp
-GO
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerformPersonsFilterIfNeeded(@FilterHash NVARCHAR(128),
-                                                @ExpirationTimeStamp BIGINT,
-                                                @WhereClause NVARCHAR(1024)) AS
-BEGIN
-    IF (SELECT Count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash) = 0
-
-        declare @query nvarchar(1600) = CONCAT(
-                'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
-                'SELECT ''',@FilterHash,''',Id, ',@ExpirationTimeStamp,' FROM Persons ' , @WhereClause);
-    execute sp_executesql @query
-END
-SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
-GO
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spReadPersonsChunk(@Offset BIGINT,
-                                    @Size BIGINT,
-                                    @FilterHash nvarchar(128)) AS
-    ;WITH Results_CTE AS
-              (
-                  SELECT
-                      PersonsFullTree.*,
-                      ROW_NUMBER() OVER (ORDER BY PersonsFullTree.Persons_Id) AS RowNum
-                  FROM PersonsFullTree INNER JOIN FilterResults on PersonsFullTree.Persons_Id = FilterResults.ResultId
-                  WHERE FilterResults.FilterHash=@FilterHash
-              )
-     SELECT *
-     FROM Results_CTE
-     WHERE RowNum >= (@Offset+1)
-       AND RowNum < (@Offset+1) + @Size
-GO
--- ---------------------------------------------------------------------------------------------------------------------
--- ---------------------------------------------------------------------------------------------------------------------
--- </Filtering>
--- ---------------------------------------------------------------------------------------------------------------------
-    
 -- SPLIT 
 
 execute spInsertJob 'Mani Job',100,'Mani job Description'  
@@ -133,3 +75,7 @@ execute spInsertAddress 'Tehran','Karimkh','First',1,1,5
 execute spInsertAddress 'Tehran','Saee','Second',2,2,5  
 
 -- SPLIT
+
+
+    
+ 
