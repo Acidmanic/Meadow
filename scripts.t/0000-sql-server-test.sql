@@ -71,17 +71,17 @@ CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp BIGI
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= @ExpirationTimeStamp
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerformPersonsFilterIfNeeded(@FilterHash NVARCHAR(128),
+ALTER PROCEDURE spPerformPersonsFilterIfNeeded(@FilterHash NVARCHAR(128),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @WhereClause NVARCHAR(1024)) AS
 BEGIN
     IF (SELECT Count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash) = 0
-
+        SET @WhereClause = coalesce(nullif(@WhereClause, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
             'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
-            'SELECT ''',@FilterHash,''',Id, ',@ExpirationTimeStamp,' FROM Persons ' , @WhereClause);
+            'SELECT ''',@FilterHash,''',Id, ',@ExpirationTimeStamp,' FROM Persons Where ' , @WhereClause);
         execute sp_executesql @query
-    END  
+    END 
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -115,11 +115,10 @@ execute spInsertPerson 'Mina','Haddadi',56,3
 execute spInsertPerson 'Farshid','Moayedi',63,4
 execute spInsertPerson 'Farimehr','Ayerian',21,5
 
-declare @query nvarchar(256) = 'WHERE (Name = ''Mani'' OR Name = ''Mona'') AND ( Age > 40)';
+declare @query nvarchar(256) = '(Name = ''Mani'' OR Name = ''Mona'') AND ( Age > 40)';
 declare @hash nvarchar(128) = CONVERT(VARCHAR(32), HashBytes('MD5', @query), 2);
 
 execute spPerformPersonsFilterIfNeeded @hash,12345,@query
 
 execute spReadPersonsChunk 0,20,@hash
-
 

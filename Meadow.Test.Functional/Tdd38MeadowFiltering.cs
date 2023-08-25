@@ -69,7 +69,7 @@ namespace Meadow.Test.Functional
         }
         public override void Main()
         {
-            UseSqlServer();
+            UseMySql();
 
             var engine = CreateEngine();
 
@@ -106,7 +106,7 @@ namespace Meadow.Test.Functional
             
             var chunkRequest = new ReadPersonsChunkRequest(pagination.Offset, pagination.Size, filter.Hash());
 
-            var filteringResults = engine.PerformRequest(chunkRequest,true).FromStorage;
+            var filteringResults = engine.PerformRequest(chunkRequest).FromStorage;
 
             var paginatedData = new
             {

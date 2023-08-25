@@ -36,10 +36,10 @@ namespace Meadow.SQLite
 
             if (anyFilters)
             {
-                return " WHERE " + sb.ToString();
+                return sb.ToString();
             }
 
-            return "";
+            return " TRUE ";
         }
 
         private void Append(StringBuilder sb, FilterItem filter)

@@ -29,6 +29,8 @@ namespace Meadow.SQLite.ProcedureProcessing
 
         public bool Parse(string sql)
         {
+            sql = sql.RemoveSqLiteComments();
+            
             sql = sql.SafeTrim();
 
             var subSql = sql.SubString(0, RE_Procedure, true);

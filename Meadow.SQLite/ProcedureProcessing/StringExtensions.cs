@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Meadow.SQLite.ProcedureProcessing
@@ -95,6 +96,15 @@ namespace Meadow.SQLite.ProcedureProcessing
             }
 
             return value.Split(new char[] { ' ', '\t', '\n', '\r' }, options);
+        }
+
+        public static string RemoveSqLiteComments(this string sql)
+        {
+            var parts = new SqLiteCommentSplitter().Split(sql);
+
+            var unCommented = string.Join('\n', parts.Where(p => !p.IsComment).Select(p => p.Text));
+
+            return unCommented;
         }
     }
 }

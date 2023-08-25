@@ -53,13 +53,13 @@ GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@FilterHash NVARCHAR(128),
                                                   @ExpirationTimeStamp BIGINT,
-                                                  @WhereClause NVARCHAR(1024)) AS
+                                                  @FilterExpression NVARCHAR(1024)) AS
 BEGIN
     IF (SELECT Count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash) = 0
-
+        SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
             'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
-            'SELECT ''',@FilterHash,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} ' , @WhereClause);
+            'SELECT ''',@FilterHash,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
         execute sp_executesql @query
     END  
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;

@@ -11,7 +11,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     public class TableScriptGenerator : ByTemplateSqlGeneratorBase
     {
         private readonly string _line =
-            "------------------------------------------------------------" +
+            "-- ----------------------------------------------------------" +
             "------------------------------------------------------------";
 
         private ProcessedType ProcessedType { get; }

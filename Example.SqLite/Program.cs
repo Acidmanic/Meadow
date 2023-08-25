@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Example.SqLite.Models;
 using Example.SqLite.Requests;
 using Meadow;
 using Meadow.Configuration;
@@ -24,14 +25,14 @@ namespace Example.SqLite
             {
                 return new MeadowConfiguration
                 {
-                    ConnectionString =  $"Data Source={DatabaseFilePath}",
+                    ConnectionString = $"Data Source={DatabaseFilePath}",
                     BuildupScriptDirectory = "Scripts"
                 };
             }
         }
+
         static async Task Main(string[] args)
         {
-
             // Configure Meadow
             var configuration = new ConfigurationProvider().GetConfigurations();
             // Set an instance of ILogger (ConsoleLogger) as default logger for Meadow
@@ -43,6 +44,7 @@ namespace Example.SqLite
             {
                 await engine.DropDatabaseAsync();
             }
+
             // Create Database if not exists
             await engine.CreateIfNotExistAsync();
             // Setup (update regarding scripts)
@@ -56,27 +58,8 @@ namespace Example.SqLite
             var allPersons = response.FromStorage;
 
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
-            
-            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
 
-            var message = engine.PerformRequest(new ReadMessageRequest())
-                .FromStorage.FirstOrDefault().Message;
-
-            Console.WriteLine("Message: " + message);
-        }
-
-
-        private class ReadMessageRequest : MeadowRequest<MeadowVoid, MessageShell>
-        {
-            public ReadMessageRequest() : base(true)
-            {
-            }
-        }
-
-
-        private class MessageShell
-        {
-            public string Message { get; set; }
+            allPersons.ForEach(p => Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
         }
     }
 }

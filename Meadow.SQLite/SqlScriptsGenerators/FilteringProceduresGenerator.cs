@@ -5,7 +5,7 @@ using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
+namespace Meadow.SQLite.SqlScriptsGenerators
 {
     public class FilteringProceduresGenerator<TEntity> : FilteringProceduresGenerator
     {
@@ -19,7 +19,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     {
         protected ProcessedType ProcessedType { get; }
 
-        public FilteringProceduresGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+        public FilteringProceduresGenerator(Type type) : base(new SqLiteTypeNameMapper())
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
@@ -41,39 +41,30 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS spRemoveExpiredFilterResults;
-CREATE PROCEDURE spRemoveExpiredFilterResults(IN ExpirationTimeStamp bigint(16))
-BEGIN
-    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= ExpirationTimeStamp;
-END;
+CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp INTEGER)
+AS
+    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= @ExpirationTimeStamp;
+GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(IN FilterHash nvarchar(128),
-                                                  IN ExpirationTimeStamp bigint(16),
-                                                  IN FilterExpression nvarchar(1024))
-BEGIN
-    if not exists(select 1 from FilterResults where FilterResults.FilterHash=FilterHash) then
-        IF FilterExpression IS NULL OR FilterExpression = '' THEN
-            set FilterExpression = 'TRUE';
-        END IF;
-        set @query = CONCAT(
-            'insert into FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
-            'select \'',FilterHash,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-            ' from {_keyTableName} WHERE ' , FilterExpression,';');
-        PREPARE stmt FROM @query;
-        EXECUTE stmt;
-        DEALLOCATE PREPARE stmt; 
-    end if;
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
-END;
+CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@FilterHash TEXT,
+                                                  @ExpirationTimeStamp INTEGER,
+                                                  @FilterExpression TEXT)
+AS
+    INSERT INTO FilterResults (FilterHash, ResultId, ExpirationTimeStamp) 
+    SELECT @FilterHash,Persons.Id,@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
+    AND IIF((select count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash)>0,false,true);
+
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=@FilterHash;
+GO
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spRead{_keyTableName}Chunk(IN Offset bigint(16),
-                                      IN Size bigint(16),
-                                      IN FilterHash nvarchar(128))
-BEGIN
-    select {_keyTableName}.* from {_keyTableName} inner join FilterResults on {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-    where FilterResults.FilterHash=FilterHash limit offset,size;  
-END;
+CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset INTEGER,
+                                      @Size INTEGER,
+                                      @FilterHash TEXT)
+AS
+    SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN FilterResults ON {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
+    WHERE FilterResults.FilterHash=FilterHash LIMIT @Offset,@Size;  
+GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
     }

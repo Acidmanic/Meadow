@@ -68,6 +68,7 @@ namespace Meadow.SQLite.CarrierInterceptors
             foreach (var parameterName in procedure.Parameters.Keys)
             {
                 var value = GetValueString(parameterName, data);
+                var expansionValue = GetValueString(parameterName, data,true);
 
                 if (value == null)
                 {
@@ -75,13 +76,14 @@ namespace Meadow.SQLite.CarrierInterceptors
                                                 $"parameter {parameterName} which is not provided.");
                 }
 
+                code = code.Replace("&"+parameterName, expansionValue);
                 code = code.Replace(parameterName, value);
             }
 
             return code;
         }
 
-        private string GetValueString(string parameterName, List<DataPoint> data)
+        private string GetValueString(string parameterName, List<DataPoint> data,bool expansion = false)
         {
             var atlessName = parameterName.Substring(1, parameterName.Length - 1);
 
@@ -89,12 +91,17 @@ namespace Meadow.SQLite.CarrierInterceptors
 
             var value = dp?.Value;
 
+            if (expansion)
+            {
+                return value?.ToString() ?? "";
+            }
+            
             if (value == null)
             {
-                return null;
+                return "";
             }
 
-            if (value is string)
+            if (value is string )
             {
                 return $"'{value}'";
             }

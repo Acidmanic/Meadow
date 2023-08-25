@@ -36,7 +36,7 @@ namespace Meadow.Postgre
 
             if (anyFilters)
             {
-                return " WHERE " + sb.ToString();
+                return  sb.ToString();
             }
 
             return "";

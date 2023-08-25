@@ -80,3 +80,23 @@ exec spReadAllPersonStreamsChunk 2,100
 exec spReadAllPersonStreamsChunk 0,1
 exec spReadAllPersonStreamsChunk 2,1
 
+
+************************************************************************************************************************
+*                                                                                                                      *
+*                                              Filtering Test                                                          *
+*                                                                                                                      *
+************************************************************************************************************************
+-- am tp ../Example.SqLite sd ../scripts.t
+
+
+-- {{Table Example.SqLite.Models.Person}}
+-- {{Insert Example.SqLite.Models.Person}}
+-- {{FilteringProcedures Example.SqLite.Models.Person}}
+
+
+
+INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Mani','Moayedi',37,1);
+INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Mona','Moayedi',42,2);
+INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Mina','Haddadi',56,3);
+INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Farshid','Moayedi',63,4);
+INSERT INTO Persons (Name,Surname,Age,JobId) VALUES ('Farimehr','Ayerian',21,5);

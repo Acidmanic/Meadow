@@ -36,7 +36,7 @@ namespace Meadow.SqlServer
 
             if (anyFilters)
             {
-                return " WHERE " + sb.ToString();
+                return sb.ToString();
             }
 
             return "";
