@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Example.Postgre.Requests;
+using Examples.Common;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -19,9 +20,7 @@ namespace Example.Postgre
             {
                 return new MeadowConfiguration
                 {
-                    ConnectionString =  "User ID=postgres;Password=12345;Host=localhost;Port=5432;" +
-                                        "Database=MeadowScratch;",
-                
+                    ConnectionString =  ExampleConnectionString.GetPostgresConnectionString(),
                     BuildupScriptDirectory = "Scripts"
                 };
             }
@@ -38,9 +37,9 @@ namespace Example.Postgre
 
             new ConsoleLogger().UseForMeadow();
 
-            if (engine.DatabaseExists())
+            if (await engine.DatabaseExistsAsync())
             {
-                engine.DropDatabase();
+                await engine.DropDatabaseAsync();
             }
             // Create Database if not exists
             await engine.CreateIfNotExistAsync();

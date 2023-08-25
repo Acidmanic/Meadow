@@ -40,15 +40,15 @@ namespace Examples.Common
                                 "containing your password, and put it in the solution directory.");
         }
 
-        public static string GetMySqlConnectionString(string databaseName="MeadowScratch")
+        public static string GetMySqlConnectionString(string databaseName = "MeadowScratch")
         {
             var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
 
             return
                 $"Allow User Variables=True;Server=localhost;Database={databaseName};Uid=root;Pwd='{password.Trim()}';";
         }
-        
-        public static string GetSqlServerConnectionString(string databaseName="MeadowScratch")
+
+        public static string GetSqlServerConnectionString(string databaseName = "MeadowScratch")
         {
             var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
 
@@ -57,6 +57,14 @@ namespace Examples.Common
                    $"Password={password.Trim()};" +
                    $"Database={databaseName}; " +
                    "MultipleActiveResultSets=true";
+        }
+
+        public static string GetPostgresConnectionString(string databaseName = "MeadowScratch")
+        {
+            var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
+
+            return $"User ID=postgres;Password='{password}';Host=localhost;Port=5432;" +
+                   $"Database={databaseName};";
         }
     }
 }
