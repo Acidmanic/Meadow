@@ -2,33 +2,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateCodeGenerator : ByTemplateSqlGeneratorBase
+    public class UpdateCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-
-
-        public UpdateCodeGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public UpdateCodeGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
 
-
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNameValuesSet = GenerateKey();
         private readonly string _keyWhereExpression = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override string GetProcedureName()
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.UpdateProcedureName.DoubleQuot());
+            return ProcessedType.NameConvention.UpdateProcedureName.DoubleQuot();
+        }
 
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
             var parameters = string.Join(",\n", ProcessedType.Parameters
                 .Select(p => ("par_" + p.Name).DoubleQuot() + " " + p.Type));
 
@@ -47,7 +42,7 @@ namespace Meadow.Postgre.Scaffolding
         }
 
         protected override string Template => $@"
-create or replace function {_keyProcedureName}(
+{KeyCreationHeader} function {KeyProcedureName}(
     {_keyParameters}) returns setof {_keyTableName} as $$
         begin
             return query

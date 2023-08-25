@@ -2,32 +2,29 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertCodeGenerator : ByTemplateSqlGeneratorBase
+    public class InsertCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-
-        public InsertCodeGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public InsertCodeGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
 
-
-        private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyValues = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override string GetProcedureName()
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName.DoubleQuot());
+            return ProcessedType.NameConvention.InsertProcedureName.DoubleQuot();
+        }
 
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
+            
             replacementList.Add(_keyParameters, string.Join(",",ProcessedType.NoneIdParameters
                 .Select(p=> $"\"par_{p.Name}\" {p.Type}")));
 
@@ -41,7 +38,7 @@ namespace Meadow.Postgre.Scaffolding
         }
 
         protected override string Template => $@" 
-        create or replace function {_keyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$
+        {KeyCreationHeader} function {KeyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$
         begin
         return query
             insert into {_keyTableName} ({_keyColumns}) 

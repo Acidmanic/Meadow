@@ -108,3 +108,8 @@ select * from  "spReadAllPersonStreamsChunk" (0,1);
 select * from  "spReadAllPersonStreamsChunk" (2,1);
 
 
+
+-- create or replace function "spMooz"() returns setof "text" as $$
+
+
+select * from "spMooz"();

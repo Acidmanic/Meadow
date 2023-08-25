@@ -2,34 +2,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveCodeGenerator : ByTemplateSqlGeneratorBase
+    public class SaveCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-
-
-        public SaveCodeGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public SaveCodeGenerator(Type type) : base(type)
         {
-            ProcessedType = Process(type);
         }
-
-
-        private readonly string _keyProcedureName = GenerateKey();
+        
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNameValuesSet = GenerateKey();
         private readonly string _keyWhereExpression = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyValues = GenerateKey();
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
-        {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.SaveProcedureName.DoubleQuot());
 
+        protected override string GetProcedureName()
+        {
+            return ProcessedType.NameConvention.SaveProcedureName.DoubleQuot();
+        }
+
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
             var parameters = string.Join(",\n", ProcessedType.Parameters
                 .Select(p => ("par_" + p.Name).DoubleQuot() + " " + p.Type));
 
@@ -64,7 +60,7 @@ namespace Meadow.Postgre.Scaffolding
         }
 
         protected override string Template => $@"
-create or replace function {_keyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$
+{KeyCreationHeader} function {KeyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$
         declare 
             updateCount int := 0;
         begin

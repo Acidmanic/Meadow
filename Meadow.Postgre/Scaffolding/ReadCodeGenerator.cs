@@ -1,38 +1,34 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.ReadProcedure)]
-    public class ReadCodeGenerator : ByTemplateSqlGeneratorBase
+    public class ReadCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
-        
         private bool  ById { get; }
 
-        public ReadCodeGenerator(Type type, bool byId) : base(new PostgreDbTypeNameMapper())
+        public ReadCodeGenerator(Type type, bool byId) : base(type)
         {
             ById = byId;
-            ProcessedType = Process(type);
         }
-
-
-        private readonly string _keyProcedureName = GenerateKey();
+        
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyIdFieldValue = GenerateKey();
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected override string GetProcedureName()
         {
-            replacementList.Add(_keyProcedureName,ById?
+            return ById?
                 ProcessedType.NameConvention.SelectByIdProcedureName.DoubleQuot():
-                ProcessedType.NameConvention.SelectAllProcedureName.DoubleQuot());
+                ProcessedType.NameConvention.SelectAllProcedureName.DoubleQuot();
+        }
 
+        protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
+        {
             replacementList.Add(_keyParameters, ("par_"+ProcessedType.IdParameter.Name).DoubleQuot() + " " + ProcessedType.IdParameter.Type);
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
@@ -45,7 +41,7 @@ namespace Meadow.Postgre.Scaffolding
         protected override string Template => ById ? ByIdTemplate : AllTemplate; 
 
         private string ByIdTemplate => $@" 
-        create or replace function {_keyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$ 
+        {KeyCreationHeader} function {KeyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$ 
         begin
         return query
             select * from {_keyTableName} where {_keyIdFieldName} = {_keyIdFieldValue};
@@ -54,7 +50,7 @@ namespace Meadow.Postgre.Scaffolding
             --SPLIT".Trim();
         
         private string AllTemplate => $@" 
-        create or replace function {_keyProcedureName}() returns setof {_keyTableName} as $$ 
+        {KeyCreationHeader} function {KeyProcedureName}() returns setof {_keyTableName} as $$ 
         begin
         return query
             select * from {_keyTableName};
