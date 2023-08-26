@@ -1,4 +1,4 @@
-namespace Example.Postgre.Filtering.Requests.Models
+namespace Example.Filtering.Requests.Models
 {
     public class ChunkShell
     {

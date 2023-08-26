@@ -1,8 +1,8 @@
-using Example.SqLite.Filtering.Requests.Models;
+using Example.Filtering.Requests.Models;
 using Meadow;
 using Meadow.Requests;
 
-namespace Example.SqLite.Filtering.Requests
+namespace Example.Filtering.Requests
 {
     public sealed class RemoveExpiredFilterResultsRequest:MeadowRequest<ExpirationTimeStampShell,MeadowVoid>
     {

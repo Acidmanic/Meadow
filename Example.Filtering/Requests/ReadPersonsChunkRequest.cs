@@ -1,8 +1,8 @@
-using Example.Postgre.Filtering.Models;
-using Example.Postgre.Filtering.Requests.Models;
+using Example.Filtering.Models;
+using Example.Filtering.Requests.Models;
 using Meadow.Requests;
 
-namespace Example.Postgre.Filtering.Requests
+namespace Example.Filtering.Requests
 {
     public sealed class ReadPersonsChunkRequest : MeadowRequest<ChunkShell, Person>
     {

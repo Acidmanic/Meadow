@@ -1,11 +1,12 @@
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.Attributes;
 
-namespace Example.Postgre.Filtering.Models
+namespace Example.Filtering.Models
 {
     public class Person
     {
         [UniqueMember]
+        [AutoValuedMember]
         public long Id { get; set; }
 
         public string Name { get; set; }

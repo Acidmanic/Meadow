@@ -1,6 +1,6 @@
 using Acidmanic.Utilities.Reflection.Attributes;
 
-namespace Example.SqLite.Filtering.Models
+namespace Example.Filtering.Models
 {
     public class Job
     {

@@ -2,11 +2,11 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
-using Example.SqLite.Filtering.Models;
-using Example.SqLite.Filtering.Requests.Models;
+using Example.Filtering.Models;
+using Example.Filtering.Requests.Models;
 using Meadow.Requests;
 
-namespace Example.SqLite.Filtering.Requests
+namespace Example.Filtering.Requests
 {
     public sealed class PerformPersonsFilterIfNeededRequest : MeadowRequest<FilterShell, FilterResult>
     {

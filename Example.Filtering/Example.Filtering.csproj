@@ -2,6 +2,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
+    <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
+    <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
+    <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
     <ProjectReference Include="..\Meadow\Meadow.csproj" />
     <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
   </ItemGroup>
