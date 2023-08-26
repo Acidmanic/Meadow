@@ -47,32 +47,32 @@ BEGIN
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= ExpirationTimeStamp;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(IN FilterHash nvarchar(128),
+CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(
+                                                  IN SearchId nvarchar(32),
                                                   IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024))
 BEGIN
-    if not exists(select 1 from FilterResults where FilterResults.FilterHash=FilterHash) then
+    if not exists(select 1 from FilterResults where FilterResults.SearchId=SearchId) then
         IF FilterExpression IS NULL OR FilterExpression = '' THEN
             set FilterExpression = 'TRUE';
         END IF;
         set @query = CONCAT(
-            'insert into FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
-            'select \'',FilterHash,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
+            'insert into FilterResults (SearchId,ResultId,ExpirationTimeStamp)',
+            'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
             ' from {_keyTableName} WHERE ' , FilterExpression,';');
         PREPARE stmt FROM @query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
     end if;
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=SearchId;
 END;
--- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spRead{_keyTableName}Chunk(IN Offset bigint(16),
                                       IN Size bigint(16),
-                                      IN FilterHash nvarchar(128))
+                                      IN SearchId nvarchar(32))
 BEGIN
     select {_keyTableName}.* from {_keyTableName} inner join FilterResults on {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-    where FilterResults.FilterHash=FilterHash limit offset,size;  
+    where FilterResults.SearchId=SearchId limit offset,size;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

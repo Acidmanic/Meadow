@@ -118,7 +118,7 @@ execute spInsertPerson 'Farimehr','Ayerian',21,5
 declare @query nvarchar(256) = '(Name = ''Mani'' OR Name = ''Mona'') AND ( Age > 40)';
 declare @hash nvarchar(128) = CONVERT(VARCHAR(32), HashBytes('MD5', @query), 2);
 
-execute spPerformPersonsFilterIfNeeded @hash,12345,@query
+execute spPerformPersonsFilterIfNeeded @hash,'769d8af4443d11ee9592fb628444f815',12345,@query
 
 execute spReadPersonsChunk 0,20,@hash
 

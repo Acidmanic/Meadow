@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Acidmanic.Utilities.Filtering;
@@ -131,7 +133,7 @@ namespace Example.Filtering
 
         static async Task Main(string[] args)
         {
-            var engine = SetupEngineForSqlServer();
+            var engine = SetupEngineForMySql();
 
             new ConsoleLogger().UseForMeadow();
 
@@ -166,7 +168,9 @@ namespace Example.Filtering
                     new PerformPersonsFilterIfNeededRequest(filter))
                 .FromStorage;
 
-            var readResults = engine.PerformRequest(new ReadPersonsChunkRequest(hash, 1, 2))
+            var searchId = foundResult.FirstOrDefault()?.SearchId ?? Guid.NewGuid().SearchId();
+
+            var readResults = engine.PerformRequest(new ReadPersonsChunkRequest(searchId, 1, 2))
                 .FromStorage;
         }
     }

@@ -112,7 +112,7 @@ namespace Meadow.Contracts
             ReadStreamChunkByStreamId = "spRead" + EventStreamEntity + "StreamChunkByStreamId";
 
             PerformFilterIfNeededProcedureName = "spPerform" + TableName + "FilterIfNeeded";
-
+            
             ReadChunkProcedureName = "spRead" + TableName + "Chunk";
             
             ReadChunkProcedureNameFullTree = "spRead" + TableName + "ChunkFullTree";

@@ -6,11 +6,11 @@ namespace Example.Filtering.Requests
 {
     public sealed class ReadPersonsChunkRequest : MeadowRequest<ChunkShell, Person>
     {
-        public ReadPersonsChunkRequest(string filterHash, long offset, long size) : base(true)
+        public ReadPersonsChunkRequest(string searchId, long offset, long size) : base(true)
         {
             ToStorage = new ChunkShell
             {
-                FilterHash = filterHash,
+                SearchId = searchId,
                 Offset = offset,
                 Size = size
             };

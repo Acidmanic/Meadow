@@ -2,7 +2,7 @@ namespace Example.Filtering.Requests.Models
 {
     public class ChunkShell
     {
-        public string FilterHash { get; set; }
+        public string SearchId { get; set; }
 
         public long Offset { get; set; }
 
