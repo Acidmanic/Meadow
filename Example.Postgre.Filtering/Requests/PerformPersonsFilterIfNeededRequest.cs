@@ -18,7 +18,7 @@ namespace Example.Postgre.Filtering.Requests
                 {
                     FilterHash = filterQuery.Hash(),
                     FilterExpression = t.TranslateFilterQueryToWhereClause(filterQuery),
-                    ExpirationTimeStamp = (int)(DateTime.Now.Ticks + typeof(Person).GetFilterResultExpirationTimeSpan().Ticks)
+                    ExpirationTimeStamp = DateTime.Now.Ticks + typeof(Person).GetFilterResultExpirationTimeSpan().Ticks
                 };
             });
         }

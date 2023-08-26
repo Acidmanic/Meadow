@@ -6,7 +6,7 @@ namespace Example.Postgre.Filtering.Requests
 {
     public sealed class ReadPersonsChunkRequest : MeadowRequest<ChunkShell, Person>
     {
-        public ReadPersonsChunkRequest(string filterHash, int offset, int size) : base(true)
+        public ReadPersonsChunkRequest(string filterHash, long offset, long size) : base(true)
         {
             ToStorage = new ChunkShell
             {

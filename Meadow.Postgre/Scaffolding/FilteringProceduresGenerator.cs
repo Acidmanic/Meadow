@@ -46,7 +46,7 @@ namespace Meadow.Postgre.Scaffolding
         
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-create or replace function {"spRemoveExpiredFilterResults".DoubleQuot()}({"par_ExpirationTimeStamp".DoubleQuot()} INT) 
+create or replace function {"spRemoveExpiredFilterResults".DoubleQuot()}({"par_ExpirationTimeStamp".DoubleQuot()} BIGINT) 
     returns void as $$ 
 begin
     delete from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"ExpirationTimeStamp".DoubleQuot()} >= {"par_ExpirationTimeStamp".DoubleQuot()};
@@ -57,7 +57,7 @@ $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQFilterProcedureName} 
                 ({"par_FilterHash".DoubleQuot()} TEXT,
-                {"par_ExpirationTimeStamp".DoubleQuot()} INT,
+                {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
                 {"par_FilterExpression".DoubleQuot()} TEXT) 
     returns setof {"FilterResults".DoubleQuot()} as $$
     declare sql text = '';
@@ -78,8 +78,8 @@ $$ language plpgsql;
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQChunkProcedureName}
-                ({"par_Offset".DoubleQuot()} INT,
-                 {"par_Size".DoubleQuot()} INT,
+                ({"par_Offset".DoubleQuot()} BIGINT,
+                 {"par_Size".DoubleQuot()} BIGINT,
                  {"par_FilterHash".DoubleQuot()} TEXT) returns setof {_keyDbQTableName} as $$
 begin
     return query select {_keyDbQTableName}.* from {_keyDbQTableName} 

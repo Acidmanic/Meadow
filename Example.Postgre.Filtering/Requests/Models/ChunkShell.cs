@@ -4,8 +4,8 @@ namespace Example.Postgre.Filtering.Requests.Models
     {
         public string FilterHash { get; set; }
 
-        public int Offset { get; set; }
+        public long Offset { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
     }
 }

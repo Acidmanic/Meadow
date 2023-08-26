@@ -6,7 +6,7 @@ namespace Example.Postgre.Filtering.Requests
 {
     public sealed class RemoveExpiredFilterResultsRequest:MeadowRequest<ExpirationTimeStampShell,MeadowVoid>
     {
-        public RemoveExpiredFilterResultsRequest(int expirationTimeStamp) : base(false)
+        public RemoveExpiredFilterResultsRequest(long expirationTimeStamp) : base(false)
         {
             ToStorage = new ExpirationTimeStampShell
             {

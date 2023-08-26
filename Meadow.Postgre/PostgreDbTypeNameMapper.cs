@@ -16,8 +16,8 @@ namespace Meadow.Postgre
             _typeMap[typeof(ushort)] = "SMALLINT";
             _typeMap[typeof(int)] = "INT";
             _typeMap[typeof(uint)] = "INT";
-            _typeMap[typeof(long)] = "INT";
-            _typeMap[typeof(ulong)] = "INT";
+            _typeMap[typeof(long)] = "BIGINT";
+            _typeMap[typeof(ulong)] = "BIGINT";
             _typeMap[typeof(float)] = "float8";
             _typeMap[typeof(double)] = "float8";
             _typeMap[typeof(decimal)] = "float8";
@@ -34,8 +34,8 @@ namespace Meadow.Postgre
             _typeMap[typeof(ushort?)] = "SMALLINT";
             _typeMap[typeof(int?)] = "INT";
             _typeMap[typeof(uint?)] = "INT";
-            _typeMap[typeof(long?)] = "INT";
-            _typeMap[typeof(ulong?)] = "INT";
+            _typeMap[typeof(long?)] = "BIGINT";
+            _typeMap[typeof(ulong?)] = "BIGINT";
             _typeMap[typeof(float?)] = "float8";
             _typeMap[typeof(double?)] = "float8";
             _typeMap[typeof(decimal?)] = "float8";
