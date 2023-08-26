@@ -32,6 +32,8 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(KeyCreationHeader, creationHeader);
 
             replacementList.Add(KeyProcedureName, GetProcedureName());
+
+            AddBodyReplacements(replacementList);
         }
 
 

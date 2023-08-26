@@ -1,115 +1,126 @@
 
--- am tp ../Example.Postgre sd ../scripts.t
+drop function if exists "spRemoveExpiredFilterResults";
+drop function if exists "spPerformPersonsFilterIfNeeded"(par_FilterHash text, par_ExpirationTimeStamp integer, par_FilterExpression text);
+drop function if exists "spPerformPersonsFilterIfNeeded";
+drop function if exists "spReadPersonsChunk";
 
--- EventStream Example.Postgre.Models.IPersonEvent
+drop function if exists "spInsertPerson"(par_Name TEXT, par_Surname TEXT, par_Age INT, par_JobId INT);
+drop function if exists "spGetAllPersons";
+drop function if exists "spGetAllPersonsFullTree";
+drop function if exists "spGetPersonById"(par_Id bigint);
+
+drop table if exists "Persons";
+
+
+-- Table Example.Postgre.Models.Person
 -- ---------------------------------------------------------------------------------------------------------------------
--- EventStreamCodeGenerator
+-- TableCodeGenerator
 -- ---------------------------------------------------------------------------------------------------------------------
 
-create table "PersonsEventStream"("EventId" SERIAL,
-        "StreamId" INT,
-        "TypeName" TEXT,
-        "SerializedValue" TEXT,
-        PRIMARY KEY ("EventId")
+create table "Persons"("Id" SERIAL,
+    "Name" TEXT,
+    "Surname" TEXT,
+    "Age" INT,
+    "JobId" INT,
+    PRIMARY KEY ("Id")
 );
--- ---------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------
 -- SPLIT
+------------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
-create or replace function "spInsertPersonEvent"(
-        "par_StreamId" INT,
-        "par_TypeName" TEXT,
-        "par_SerializedValue" TEXT) returns setof "PersonsEventStream" as $$
+-- </Table>
+-- ---------------------------------------------------------------------------------------------------------------------
+
+-- Insert Example.Postgre.Models.Person
+-- ---------------------------------------------------------------------------------------------------------------------
+-- InsertCodeGenerator
+-- ---------------------------------------------------------------------------------------------------------------------
+create function "spInsertPerson"("par_Name" TEXT,"par_Surname" TEXT,"par_Age" INT,"par_JobId" INT) returns setof "Persons" as $$
         begin
-            return query
-                insert into "PersonsEventStream" (
-                    "StreamId",
-                    "TypeName",
-                    "SerializedValue")
-                values (
-                    "par_StreamId",
-                    "par_TypeName",
-                    "par_SerializedValue")
-            returning * ;
+        return query
+            insert into "Persons" ("Name","Surname","Age","JobId") 
+            values ("par_Name","par_Surname","par_Age","par_JobId")
+        returning * ;
         end;
+        $$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
+-- </Insert>
+-- ---------------------------------------------------------------------------------------------------------------------
+
+-- Filtering Example.Postgre.Models.Person
+-- ---------------------------------------------------------------------------------------------------------------------
+-- TableCodeGenerator
+-- ---------------------------------------------------------------------------------------------------------------------
+
+create table if not exists "FilterResults"("Id" SERIAL,
+    "FilterHash" TEXT,
+    "ResultId" INT,
+    "ExpirationTimeStamp" INT,
+    PRIMARY KEY ("Id")
+);
+------------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+------------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------
+-- FilteringProceduresGenerator
+-- ---------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------
+create or replace function "spRemoveExpiredFilterResults"("par_ExpirationTimeStamp" INT) 
+    returns void as $$ 
+begin
+    delete from "FilterResults" where "FilterResults"."ExpirationTimeStamp" >= "par_ExpirationTimeStamp";
+end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-create or replace function "spReadAllPersonStreams"() returns setof "PersonsEventStream" as $$
-    begin
-        return query
-            select * from "PersonsEventStream";
-    end;
-$$ language plpgsql ;
+create function "spPerformPersonsFilterIfNeeded" 
+                ("par_FilterHash" TEXT,
+                "par_ExpirationTimeStamp" INT,
+                "par_FilterExpression" TEXT) 
+    returns setof "FilterResults" as $$
+    declare sql text = '';
+begin 
+    if "par_FilterExpression" is null or "par_FilterExpression" ='' then
+        "par_FilterExpression" = 'true';
+    end if;
+    sql = CONCAT('insert into "FilterResults" ("FilterHash", "ResultId", "ExpirationTimeStamp") 
+        select ''', "par_FilterHash",''',"Persons"."Id", ', "par_ExpirationTimeStamp",' from "Persons"
+        where ',"par_FilterExpression",';');
+    if not exists(select 1 from "FilterResults" where "FilterHash" = "par_FilterHash") then
+        execute sql; 
+    end if;
+    return query select * from "FilterResults";
+end;
+$$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-create or replace function "spReadPersonStreamByStreamId"("par_StreamId" INT) returns setof "PersonsEventStream" as $$
-    begin
-        return query
-            select * from "PersonsEventStream" where "StreamId" = "par_StreamId";
-    end;
-$$ language plpgsql ;
+create function "spReadPersonsChunk"
+                ("par_Offset" INT,
+                 "par_Size" INT,
+                 "par_FilterHash" TEXT) returns setof "Persons" as $$
+begin
+    return query select "Persons".* from "Persons" 
+        inner join (select * from "FilterResults" where "FilterResults"."FilterHash"="par_FilterHash") "FR"
+        on "Persons"."Id" = "FR"."ResultId";
+end;
+$$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-
-create or replace function "spReadAllPersonStreamsChunk"(
-    "par_BaseEventId" INT,
-    "par_Count" INT ) returns setof "PersonsEventStream" as $$
-    begin
-        return query
-            select * from "PersonsEventStream" 
-                where "EventId" > "par_BaseEventId"
-                limit "par_Count";
-    end;
-$$ language plpgsql ;
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------
-create or replace function "spReadPersonStreamChunkByStreamId"(
-    "par_StreamId" INT,
-    "par_BaseEventId" INT,
-    "par_Count" INT ) returns setof "PersonsEventStream" as $$
-    begin
-    return query
-        select * from "PersonsEventStream" 
-            where "StreamId" = "par_StreamId"  
-            and "EventId" > "par_BaseEventId"
-            limit "par_Count";
-    end;
-$$ language plpgsql ;
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------
-
--- ---------------------------------------------------------------------------------------------------------------------
--- </EventStream>
+-- </Filtering>
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
 
-
-select * from "spInsertPersonEvent" (123,'System.Mani','some-jibberish');
-select * from  "spInsertPersonEvent" (123,'System.Mani','more-jibberish');
-select * from  "spInsertPersonEvent" (456,'System.Mona','some-more-jibber');
-select * from  "spInsertPersonEvent" (456,'System.Mona','some-more-jabber');
-
-select * from  "spReadAllPersonStreams"();
-
-select * from  "spReadPersonStreamByStreamId" (123);
-select * from  "spReadPersonStreamByStreamId" (456);
-
-select * from  "spReadAllPersonStreams"();
-
-select * from  "spReadAllPersonStreamsChunk" (0,100);
-select * from  "spReadAllPersonStreamsChunk" (2,100);
-select * from  "spReadAllPersonStreamsChunk" (0,1);
-select * from  "spReadAllPersonStreamsChunk" (2,1);
+select * from "spInsertPerson"('Mani','Moayedi',37,1);
+select * from "spInsertPerson"('Mona','Moayedi',42,2);
+select * from "spInsertPerson"('Mina','Haddadi',56,3);
+select * from "spInsertPerson"('Farshid','Moayedi',63,4);
+select * from "spInsertPerson"('Farimehr','Ayerian',21,5);
 
 
+delete from "FilterResults" where 1=1;
 
--- create or replace function "spMooz"() returns setof "text" as $$
-
-
-select * from "spMooz"();
+select * from "spPerformPersonsFilterIfNeeded"('mash5',123,'"Age" > 50 AND "Name" = ''Mina''');
+select * from "spReadPersonsChunk"(0,20,'mash5');

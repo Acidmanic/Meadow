@@ -81,3 +81,38 @@ select * from  "spReadAllPersonStreamsChunk" (2,100);
 select * from  "spReadAllPersonStreamsChunk" (0,1);
 select * from  "spReadAllPersonStreamsChunk" (2,1);
 
+************************************************************************************************************************
+*                                                                                                                      *
+*                                              Filtering Test                                                          *
+*                                                                                                                      *
+************************************************************************************************************************
+-- am tp ../Example.Postgre sd ../scripts.t
+
+drop function if exists "spRemoveExpiredFilterResults";
+drop function if exists "spPerformPersonsFilterIfNeeded"(par_FilterHash text, par_ExpirationTimeStamp integer, par_FilterExpression text);
+drop function if exists "spPerformPersonsFilterIfNeeded";
+drop function if exists "spReadPersonsChunk";
+
+drop function if exists "spInsertPerson"(par_Name TEXT, par_Surname TEXT, par_Age INT, par_JobId INT);
+drop function if exists "spGetAllPersons";
+drop function if exists "spGetAllPersonsFullTree";
+drop function if exists "spGetPersonById"(par_Id bigint);
+
+drop table if exists "Persons";
+
+-- {{Table Example.Postgre.Models.Person}}
+-- {{Insert Example.Postgre.Models.Person}}
+-- {{Filtering Example.Postgre.Models.Person}}
+
+
+select * from "spInsertPerson"('Mani','Moayedi',37,1);
+select * from "spInsertPerson"('Mona','Moayedi',37,2);
+select * from "spInsertPerson"('Mina','Haddadi',37,3);
+select * from "spInsertPerson"('Farshid','Moayedi',37,4);
+select * from "spInsertPerson"('Farimehr','Ayerian',37,5);
+
+
+delete from "FilterResults" where 1=1;
+
+select * from "spPerformPersonsFilterIfNeeded"('mash5',123,'');
+select * from "spReadPersonsChunk"(0,20,'mash5');
