@@ -2,3 +2,4 @@ Meadow
 Meadow.Postgre
 Meadow.SQLite
 Meadow.SqlServer
+Meadow.MySql
