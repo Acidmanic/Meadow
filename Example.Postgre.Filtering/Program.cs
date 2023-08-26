@@ -66,7 +66,7 @@ namespace Example.Postgre.Filtering
             {
                 Key = "Name",
                 ValueComparison = ValueComparison.Equal,
-                EqualValues = new List<string>{"Mani","Mona"}
+                EqualValues = new List<string>{"Mani","Mona","Farshid"}
             });
             var hash = filter.Hash();
 
@@ -77,7 +77,7 @@ namespace Example.Postgre.Filtering
                     new PerformPersonsFilterIfNeededRequest(filter))
                 .FromStorage;
 
-            var readResults = engine.PerformRequest(new ReadPersonsChunkRequest(hash, 0, 20))
+            var readResults = engine.PerformRequest(new ReadPersonsChunkRequest(hash, 1, 2))
                 .FromStorage;
 
             

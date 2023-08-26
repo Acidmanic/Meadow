@@ -83,7 +83,7 @@ create function {_keyDbQChunkProcedureName}
                  {"par_FilterHash".DoubleQuot()} TEXT) returns setof {_keyDbQTableName} as $$
 begin
     return query select {_keyDbQTableName}.* from {_keyDbQTableName} 
-        inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"FilterHash".DoubleQuot()}={"par_FilterHash".DoubleQuot()}) {"FR".DoubleQuot()}
+        inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"FilterHash".DoubleQuot()}={"par_FilterHash".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
         on {_keyDbQTableName}.{_keyDbQIdFieldName} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
 end;
 $$ language plpgsql;
