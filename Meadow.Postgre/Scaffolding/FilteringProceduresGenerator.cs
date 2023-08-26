@@ -56,7 +56,7 @@ $$ language plpgsql;
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQFilterProcedureName} 
-                ({"par_FilterHash".DoubleQuot()} TEXT,
+                ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
                 {"par_FilterExpression".DoubleQuot()} TEXT) 
     returns setof {"FilterResults".DoubleQuot()} as $$
@@ -65,10 +65,10 @@ begin
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
-    sql = CONCAT('insert into {"FilterResults".DoubleQuot()} ({"FilterHash".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
-        select ''', {"par_FilterHash".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
+    sql = CONCAT('insert into {"FilterResults".DoubleQuot()} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
+        select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
         where ',{"par_FilterExpression".DoubleQuot()},';');
-    if not exists(select 1 from {"FilterResults".DoubleQuot()} where {"FilterHash".DoubleQuot()} = {"par_FilterHash".DoubleQuot()}) then
+    if not exists(select 1 from {"FilterResults".DoubleQuot()} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
     return query select * from {"FilterResults".DoubleQuot()};
@@ -80,10 +80,10 @@ $$ language plpgsql;
 create function {_keyDbQChunkProcedureName}
                 ({"par_Offset".DoubleQuot()} BIGINT,
                  {"par_Size".DoubleQuot()} BIGINT,
-                 {"par_FilterHash".DoubleQuot()} TEXT) returns setof {_keyDbQTableName} as $$
+                 {"par_SearchId".DoubleQuot()} TEXT) returns setof {_keyDbQTableName} as $$
 begin
     return query select {_keyDbQTableName}.* from {_keyDbQTableName} 
-        inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"FilterHash".DoubleQuot()}={"par_FilterHash".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
+        inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
         on {_keyDbQTableName}.{_keyDbQIdFieldName} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
 end;
 $$ language plpgsql;

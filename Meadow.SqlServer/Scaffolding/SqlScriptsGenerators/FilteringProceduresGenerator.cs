@@ -51,30 +51,30 @@ CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp BIGI
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= @ExpirationTimeStamp
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@FilterHash NVARCHAR(128),
+CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024)) AS
 BEGIN
-    IF (SELECT Count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash) = 0
+    IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
-            'INSERT INTO FilterResults (FilterHash,ResultId,ExpirationTimeStamp)',
-            'SELECT ''',@FilterHash,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
+            'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp)',
+            'SELECT ''',@SearchId,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
         execute sp_executesql @query
     END  
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=FilterHash;
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset BIGINT,
                                     @Size BIGINT,
-                                    @FilterHash nvarchar(128)) AS
+                                    @SearchId nvarchar(32)) AS
     ;WITH Results_CTE AS
               (
                   SELECT
                       {_keyTableName}.*,
                       ROW_NUMBER() OVER (ORDER BY {_keyTableName}.{_keyIdFieldName}) AS RowNum
                   FROM {_keyTableName} INNER JOIN FilterResults on {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-                  WHERE FilterResults.FilterHash=@FilterHash
+                  WHERE FilterResults.SearchId=@SearchId
               )
      SELECT {_keyEntityParameters}
      FROM Results_CTE

@@ -46,24 +46,24 @@ AS
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= @ExpirationTimeStamp;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@FilterHash TEXT,
+CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
                                                   @FilterExpression TEXT)
 AS
-    INSERT INTO FilterResults (FilterHash, ResultId, ExpirationTimeStamp) 
-    SELECT @FilterHash,Persons.Id,@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
-    AND IIF((select count(Id) from FilterResults where FilterResults.FilterHash=@FilterHash)>0,false,true);
+    INSERT INTO FilterResults (SearchId, ResultId, ExpirationTimeStamp) 
+    SELECT @SearchId,Persons.Id,@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
+    AND IIF((select count(Id) from FilterResults where FilterResults.SearchId=@SearchId)>0,false,true);
 
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.FilterHash=@FilterHash;
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset INTEGER,
                                       @Size INTEGER,
-                                      @FilterHash TEXT)
+                                      @SearchId TEXT)
 AS
     SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN FilterResults ON {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-    WHERE FilterResults.FilterHash=FilterHash LIMIT @Offset,@Size;  
+    WHERE FilterResults.SearchId=SearchId LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

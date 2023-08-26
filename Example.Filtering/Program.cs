@@ -133,7 +133,7 @@ namespace Example.Filtering
 
         static async Task Main(string[] args)
         {
-            var engine = SetupEngineForMySql();
+            var engine = SetupEngineForSqlServer();
 
             new ConsoleLogger().UseForMeadow();
 

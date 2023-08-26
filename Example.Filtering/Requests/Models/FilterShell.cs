@@ -2,7 +2,6 @@ namespace Example.Filtering.Requests.Models
 {
     public class FilterShell
     {
-        public string FilterHash { get; set; }
         
         public long ExpirationTimeStamp { get; set; }
         

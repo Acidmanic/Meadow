@@ -20,7 +20,6 @@ namespace Example.Filtering.Requests
             {
                 ToStorage = new FilterShell
                 {
-                    FilterHash = filterQuery.Hash(),
                     FilterExpression = t.TranslateFilterQueryToWhereClause(filterQuery),
                     ExpirationTimeStamp = DateTime.Now.Ticks + typeof(Person).GetFilterResultExpirationTimeSpan().Ticks,
                     SearchId = searchId
