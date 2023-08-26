@@ -51,22 +51,22 @@ namespace Meadow.Postgre
             switch (filter.ValueComparison)
             {
                 case ValueComparison.SmallerThan:
-                    sb.Append(filter.Key).Append('<').Append(max);
+                    sb.Append(filter.Key.DoubleQuot()).Append('<').Append(max);
                     break;
                 case ValueComparison.LargerThan:
-                    sb.Append(filter.Key).Append('<').Append(min);
+                    sb.Append(filter.Key.DoubleQuot()).Append('<').Append(min);
                     break;
                 case ValueComparison.BetweenValues:
-                    sb.Append(filter.Key).Append('<').Append(max)
+                    sb.Append(filter.Key.DoubleQuot()).Append('<').Append(max)
                         .Append(" AND ")
-                        .Append(filter.Key).Append('<').Append(min);
+                        .Append(filter.Key.DoubleQuot()).Append('<').Append(min);
                     break;
                 case ValueComparison.Equal:
                     var sep = "";
 
                     foreach (var equalValue in equals)
                     {
-                        sb.Append(sep).Append(filter.Key).Append('=').Append(equalValue);
+                        sb.Append(sep).Append(filter.Key.DoubleQuot()).Append('=').Append(equalValue);
                         sep = " OR ";
                     }
 
