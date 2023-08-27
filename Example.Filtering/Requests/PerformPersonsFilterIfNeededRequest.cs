@@ -21,7 +21,7 @@ namespace Example.Filtering.Requests
                 ToStorage = new FilterShell
                 {
                     FilterExpression = t.TranslateFilterQueryToWhereClause(filterQuery),
-                    ExpirationTimeStamp = DateTime.Now.Ticks + typeof(Person).GetFilterResultExpirationTimeSpan().Ticks,
+                    ExpirationTimeStamp = typeof(Person).GetFilterResultExpirationPointMilliseconds(),
                     SearchId = searchId
                 };
             });

@@ -152,7 +152,7 @@ namespace Example.Filtering
             await SeedPersons(engine);
 
             var filter = new FilterQuery();
-            filter.FilterName = typeof(Person).FullName;
+            filter.EntityType = typeof(Person);
             filter.Add(new FilterItem
             {
                 Key = "Name",

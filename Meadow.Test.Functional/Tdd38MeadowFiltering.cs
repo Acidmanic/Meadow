@@ -67,6 +67,7 @@ namespace Meadow.Test.Functional
                 };
             }
         }
+
         public override void Main()
         {
             UseSqlServer();
@@ -88,7 +89,7 @@ namespace Meadow.Test.Functional
 
             var filter = new FilterQuery();
 
-            filter.FilterName = typeof(Person).FullName;
+            filter.EntityType = typeof(Person);
 
             filter.Add(new FilterItem
             {
@@ -103,7 +104,7 @@ namespace Meadow.Test.Functional
             var allSearchResults = engine.PerformRequest(filterRequest).FromStorage;
 
             var pagination = new { Offset = 0, Size = 20 };
-            
+
             var chunkRequest = new ReadPersonsChunkRequest(pagination.Offset, pagination.Size, filter.Hash());
 
             var filteringResults = engine.PerformRequest(chunkRequest).FromStorage;
