@@ -9,7 +9,6 @@ namespace Example.Filtering.Requests
         public InsertPersonRequest(Person person) : base(true)
         {
             ToStorage = person;
-            
         }
 
         protected override void OnFieldManipulation(IFieldInclusionMarker<Person> toStorage, IFieldInclusionMarker<Person> fromStorage)

@@ -1,5 +1,5 @@
-using System;
 using Acidmanic.Utilities.Filtering;
+using Meadow.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -30,8 +30,9 @@ public interface IFilterQueryTranslator
         }
         
         public ILogger Logger { get; set; } = NullLogger.Instance;
+        public MeadowConfiguration Configuration { get; set; }
 
-        public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery)
+        public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree)
         {
             Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +
                                 "You can modify this behavior by creating a DataAccessCore inherited from the one you already are using," +
@@ -47,5 +48,7 @@ public interface IFilterQueryTranslator
 
     ILogger Logger { get; set; }
     
-    string TranslateFilterQueryToWhereClause(FilterQuery filterQuery);
+    MeadowConfiguration Configuration { get; set; }
+
+    string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree);
 }

@@ -133,7 +133,7 @@ namespace Example.Filtering
 
         static async Task Main(string[] args)
         {
-            var engine = SetupEngineForSqlServer();
+            var engine = SetupEngineForPostgre();
 
             new ConsoleLogger().UseForMeadow();
 
@@ -157,10 +157,16 @@ namespace Example.Filtering
             {
                 Key = "Name",
                 ValueComparison = ValueComparison.Equal,
-                EqualValues = new List<string> { "Mani", "Mona", "Farshid" }
+                EqualValues = new List<string> { "Mani", "Mona", "Farshid" },
+                ValueType = typeof(string)
             });
-            var hash = filter.Hash();
-
+            // filter.Add(new FilterItem
+            // {
+            //     Key = "Job.IncomeInRials",
+            //     ValueComparison = ValueComparison.LargerThan,
+            //     Minimum = "1000",
+            //     ValueType = typeof(long)
+            // });
 
             engine.PerformRequest(new RemoveExpiredFilterResultsRequest(1000));
 

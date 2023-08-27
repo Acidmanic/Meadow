@@ -70,7 +70,7 @@ namespace Meadow
         private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class, new()
         {
             var translator = IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
-
+            
             try
             {
                 var core = _coreProvider.CreateDataAccessCore();
@@ -88,6 +88,8 @@ namespace Meadow
             }
 
             translator.Logger = _logger;
+
+            translator.Configuration = _configuration;
             
             request.SetFilterQueryTranslator(translator);
         }
@@ -100,8 +102,10 @@ namespace Meadow
             
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
             
-            SetupQueryTranslator(request);
+            request.SetConfigurations(_configuration);
             
+            SetupQueryTranslator(request);
+
             if (request is ConfigurationRequest<TOut> configRequest)
             {
                 var result = PerformConfigurationRequest(configRequest);
@@ -121,6 +125,8 @@ namespace Meadow
             where TOut : class, new()
         {
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
+            
+            request.SetConfigurations(_configuration);
             
             SetupQueryTranslator(request);
             

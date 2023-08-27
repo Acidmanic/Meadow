@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Results;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Utility;
 
@@ -11,6 +12,8 @@ namespace Meadow.Requests
     {
         public virtual string RequestText { get; protected set; }
 
+        
+        protected MeadowConfiguration Configuration { get; private set; }
         public bool ReturnsValue { get; }
 
         /// <summary>
@@ -85,6 +88,11 @@ namespace Meadow.Requests
         protected void RegisterTranslationTask(Action<IFilterQueryTranslator> task)
         {
             _translationTasks.Add(task);
+        }
+
+        internal void SetConfigurations(MeadowConfiguration configuration)
+        {
+            Configuration = configuration;
         }
     }
 
