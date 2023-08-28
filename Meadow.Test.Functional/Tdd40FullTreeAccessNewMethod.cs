@@ -128,7 +128,7 @@ namespace Meadow.Test.Functional
         
         public override void Main()
         {
-            UseSqlServer();
+            UseSqLite();
 
             var engine = CreateEngine();
 
