@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Meadow.Configuration;
 
 namespace Meadow.Scaffolding.Macros;
 
@@ -21,4 +22,5 @@ public class NullMacro : IMacro
     }
 
     public List<Assembly> LoadedAssemblies { get; set; } = new List<Assembly>();
+    public MeadowConfiguration Configuration { get; set; }
 }

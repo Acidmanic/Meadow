@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Meadow.Configuration;
 
 namespace Meadow.Scaffolding.Macros;
 
@@ -12,4 +13,7 @@ public interface IMacro
     string GenerateCode(params string[] arguments);
     
     public List<Assembly> LoadedAssemblies { get; set; }
+    
+    public MeadowConfiguration Configuration { get; set; }
+    
 }

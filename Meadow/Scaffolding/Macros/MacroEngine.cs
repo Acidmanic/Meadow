@@ -117,6 +117,8 @@ public class MacroEngine
                 var macro = factory.Make(sticker.Name);
 
                 macro.LoadedAssemblies = new List<Assembly>(_assemblies);
+
+                macro.Configuration = _configuration;
                 
                 content += macro.GenerateCode(sticker.Parameters) + "";
 
