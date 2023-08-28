@@ -1,15 +1,29 @@
-create table Tags(
-                     PropertyId INTEGER,
-                     ProductClassId INTEGER
-);
+-- Crud Meadow.Test.Functional.Models.Address
 
-create table Jobs (Title TEXT, IncomeInRials INTEGER,JobDescription TEXT,Id INTEGER PRIMARY KEY);
+-- Crud Meadow.Test.Functional.Models.Job
 
-create table Person(
-                        Id INTEGER PRIMARY KEY ,
-                        Name TEXT,
-                        Surname TEXT,
-                        Age INTEGER,
-                        JobId INTEGER,
-                        FOREIGN KEY(JobId) REFERENCES Jobs(Id)
-);
+-- Crud Meadow.Test.Functional.Models.Person
+
+-- Filtering Meadow.Test.Functional.Models.Person
+
+-- SPLIT 
+
+-- {{Table Meadow.Test.Functional.Models.Address}}
+-- {{Insert Meadow.Test.Functional.Models.Address}}
+-- {{Table Meadow.Test.Functional.Models.Job}}
+-- {{Insert Meadow.Test.Functional.Models.Job}}
+-- {{Table Meadow.Test.Functional.Models.Person}}
+-- {{Insert Meadow.Test.Functional.Models.Person}}
+-- {{FullTreeView Meadow.Test.Functional.Models.Person}}
+-- ---------------------------------------------------------------------------------------------------------------------
+
+CREATE PROCEDURE spReadAllPersons() AS
+    SELECT * FROM Persons ;
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE spReadAllPersonsFullTree() AS
+    SELECT * FROM PersonsFullTree ;
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+
+-- SPLIT

@@ -27,7 +27,7 @@ namespace Meadow.SQLite
 
         public SqLiteDataAccessCore()
         {
-            AddCarrierInterceptor(new SQLiteCommandInterceptor());
+            AddCarrierInterceptor(new SqLiteCommandInterceptor());
         }
 
 
@@ -40,7 +40,7 @@ namespace Meadow.SQLite
         {
             DataStorageAdapter = new SqLiteStorageAdapter(configuration, Logger);
 
-            StorageCommunication = new SQLiteStorageCommunication();
+            StorageCommunication = new SqLiteStorageCommunication();
 
             return this;
         }

@@ -66,5 +66,10 @@ namespace Examples.Common
             return $"User ID=postgres;Password='{password}';Host=localhost;Port=5432;" +
                    $"Database={databaseName};";
         }
+
+        public static string GetSqLiteConnectionString(string databaseName = "meadow-scratch")
+        {
+            return $"Data Source={databaseName}.db";
+        }
     }
 }

@@ -8,7 +8,7 @@ using Microsoft.Data.Sqlite;
 
 namespace Meadow.SQLite
 {
-    public class SQLiteStorageCommunication : IStorageCommunication<IDbCommand, IDataReader>
+    public class SqLiteStorageCommunication : IStorageCommunication<IDbCommand, IDataReader>
     {
         public IDbCommand CreateToStorageCarrier(MeadowRequest request, MeadowConfiguration configuration)
         {

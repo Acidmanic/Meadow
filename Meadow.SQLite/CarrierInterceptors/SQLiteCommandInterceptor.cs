@@ -15,7 +15,7 @@ using Meadow.SQLite.ProcedureProcessing;
 
 namespace Meadow.SQLite.CarrierInterceptors
 {
-    public class SQLiteCommandInterceptor : ICarrierInterceptor<IDbCommand, IDataReader>
+    public class SqLiteCommandInterceptor : ICarrierInterceptor<IDbCommand, IDataReader>
     {
       
         public void InterceptBeforeCommunication(IDbCommand carrier, ObjectEvaluator evaluator,
@@ -102,12 +102,24 @@ namespace Meadow.SQLite.CarrierInterceptors
                 return "";
             }
 
-            if (value is string )
+            if (value is string stringValue)
             {
-                return $"'{value}'";
+                stringValue = EscapeSingleQuotes(stringValue);
+                
+                return $"'{stringValue}'";
             }
 
             return value.ToString();
+        }
+
+        private string EscapeSingleQuotes(string value)
+        {
+            var key = $"<{Guid.NewGuid():N}>";
+            // Just In Case!
+            value = value.Replace("'", key);
+            value = value.Replace(key, "''");
+
+            return value;
         }
 
         public void InterceptAfterCommunication(IDataReader carrier, MeadowConfiguration configuration)

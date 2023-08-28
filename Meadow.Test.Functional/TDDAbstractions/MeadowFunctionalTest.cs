@@ -8,6 +8,7 @@ using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.MySql;
 using Meadow.Scaffolding.Macros;
+using Meadow.SQLite;
 using Meadow.SqlServer;
 using Meadow.Utility;
 using Microsoft.Extensions.Logging;
@@ -84,6 +85,20 @@ namespace Meadow.Test.Functional.TDDAbstractions
             ConnectionString = ExampleConnectionString.GetSqlServerConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
+        }
+
+        protected void UseSqLite()
+        {
+            MeadowConfigurationAssemblies.Clear();
+            MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
+            MeadowConfigurationAssemblies.Add(typeof(SqLiteDataAccessCore).Assembly);
+
+            ScriptsDirectory = "SqLiteScripts";
+
+            ConnectionString = ExampleConnectionString.GetSqLiteConnectionString(DbName);
+
+            MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
         }
 
         protected MeadowEngine CreateEngine()

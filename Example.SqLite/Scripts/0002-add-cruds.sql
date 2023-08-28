@@ -76,4 +76,3 @@ as
 else
     select cast(0 as bit) success
 go
-
