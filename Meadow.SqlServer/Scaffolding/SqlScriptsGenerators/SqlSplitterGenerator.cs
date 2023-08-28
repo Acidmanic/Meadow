@@ -1,3 +1,4 @@
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -15,5 +16,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 Text = "--SPLIT\n"
             };
         }
+
+        public MeadowConfiguration Configuration { get; set; }
     }
 }

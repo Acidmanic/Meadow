@@ -6,6 +6,7 @@ using System.Text;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
+using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
@@ -128,6 +129,8 @@ public abstract class BuiltinMacroBase : MacroBase
 
     private StringBuilder Append(StringBuilder sb, ICodeGenerator cg)
     {
+        cg.Configuration = Configuration;
+        
         var code = cg.Generate();
 
         Title(sb, code.Name);
@@ -155,6 +158,8 @@ public abstract class BuiltinMacroBase : MacroBase
                 Text = ""
             };
         }
+
+        public MeadowConfiguration Configuration { get; set; }
     }
 
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -7,6 +8,10 @@ namespace Meadow.Scaffolding.CodeGenerators
 {
     public abstract class ByTemplateSqlGeneratorBase : SqlGeneratorBase
     {
+        
+        public MeadowConfiguration Configuration { get; set; }
+        
+        
         protected ByTemplateSqlGeneratorBase(IDbTypeNameMapper typeNameMapper) : base(typeNameMapper)
         {
         }

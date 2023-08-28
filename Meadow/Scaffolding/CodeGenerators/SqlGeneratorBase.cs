@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.DataTypeMapping.Attributes;
@@ -25,6 +26,7 @@ namespace Meadow.Scaffolding.CodeGenerators
         public RepetitionHandling RepetitionHandling { get; set; } = RepetitionHandling.Create;
         
         public abstract Code Generate();
+        public MeadowConfiguration Configuration { get; set; }
 
 
         public IDbTypeNameMapper TypeNameMapper { get; }

@@ -1,3 +1,4 @@
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -25,5 +26,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                        SqlSingleLineGenerator.LineString
             };
         }
+
+        public MeadowConfiguration Configuration { get; set; }
     }
 }

@@ -1,3 +1,4 @@
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -17,5 +18,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 Text = LineString
             };
         }
+
+        public MeadowConfiguration Configuration { get; set; }
     }
 }
