@@ -8,7 +8,7 @@ using Acidmanic.Utilities.Results;
 using Meadow.Contracts;
 using Meadow.Extensions;
 
-namespace Meadow.Sql;
+namespace Meadow.RelationalStandardMapping;
 
 public class FullTreeMap<T> : FullTreeMap
 {

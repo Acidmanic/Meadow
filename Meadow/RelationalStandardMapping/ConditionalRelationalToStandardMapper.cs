@@ -1,18 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Contracts;
 using Meadow.Extensions;
 
-namespace Meadow
+namespace Meadow.RelationalStandardMapping
 {
     /// <summary>
     /// [OwnerName][MemberName]....[MemberName]
     /// </summary>
-    public class RelationalRelationalIdentifierToStandardFieldMapper : IRelationalIdentifierToStandardFieldMapper
+    public class ConditionalRelationalToStandardMapper : IRelationalIdentifierToStandardFieldMapper
     {
         public char Separator { get; set; } = '_';
 

@@ -7,6 +7,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.RelationalStandardMapping;
 using Meadow.Sql;
 using Meadow.SQLite.Exceptions;
 using Meadow.SQLite.Extensions;
@@ -16,8 +17,8 @@ namespace Meadow.SQLite.CarrierInterceptors
 {
     public class SQLiteCommandInterceptor : ICarrierInterceptor<IDbCommand, IDataReader>
     {
-        private readonly RelationalRelationalIdentifierToStandardFieldMapper _mapper
-            = new RelationalRelationalIdentifierToStandardFieldMapper();
+        private readonly ConditionalRelationalToStandardMapper _mapper
+            = new ConditionalRelationalToStandardMapper();
 
         public void InterceptBeforeCommunication(IDbCommand carrier, ObjectEvaluator evaluator,
             MeadowConfiguration configuration)

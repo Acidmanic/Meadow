@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Contracts;
 using Meadow.Sql;
 
-namespace Meadow;
+namespace Meadow.RelationalStandardMapping;
 
-public class RelationalRelationalIdentifierToStandardFieldMapper2 : IRelationalIdentifierToStandardFieldMapper
+public class FlatRelationalToStandardMapper : IRelationalIdentifierToStandardFieldMapper
 {
-    public RelationalRelationalIdentifierToStandardFieldMapper2(IDataOwnerNameProvider dataOwnerNameProvider)
+    public FlatRelationalToStandardMapper(IDataOwnerNameProvider dataOwnerNameProvider)
     {
         DataOwnerNameProvider = dataOwnerNameProvider;
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.RelationalStandardMapping;
 using Meadow.Sql;
 using Meadow.Test.Functional.Models.BugCase;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -58,7 +59,7 @@ namespace Meadow.Test.Functional
             // //     Console.WriteLine(item.Key + ": " + item.Value);
             // // }
             
-            var map = new RelationalRelationalIdentifierToStandardFieldMapper
+            var map = new ConditionalRelationalToStandardMapper
             {
                 Separator = '_',
                 DataOwnerNameProvider = new PluralDataOwnerNameProvider()

@@ -4,6 +4,7 @@ using System.IO;
 using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Extensions;
+using Meadow.RelationalStandardMapping;
 using Meadow.Sql;
 using Meadow.Test.Functional.Models.Bug2;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -113,7 +114,7 @@ namespace Meadow.Test.Functional
 
             var relationalData = csv.Data;
 
-            var mapper = new RelationalRelationalIdentifierToStandardFieldMapper
+            var mapper = new ConditionalRelationalToStandardMapper
             {
                 Separator = '_',
                 DataOwnerNameProvider = new PluralDataOwnerNameProvider()

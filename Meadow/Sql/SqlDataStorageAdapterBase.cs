@@ -10,6 +10,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.RelationalStandardMapping;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
@@ -25,7 +26,7 @@ namespace Meadow.Sql
             DataOwnerNameProvider = dataOwnerNameProvider;
             _logger = logger;
 
-            RelationalIdentifierToStandardFieldMapper = new RelationalRelationalIdentifierToStandardFieldMapper2
+            RelationalIdentifierToStandardFieldMapper = new FlatRelationalToStandardMapper
                 (DataOwnerNameProvider)
             {
                 DatabaseFieldNameDelimiter = FieldNameDelimiter

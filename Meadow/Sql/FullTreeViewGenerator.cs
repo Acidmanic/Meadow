@@ -6,6 +6,7 @@ using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Extensions;
+using Meadow.RelationalStandardMapping;
 
 namespace Meadow.Sql
 {
@@ -76,7 +77,7 @@ namespace Meadow.Sql
 
             var evaluator = new ObjectEvaluator(type);
 
-            var map = new RelationalRelationalIdentifierToStandardFieldMapper()
+            var map = new ConditionalRelationalToStandardMapper()
                     {Separator = Delimiter, DataOwnerNameProvider = DataOwnerNameProvider}
                 .MapAddressesByIdentifier(type, true);
 
@@ -159,7 +160,7 @@ namespace Meadow.Sql
 
             var node = evaluator.RootNode;
 
-            var map = new RelationalRelationalIdentifierToStandardFieldMapper()
+            var map = new ConditionalRelationalToStandardMapper()
             {
                 Separator = Delimiter,
                 DataOwnerNameProvider = DataOwnerNameProvider
