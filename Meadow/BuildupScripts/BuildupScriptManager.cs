@@ -15,7 +15,7 @@ namespace Meadow.BuildupScripts
         private readonly List<ScriptInfo> _scripts;
 
 
-        public BuildupScriptManager(string directory, MacroPolicies macroPolicy,
+        public BuildupScriptManager(string directory, MeadowConfiguration configuration,
             params Assembly[] macroContainingAssemblies)
         {
             Assembly entryAssembly = Assembly.GetEntryAssembly();
@@ -52,13 +52,13 @@ namespace Meadow.BuildupScripts
 
             _scripts = new List<ScriptInfo>();
 
-            Update(macroPolicy, macroContainingAssemblies);
+            Update(configuration, macroContainingAssemblies);
         }
 
 
-        public void Update(MacroPolicies macroPolicy, params Assembly[] macroContainingAssemblies)
+        public void Update(MeadowConfiguration configuration, params Assembly[] macroContainingAssemblies)
         {
-            var macroEngine = new MacroEngine(macroContainingAssemblies);
+            var macroEngine = new MacroEngine(configuration, macroContainingAssemblies);
 
             _scripts.Clear();
 
@@ -76,7 +76,7 @@ namespace Meadow.BuildupScripts
                     {
                         macroEngine.ExecuteMacrosFor(file, (hadMacro, content) =>
                         {
-                            if (hadMacro && macroPolicy == MacroPolicies.Ignore)
+                            if (hadMacro && configuration.MacroPolicy == MacroPolicies.Ignore)
                             {
                                 //Revert
                                 content = File.ReadAllText(file.FullName);
@@ -95,7 +95,7 @@ namespace Meadow.BuildupScripts
 
                             _scripts.Add(scriptInfo);
 
-                            return hadMacro && macroPolicy == MacroPolicies.UpdateScripts;
+                            return hadMacro && configuration.MacroPolicy == MacroPolicies.UpdateScripts;
                         });
                     }
                     finally

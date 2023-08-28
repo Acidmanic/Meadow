@@ -4,15 +4,20 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Meadow.Configuration;
 
 namespace Meadow.Scaffolding.Macros;
 
 public class MacroEngine
 {
     private readonly Assembly[] _assemblies;
-
-    public MacroEngine(params Assembly[] assemblies)
+    private readonly MeadowConfiguration _configuration;
+    
+    
+    public MacroEngine(MeadowConfiguration configuration, params Assembly[] assemblies)
     {
+        _configuration = configuration;
+        
         if (assemblies.Length == 0)
         {
             _assemblies = new[] { Assembly.GetCallingAssembly() };

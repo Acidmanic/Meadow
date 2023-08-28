@@ -81,7 +81,7 @@ go";
             
             File.WriteAllText("0000-temp.sql",script);
             
-            var man = new BuildupScriptManager(".",MacroPolicies.Ignore);
+            var man = new BuildupScriptManager(".",new MeadowConfiguration{MacroPolicy = MacroPolicies.Ignore});
 
             var sinfo = man[0];
 

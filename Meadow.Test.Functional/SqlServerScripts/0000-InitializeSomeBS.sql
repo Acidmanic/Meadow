@@ -24,26 +24,3 @@ CREATE PROCEDURE spReadAllPersonsFullTree AS
     SELECT * FROM PersonsFullTree ;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-
-CREATE VIEW PersonsFullTree AS
-SELECT Persons.Id        'Persons_Id',
-       Persons.Name        'Name',
-       Persons.Surname        'Surname',
-       Persons.Age        'Age',
-       Persons.JobId        'JobId',
-       Jobs.Id        'Persons_Jobs_Id',
-       Jobs.Title        'Title',
-       Jobs.IncomeInRials        'IncomeInRials',
-       Jobs.JobDescription        'JobDescription',
-       Addresses.City        'City',
-       Addresses.Street        'Street',
-       Addresses.AddressName        'AddressName',
-       Addresses.Block        'Block',
-       Addresses.Plate        'Plate',
-       Addresses.Id        'Persons_Addresses_Id',
-       Addresses.PersonId        'PersonId'
-FROM   Persons
-           INNER JOIN Jobs ON Persons.JobId = Jobs.Id
-           INNER JOIN Addresses ON Addresses.PersonId = Persons.Id;
-
-

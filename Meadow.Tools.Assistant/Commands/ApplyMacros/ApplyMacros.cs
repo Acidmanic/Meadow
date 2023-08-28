@@ -56,16 +56,16 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
                     if (providerType)
                     {
-
                         if (PerformApplyingMacros(providerType, assemblies, projectDirectory,
                                 context.GetScriptsDirectoryPath()))
                         {
-                            Logger.LogInformation("Applied Any found Macros");    
+                            Logger.LogInformation("Applied Any found Macros");
                         }
                     }
                     else
                     {
-                        Logger.LogError("Unable to find correct proper implementation of IMeadowConfigurationProvider in target project.");
+                        Logger.LogError(
+                            "Unable to find correct proper implementation of IMeadowConfigurationProvider in target project.");
                     }
                 }
                 else
@@ -77,16 +77,10 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
             return true;
         }
 
-        
 
-
-        
-
-
-        private Result PerformApplyingMacros(Type providerType, List<Assembly> assemblies, string projectDirectory, string scriptsDir)
+        private Result PerformApplyingMacros(Type providerType, List<Assembly> assemblies, string projectDirectory,
+            string scriptsDir)
         {
-            
-
             var instance = new ObjectInstantiator().BlindInstantiate(providerType);
 
             if (instance is IMeadowConfigurationProvider configurationProvider)
@@ -100,7 +94,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
                     scriptsDirectory = Path.Join(projectDirectory, scriptsDirectory);
                 }
 
-                var engin = new MacroEngine(assemblies.ToArray());
+                var engin = new MacroEngine(configurations, assemblies.ToArray());
 
                 engin.ExecuteMacrosFor(scriptsDirectory, f => true);
 
@@ -110,13 +104,10 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
             Logger.LogError(
                 "IMeadowConfigurationProvider must be instantiatable by a parameterless constructor.");
 
-            
 
             return false;
         }
 
-
-        
 
         public override string Description => "This will update buildup-scripts for their macros in your project.";
     }

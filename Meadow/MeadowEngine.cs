@@ -71,7 +71,7 @@ namespace Meadow
         private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class, new()
         {
             var translator = IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
-            
+
             try
             {
                 var core = _coreProvider.CreateDataAccessCore();
@@ -85,7 +85,7 @@ namespace Meadow
             }
             catch (Exception e)
             {
-                _logger.LogError(e,"Error getting query translator.");
+                _logger.LogError(e, "Error getting query translator.");
             }
 
             translator.Logger = _logger;
@@ -93,7 +93,7 @@ namespace Meadow
             translator.Configuration = _configuration;
 
             translator.DataOwnerNameProvider = _configuration.TableNameProvider;
-            
+
             request.SetFilterQueryTranslator(translator);
         }
 
@@ -102,11 +102,10 @@ namespace Meadow
             bool suggestFullTreeAccess = false)
             where TOut : class, new()
         {
-            
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
-            
+
             request.SetConfigurations(_configuration);
-            
+
             SetupQueryTranslator(request);
 
             if (request is ConfigurationRequest<TOut> configRequest)
@@ -121,18 +120,18 @@ namespace Meadow
             // Run UserRequest as Procedure Request
             return CreateInitializedCore(_configuration).PerformRequest(request, _configuration);
         }
-        
+
         public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             bool suggestFullTreeAccess = false)
             where TOut : class, new()
         {
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
-            
+
             request.SetConfigurations(_configuration);
-            
+
             SetupQueryTranslator(request);
-            
+
             if (request is ConfigurationRequest<TOut> configRequest)
             {
                 var result = await PerformConfigurationRequestAsync(configRequest);
@@ -141,8 +140,8 @@ namespace Meadow
 
                 return request;
             }
-            
-            return await  CreateInitializedCore(_configuration).PerformRequestAsync(request, _configuration);
+
+            return await CreateInitializedCore(_configuration).PerformRequestAsync(request, _configuration);
         }
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
@@ -169,15 +168,16 @@ namespace Meadow
                 };
             }
         }
-        
-        private async Task<ConfigurationRequestResult> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request)
+
+        private async Task<ConfigurationRequestResult> PerformConfigurationRequestAsync<TOut>(
+            ConfigurationRequest<TOut> request)
             where TOut : class, new()
         {
             try
             {
                 var config = request.PreConfigure(_configuration);
                 // Run Configuration Request As a Script Request
-                var meadowRequest =  await CreateInitializedCore(_configuration).PerformRequestAsync(request, config);
+                var meadowRequest = await CreateInitializedCore(_configuration).PerformRequestAsync(request, config);
 
                 return new ConfigurationRequestResult
                 {
@@ -212,18 +212,17 @@ namespace Meadow
             core.CreateInsertProcedure<MeadowDatabaseHistory>(_configuration);
 
             core.CreateLastInsertedProcedure<MeadowDatabaseHistory>(_configuration);
-            
+
             core.CreateReadAllProcedure<MeadowDatabaseHistory>(_configuration);
         }
-        
-        
+
+
         private async Task PerformPostDatabaseCreationTasksAsync()
         {
-            
             var core = CreateInitializedCore(_configuration);
 
             await core.CreateTableAsync<MeadowDatabaseHistory>(_configuration);
-            
+
             await core.CreateInsertProcedureAsync<MeadowDatabaseHistory>(_configuration);
 
             await core.CreateLastInsertedProcedureAsync<MeadowDatabaseHistory>(_configuration);
@@ -236,7 +235,7 @@ namespace Meadow
             CreateInitializedCore(_configuration)
                 .DropDatabase(_configuration);
         }
-        
+
         public Task DropDatabaseAsync()
         {
             return CreateInitializedCore(_configuration)
@@ -248,7 +247,7 @@ namespace Meadow
             return CreateInitializedCore(_configuration)
                 .DatabaseExists(_configuration);
         }
-        
+
         public Task<bool> DatabaseExistsAsync()
         {
             return CreateInitializedCore(_configuration)
@@ -265,12 +264,12 @@ namespace Meadow
                 PerformPostDatabaseCreationTasks();
             }
         }
-        
+
         public async Task CreateIfNotExistAsync()
         {
-            var  created =await CreateInitializedCore(_configuration)
+            var created = await CreateInitializedCore(_configuration)
                 .CreateDatabaseIfNotExistsAsync(_configuration);
-            
+
             if (created)
             {
                 await PerformPostDatabaseCreationTasksAsync();
@@ -306,7 +305,7 @@ namespace Meadow
         public async Task BuildUpDatabaseAsync()
         {
             CreateInitializedCore(_configuration);
-            
+
             var lastExecResult = await ReadLastInsertedRecordAsync<MeadowDatabaseHistory>();
 
             int lastAppliedOrder = -1;
@@ -337,17 +336,15 @@ namespace Meadow
 
                 if (info.OrderIndex > lastAppliedOrder)
                 {
-
                     _logger.LogInformation("Applying {InfoOrder}:{InfoName}",
-                        info.Order,info.Name);
+                        info.Order, info.Name);
 
                     var result = await PerformScriptAsync(info);
 
                     if (result.Success)
                     {
-
                         _logger.LogInformation("{InfoOrder}:{InfoName} has been applied successfully.",
-                            info.Order,info.Name);
+                            info.Order, info.Name);
 
                         anyApplied = true;
 
@@ -355,13 +352,12 @@ namespace Meadow
                     }
                     else
                     {
-
-                        _logger.LogError(result.Exception, 
+                        _logger.LogError(result.Exception,
                             "Error Occured While Applying {InfoOrder}:{InfoName}\n {Exception}",
-                        info.Order,info.Name,result.Exception);
-                        
+                            info.Order, info.Name, result.Exception);
+
                         _logger.LogError("*** Buildup process FAILED at {InfoOrder}.***", info.Order);
-                        
+
                         return;
                     }
                 }
@@ -379,15 +375,14 @@ namespace Meadow
 
         private BuildupScriptManager CreateBuildupScriptManager()
         {
-
             var assemblies = new List<Assembly>(_configuration.MacroContainingAssemblies);
-            
+
             // Builtin assemblies
             assemblies.Add(this.GetType().Assembly);
             assemblies.Add(Assembly.GetEntryAssembly());
 
             return new BuildupScriptManager(_configuration.BuildupScriptDirectory,
-                _configuration.MacroPolicy,  assemblies.ToArray());
+                _configuration, assemblies.ToArray());
         }
 
 
@@ -396,7 +391,7 @@ namespace Meadow
             return CreateInitializedCore(_configuration)
                 .EnumerateProcedures(_configuration);
         }
-        
+
         public Task<List<string>> EnumerateProceduresAsync()
         {
             return CreateInitializedCore(_configuration)
@@ -408,7 +403,7 @@ namespace Meadow
             return CreateInitializedCore(_configuration)
                 .EnumerateTables(_configuration);
         }
-        
+
         public Task<List<string>> EnumerateTablesAsync()
         {
             return CreateInitializedCore(_configuration)
