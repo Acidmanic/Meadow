@@ -25,10 +25,10 @@ namespace Meadow.Sql
             DataOwnerNameProvider = dataOwnerNameProvider;
             _logger = logger;
 
-            RelationalIdentifierToStandardFieldMapper = new RelationalRelationalIdentifierToStandardFieldMapper
+            RelationalIdentifierToStandardFieldMapper = new RelationalRelationalIdentifierToStandardFieldMapper2
+                (DataOwnerNameProvider)
             {
-                Separator = FieldNameDelimiter,
-                DataOwnerNameProvider = DataOwnerNameProvider
+                DatabaseFieldNameDelimiter = FieldNameDelimiter
             };
         }
 

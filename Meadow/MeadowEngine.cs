@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.Requests;
@@ -90,6 +91,8 @@ namespace Meadow
             translator.Logger = _logger;
 
             translator.Configuration = _configuration;
+
+            translator.DataOwnerNameProvider = new PluralDataOwnerNameProvider();
             
             request.SetFilterQueryTranslator(translator);
         }

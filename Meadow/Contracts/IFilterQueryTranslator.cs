@@ -1,4 +1,5 @@
 using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -31,6 +32,8 @@ public interface IFilterQueryTranslator
         
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public MeadowConfiguration Configuration { get; set; }
+        
+        public IDataOwnerNameProvider DataOwnerNameProvider { get; set; }
 
         public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree)
         {
@@ -49,6 +52,8 @@ public interface IFilterQueryTranslator
     ILogger Logger { get; set; }
     
     MeadowConfiguration Configuration { get; set; }
+    
+    public IDataOwnerNameProvider DataOwnerNameProvider { get; set; }
 
     string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree);
 }

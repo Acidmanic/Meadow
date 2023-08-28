@@ -10,26 +10,44 @@ using Meadow.Extensions;
 
 namespace Meadow.Sql;
 
-public class FullTreeColumnsByAddress<T> : FullTreeColumnsByAddress
+public class FullTreeMap<T> : FullTreeMap
 {
-    public FullTreeColumnsByAddress(char fieldNameDelimiter) : base(typeof(T), fieldNameDelimiter)
+    public FullTreeMap(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider)
+        : base(typeof(T), fieldNameDelimiter, dataOwnerNameProvider)
     {
     }
 }
 
-public class FullTreeColumnsByAddress
+public class FullTreeMap
 {
     private readonly Dictionary<string, string> _columnsByAddress = new Dictionary<string, string>();
     private readonly Dictionary<string, string> _columnsByHeadlessAddress = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> _addressesByColumnName = new Dictionary<string, string>();
+    private readonly Dictionary<string, FieldKey> _keysByColumnName = new Dictionary<string, FieldKey>();
+    private readonly Dictionary<string, FieldKey> _keysByCapitalColumnName = new Dictionary<string, FieldKey>();
 
 
-    private NameConvention NameConvention { get; }
+    public NameConvention NameConvention { get; }
+    
+    public AddressKeyNodeMap AddressKeyNodeMap { get; }
+    
+    public IEnumerable<string> Columns => new List<string>(_columnsByAddress.Values);
+    public IEnumerable<FieldKey> Keys => new List<FieldKey>(_keysByColumnName.Values);
+    public IEnumerable<string> Addresses => new List<string>(_addressesByColumnName.Values);
 
-    public FullTreeColumnsByAddress(Type type, char fieldNameDelimiter)
+    public Dictionary<string, FieldKey> RelationalMap => new Dictionary<string, FieldKey>(_keysByCapitalColumnName);
+    
+    public ObjectEvaluator Evaluator { get; }
+
+    public FullTreeMap(Type type, char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider)
     {
         var evaluator = new ObjectEvaluator(type);
 
-        NameConvention = new NameConvention(type);
+        Evaluator = evaluator;
+        
+        AddressKeyNodeMap = evaluator.Map;
+        
+        NameConvention = new NameConvention(type, dataOwnerNameProvider);
 
         var counts = CountNodeNameRepetitions(evaluator.Map.Nodes.Where(n => n.IsLeaf));
 
@@ -44,8 +62,17 @@ public class FullTreeColumnsByAddress
             _columnsByAddress.Add(key.ToString().ToLower(), column);
 
             _columnsByHeadlessAddress.Add(headless.ToLower(), column);
+
+            _addressesByColumnName.Add(column.ToLower(), key.ToString());
+
+            _keysByColumnName.Add(column.ToLower(), key);
+
+            _keysByCapitalColumnName.Add(column, key);
         }
     }
+
+
+   
 
     public Result<string> GetColumnName(string headlessAddress)
     {
@@ -69,6 +96,30 @@ public class FullTreeColumnsByAddress
         }
 
         return new Result<string>().FailAndDefaultValue();
+    }
+
+    public Result<string> GetAddressByColumnName(string columnName)
+    {
+        var key = columnName.ToLower();
+
+        if (_addressesByColumnName.ContainsKey(key))
+        {
+            return new Result<string>(true, _addressesByColumnName[key]);
+        }
+
+        return new Result<string>().FailAndDefaultValue();
+    }
+
+    public Result<FieldKey> GetKeyByColumnName(string columnName)
+    {
+        var key = columnName.ToLower();
+
+        if (_keysByColumnName.ContainsKey(key))
+        {
+            return new Result<FieldKey>(true, _keysByColumnName[key]);
+        }
+
+        return new Result<FieldKey>().FailAndDefaultValue();
     }
 
     private string GetDatabaseFieldName(AddressKeyNodeMap map, FieldKey key, bool fullAddress, char delimiter)

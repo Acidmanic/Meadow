@@ -12,6 +12,7 @@ public class CommonSnippetsClassed
     public static CommonSnippetsClassed SaveProcedure { get; } = new CommonSnippetsClassed("SaveProcedure", false);
     public static CommonSnippetsClassed EventSteamScript { get; } = new CommonSnippetsClassed("EventSteamScript", false);
     public static CommonSnippetsClassed FilteringProcedures { get; } = new CommonSnippetsClassed("FilteringProcedures", false);
+    public static CommonSnippetsClassed FullTreeView { get; } = new CommonSnippetsClassed("FullTreeView", false);
     
     public string Name { get; }
     

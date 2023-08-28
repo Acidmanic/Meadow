@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -14,27 +15,30 @@ namespace Meadow.Sql
     {
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
+        
+        public IDataOwnerNameProvider DataOwnerNameProvider { get; set; }
 
         public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree)
         {
+            
+            Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, item.Key);
+
+            if (fullTree)
+            {
+                var columns = new FullTreeMap
+                (filterQuery.EntityType,
+                    Configuration.DatabaseFieldNameDelimiter,
+                    DataOwnerNameProvider);
+                
+                pickColumName = item => columns.GetColumnName(item.Key);
+            }
+
             var sb = new StringBuilder();
 
             var anyFilters = false;
 
             var sep = "";
-
-            var columns =
-                new FullTreeColumnsByAddress(filterQuery.EntityType, Configuration.DatabaseFieldNameDelimiter);
-
-
-            Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, item.Key);
-
-            if (fullTree)
-            {
-                pickColumName = item => columns.GetColumnName(item.Key);
-            }
-
-
+            
             foreach (var filter in filterQuery.Items())
             {
                 anyFilters = true;
