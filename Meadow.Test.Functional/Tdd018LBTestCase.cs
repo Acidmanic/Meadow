@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Configuration;
 using Meadow.DataSource;
 using Meadow.Extensions;
 using Meadow.SqlServer;
@@ -22,7 +23,14 @@ namespace Meadow.Test.Functional
 
             dataReader.InsertData(testcaseData);
 
-            var adapter = new SqlDataStorageAdapter('.', new PluralDataOwnerNameProvider(), new ConsoleLogger());
+            var configuration = new MeadowConfiguration
+            {
+                TableNameProvider = new PluralDataOwnerNameProvider(),
+                DatabaseFieldNameDelimiter = '.',
+                UsesLegacyConditionalStandardRelationalMapping = true
+            };
+            
+            var adapter = new SqlDataStorageAdapter(configuration, new ConsoleLogger());
 
             var manipulator = new FiledManipulationMarker<ProductClassDal>();
 

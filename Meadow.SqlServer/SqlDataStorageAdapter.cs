@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Configuration;
 using Meadow.Sql;
 using Microsoft.Extensions.Logging;
 
@@ -20,8 +21,7 @@ namespace Meadow.SqlServer
             command.Parameters.Add(parameter);
         }
 
-        public SqlDataStorageAdapter(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider,
-            ILogger logger) : base(fieldNameDelimiter, dataOwnerNameProvider, logger)
+        public SqlDataStorageAdapter(MeadowConfiguration configuration, ILogger logger) : base(configuration, logger)
         {
         }
     }

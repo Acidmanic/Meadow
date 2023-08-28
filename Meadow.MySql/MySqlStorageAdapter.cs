@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Configuration;
 using Meadow.Sql;
 using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
@@ -21,9 +22,7 @@ namespace Meadow.MySql
             command.Parameters.Add(parameter);
         }
 
-        public MySqlStorageAdapter(char fieldNameDelimiter,
-            IDataOwnerNameProvider dataOwnerNameProvider, ILogger logger) :
-            base(fieldNameDelimiter, dataOwnerNameProvider, logger)
+        public MySqlStorageAdapter(MeadowConfiguration configuration, ILogger logger) : base(configuration, logger)
         {
         }
     }

@@ -17,9 +17,7 @@ namespace Meadow.SQLite.CarrierInterceptors
 {
     public class SQLiteCommandInterceptor : ICarrierInterceptor<IDbCommand, IDataReader>
     {
-        private readonly ConditionalRelationalToStandardMapper _mapper
-            = new ConditionalRelationalToStandardMapper();
-
+      
         public void InterceptBeforeCommunication(IDbCommand carrier, ObjectEvaluator evaluator,
             MeadowConfiguration configuration)
         {
@@ -40,7 +38,9 @@ namespace Meadow.SQLite.CarrierInterceptors
                         return node.IsLeaf && node.Parent == evaluator.RootNode;
                     }));
 
-                standardData = standardData.StandardToRelational(_mapper, evaluator.RootNode.Type, false);
+                var mapper = configuration.GetRelationalStandardMapper();
+                
+                standardData = standardData.StandardToRelational(mapper, evaluator.RootNode.Type, false);
 
                 var injectedCode = InjectValuesIntoCode(procedure, standardData);
 

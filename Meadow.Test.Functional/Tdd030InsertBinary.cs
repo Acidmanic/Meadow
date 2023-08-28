@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Configuration;
 using Meadow.Requests;
 using Meadow.SqlServer;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -32,7 +33,14 @@ namespace Meadow.Test.Functional
         public override void Main()
         {
 
-            var adapter = new SqlDataStorageAdapter('_', new PluralDataOwnerNameProvider(), new ConsoleLogger());
+            var configuration = new MeadowConfiguration
+            {
+                TableNameProvider = new PluralDataOwnerNameProvider(),
+                DatabaseFieldNameDelimiter = '_',
+                UsesLegacyConditionalStandardRelationalMapping = true
+            };
+            
+            var adapter = new SqlDataStorageAdapter(configuration, new ConsoleLogger());
 
             var filed = new FiledManipulationMarker<Model>();
 

@@ -7,10 +7,11 @@ using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Acidmanic.Utilities.Results;
 using Meadow.Extensions;
+using Meadow.Sql;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Meadow.Sql
+namespace Meadow.RelationalStandardMapping
 {
     public class StandardIndexAccumulator<TModel>
     {

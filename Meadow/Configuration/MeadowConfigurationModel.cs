@@ -9,4 +9,6 @@ public class MeadowConfigurationModel
     public char DatabaseFieldNameDelimiter { get; set; } = '_';
 
     public MacroPolicies MacroPolicy { get; set; } = MacroPolicies.Ignore;
+
+    public bool UsesLegacyConditionalStandardRelationalMapping { get; set; } = false;
 }

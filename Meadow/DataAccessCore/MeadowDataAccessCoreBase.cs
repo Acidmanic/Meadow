@@ -106,8 +106,7 @@ namespace Meadow.DataAccessCore
 
         public IMeadowDataAccessCore Initialize(MeadowConfiguration configuration, ILogger logger)
         {
-            // That must be read from configurations later on
-            DataOwnerNameProvider = new PluralDataOwnerNameProvider();
+            DataOwnerNameProvider = configuration.TableNameProvider;
 
             Logger = logger;
 

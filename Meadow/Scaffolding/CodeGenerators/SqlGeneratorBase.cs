@@ -89,6 +89,8 @@ namespace Meadow.Scaffolding.CodeGenerators
         {
             var process = new ProcessedType
             {
+                //TODO: You need to put TableNameProvider into all generators constructors, and 
+                //TODO: provide it at BuiltInMacroBase level. 
                 NameConvention = new NameConvention(type),
                 IdField = TypeIdentity.FindIdentityLeaf(type),
                 HasId = false

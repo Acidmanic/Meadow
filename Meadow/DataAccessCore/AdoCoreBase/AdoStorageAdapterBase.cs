@@ -2,6 +2,7 @@ using System;
 using System.Data;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Configuration;
 using Meadow.Sql;
 using Microsoft.Extensions.Logging;
 
@@ -12,7 +13,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         private readonly Action<DataPoint, IDbCommand> _writeAction;
         
-        public AdoStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider, ILogger logger, Action<DataPoint, IDbCommand> writeAction) : base(fieldNameDelimiter, dataOwnerNameProvider, logger)
+        public AdoStorageAdapterBase(MeadowConfiguration configuration, ILogger logger, Action<DataPoint, IDbCommand> writeAction) : base(configuration, logger)
         {
             _writeAction = writeAction;
         }

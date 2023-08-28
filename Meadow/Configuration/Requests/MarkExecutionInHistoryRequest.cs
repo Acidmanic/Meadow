@@ -1,5 +1,6 @@
 using System;
 using System.IO.Compression;
+using System.Runtime.InteropServices.ComTypes;
 using Acidmanic.Utilities;
 using Meadow.BuildupScripts;
 using Meadow.Contracts;
@@ -15,7 +16,7 @@ namespace Meadow.Configuration.Requests
         {
             ToStorage = new MeadowDatabaseHistory
             {
-                Script = script.Script.CompressAsync(Compressions.GZip,CompressionLevel.Optimal).Result,
+                Script = script.Script.CompressAsync(Compressions.GZip, CompressionLevel.Optimal).Result,
                 ScriptName = script.Name,
                 ScriptOrder = script.OrderIndex
             };
@@ -24,7 +25,7 @@ namespace Meadow.Configuration.Requests
 
         public override string RequestText
         {
-            get { return new NameConvention(typeof(MeadowDatabaseHistory)).InsertProcedureName; }
+            get => Configuration.GetNameConvention<MeadowDatabaseHistory>().InsertProcedureName;
             protected set { }
         }
     }

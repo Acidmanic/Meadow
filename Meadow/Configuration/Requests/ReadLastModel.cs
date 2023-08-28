@@ -1,4 +1,5 @@
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Requests;
 
 namespace Meadow.Configuration.Requests
@@ -12,7 +13,7 @@ namespace Meadow.Configuration.Requests
 
         public override string RequestText
         {
-            get => new NameConvention(typeof(TModel)).SelectLastProcedureName;
+            get => Configuration.GetNameConvention<TModel>().SelectLastProcedureName;
             protected set { }
         }
     }

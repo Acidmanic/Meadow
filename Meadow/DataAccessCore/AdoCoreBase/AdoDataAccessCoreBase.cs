@@ -20,10 +20,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
-            DataStorageAdapter = new AdoStorageAdapterBase(configuration.DatabaseFieldNameDelimiter,
-                DataOwnerNameProvider,
-                Logger,
-                WriteIntoCommand);
+            DataStorageAdapter = new AdoStorageAdapterBase(configuration,Logger,WriteIntoCommand);
 
             StorageCommunication =
                 new AdoStorageCommunication(InstantiateCommand, InstantiateConnection, OnClearConnectionPool,QuotRoutineNames);

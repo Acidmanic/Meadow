@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore;
+using Meadow.Extensions;
 using Meadow.Requests;
 using Meadow.SQLite.CarrierInterceptors;
 using Meadow.SQLite.Extensions;
@@ -37,11 +38,7 @@ namespace Meadow.SQLite
 
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
-            DataStorageAdapter =
-                new SqLiteStorageAdapter(
-                    configuration.DatabaseFieldNameDelimiter,
-                    DataOwnerNameProvider,
-                    Logger);
+            DataStorageAdapter = new SqLiteStorageAdapter(configuration, Logger);
 
             StorageCommunication = new SQLiteStorageCommunication();
 
@@ -131,7 +128,7 @@ namespace Meadow.SQLite
             if (conInfo.ContainsKey("Data Source"))
             {
                 var filename = conInfo["Data Source"];
-                
+
                 try
                 {
                     return code(filename);
@@ -152,7 +149,7 @@ namespace Meadow.SQLite
             if (conInfo.ContainsKey("Data Source"))
             {
                 var filename = conInfo["Data Source"];
-                
+
                 try
                 {
                     return await code(filename);
@@ -306,7 +303,7 @@ namespace Meadow.SQLite
 
             var procedure = SqLiteProcedure.Parse(script);
 
-            procedure.Name = new NameConvention(type).SelectLastProcedureName;
+            procedure.Name = configuration.GetNameConvention<TModel>().SelectLastProcedureName;
 
             configuration.GetSqLiteProcedureManager().PerformProcedureCreation(procedure);
         }

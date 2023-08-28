@@ -1,10 +1,10 @@
-using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Models;
 using Meadow.Requests;
 
 namespace Meadow.Tools.Assistant.Commands.ExtractBuildScripts
 {
-    public class ReadAllHistoryRequest : MeadowRequest<MeadowVoid, MeadowDatabaseHistory> 
+    public class ReadAllHistoryRequest : MeadowRequest<MeadowVoid, MeadowDatabaseHistory>
     {
         public ReadAllHistoryRequest() : base(true)
         {
@@ -13,7 +13,7 @@ namespace Meadow.Tools.Assistant.Commands.ExtractBuildScripts
 
         public override string RequestText
         {
-            get => new NameConvention(typeof(MeadowDatabaseHistory)).SelectAllProcedureName;
+            get => Configuration.GetNameConvention<MeadowDatabaseHistory>().SelectAllProcedureName;
             protected set { }
         }
     }

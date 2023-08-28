@@ -92,7 +92,7 @@ namespace Meadow
 
             translator.Configuration = _configuration;
 
-            translator.DataOwnerNameProvider = new PluralDataOwnerNameProvider();
+            translator.DataOwnerNameProvider = _configuration.TableNameProvider;
             
             request.SetFilterQueryTranslator(translator);
         }

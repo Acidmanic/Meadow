@@ -11,6 +11,7 @@ namespace Meadow.RelationalStandardMapping
     /// <summary>
     /// [OwnerName][MemberName]....[MemberName]
     /// </summary>
+    [Obsolete]
     public class ConditionalRelationalToStandardMapper : IRelationalIdentifierToStandardFieldMapper
     {
         public char Separator { get; set; } = '_';

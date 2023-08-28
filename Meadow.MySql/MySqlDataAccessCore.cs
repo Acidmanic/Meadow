@@ -26,8 +26,7 @@ namespace Meadow.MySql
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             DataStorageAdapter =
-                new MySqlStorageAdapter(configuration.DatabaseFieldNameDelimiter,
-                    DataOwnerNameProvider, logger: Logger);
+                new MySqlStorageAdapter(configuration, logger: Logger);
 
             StorageCommunication = new MySqlStorageCommunication();
 
@@ -206,7 +205,7 @@ namespace Meadow.MySql
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
             var script = new ReadSequenceProcedureGenerator<TModel>
-                (true, 1, true,false).Generate().Text;
+                (true, 1, true, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -216,7 +215,7 @@ namespace Meadow.MySql
         public override async Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
             var script = new ReadSequenceProcedureGenerator<TModel>
-                (true, 1, true,false).Generate().Text;
+                (true, 1, true, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -232,7 +231,7 @@ namespace Meadow.MySql
             PerformRequest(request, configuration);
         }
 
-        public override async  Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
+        public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
             var script = new ReadProcedureGenerator<TModel>(false).Generate().Text;
 

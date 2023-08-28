@@ -8,6 +8,7 @@ using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
@@ -19,24 +20,19 @@ namespace Meadow.Sql
     {
         private readonly ILogger _logger;
 
-        protected SqlDataStorageAdapterBase(char fieldNameDelimiter, IDataOwnerNameProvider dataOwnerNameProvider,
-            ILogger logger)
+        protected SqlDataStorageAdapterBase(MeadowConfiguration configuration,ILogger logger)
         {
-            FieldNameDelimiter = fieldNameDelimiter;
-            DataOwnerNameProvider = dataOwnerNameProvider;
+            FieldNameDelimiter = configuration.DatabaseFieldNameDelimiter;
+            DataOwnerNameProvider = configuration.TableNameProvider;
             _logger = logger;
 
-            RelationalIdentifierToStandardFieldMapper = new FlatRelationalToStandardMapper
-                (DataOwnerNameProvider)
-            {
-                DatabaseFieldNameDelimiter = FieldNameDelimiter
-            };
+            RelationalIdentifierToStandardFieldMapper = configuration.GetRelationalStandardMapper();
         }
 
         public char FieldNameDelimiter { get; }
 
         public IDataOwnerNameProvider DataOwnerNameProvider { get; }
-
+        
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
         public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion<TModel> fromStorageInclusion,
