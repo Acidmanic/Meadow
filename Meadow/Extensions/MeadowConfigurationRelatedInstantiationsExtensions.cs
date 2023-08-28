@@ -31,4 +31,14 @@ public static class MeadowConfigurationRelatedInstantiationsExtensions
     {
         return new NameConvention(typeof(TEntity), configuration.TableNameProvider);
     }
+
+    public static FullTreeMap GetFullTreeMap(this MeadowConfiguration configuration, Type type)
+    {
+        return new FullTreeMap(type, configuration.DatabaseFieldNameDelimiter, configuration.TableNameProvider);
+    }
+
+    public static FullTreeMap GetFullTreeMap<T>(this MeadowConfiguration configuration)
+    {
+        return new FullTreeMap<T>(configuration.DatabaseFieldNameDelimiter, configuration.TableNameProvider);
+    }
 }

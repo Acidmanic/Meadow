@@ -8,6 +8,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests;
 using Meadow.DataTypeMapping;
+using Meadow.Extensions;
 using Meadow.Requests;
 
 namespace Meadow.DataAccessCore.AdoCoreBase
@@ -86,7 +87,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var procedureName = new NameConvention<TModel>().InsertProcedureName;
+            var procedureName = configuration.GetNameConvention<TModel>().InsertProcedureName;
 
             var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters);
 
@@ -102,7 +103,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var procedureName = new NameConvention<TModel>().SelectLastProcedureName;
+            var procedureName = configuration.GetNameConvention<TModel>().SelectLastProcedureName;
 
             var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
 
@@ -268,7 +269,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var procedureName = new NameConvention<TModel>().InsertProcedureName;
+            var procedureName = configuration.GetNameConvention<TModel>().InsertProcedureName;
             
             var script = GetSqlForCreatingInsertProcedure(procedureName,tableName,parameters);
 
@@ -284,7 +285,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var procedureName = new NameConvention<TModel>().SelectLastProcedureName;
+            var procedureName = configuration.GetNameConvention<TModel>().SelectLastProcedureName;
 
             var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
 

@@ -7,6 +7,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Microsoft.Extensions.Logging;
 
@@ -16,8 +17,6 @@ namespace Meadow.Sql
     {
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
-        
-        public IDataOwnerNameProvider DataOwnerNameProvider { get; set; }
 
         public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree)
         {
@@ -26,10 +25,7 @@ namespace Meadow.Sql
 
             if (fullTree)
             {
-                var columns = new FullTreeMap
-                (filterQuery.EntityType,
-                    Configuration.DatabaseFieldNameDelimiter,
-                    DataOwnerNameProvider);
+                var columns = Configuration.GetFullTreeMap(filterQuery.EntityType);
                 
                 pickColumName = item => columns.GetColumnName(item.Key);
             }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Requests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -20,7 +21,7 @@ namespace Meadow.Test.Functional
             {
                 get
                 {
-                    var nc = new NameConvention<T>();
+                    var nc = Configuration.GetNameConvention<T>();
 
                     if (FullTreeReadWrite())
                     {
@@ -52,7 +53,7 @@ namespace Meadow.Test.Functional
             {
                 get
                 {
-                    var nc = new NameConvention<T>();
+                    var nc = Configuration.GetNameConvention<T>();
 
                     return nc.InsertProcedureName;
                 }

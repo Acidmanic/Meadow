@@ -33,8 +33,6 @@ public interface IFilterQueryTranslator
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public MeadowConfiguration Configuration { get; set; }
         
-        public IDataOwnerNameProvider DataOwnerNameProvider { get; set; }
-
         public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree)
         {
             Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +
@@ -53,7 +51,6 @@ public interface IFilterQueryTranslator
     
     MeadowConfiguration Configuration { get; set; }
     
-    public IDataOwnerNameProvider DataOwnerNameProvider { get; set; }
 
     string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree);
 }

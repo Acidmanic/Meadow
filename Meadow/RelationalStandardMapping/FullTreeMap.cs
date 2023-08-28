@@ -72,8 +72,6 @@ public class FullTreeMap
     }
 
 
-   
-
     public Result<string> GetColumnName(string headlessAddress)
     {
         var key = headlessAddress.ToLower();
