@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
@@ -10,8 +11,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.InsertProcedure)]
     public class InsertProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
-
-        public InsertProcedureGenerator(Type type) : base(type)
+        public InsertProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {
         }
 
@@ -37,8 +37,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyColumns, columns);
             replacementList.Add(_keyValues, values);
-            
-            
         }
 
         protected override string Template => $@"

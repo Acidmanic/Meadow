@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class DeleteProcedureGenerator<TEntity> : DeleteProcedureGenerator
     {
-        public DeleteProcedureGenerator(bool allNotById) : base(typeof(TEntity), allNotById)
+        public DeleteProcedureGenerator(MeadowConfiguration configuration,bool allNotById)
+            : base(typeof(TEntity),configuration, allNotById)
         {
         }
     }
@@ -16,7 +18,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     {
         private bool AllNotById { get; }
 
-        public DeleteProcedureGenerator(Type type, bool byId) : base(type)
+        public DeleteProcedureGenerator(Type type,MeadowConfiguration configuration, bool byId) 
+            : base(type,configuration)
         {
             AllNotById = !byId;
         }

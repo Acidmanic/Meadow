@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -7,27 +8,27 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public abstract class MySqlProcedureGeneratorBase:ByTemplateSqlGeneratorBase
+    public abstract class MySqlProcedureGeneratorBase : ByTemplateSqlGeneratorBase
     {
-        
-        protected ProcessedType Processed { get; }
+        protected ProcessedType Processed { get;  }
+
         protected readonly string KeyCreationHeader = GenerateKey();
         protected readonly string KeyProcedureName = GenerateKey();
-        
+
         protected Type EntityType { get; }
-        
-        public MySqlProcedureGeneratorBase(Type entityType) : base(new MySqlDbTypeNameMapper())
+
+        public MySqlProcedureGeneratorBase(Type entityType,MeadowConfiguration configuration) : base(new MySqlDbTypeNameMapper(),configuration)
         {
             EntityType = entityType;
-
-            Processed = Process(entityType);
+            Processed = Process(EntityType);
         }
+
 
         protected string GetCreationHeader()
         {
             if (RepetitionHandling == RepetitionHandling.Skip)
             {
-                LogUnSupportedRepetitionHandling("MySql","Procedures",RepetitionHandling.Skip);
+                LogUnSupportedRepetitionHandling("MySql", "Procedures", RepetitionHandling.Skip);
             }
 
             if (RepetitionHandling == RepetitionHandling.Alter)
@@ -41,16 +42,15 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            
-            replacementList.Add(KeyProcedureName,GetProcedureName());
-            
-            replacementList.Add(KeyCreationHeader,GetCreationHeader());
+            replacementList.Add(KeyProcedureName, GetProcedureName());
+
+            replacementList.Add(KeyCreationHeader, GetCreationHeader());
 
             AddBodyReplacements(replacementList);
         }
 
         protected abstract string GetProcedureName();
-        
+
         protected abstract void AddBodyReplacements(Dictionary<string, string> replacementList);
     }
 }

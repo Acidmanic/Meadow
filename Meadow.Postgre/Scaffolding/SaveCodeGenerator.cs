@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Postgre.Scaffolding
@@ -8,10 +9,10 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
-        public SaveCodeGenerator(Type type) : base(type)
+        public SaveCodeGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {
         }
-        
+
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNameValuesSet = GenerateKey();
@@ -40,10 +41,10 @@ namespace Meadow.Postgre.Scaffolding
             if (ProcessedType.NoneIdUniqueParameters.Count == 0)
             {
                 var id = ProcessedType.IdParameter.Name;
-                
+
                 whereExpression = $"\"{id}\" = \"par_{id}\"";
             }
-            
+
             replacementList.Add(_keyWhereExpression, whereExpression);
 
 
@@ -51,7 +52,7 @@ namespace Meadow.Postgre.Scaffolding
                 .Select(p => p.Name.DoubleQuot() + " = " + ("par_" + p.Name).DoubleQuot()));
 
             replacementList.Add(_keyNameValuesSet, nameValuesSet);
-            
+
             var columns = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name.DoubleQuot()));
             var values = string.Join(',', ProcessedType.NoneIdParameters.Select(p => ("par_" + p.Name).DoubleQuot()));
 

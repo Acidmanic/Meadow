@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -9,7 +10,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class EventStreamSqlScriptGenerator<TEvent> : EventStreamSqlScriptGenerator
     {
-        public EventStreamSqlScriptGenerator() : base(typeof(TEvent))
+        public EventStreamSqlScriptGenerator(MeadowConfiguration configuration) : base(typeof(TEvent), configuration)
         {
         }
     }
@@ -35,14 +36,15 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected ProcessedType ProcessedType { get; }
 
-        public EventStreamSqlScriptGenerator(Type type) : base(new SqlDbTypeNameMapper())
+        public EventStreamSqlScriptGenerator(Type type, MeadowConfiguration configuration)
+            : base(new SqlDbTypeNameMapper(), configuration)
         {
-            ProcessedType = Process(type);
-
             if (RepetitionHandling != RepetitionHandling.Create)
             {
                 LogUnSupportedRepetitionHandling("EventStream");
             }
+
+            ProcessedType = Process(type);
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)

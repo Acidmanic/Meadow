@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Models;
 
@@ -8,7 +9,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class SaveProcedureGenerator<TEntity> : SaveProcedureGenerator
     {
-        public SaveProcedureGenerator() : base(typeof(TEntity))
+        public SaveProcedureGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
         {
         }
     }
@@ -16,8 +17,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
-
-        public SaveProcedureGenerator(Type type) : base(type)
+        public SaveProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {
         }
 
@@ -42,7 +42,6 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
             var parameters = string.Join(',', ProcessedType.Parameters.Select(p => ParameterNameTypeJoint(p, "@")));
@@ -55,20 +54,20 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
             replacementList.Add(_keyIdFieldType, ProcessedType.IdParameter.Type);
-            
-            replacementList.Add(_keyWhereClause,GetWhereClause(ProcessedType));
-            
+
+            replacementList.Add(_keyWhereClause, GetWhereClause(ProcessedType));
+
             var columns = string.Join(',', ProcessedType.NoneIdParameters
                 .Select(p => p.Name));
-            
+
             var values = string.Join(',', ProcessedType.NoneIdParameters
-                .Select(p => "@"+p.Name));
-            
-            replacementList.Add(_keyColumns,columns);
-            
-            replacementList.Add(_keyValues,values);
-            
-            replacementList.Add(_keyIdColumn,ProcessedType.IdField.Name);
+                .Select(p => "@" + p.Name));
+
+            replacementList.Add(_keyColumns, columns);
+
+            replacementList.Add(_keyValues, values);
+
+            replacementList.Add(_keyIdColumn, ProcessedType.IdField.Name);
         }
 
         private bool IsString(Parameter p)

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -11,17 +12,21 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamCodeGenerator : ByTemplateSqlGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
+        protected ProcessedType ProcessedType { get; }
 
+        private readonly Type _type;
 
-        public EventStreamCodeGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public EventStreamCodeGenerator(Type type, MeadowConfiguration configuration)
+            : base(new PostgreDbTypeNameMapper(), configuration)
         {
-            ProcessedType = Process(type);
+            _type = type;
 
             if (RepetitionHandling != RepetitionHandling.Create)
             {
                 LogUnSupportedRepetitionHandling("EventStream");
             }
+
+            ProcessedType = Process(_type);
         }
 
 

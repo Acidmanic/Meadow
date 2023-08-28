@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -14,7 +15,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         public bool OrderAscending { get; }
 
 
-        public ReadSequenceProcedureGenerator(Type type, bool byId, int top, bool orderAscending) : base(type)
+        public ReadSequenceProcedureGenerator(Type type, MeadowConfiguration configuration,
+            bool byId, int top, bool orderAscending) : base(type, configuration)
         {
             ById = byId;
             Top = top;

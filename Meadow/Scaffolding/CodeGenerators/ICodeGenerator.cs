@@ -11,9 +11,5 @@ namespace Meadow.Scaffolding.CodeGenerators
         
         Code Generate();
         
-        /// <summary>
-        /// This should be delivered to instance before making a call to Generate method.
-        /// </summary>
-        MeadowConfiguration Configuration { get; set; }
     }
 }

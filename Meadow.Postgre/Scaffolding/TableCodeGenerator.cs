@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -11,13 +12,13 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.CreateTable)]
     public class TableCodeGenerator : ByTemplateSqlGeneratorBase
     {
-        private ProcessedType ProcessedType { get; }
+        protected ProcessedType ProcessedType { get; }
 
-        public TableCodeGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public TableCodeGenerator(Type type, MeadowConfiguration configuration)
+            : base(new PostgreDbTypeNameMapper(), configuration)
         {
             ProcessedType = Process(type);
         }
-
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
@@ -54,9 +55,8 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            
-            replacementList.Add(_keyCreationHeader,GetCreationHeader());
-            
+            replacementList.Add(_keyCreationHeader, GetCreationHeader());
+
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 
             replacementList.Add(_keyParameters, GetParameters());
@@ -69,7 +69,7 @@ namespace Meadow.Postgre.Scaffolding
             if (RepetitionHandling == RepetitionHandling.Alter)
             {
                 creationHeader = $"drop table if exists \"{ProcessedType.NameConvention.TableName}\";" +
-                                 $"\ncreate table"  ;
+                                 $"\ncreate table";
             }
 
             if (RepetitionHandling == RepetitionHandling.Skip)

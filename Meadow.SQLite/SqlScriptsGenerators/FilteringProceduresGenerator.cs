@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -9,34 +10,37 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 {
     public class FilteringProceduresGenerator<TEntity> : FilteringProceduresGenerator
     {
-        public FilteringProceduresGenerator() : base(typeof(TEntity))
+        public FilteringProceduresGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
         {
         }
     }
-    
+
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
-    public class FilteringProceduresGenerator:ByTemplateSqlGeneratorBase
+    public class FilteringProceduresGenerator : ByTemplateSqlGeneratorBase
     {
         protected ProcessedType ProcessedType { get; }
 
-        public FilteringProceduresGenerator(Type type) : base(new SqLiteTypeNameMapper())
+        public FilteringProceduresGenerator(Type type, MeadowConfiguration configuration)
+            : base(new SqLiteTypeNameMapper(), configuration)
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
                 LogUnSupportedRepetitionHandling("FilteringProcedures");
             }
-            
+
             ProcessedType = Process(type);
         }
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
 
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName,ProcessedType.NameConvention.TableName);
-            
-            replacementList.Add(_keyIdFieldName, ProcessedType.HasId?ProcessedType.IdParameter.Name:"[NO-ID-FIELD]");
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+
+            replacementList.Add(_keyIdFieldName,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
         }
 
         protected override string Template => $@"

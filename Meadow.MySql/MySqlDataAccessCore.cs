@@ -166,7 +166,7 @@ namespace Meadow.MySql
 
         public override void CreateTable<TModel>(MeadowConfiguration configuration)
         {
-            var script = new TableScriptGenerator<TModel>().Generate().Text;
+            var script = new TableScriptGenerator<TModel>(configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -175,7 +175,7 @@ namespace Meadow.MySql
 
         public override async Task CreateTableAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new TableScriptGenerator<TModel>().Generate().Text;
+            var script = new TableScriptGenerator<TModel>(configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -184,7 +184,7 @@ namespace Meadow.MySql
 
         public override void CreateInsertProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new InsertProcedureGenerator<TModel>().Generate().Text;
+            var script = new InsertProcedureGenerator<TModel>(configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -195,7 +195,7 @@ namespace Meadow.MySql
         {
             var type = typeof(TModel);
 
-            var script = new InsertProcedureGenerator<TModel>().Generate().Text;
+            var script = new InsertProcedureGenerator<TModel>(configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -205,7 +205,7 @@ namespace Meadow.MySql
         public override void CreateLastInsertedProcedure<TModel>(MeadowConfiguration configuration)
         {
             var script = new ReadSequenceProcedureGenerator<TModel>
-                (true, 1, true, false).Generate().Text;
+                (configuration,true, 1, true, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -215,7 +215,7 @@ namespace Meadow.MySql
         public override async Task CreateLastInsertedProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
             var script = new ReadSequenceProcedureGenerator<TModel>
-                (true, 1, true, false).Generate().Text;
+                (configuration,true, 1, true, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -224,7 +224,7 @@ namespace Meadow.MySql
 
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator<TModel>(false).Generate().Text;
+            var script = new ReadProcedureGenerator<TModel>(configuration,false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -233,7 +233,7 @@ namespace Meadow.MySql
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator<TModel>(false).Generate().Text;
+            var script = new ReadProcedureGenerator<TModel>(configuration,false).Generate().Text;
 
             var request = new SqlRequest(script);
 

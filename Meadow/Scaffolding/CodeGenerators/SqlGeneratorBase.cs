@@ -1,14 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
-using Meadow.Contracts;
 using Meadow.DataTypeMapping;
-using Meadow.DataTypeMapping.Attributes;
 using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -18,16 +14,18 @@ namespace Meadow.Scaffolding.CodeGenerators
 {
     public abstract class SqlGeneratorBase : ICodeGenerator
     {
-        protected SqlGeneratorBase(IDbTypeNameMapper typeNameMapper)
+        protected SqlGeneratorBase(IDbTypeNameMapper typeNameMapper,MeadowConfiguration configuration)
         {
             TypeNameMapper = typeNameMapper;
+            Configuration = configuration;
         }
 
         public RepetitionHandling RepetitionHandling { get; set; } = RepetitionHandling.Create;
         
         public abstract Code Generate();
-        public MeadowConfiguration Configuration { get; set; }
 
+
+        protected MeadowConfiguration Configuration { get; }
 
         public IDbTypeNameMapper TypeNameMapper { get; }
 

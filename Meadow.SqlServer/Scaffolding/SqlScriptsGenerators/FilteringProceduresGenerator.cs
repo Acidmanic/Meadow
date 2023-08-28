@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -10,23 +11,24 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class FilteringProceduresGenerator<TEntity> : FilteringProceduresGenerator
     {
-        public FilteringProceduresGenerator() : base(typeof(TEntity))
+        public FilteringProceduresGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
         {
         }
     }
-    
+
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
-    public class FilteringProceduresGenerator:ByTemplateSqlGeneratorBase
+    public class FilteringProceduresGenerator : ByTemplateSqlGeneratorBase
     {
         protected ProcessedType ProcessedType { get; }
 
-        public FilteringProceduresGenerator(Type type) : base(new SqlDbTypeNameMapper())
+        public FilteringProceduresGenerator(Type type, MeadowConfiguration configuration)
+            : base(new SqlDbTypeNameMapper(), configuration)
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
                 LogUnSupportedRepetitionHandling("FilteringProcedures");
             }
-            
+
             ProcessedType = Process(type);
         }
 
@@ -34,15 +36,17 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyEntityParameters = GenerateKey();
 
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName,ProcessedType.NameConvention.TableName);
-            
-            replacementList.Add(_keyIdFieldName, ProcessedType.HasId?ProcessedType.IdParameter.Name:"[NO-ID-FIELD]");
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+
+            replacementList.Add(_keyIdFieldName,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
 
             var entityParameters = ProcessedType.Parameters.Select(p => p.Name);
-            
-            replacementList.Add(_keyEntityParameters,string.Join(',',entityParameters));
+
+            replacementList.Add(_keyEntityParameters, string.Join(',', entityParameters));
         }
 
         protected override string Template => $@"

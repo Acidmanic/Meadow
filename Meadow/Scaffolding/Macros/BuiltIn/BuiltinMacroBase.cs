@@ -123,14 +123,13 @@ public abstract class BuiltinMacroBase : MacroBase
                 }
             }
         }
+
         return generators;
     }
 
 
     private StringBuilder Append(StringBuilder sb, ICodeGenerator cg)
     {
-        cg.Configuration = Configuration;
-        
         var code = cg.Generate();
 
         Title(sb, code.Name);
@@ -165,7 +164,9 @@ public abstract class BuiltinMacroBase : MacroBase
 
     private Result<ConstructorInfo> FindConstructor(Type cgType, bool byIdAware)
     {
-        var argumentTypes = byIdAware ? new[] { typeof(Type), typeof(bool) } : new[] { typeof(Type) };
+        var argumentTypes = byIdAware
+            ? new[] { typeof(Type), typeof(MeadowConfiguration), typeof(bool) }
+            : new[] { typeof(Type), typeof(MeadowConfiguration) };
 
         var constructor = cgType.GetConstructor(argumentTypes);
 
@@ -173,9 +174,9 @@ public abstract class BuiltinMacroBase : MacroBase
         {
             var message = byIdAware
                 ? "ById-Aware code generators need to have " +
-                  "a constructor(Type,bool) to be adoptable with built-in macros."
+                  "a constructor(Type,MeadowConfiguration,bool) to be adoptable with built-in macros."
                 : "ById-Agnostic code generators need to have " +
-                  "a constructor(Type) to be adoptable with built-in macros.";
+                  "a constructor(Type,MeadowConfiguration) to be adoptable with built-in macros.";
 
             return new Result<ConstructorInfo>().FailAndDefaultValue();
         }
@@ -183,14 +184,15 @@ public abstract class BuiltinMacroBase : MacroBase
         return new Result<ConstructorInfo>(true, constructor);
     }
 
-    private Func<Type, ICodeGenerator> CreateFactory(ConstructorInfo constructor, bool byIdAware, bool byId)
+    private Func<Type, ICodeGenerator> CreateFactory(ConstructorInfo constructor,
+        bool byIdAware, bool byId)
     {
         if (byIdAware)
         {
-            return tModel => constructor.Invoke(new object[] { tModel, byId }) as ICodeGenerator;
+            return tModel => constructor.Invoke(new object[] { tModel, Configuration, byId }) as ICodeGenerator;
         }
 
-        return tModel => constructor.Invoke(new object[] { tModel }) as ICodeGenerator;
+        return tModel => constructor.Invoke(new object[] { tModel, Configuration }) as ICodeGenerator;
     }
 
     protected Dictionary<CommonSnippets, CodeGeneratorConstruction> AvailableCodeGeneratorsCatalog()

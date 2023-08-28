@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class DeleteProcedureGenerator<TEntity> : DeleteProcedureGenerator
     {
-        public DeleteProcedureGenerator(bool byId) : base(typeof(TEntity), byId)
+        public DeleteProcedureGenerator(MeadowConfiguration configuration, bool byId)
+            : base(typeof(TEntity), configuration, byId)
         {
         }
     }
@@ -16,7 +18,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     {
         public bool ById { get; }
 
-        public DeleteProcedureGenerator(Type type, bool byId) : base(type)
+        public DeleteProcedureGenerator(Type type, MeadowConfiguration configuration, bool byId)
+            : base(type, configuration)
         {
             ById = byId;
         }

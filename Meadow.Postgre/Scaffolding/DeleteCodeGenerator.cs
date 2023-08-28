@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Postgre.Scaffolding
@@ -9,7 +10,8 @@ namespace Meadow.Postgre.Scaffolding
     {
         private bool ById { get; }
 
-        public DeleteCodeGenerator(Type type, bool byId) : base(type)
+        public DeleteCodeGenerator(Type type,MeadowConfiguration configuration, bool byId)
+            : base(type,configuration)
         {
             ById = byId;
         }

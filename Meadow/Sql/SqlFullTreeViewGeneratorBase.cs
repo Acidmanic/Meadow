@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Configuration;
 using Meadow.DataTypeMapping;
+using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
@@ -25,17 +27,17 @@ namespace Meadow.Sql
         private readonly string _keyTaleTemplateText = GenerateKey();
         private readonly string _keyViewName = GenerateKey();
 
-        public SqlFullTreeViewGeneratorBase(Type type, IDbTypeNameMapper mapper) : base(mapper)
+        public SqlFullTreeViewGeneratorBase(Type type, MeadowConfiguration configuration, IDbTypeNameMapper mapper)
+            : base(mapper, configuration)
         {
             EntityType = type;
-            ProcessedType = Process(type);
-            FullTreeMap = new FullTreeMap(EntityType, '_',
-                ProcessedType.NameConvention.TableNameProvider);
+
+            ProcessedType = Process(EntityType);
+            FullTreeMap = configuration.GetFullTreeMap(EntityType);
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-
             Func<string, string> q = s => s;
 
             if (DoubleQuoteIdentifiers)
@@ -44,9 +46,9 @@ namespace Meadow.Sql
             }
 
             var tableName = ProcessedType.NameConvention.TableName;
-            
+
             var viewName = tableName + "FullTree";
-            
+
             replacementList.Add(_keyTableName, q(tableName));
             replacementList.Add(_keyViewName, q(viewName));
 
@@ -62,7 +64,7 @@ namespace Meadow.Sql
             replacementList.Add(_keyTaleTemplateText, TaleTemplateText());
         }
 
-        private string GetInnerJoins(Func<string,string> q)
+        private string GetInnerJoins(Func<string, string> q)
         {
             var ev = FullTreeMap.Evaluator;
             var rootNode = ev.RootNode;
@@ -88,14 +90,15 @@ namespace Meadow.Sql
                     nodePointedAt = joinNode;
                 }
 
-                string joinTerm = GetJoinTerm(joinNode, pointerNode, nodePointedAt,q);
+                string joinTerm = GetJoinTerm(joinNode, pointerNode, nodePointedAt, q);
                 joins += "\n        " + joinTerm;
             }
 
             return joins;
         }
 
-        private string GetJoinTerm(AccessNode joinNode, AccessNode pointerNode, AccessNode nodePointedAt,Func<string,string> q)
+        private string GetJoinTerm(AccessNode joinNode, AccessNode pointerNode, AccessNode nodePointedAt,
+            Func<string, string> q)
         {
             var joinTableName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(joinNode.Type);
             var pointerTableName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(pointerNode.Type);
@@ -144,11 +147,11 @@ namespace Meadow.Sql
             return
                 "-- ---------------------------------------------------------------------------------------------------------------------";
         }
-        
+
         protected virtual bool DoubleQuoteIdentifiers => false;
 
         protected virtual string AliasQuote => "'";
-        
+
         protected override string Template => $@"
 {_keyLeadingTemplateText}
 CREATE VIEW {_keyViewName} AS 

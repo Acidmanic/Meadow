@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -14,18 +15,18 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             "-- ----------------------------------------------------------" +
             "------------------------------------------------------------";
 
-        private ProcessedType ProcessedType { get; }
+        protected ProcessedType ProcessedType { get; }
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdParameters = GenerateKey();
         private readonly string _keyNoneIdParameters = GenerateKey();
         private readonly string _keyCreationHeader = GenerateKey();
 
-        public TableScriptGenerator(Type type) : base(new SqLiteTypeNameMapper())
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration) : base(new SqLiteTypeNameMapper(),
+            configuration)
         {
             ProcessedType = Process(type);
         }
-
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {

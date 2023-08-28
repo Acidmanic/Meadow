@@ -257,7 +257,7 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new TableScriptGenerator(type).Generate().Text;
+            var script = new TableScriptGenerator(type, configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -268,7 +268,7 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new TableScriptGenerator(type).Generate().Text;
+            var script = new TableScriptGenerator(type, configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -279,7 +279,7 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new InsertProcedureGenerator(type).Generate().Text;
+            var script = new InsertProcedureGenerator(type, configuration).Generate().Text;
 
             script = ClearGo(script);
 
@@ -297,7 +297,7 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new ReadSequenceProcedureGenerator(type, false, 1, false).Generate().Text;
+            var script = new ReadSequenceProcedureGenerator(type, configuration, false, 1, false).Generate().Text;
 
             script = ClearGo(script);
 
@@ -315,7 +315,7 @@ namespace Meadow.SQLite
 
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator(typeof(TModel), false).Generate().Text;
+            var script = new ReadProcedureGenerator(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -324,7 +324,7 @@ namespace Meadow.SQLite
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator(typeof(TModel), false).Generate().Text;
+            var script = new ReadProcedureGenerator(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 

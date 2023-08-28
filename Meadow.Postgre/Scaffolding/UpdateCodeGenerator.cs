@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Postgre.Scaffolding
@@ -8,7 +9,7 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
     public class UpdateCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
-        public UpdateCodeGenerator(Type type) : base(type)
+        public UpdateCodeGenerator(Type type,MeadowConfiguration configuration) : base(type,configuration)
         {
         }
 

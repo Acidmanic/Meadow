@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros;
@@ -11,7 +12,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class TableScriptGenerator<TEntity> : TableScriptGenerator
     {
-        public TableScriptGenerator(bool appendSplit) : base(typeof(TEntity), appendSplit)
+        public TableScriptGenerator(MeadowConfiguration configuration, bool appendSplit)
+            : base(typeof(TEntity), configuration, appendSplit)
         {
         }
     }
@@ -19,7 +21,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.CreateTable)]
     public class CrudTableScriptGenerator : TableScriptGenerator
     {
-        public CrudTableScriptGenerator(Type type) : base(type, true)
+        public CrudTableScriptGenerator(Type type, MeadowConfiguration configuration) 
+            : base(type, configuration, true)
         {
         }
     }
@@ -30,7 +33,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly Type _type;
         private readonly bool _appendSplitter;
 
-        public TableScriptGenerator(Type type, bool appendSplitter) : base(new SqlDbTypeNameMapper())
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration, bool appendSplitter) :
+            base(new SqlDbTypeNameMapper(), configuration)
         {
             _type = type;
             _appendSplitter = appendSplitter;
@@ -41,6 +45,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keySplitTail = GenerateKey();
         private readonly string _keyCreationHeader = GenerateKey();
+
+
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {

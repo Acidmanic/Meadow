@@ -12,14 +12,15 @@ using Meadow.SqlServer.Scaffolding.SqlScriptsGenerators;
 
 namespace Meadow.SqlServer
 {
-    public class SqlServerDataAccessCore:AdoDataAccessCoreBase
+    public class SqlServerDataAccessCore : AdoDataAccessCoreBase
     {
-        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; } 
+        protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; }
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
+
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator(typeof(TModel),false).Generate().Text;
+            var script = new ReadProcedureGenerator(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -28,7 +29,7 @@ namespace Meadow.SqlServer
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator(typeof(TModel),false).Generate().Text;
+            var script = new ReadProcedureGenerator(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -75,28 +76,33 @@ namespace Meadow.SqlServer
             return $@"DROP DATABASE {databaseName};";
         }
 
-        protected override string GetSqlForCreatingTable(string tableName, TypeDatabaseDefinition parameters)
+        protected override string GetSqlForCreatingTable(string tableName,
+            TypeDatabaseDefinition parameters, MeadowConfiguration configuration)
         {
-            var script = new TableScriptGenerator(parameters.CorrespondingType,false).Generate().Text;
+            var script = new TableScriptGenerator(parameters.CorrespondingType, configuration, false).Generate().Text;
 
             return script;
         }
 
-        protected override string GetSqlForCreatingInsertProcedure(string procedureName, string tableName, TypeDatabaseDefinition parameters)
+        protected override string GetSqlForCreatingInsertProcedure(string procedureName,
+            string tableName, TypeDatabaseDefinition parameters, MeadowConfiguration configuration)
         {
-            var script = new InsertProcedureGenerator(parameters.CorrespondingType).Generate().Text;
-            
+            var cg = new InsertProcedureGenerator(parameters.CorrespondingType, configuration);
+
+            var script = cg.Generate().Text;
+
             script = ClearGo(script);
 
             return script;
         }
 
         protected override string GetSqlForCreatingGetLastInsertedProcedure(string procedureName, string tableName,
-            TypeDatabaseDefinition definition)
+            TypeDatabaseDefinition definition, MeadowConfiguration configuration)
         {
-          
-            var script = new ReadSequenceProcedureGenerator(definition.CorrespondingType, 1, false)
-                .Generate().Text;
+            var cg = new ReadSequenceProcedureGenerator(definition.CorrespondingType, configuration, 1, false);
+
+
+            var script = cg.Generate().Text;
 
             script = ClearGo(script);
 
@@ -117,11 +123,11 @@ namespace Meadow.SqlServer
         {
             return new SqlDbTypeNameMapper();
         }
-        
+
         private string ClearGo(string script)
         {
             return script
-                .Split(new string[] {"GO","--SPLIT","go","Go","gO"}, StringSplitOptions.RemoveEmptyEntries)
+                .Split(new string[] { "GO", "--SPLIT", "go", "Go", "gO" }, StringSplitOptions.RemoveEmptyEntries)
                 .FirstOrDefault(s => !string.IsNullOrEmpty(s) && !string.IsNullOrWhiteSpace(s))
                 ?.Trim();
         }

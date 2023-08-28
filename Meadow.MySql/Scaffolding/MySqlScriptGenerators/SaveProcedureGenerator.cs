@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Models;
 
@@ -8,7 +9,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class SaveProcedureGenerator<TEntity> : SaveProcedureGenerator
     {
-        public SaveProcedureGenerator() : base(typeof(TEntity))
+        public SaveProcedureGenerator(MeadowConfiguration configuration)
+            : base(typeof(TEntity), configuration)
         {
         }
     }
@@ -16,8 +18,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveProcedureGenerator : MySqlProcedureGeneratorBase
     {
-
-        public SaveProcedureGenerator(Type type) : base(type)
+        public SaveProcedureGenerator(Type type, MeadowConfiguration configuration)
+            : base(type, configuration)
         {
         }
 
@@ -39,9 +41,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-
             replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
-            
+
             var parameters = string.Join(',', Processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);

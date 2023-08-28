@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
 
@@ -12,7 +13,9 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         public bool OrderAscending { get; }
 
 
-        public ReadSequenceProcedureGenerator(Type type, int count, bool orderAscending) : base(type)
+        public ReadSequenceProcedureGenerator(Type type, MeadowConfiguration configuration, int count,
+            bool orderAscending)
+            : base(type, configuration)
         {
             Count = count;
             OrderAscending = orderAscending;

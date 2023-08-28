@@ -21,17 +21,18 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
-            DataStorageAdapter = new AdoStorageAdapterBase(configuration,Logger,WriteIntoCommand);
+            DataStorageAdapter = new AdoStorageAdapterBase(configuration, Logger, WriteIntoCommand);
 
             StorageCommunication =
-                new AdoStorageCommunication(InstantiateCommand, InstantiateConnection, OnClearConnectionPool,QuotRoutineNames);
+                new AdoStorageCommunication(InstantiateCommand, InstantiateConnection, OnClearConnectionPool,
+                    QuotRoutineNames);
 
 
             return this;
         }
 
         protected virtual bool QuotRoutineNames => false;
-        
+
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
             var request = new CreateDatabaseRequest(GetSqlForCreatingDatabase);
@@ -74,7 +75,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var script = GetSqlForCreatingTable(tableName, parameters);
+            var script = GetSqlForCreatingTable(tableName, parameters, configuration);
 
             var request = new SqlRequest(script);
 
@@ -89,7 +90,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var procedureName = configuration.GetNameConvention<TModel>().InsertProcedureName;
 
-            var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters);
+            var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters, configuration);
 
             var request = new SqlRequest(script);
 
@@ -105,7 +106,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var procedureName = configuration.GetNameConvention<TModel>().SelectLastProcedureName;
 
-            var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
+            var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters, configuration);
 
             var request = new SqlRequest(script);
 
@@ -190,13 +191,13 @@ namespace Meadow.DataAccessCore.AdoCoreBase
         protected abstract string GetSqlForDroppingDatabase(string databaseName);
 
         protected abstract string GetSqlForCreatingTable(string tableName,
-            TypeDatabaseDefinition parameters);
+            TypeDatabaseDefinition parameters, MeadowConfiguration configuration);
 
         protected abstract string GetSqlForCreatingInsertProcedure(string procedureName, string tableName,
-            TypeDatabaseDefinition parameters);
+            TypeDatabaseDefinition parameters, MeadowConfiguration configuration);
 
         protected abstract string GetSqlForCreatingGetLastInsertedProcedure(string procedureName, string tableName,
-            TypeDatabaseDefinition definition);
+            TypeDatabaseDefinition definition, MeadowConfiguration configuration);
 
 
         protected abstract string GetSqlForListingAllProcedureNames();
@@ -256,7 +257,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
-            var script = GetSqlForCreatingTable(tableName, parameters);
+            var script = GetSqlForCreatingTable(tableName, parameters, configuration);
 
             var request = new SqlRequest(script);
 
@@ -270,10 +271,10 @@ namespace Meadow.DataAccessCore.AdoCoreBase
             var tableName = DataOwnerNameProvider.GetNameForOwnerType(typeof(TModel));
 
             var procedureName = configuration.GetNameConvention<TModel>().InsertProcedureName;
-            
-            var script = GetSqlForCreatingInsertProcedure(procedureName,tableName,parameters);
 
-            
+            var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters, configuration);
+
+
             var request = new SqlRequest(script);
 
             await PerformRequestAsync(request, configuration);
@@ -287,7 +288,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var procedureName = configuration.GetNameConvention<TModel>().SelectLastProcedureName;
 
-            var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters);
+            var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters, configuration);
 
             var request = new SqlRequest(script);
 

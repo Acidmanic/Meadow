@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class UpdateProcedureGenerator<TEntity> : UpdateProcedureGenerator
     {
-        public UpdateProcedureGenerator() : base(typeof(TEntity))
+        public UpdateProcedureGenerator(MeadowConfiguration configuration)
+            : base(typeof(TEntity), configuration)
         {
         }
     }
@@ -15,7 +17,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
     public class UpdateProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
     {
-        public UpdateProcedureGenerator(Type type) : base(type)
+        public UpdateProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {
         }
 

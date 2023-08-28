@@ -39,7 +39,8 @@ namespace Meadow.Postgre
 
         protected override string GetSqlForDatabaseExists(string databaseName)
         {
-            return $"SELECT true as \"Value\" where (SELECT Count(datname) FROM pg_database WHERE datname = '{databaseName}') > 0;";
+            return
+                $"SELECT true as \"Value\" where (SELECT Count(datname) FROM pg_database WHERE datname = '{databaseName}') > 0;";
         }
 
         protected override string GetSqlForDroppingDatabase(string databaseName)
@@ -52,7 +53,8 @@ namespace Meadow.Postgre
             return "par_" + columnName;
         }
 
-        protected override string GetSqlForCreatingTable(string tableName, TypeDatabaseDefinition parameters)
+        protected override string GetSqlForCreatingTable(string tableName, TypeDatabaseDefinition parameters,
+            MeadowConfiguration configuration)
         {
             var sql = $"CREATE TABLE \"{tableName}\"(";
 
@@ -70,11 +72,11 @@ namespace Meadow.Postgre
 
             return sql;
         }
-        
+
         protected override string GetSqlForCreatingInsertProcedure(
-            string procedureName, 
+            string procedureName,
             string tableName,
-            TypeDatabaseDefinition parameters)
+            TypeDatabaseDefinition parameters, MeadowConfiguration configuration)
         {
             var sql = $"create or replace function \"{procedureName}\"(";
 
@@ -82,59 +84,61 @@ namespace Meadow.Postgre
 
             var parameterDefinition = string.Join(',', parameters.FieldTypes
                 .Where(field => field.Value != parameters.IdField)
-                .Select(field =>AsProcedureParameterName(field.Key).DoubleQuot() + " " + field.Value.DbTypeName));
+                .Select(field => AsProcedureParameterName(field.Key).DoubleQuot() + " " + field.Value.DbTypeName));
 
-            sql += parameterDefinition + ") returns setof "+tableName.DoubleQuot()+" as $$ \n begin \n return query \n";
+            sql += parameterDefinition + ") returns setof " + tableName.DoubleQuot() +
+                   " as $$ \n begin \n return query \n";
 
             var columns = string.Join(',', parameters.FieldTypes
                 .Where(field => field.Value != parameters.IdField)
                 .Select(field => $"\"{field.Key}\""));
-            
+
             var values = string.Join(',', parameters.FieldTypes
                 .Where(field => field.Value != parameters.IdField)
                 .Select(field => $"\"{AsProcedureParameterName(field.Key)}\""));
-            
+
             sql += $"insert into \"{tableName}\" ({columns}) \n values ({values}) returning * ;\n";
 
             sql += "\nend;$$ language plpgsql;";
 
             return sql;
         }
-        
+
         protected override string GetSqlForCreatingGetLastInsertedProcedure(
             string procedureName,
             string tableName,
-            TypeDatabaseDefinition definition)
+            TypeDatabaseDefinition definition, MeadowConfiguration configuration)
         {
-
             var orderField = definition.IdField;
 
             if (!definition.HasId)
             {
                 orderField = definition.FieldTypes
-                    .Where(field=> field.Value.IsNumeric())
+                    .Where(field => field.Value.IsNumeric())
                     .Select(field => field.Value)
                     .FirstOrDefault();
             }
 
             var order = orderField == null ? " " : $" ORDER BY \"{orderField.ColumnName}\" DESC ";
-            
+
             var sql = $"create or replace function {procedureName.DoubleQuot()}(" +
                       $") returns setof {tableName.DoubleQuot()} as $$ \n begin \n return query \n" +
                       $"SELECT * FROM \"{tableName}\"{order}LIMIT 1 ;\n" +
                       $"end;$$ language plpgsql;";
-            
+
             return sql;
         }
 
         protected override string GetSqlForListingAllProcedureNames()
         {
-            return "SELECT routine_schema, routine_name FROM information_schema.routines WHERE routine_type = 'PROCEDURE';";
+            return
+                "SELECT routine_schema, routine_name FROM information_schema.routines WHERE routine_type = 'PROCEDURE';";
         }
 
         protected override string GetSqlForListingAllTableNames()
         {
-            return "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';";
+            return
+                "SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND table_type='BASE TABLE';";
         }
 
         protected override IDbTypeNameMapper GetDbTypeNameMapper()
@@ -144,7 +148,7 @@ namespace Meadow.Postgre
 
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadCodeGenerator(typeof(TModel),false).Generate().Text;
+            var script = new ReadCodeGenerator(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -153,7 +157,7 @@ namespace Meadow.Postgre
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadCodeGenerator(typeof(TModel),false).Generate().Text;
+            var script = new ReadCodeGenerator(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 

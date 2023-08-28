@@ -1,13 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class InsertProcedureGenerator<TEntity> : InsertProcedureGenerator
     {
-        public InsertProcedureGenerator() : base(typeof(TEntity))
+        public InsertProcedureGenerator(MeadowConfiguration configuration)
+            : base(typeof(TEntity),configuration)
         {
         }
     }
@@ -15,7 +17,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     [CommonSnippet(CommonSnippets.InsertProcedure)]
     public class InsertProcedureGenerator : MySqlProcedureGeneratorBase
     {
-        public InsertProcedureGenerator(Type type) : base(type)
+        public InsertProcedureGenerator(Type type,MeadowConfiguration configuration) : base(type,configuration)
         {
         }
         

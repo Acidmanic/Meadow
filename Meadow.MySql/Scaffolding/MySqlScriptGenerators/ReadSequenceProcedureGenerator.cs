@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
@@ -8,9 +9,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class ReadSequenceProcedureGenerator<TEntity> : ReadSequenceProcedureGenerator
     {
-        public ReadSequenceProcedureGenerator(bool allNotById, int top, bool orderById = false,
+        public ReadSequenceProcedureGenerator(MeadowConfiguration configuration, bool allNotById, int top,
+            bool orderById = false,
             bool orderAscending = true)
-            : base(typeof(TEntity), allNotById, top, orderById, orderAscending)
+            : base(typeof(TEntity), configuration, allNotById, top, orderById, orderAscending)
         {
         }
     }
@@ -25,9 +27,9 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
 
         public bool OrderById { get; }
-        
-        public ReadSequenceProcedureGenerator(Type type, bool allNotById, int top,
-            bool orderById = false, bool orderAscending = true) : base(type)
+
+        public ReadSequenceProcedureGenerator(Type type, MeadowConfiguration configuration, bool allNotById, int top,
+            bool orderById = false, bool orderAscending = true) : base(type, configuration)
         {
             AllNotById = allNotById;
             Top = top;
@@ -63,7 +65,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected override string GetProcedureName()
         {
             var nameConvention = Processed.NameConvention;
-            
+
             if (IsDatabaseObjectNameForced)
             {
                 return ForcedDatabaseObjectName;
@@ -102,7 +104,6 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            
             if (!AllNotById && !Processed.HasId)
             {
                 throw new Exception("To be able to create a read-by-id procedure for a type, the type" +

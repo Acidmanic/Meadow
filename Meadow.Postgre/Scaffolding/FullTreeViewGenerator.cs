@@ -1,4 +1,5 @@
 using System;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Sql;
 
@@ -7,7 +8,8 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.FullTreeView)]
     public class FullTreeViewGenerator : SqlFullTreeViewGeneratorBase
     {
-        public FullTreeViewGenerator(Type type) : base(type, new PostgreDbTypeNameMapper())
+        public FullTreeViewGenerator(Type type,MeadowConfiguration configuration) 
+            : base(type,configuration, new PostgreDbTypeNameMapper())
         {
         }
 

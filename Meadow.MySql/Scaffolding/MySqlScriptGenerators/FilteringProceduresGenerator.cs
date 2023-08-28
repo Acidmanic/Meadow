@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -9,34 +10,41 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class FilteringProceduresGenerator<TEntity> : FilteringProceduresGenerator
     {
-        public FilteringProceduresGenerator() : base(typeof(TEntity))
+        public FilteringProceduresGenerator(MeadowConfiguration configuration)
+            : base(typeof(TEntity), configuration)
         {
         }
     }
-    
-    [CommonSnippet(CommonSnippets.FilteringProcedures)]
-    public class FilteringProceduresGenerator:ByTemplateSqlGeneratorBase
-    {
-        protected ProcessedType ProcessedType { get; }
 
-        public FilteringProceduresGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+    [CommonSnippet(CommonSnippets.FilteringProcedures)]
+    public class FilteringProceduresGenerator : ByTemplateSqlGeneratorBase
+    {
+        protected ProcessedType ProcessedType { get; private set; }
+
+        protected Type EntityType { get; }
+
+        public FilteringProceduresGenerator(Type type, MeadowConfiguration configuration)
+            : base(new MySqlDbTypeNameMapper(), configuration)
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
                 LogUnSupportedRepetitionHandling("FilteringProcedures");
             }
-            
-            ProcessedType = Process(type);
+
+            EntityType = type;
+            ProcessedType = Process(EntityType);
         }
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
 
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName,ProcessedType.NameConvention.TableName);
-            
-            replacementList.Add(_keyIdFieldName, ProcessedType.HasId?ProcessedType.IdParameter.Name:"[NO-ID-FIELD]");
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+
+            replacementList.Add(_keyIdFieldName,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
         }
 
         protected override string Template => $@"

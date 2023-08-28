@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Meadow.DataTypeMapping;
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -15,10 +15,11 @@ namespace Meadow.Postgre.Scaffolding
         protected readonly string KeyCreationHeader = GenerateKey();
         protected readonly string KeyProcedureName = GenerateKey();
 
-        public PostgreByTemplateProcedureGeneratorBase(Type entityType) : base(new PostgreDbTypeNameMapper())
+        public PostgreByTemplateProcedureGeneratorBase(Type entityType,MeadowConfiguration configuration) 
+            : base(new PostgreDbTypeNameMapper(),configuration)
         {
             EntityType = entityType;
-            ProcessedType = Process(entityType);
+            ProcessedType = Process(EntityType);
         }
 
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -9,23 +10,24 @@ namespace Meadow.Postgre.Scaffolding
 {
     public class FilteringProceduresGenerator<TEntity> : FilteringProceduresGenerator
     {
-        public FilteringProceduresGenerator() : base(typeof(TEntity))
+        public FilteringProceduresGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
         {
         }
     }
-    
+
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
-    public class FilteringProceduresGenerator:ByTemplateSqlGeneratorBase
+    public class FilteringProceduresGenerator : ByTemplateSqlGeneratorBase
     {
         protected ProcessedType ProcessedType { get; }
 
-        public FilteringProceduresGenerator(Type type) : base(new PostgreDbTypeNameMapper())
+        public FilteringProceduresGenerator(Type type, MeadowConfiguration configuration)
+            : base(new PostgreDbTypeNameMapper(), configuration)
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
                 LogUnSupportedRepetitionHandling("FilteringProcedures");
             }
-            
+
             ProcessedType = Process(type);
         }
 
@@ -35,15 +37,19 @@ namespace Meadow.Postgre.Scaffolding
         private readonly string _keyDbQFilterProcedureName = GenerateKey();
         private readonly string _keyDbQChunkProcedureName = GenerateKey();
 
+
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName,ProcessedType.NameConvention.TableName);
-            replacementList.Add(_keyDbQTableName,ProcessedType.NameConvention.TableName.DoubleQuot());
-            replacementList.Add(_keyDbQFilterProcedureName, $"spPerform{ProcessedType.NameConvention.TableName}FilterIfNeeded".DoubleQuot());
-            replacementList.Add(_keyDbQIdFieldName, ProcessedType.HasId?ProcessedType.IdParameter.Name.DoubleQuot():"[NO-ID-FIELD]");
-            replacementList.Add(_keyDbQChunkProcedureName, $"spRead{ProcessedType.NameConvention.TableName}Chunk".DoubleQuot());
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyDbQTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
+            replacementList.Add(_keyDbQFilterProcedureName,
+                $"spPerform{ProcessedType.NameConvention.TableName}FilterIfNeeded".DoubleQuot());
+            replacementList.Add(_keyDbQIdFieldName,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Name.DoubleQuot() : "[NO-ID-FIELD]");
+            replacementList.Add(_keyDbQChunkProcedureName,
+                $"spRead{ProcessedType.NameConvention.TableName}Chunk".DoubleQuot());
         }
-        
+
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
 create or replace function {"spRemoveExpiredFilterResults".DoubleQuot()}({"par_ExpirationTimeStamp".DoubleQuot()} BIGINT) 

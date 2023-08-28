@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
@@ -12,7 +13,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         public bool ById { get; }
 
 
-        public DeleteProcedureGenerator(Type type, bool byId) : base(type)
+        public DeleteProcedureGenerator(Type type,MeadowConfiguration configuration, bool byId)
+            : base(type,configuration)
         {
             ById = byId;
         }

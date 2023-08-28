@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -10,7 +11,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class TableScriptGenerator<TEntity> : TableScriptGenerator
     {
-        public TableScriptGenerator() : base(typeof(TEntity))
+        public TableScriptGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
         {
         }
     }
@@ -20,7 +21,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     {
         private readonly Type _type;
 
-        public TableScriptGenerator(Type type) : base(new MySqlDbTypeNameMapper())
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration) : base(new MySqlDbTypeNameMapper(),
+            configuration)
         {
             _type = type;
         }
@@ -30,6 +32,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyDropping = GenerateKey();
         private readonly string _keyCreation = GenerateKey();
+
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {

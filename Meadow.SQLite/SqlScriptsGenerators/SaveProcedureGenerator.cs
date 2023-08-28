@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Models;
@@ -10,7 +11,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveProcedureGenerator : SqLiteByTemplateProcedureGeneratorBase
     {
-        public SaveProcedureGenerator(Type type) : base(type)
+        public SaveProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {
         }
 

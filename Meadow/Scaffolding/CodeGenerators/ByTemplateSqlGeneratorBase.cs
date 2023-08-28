@@ -8,11 +8,8 @@ namespace Meadow.Scaffolding.CodeGenerators
 {
     public abstract class ByTemplateSqlGeneratorBase : SqlGeneratorBase
     {
-        
-        public MeadowConfiguration Configuration { get; set; }
-        
-        
-        protected ByTemplateSqlGeneratorBase(IDbTypeNameMapper typeNameMapper) : base(typeNameMapper)
+        protected ByTemplateSqlGeneratorBase(IDbTypeNameMapper typeNameMapper,MeadowConfiguration configuration) : 
+            base(typeNameMapper,configuration)
         {
         }
 
