@@ -7,6 +7,7 @@ using Examples.Common;
 using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.MySql;
+using Meadow.Postgre;
 using Meadow.Scaffolding.Macros;
 using Meadow.SQLite;
 using Meadow.SqlServer;
@@ -85,6 +86,20 @@ namespace Meadow.Test.Functional.TDDAbstractions
             ConnectionString = ExampleConnectionString.GetSqlServerConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
+        }
+
+        protected void UsePostgre()
+        {
+            MeadowConfigurationAssemblies.Clear();
+            MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
+            MeadowConfigurationAssemblies.Add(typeof(PostgreDataAccessCore).Assembly);
+
+            ScriptsDirectory = "PostgreScripts";
+
+            ConnectionString = ExampleConnectionString.GetPostgresConnectionString(DbName);
+
+            MeadowEngine.UseDataAccess(new CoreProvider<PostgreDataAccessCore>());
         }
 
         protected void UseSqLite()

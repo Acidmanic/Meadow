@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
 using Meadow.Requests;
@@ -36,6 +38,15 @@ namespace Meadow.Test.Functional
             public InsertRequest(T model) : base(true)
             {
                 ToStorage = model;
+            }
+
+            protected override void OnFieldManipulation(IFieldInclusionMarker<T> toStorage, IFieldInclusionMarker<T> fromStorage)
+            {
+                base.OnFieldManipulation(toStorage, fromStorage);
+
+                var idLeaf = TypeIdentity.FindIdentityLeaf<T>();
+                
+                toStorage.Exclude(idLeaf.GetFullName());
             }
 
             public override string RequestText
@@ -117,7 +128,7 @@ namespace Meadow.Test.Functional
         
         public override void Main()
         {
-            UseSqLite();
+            UsePostgre();
 
             var engine = CreateEngine();
 
