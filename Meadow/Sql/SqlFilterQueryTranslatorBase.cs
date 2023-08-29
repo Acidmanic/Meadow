@@ -76,12 +76,12 @@ namespace Meadow.Sql
                         sb.Append(columnName).Append('<').Append(max);
                         break;
                     case ValueComparison.LargerThan:
-                        sb.Append(columnName).Append('<').Append(min);
+                        sb.Append(columnName).Append('>').Append(min);
                         break;
                     case ValueComparison.BetweenValues:
                         sb.Append(columnName).Append('<').Append(max)
                             .Append(" AND ")
-                            .Append(columnName).Append('<').Append(min);
+                            .Append(columnName).Append('>').Append(min);
                         break;
                     case ValueComparison.Equal:
                         var sep = "";
