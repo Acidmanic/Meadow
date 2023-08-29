@@ -55,7 +55,7 @@ CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId TEXT,
                                                   @FilterExpression TEXT)
 AS
     INSERT INTO FilterResults (SearchId, ResultId, ExpirationTimeStamp) 
-    SELECT @SearchId,Persons.Id,@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
+    SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
     AND IIF((select count(Id) from FilterResults where FilterResults.SearchId=@SearchId)>0,false,true);
 
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
