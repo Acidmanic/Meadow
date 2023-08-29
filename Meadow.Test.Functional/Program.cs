@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd40FullTreeAccessNewMethod().Main();
+            new Tdd41FTestFilterLogicBeingCorrect().Main();
         }
     }
 }

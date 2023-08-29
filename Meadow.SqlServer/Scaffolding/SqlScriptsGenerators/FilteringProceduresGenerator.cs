@@ -58,8 +58,8 @@ GO
 CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024)) AS
-BEGIN
     IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
+    BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
             'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp) ',
