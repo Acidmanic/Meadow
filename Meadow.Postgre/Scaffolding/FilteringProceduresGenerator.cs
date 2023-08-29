@@ -55,7 +55,7 @@ namespace Meadow.Postgre.Scaffolding
 create or replace function {"spRemoveExpiredFilterResults".DoubleQuot()}({"par_ExpirationTimeStamp".DoubleQuot()} BIGINT) 
     returns void as $$ 
 begin
-    delete from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"ExpirationTimeStamp".DoubleQuot()} >= {"par_ExpirationTimeStamp".DoubleQuot()};
+    delete from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"ExpirationTimeStamp".DoubleQuot()} < {"par_ExpirationTimeStamp".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp INTEGER)
 AS
-    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= @ExpirationTimeStamp;
+    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < @ExpirationTimeStamp;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId TEXT,

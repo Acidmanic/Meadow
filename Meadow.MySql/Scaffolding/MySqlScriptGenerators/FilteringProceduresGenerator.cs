@@ -52,7 +52,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 DROP PROCEDURE IF EXISTS spRemoveExpiredFilterResults;
 CREATE PROCEDURE spRemoveExpiredFilterResults(IN ExpirationTimeStamp bigint(16))
 BEGIN
-    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp >= ExpirationTimeStamp;
+    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < ExpirationTimeStamp;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(
