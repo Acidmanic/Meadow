@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
+using Acidmanic.Utilities.Reflection.Attributes;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Configuration;
@@ -86,9 +89,9 @@ namespace Meadow.SQLite.CarrierInterceptors
 
         private string GetValueString(string parameterName, List<DataPoint> data,bool expansion = false)
         {
-            var atlessName = parameterName.Substring(1, parameterName.Length - 1);
+            var atLessName = parameterName.Substring(1, parameterName.Length - 1);
 
-            var dp = data.SingleOrDefault(dataPoint => dataPoint.Identifier == atlessName);
+            var dp = data.SingleOrDefault(dataPoint => dataPoint.Identifier == atLessName);
 
             var value = dp?.Value;
 
@@ -102,6 +105,17 @@ namespace Meadow.SQLite.CarrierInterceptors
                 return "";
             }
 
+            var type = value.GetType();
+
+            var altered = type.GetCustomAttribute<AlteredTypeAttribute>();
+
+            if (altered != null)
+            {
+                type = altered.AlternativeType;
+            }
+
+            value = value.CastTo(type);
+                
             if (value is string stringValue)
             {
                 stringValue = EscapeSingleQuotes(stringValue);

@@ -175,7 +175,7 @@ namespace Meadow.Test.Functional
         
         public override void Main()
         {
-            UsePostgre();
+            UseSqlServer();
 
             var engine = CreateEngine();
 
@@ -218,7 +218,7 @@ namespace Meadow.Test.Functional
             }
 
             var fakeSearchResults = engine.PerformRequest
-                (new PerformPersonsSearchIfNeededRequest(filter, searchId)).FromStorage;
+                (new PerformPersonsSearchIfNeededRequest(new FilterQuery{EntityType = typeof(Person)}, searchId)).FromStorage;
 
             if (fakeSearchResults.Count != 2)
             {
