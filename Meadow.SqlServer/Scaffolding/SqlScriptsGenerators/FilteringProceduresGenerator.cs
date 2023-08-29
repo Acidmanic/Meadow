@@ -62,11 +62,11 @@ BEGIN
     IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
-            'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp)',
+            'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp) ',
             'SELECT ''',@SearchId,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
         execute sp_executesql @query
     END  
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=SearchId;
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset BIGINT,
