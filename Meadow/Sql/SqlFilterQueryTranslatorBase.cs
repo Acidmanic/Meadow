@@ -55,7 +55,7 @@ namespace Meadow.Sql
                 return sb.ToString();
             }
 
-            return "";
+            return EmptyQuery;
         }
 
         private void Append(StringBuilder sb, FilterItem filter, Func<FilterItem, Result<string>> pickKey)
@@ -102,7 +102,8 @@ namespace Meadow.Sql
 
         protected abstract bool DoubleQuotesColumnNames { get; }
 
-
+        protected virtual string EmptyQuery => "";
+        
         protected virtual string HandleQuotingAndEscaping(string value, Type type)
         {
             if (value == null)

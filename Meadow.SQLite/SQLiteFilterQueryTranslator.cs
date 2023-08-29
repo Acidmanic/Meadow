@@ -14,5 +14,10 @@ namespace Meadow.SQLite
         protected override string EscapedSingleQuote => "\\'";
 
         protected override bool DoubleQuotesColumnNames => false;
+        
+        
+        protected override string EmptyQuery => "TRUE";
+        
+        
     }
 }
