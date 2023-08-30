@@ -20,7 +20,7 @@ namespace Meadow.SQLite.ProcedureProcessing
 
         public List<ICommentSplitter.TextPart> Split(string value)
         {
-            var chars =  value.Replace('\r', '\n').ToCharArray();
+            var chars = value.Replace('\r', '\n').ToCharArray();
 
             var state = States.InText;
 
@@ -57,12 +57,11 @@ namespace Meadow.SQLite.ProcedureProcessing
                         buffer += c;
                     }
                 }
-
-                if (state == States.InFirstDash)
+                else if (state == States.InFirstDash)
                 {
                     if (c == '-')
                     {
-                        Deliver(States.InDoubleDashComment,false);
+                        Deliver(States.InDoubleDashComment, false);
                     }
                     else
                     {
@@ -70,11 +69,11 @@ namespace Meadow.SQLite.ProcedureProcessing
                         state = States.InText;
                     }
                 }
-                if (state == States.InSlash)
+                else if (state == States.InSlash)
                 {
                     if (c == '*')
                     {
-                        Deliver(States.InSlashAstrixComment,false);
+                        Deliver(States.InSlashAstrixComment, false);
                     }
                     else
                     {
@@ -82,20 +81,18 @@ namespace Meadow.SQLite.ProcedureProcessing
                         state = States.InText;
                     }
                 }
-
-                if (state == States.InDoubleDashComment)
+                else if (state == States.InDoubleDashComment)
                 {
                     if (c == '\n' || c == '\r')
                     {
-                        Deliver(States.InText,true);
+                        Deliver(States.InText, true);
                     }
                     else
                     {
                         buffer += c;
                     }
                 }
-
-                if (state == States.InSlashAstrixComment)
+                else if (state == States.InSlashAstrixComment)
                 {
                     if (c == '*')
                     {
@@ -106,12 +103,11 @@ namespace Meadow.SQLite.ProcedureProcessing
                         buffer += c;
                     }
                 }
-
-                if (state == States.InAstrix)
+                else if (state == States.InAstrix)
                 {
                     if (c == '/')
                     {
-                        Deliver(States.InText,true);
+                        Deliver(States.InText, true);
                     }
                     else
                     {
@@ -123,14 +119,15 @@ namespace Meadow.SQLite.ProcedureProcessing
 
             if (!string.IsNullOrEmpty(buffer))
             {
-                if (state == States.InText || state==States.InFirstDash || state == States.InSlash)
+                if (state == States.InText || state == States.InFirstDash || state == States.InSlash)
                 {
-                    Deliver(States.InText,false);
-                }else if (state == States.InDoubleDashComment || 
-                          state == States.InSlashAstrixComment || 
-                          state==States.InAstrix)
+                    Deliver(States.InText, false);
+                }
+                else if (state == States.InDoubleDashComment ||
+                         state == States.InSlashAstrixComment ||
+                         state == States.InAstrix)
                 {
-                    Deliver(States.InText,true);
+                    Deliver(States.InText, true);
                 }
             }
 
