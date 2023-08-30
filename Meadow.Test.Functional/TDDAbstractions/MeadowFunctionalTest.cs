@@ -45,7 +45,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         protected string ConnectionString;
         protected string ScriptsDirectory;
         protected readonly List<Assembly> MeadowConfigurationAssemblies = new List<Assembly>();
-
+        protected string DatabaseName { get; private set; }
+        
         protected MeadowFunctionalTest(string dbName)
         {
             DbName = dbName;
@@ -72,6 +73,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             ConnectionString = ExampleConnectionString.GetMySqlConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
+
+            DatabaseName = "My Sql";
         }
 
         protected void UseSqlServer()
@@ -86,6 +89,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             ConnectionString = ExampleConnectionString.GetSqlServerConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
+            
+            DatabaseName = "Sql Server";
         }
 
         protected void UsePostgre()
@@ -100,6 +105,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             ConnectionString = ExampleConnectionString.GetPostgresConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<PostgreDataAccessCore>());
+            
+            DatabaseName = "Postgre";
         }
 
         protected void UseSqLite()
@@ -114,6 +121,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             ConnectionString = ExampleConnectionString.GetSqLiteConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
+            
+            DatabaseName = "SqLite";
         }
 
         protected MeadowEngine CreateEngine()
