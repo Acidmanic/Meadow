@@ -83,6 +83,22 @@ BEGIN
     where FilterResults.SearchId=SearchId limit offset,size;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp{_keyTableName}Range(IN FieldName nvarchar(32))
+BEGIN
+    set @query = CONCAT('SELECT MAX(',FieldName,') \'Max\', MIN(',FieldName,') \'Min\' FROM {_keyTableName};' );
+    PREPARE stmt FROM @query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt; 
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp{_keyTableName}ExistingValues(IN FieldName nvarchar(32))
+BEGIN
+    set @query = CONCAT('SELECT DISTINCT ',FieldName,' \'Value\' FROM {_keyTableName} ORDER BY ',FieldName,' ASC');
+    PREPARE stmt FROM @query;
+    EXECUTE stmt;
+    DEALLOCATE PREPARE stmt; 
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
     }
 }
