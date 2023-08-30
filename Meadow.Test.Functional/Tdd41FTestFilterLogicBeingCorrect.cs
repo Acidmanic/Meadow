@@ -11,7 +11,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UsePostgre();
+            UseSqlServer();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -110,19 +110,18 @@ namespace Meadow.Test.Functional
                 throw new Exception("Unable to execute Range procedure");
             }
 
-            if (personsRange.Min.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.FirstOrDefault()).ToString()) == false)
+            if (personsRange.Min.ToString()!.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.FirstOrDefault()).ToString()) == false)
             {
                 throw new Exception("Wrong Minimum value");
             }
             
-            if (personsRange.Max.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.LastOrDefault()).ToString()) == false)
+            if (personsRange.Max.ToString()!.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.LastOrDefault()).ToString()) == false)
             {
                 throw new Exception("Wrong Maximum value");
             }
             
             logger.LogInformation("Range calculated successfully: {Min} - {Max}",
                 personsRange.Min, personsRange.Max);
-
 
             var existingValues = engine
                 .PerformRequest(new ExistingValuesRequest<Person>(fieldName))

@@ -86,6 +86,18 @@ CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset BIGINT,
        AND RowNum < (@Offset+1) + @Size
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp{_keyTableName}Range(@FieldName nvarchar(32)) AS
+
+    declare @query nvarchar(1024) = CONCAT('SELECT MAX(',@FieldName,') ''Max'', MIN(',@FieldName,') ''Min'' FROM {_keyTableName}' );
+    execute sp_executesql @query
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp{_keyTableName}ExistingValues(@FieldName nvarchar(32)) AS
+
+    declare @query nvarchar(1024) = CONCAT('SELECT DISTINCT ',@FieldName,' ''Value'' FROM {_keyTableName} ORDER BY ',@FieldName,' ASC');
+    execute sp_executesql @query
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
     }
 }
