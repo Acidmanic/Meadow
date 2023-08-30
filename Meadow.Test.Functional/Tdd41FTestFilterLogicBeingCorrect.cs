@@ -11,7 +11,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseMySql();
+            UsePostgre();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -110,12 +110,12 @@ namespace Meadow.Test.Functional
                 throw new Exception("Unable to execute Range procedure");
             }
 
-            if (personsRange.Min.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.FirstOrDefault())) == false)
+            if (personsRange.Min.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.FirstOrDefault()).ToString()) == false)
             {
                 throw new Exception("Wrong Minimum value");
             }
             
-            if (personsRange.Max.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.LastOrDefault())) == false)
+            if (personsRange.Max.Equals(ReadByHeadlessAddress<Person>(fieldName, Persons.LastOrDefault()).ToString()) == false)
             {
                 throw new Exception("Wrong Maximum value");
             }

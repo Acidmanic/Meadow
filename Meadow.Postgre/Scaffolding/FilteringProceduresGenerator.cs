@@ -36,7 +36,10 @@ namespace Meadow.Postgre.Scaffolding
         private readonly string _keyDbQIdFieldName = GenerateKey();
         private readonly string _keyDbQFilterProcedureName = GenerateKey();
         private readonly string _keyDbQChunkProcedureName = GenerateKey();
+        private readonly string _keyDbQRangeProcedureName = GenerateKey();
+        private readonly string _keyDbQExistingValuesProcedureName = GenerateKey();
 
+        protected static readonly string ll = "\""; 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -48,6 +51,9 @@ namespace Meadow.Postgre.Scaffolding
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name.DoubleQuot() : "[NO-ID-FIELD]");
             replacementList.Add(_keyDbQChunkProcedureName,
                 $"spRead{ProcessedType.NameConvention.TableName}Chunk".DoubleQuot());
+            
+            replacementList.Add(_keyDbQRangeProcedureName,ProcessedType.NameConvention.Range.DoubleQuot());
+            replacementList.Add(_keyDbQExistingValuesProcedureName,ProcessedType.NameConvention.ExistingValues.DoubleQuot());
         }
 
         protected override string Template => $@"
@@ -77,7 +83,7 @@ begin
     if not exists(select 1 from {"FilterResults".DoubleQuot()} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select * from {"FilterResults".DoubleQuot()};
+    return query select * from {"FilterResults".DoubleQuot()} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -91,6 +97,29 @@ begin
     return query select {_keyDbQTableName}.* from {_keyDbQTableName} 
         inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
         on {_keyDbQTableName}.{_keyDbQIdFieldName} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
+end;
+$$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
+create function {_keyDbQRangeProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
+                returns table({"Max".DoubleQuot()} TEXT,{"Min".DoubleQuot()} TEXT) as $$
+declare sql text = '';
+begin
+    sql = CONCAT('select TEXT(MAX({ll}',{"par_FieldName".DoubleQuot()},'{ll})) {"Max".DoubleQuot()}, TEXT(MIN({ll}' , {"par_FieldName".DoubleQuot()}, '{ll})) {"Min".DoubleQuot()} from {_keyDbQTableName};' );
+     return QUERY execute sql ;    
+end;
+$$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
+create function {_keyDbQExistingValuesProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
+                returns table({"Value".DoubleQuot()} TEXT) as $$
+declare sql text = '';
+begin
+   
+    sql = CONCAT('select distinct TEXT({ll}',{"par_FieldName".DoubleQuot()},'{ll}) {"Value".DoubleQuot()} from {_keyDbQTableName} order by {"Value".DoubleQuot()} asc');
+     return QUERY execute sql ;    
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
