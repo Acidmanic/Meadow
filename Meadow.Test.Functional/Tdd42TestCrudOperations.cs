@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using Acidmanic.Utilities.Filtering;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
@@ -12,7 +10,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqLite();
+            UsePostgre();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
