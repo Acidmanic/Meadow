@@ -38,6 +38,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
 
     UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName};
+    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
 GO
 ".Trim();
     }
