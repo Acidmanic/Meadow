@@ -32,6 +32,10 @@ namespace Meadow.Contracts
         
         public string ReadStreamChunkByStreamId { get; private set; }
         
+        public string Range { get; private set; }
+        
+        public string ExistingValues { get; private set; }
+        
 
         public NameConvention(Type entityType) : this(entityType, new PluralDataOwnerNameProvider())
         {
@@ -111,11 +115,17 @@ namespace Meadow.Contracts
             
             ReadStreamChunkByStreamId = "spRead" + EventStreamEntity + "StreamChunkByStreamId";
 
+            /* filtering */
+            
             PerformFilterIfNeededProcedureName = "spPerform" + TableName + "FilterIfNeeded";
             
             ReadChunkProcedureName = "spRead" + TableName + "Chunk";
             
             ReadChunkProcedureNameFullTree = "spRead" + TableName + "ChunkFullTree";
+
+            Range = "sp" + TableName + "Range";
+            
+            ExistingValues = "sp" + TableName + "ExistingValues";
         }
 
         public string DeleteByIdProcedureName { get; }

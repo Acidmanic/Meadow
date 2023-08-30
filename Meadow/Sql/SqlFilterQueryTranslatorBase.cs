@@ -18,7 +18,7 @@ namespace Meadow.Sql
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
 
-        public string TranslateFilterQueryToWhereClause(FilterQuery filterQuery, bool fullTree)
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree)
         {
             
             Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, item.Key);
@@ -56,6 +56,25 @@ namespace Meadow.Sql
             }
 
             return EmptyQuery;
+        }
+
+        public string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree)
+        {
+            if (fullTree)
+            {
+                var map = Configuration.GetFullTreeMap(ownerEntityType);
+
+                var fieldName = map.GetColumnName(headlessAddress);
+
+                if (fieldName)
+                {
+                    return fieldName.Value;
+                }
+
+                return headlessAddress;
+            }
+
+            return headlessAddress;
         }
 
         private void Append(StringBuilder sb, FilterItem filter, Func<FilterItem, Result<string>> pickKey)

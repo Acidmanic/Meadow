@@ -152,5 +152,21 @@ namespace Meadow.Test.Functional
 
             Main(engine, logger);
         }
+
+        protected object ReadByHeadlessAddress<T>(string headlessAddress,object owner)
+        {
+            var ev = new ObjectEvaluator(typeof(T));
+
+            var fullAddress = ev.RootNode.Name + "." + headlessAddress;
+
+            var node = ev.Map.NodeByAddress(fullAddress);
+
+            if (node != null)
+            {
+                return node.Evaluator.Read(owner);
+            }
+
+            return null;
+        }
     }
 }

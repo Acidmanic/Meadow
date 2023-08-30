@@ -61,13 +61,20 @@ AS
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
--- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset INTEGER,
                                       @Size INTEGER,
                                       @SearchId TEXT)
 AS
     SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN FilterResults ON {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
     WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp{_keyTableName}Range(@FieldName TEXT) AS
+    SELECT MAX(&@FieldName) 'Max', MIN(&@FieldName) 'Min' FROM {_keyTableName};
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE sp{_keyTableName}ExistingValues(@FieldName TEXT) AS
+    SELECT DISTINCT &@FieldName 'Value' FROM {_keyTableName} ORDER BY &@FieldName ASC;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

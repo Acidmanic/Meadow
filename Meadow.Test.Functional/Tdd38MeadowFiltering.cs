@@ -49,7 +49,7 @@ namespace Meadow.Test.Functional
                         FilterHash = filterQuery.Hash(),
                         ExpirationTimeStamp = TimeStamp.Now.TotalMilliSeconds +
                                               typeof(Person).GetFilterResultExpirationDurationMilliseconds(),
-                        WhereClause = tr.TranslateFilterQueryToWhereClause(filterQuery,FullTreeReadWrite())
+                        WhereClause = tr.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite())
                     };
                 });
             }

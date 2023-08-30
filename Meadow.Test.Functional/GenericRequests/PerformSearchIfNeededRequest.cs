@@ -18,7 +18,7 @@ namespace Meadow.Test.Functional.GenericRequests
             {
                 ToStorage = new FilterShell
                 {
-                    FilterExpression = t.TranslateFilterQueryToWhereClause(filter, FullTreeReadWrite()),
+                    FilterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()),
                     SearchId = searchId ?? Guid.NewGuid().SearchId(),
                     ExpirationTimeStamp = typeof(TStorage).GetFilterResultExpirationPointMilliseconds()
                 };
