@@ -15,7 +15,7 @@
         <!-- NuGet -->
         <Id>Meadow.SQLite</Id>
         <PackageId>Meadow.SQLite</PackageId>
-        <Version>1.3.0-b15</Version>
+        <Version>1.3.0-b16</Version>
         <Authors>Mani Moayedi</Authors>
         <Company>Acidmanic</Company>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
