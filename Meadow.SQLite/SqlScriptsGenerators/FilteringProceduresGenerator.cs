@@ -67,7 +67,7 @@ CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset INTEGER,
                                       @SearchId TEXT)
 AS
     SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN FilterResults ON {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-    WHERE FilterResults.SearchId=SearchId LIMIT @Offset,@Size;  
+    WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
