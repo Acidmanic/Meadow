@@ -26,5 +26,3 @@ CREATE PROCEDURE spReadAllPersonsFullTree() AS
     SELECT * FROM PersonsFullTree ;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-
--- SPLIT

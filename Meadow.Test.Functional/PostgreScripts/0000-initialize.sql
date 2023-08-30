@@ -17,22 +17,21 @@
 -- {{FullTreeView Meadow.Test.Functional.Models.Person}}
 -- {{Filtering Meadow.Test.Functional.Models.Person}}
 -- ---------------------------------------------------------------------------------------------------------------------
-
 create or replace function "spReadAllPersons"() returns setof "Persons" as $$
 begin
     return QUERY
         select * from "Persons";
 end;
 $$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
 --SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
 create or replace function "spReadAllPersonsFullTree"() returns setof "PersonsFullTree" as $$
 begin
     return QUERY
         select * from "PersonsFullTree";
 end;
 $$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
 --SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-
--- SPLIT
-

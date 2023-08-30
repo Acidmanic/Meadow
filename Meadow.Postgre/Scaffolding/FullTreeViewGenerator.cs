@@ -1,6 +1,7 @@
 using System;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
 
 namespace Meadow.Postgre.Scaffolding
@@ -18,7 +19,24 @@ namespace Meadow.Postgre.Scaffolding
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------"
             .Trim();
-        
+
+        protected override string GetCreationHeader()
+        {
+            var creationHeader = "create view";
+
+            if (RepetitionHandling == RepetitionHandling.Alter)
+            {
+                creationHeader = "create or replace view";
+            }
+
+            if (RepetitionHandling == RepetitionHandling.Skip)
+            {
+                LogUnSupportedRepetitionHandling("Postgre", "Views", RepetitionHandling.Skip);
+            }
+
+            return creationHeader;
+        }
+
         protected override string LeadingTemplateText()
         {
             return Split;

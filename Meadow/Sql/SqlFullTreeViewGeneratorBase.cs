@@ -13,7 +13,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.Sql
 {
-    public class SqlFullTreeViewGeneratorBase : ByTemplateSqlGeneratorBase
+    public abstract class SqlFullTreeViewGeneratorBase : ByTemplateSqlGeneratorBase
     {
         protected Type EntityType { get; }
         protected ProcessedType ProcessedType { get; }
@@ -26,6 +26,7 @@ namespace Meadow.Sql
         private readonly string _keyLeadingTemplateText = GenerateKey();
         private readonly string _keyTaleTemplateText = GenerateKey();
         private readonly string _keyViewName = GenerateKey();
+        private readonly string _keyCreationHeader = GenerateKey();
 
         public SqlFullTreeViewGeneratorBase(Type type, MeadowConfiguration configuration, IDbTypeNameMapper mapper)
             : base(mapper, configuration)
@@ -36,20 +37,35 @@ namespace Meadow.Sql
             FullTreeMap = configuration.GetFullTreeMap(EntityType);
         }
 
-        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        protected Func<string,string> QuoteIfNeeded()
         {
-            Func<string, string> q = s => s;
-
             if (DoubleQuoteIdentifiers)
             {
-                q = s => $"\"{s}\"";
+                return s => $"\"{s}\"";
             }
 
+            return s => s;
+        }
+        
+        protected string GetViewName()
+        {
             var tableName = ProcessedType.NameConvention.TableName;
 
             var viewName = tableName + "FullTree";
 
+            return viewName;
+        }
+
+        protected override void AddReplacements(Dictionary<string, string> replacementList)
+        {
+            Func<string, string> q = QuoteIfNeeded();
+
+            var tableName = ProcessedType.NameConvention.TableName;
+
+            var viewName = GetViewName();
+
             replacementList.Add(_keyTableName, q(tableName));
+            
             replacementList.Add(_keyViewName, q(viewName));
 
             var parametersTable = GetParametersTable(q);
@@ -62,8 +78,11 @@ namespace Meadow.Sql
 
             replacementList.Add(_keyLeadingTemplateText, LeadingTemplateText());
             replacementList.Add(_keyTaleTemplateText, TaleTemplateText());
+            replacementList.Add(_keyCreationHeader,GetCreationHeader());
         }
 
+        protected abstract string GetCreationHeader();
+        
         private string GetInnerJoins(Func<string, string> q)
         {
             var ev = FullTreeMap.Evaluator;
@@ -135,17 +154,24 @@ namespace Meadow.Sql
             return parameterTable.Trim();
         }
 
+        protected static readonly string Split = @"
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------"
+            .Trim();
+        
+        protected static readonly string Line = @"
+-- ---------------------------------------------------------------------------------------------------------------------"
+            .Trim();
 
         protected virtual string LeadingTemplateText()
         {
-            return
-                "-- ---------------------------------------------------------------------------------------------------------------------";
+            return Line;
         }
 
         protected virtual string TaleTemplateText()
         {
-            return
-                "-- ---------------------------------------------------------------------------------------------------------------------";
+            return Line;
         }
 
         protected virtual bool DoubleQuoteIdentifiers => false;
@@ -154,7 +180,7 @@ namespace Meadow.Sql
 
         protected override string Template => $@"
 {_keyLeadingTemplateText}
-CREATE VIEW {_keyViewName} AS 
+{_keyCreationHeader} {_keyViewName} AS 
     SELECT {_keyParametersTable}
     FROM   {_keyTableName}{_keyInnerJoins};
 {_keyTaleTemplateText}

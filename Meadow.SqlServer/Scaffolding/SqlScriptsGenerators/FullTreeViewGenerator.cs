@@ -1,6 +1,7 @@
 using System;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
@@ -13,11 +14,20 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         {
         }
 
-        private static readonly string Split = @"
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------"
-            .Trim();
+        protected override string GetCreationHeader()
+        {
+            if (RepetitionHandling == RepetitionHandling.Alter)
+            {
+                return "CREATE OR ALTER VIEW";
+            }
+
+            if (RepetitionHandling == RepetitionHandling.Skip)
+            {
+                LogUnSupportedRepetitionHandling("SqlServer", "Views", RepetitionHandling.Skip);
+            }
+
+            return "CREATE VIEW";
+        }
 
         protected override string LeadingTemplateText()
         {

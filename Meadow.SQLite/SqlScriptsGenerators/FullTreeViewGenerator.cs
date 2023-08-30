@@ -7,6 +7,7 @@ using Meadow.Configuration;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
 
@@ -20,14 +21,27 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         {
         }
 
+        protected override string GetCreationHeader()
+        {
+            var creationHeader = "CREATE VIEW";
+
+            if (RepetitionHandling == RepetitionHandling.Alter)
+            {
+                creationHeader = "DROP VIEW IF EXISTS " + GetViewName() + ";" +
+                                 "\nCREATE";
+            }
+
+            if (RepetitionHandling == RepetitionHandling.Skip)
+            {
+                creationHeader = "CREATE VIEW IF NOT EXISTS ";
+            }
+
+            return creationHeader;
+        }
+
         protected override string TaleTemplateText()
         {
-            return
-                @"
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------"
-                    .Trim();
+            return Split;
         }
     }
 }
