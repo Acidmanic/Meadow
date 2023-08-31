@@ -32,9 +32,9 @@ namespace Meadow.Contracts
         
         public string ReadStreamChunkByStreamId { get; private set; }
         
-        public string Range { get; private set; }
+        public string RangeProcedureName { get; private set; }
         
-        public string ExistingValues { get; private set; }
+        public string ExistingValuesProcedureName { get; private set; }
         
 
         public NameConvention(Type entityType) : this(entityType, new PluralDataOwnerNameProvider())
@@ -123,9 +123,9 @@ namespace Meadow.Contracts
             
             ReadChunkProcedureNameFullTree = "spRead" + TableName + "ChunkFullTree";
 
-            Range = "sp" + TableName + "Range";
+            RangeProcedureName = "sp" + TableName + "Range";
             
-            ExistingValues = "sp" + TableName + "ExistingValues";
+            ExistingValuesProcedureName = "sp" + TableName + "ExistingValues";
         }
 
         public string DeleteByIdProcedureName { get; }

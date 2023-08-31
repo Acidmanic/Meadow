@@ -37,6 +37,9 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyRemoveExistingProcedureName = GenerateKey();
+        private readonly string _keyFilterIfNeededProcedureName = GenerateKey();
+        private readonly string _keyReadChunkProcedureName = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -49,13 +52,13 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS spRemoveExpiredFilterResults;
-CREATE PROCEDURE spRemoveExpiredFilterResults(IN ExpirationTimeStamp bigint(16))
+DROP PROCEDURE IF EXISTS {_keyRemoveExistingProcedureName};
+CREATE PROCEDURE {_keyRemoveExistingProcedureName}(IN ExpirationTimeStamp bigint(16))
 BEGIN
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < ExpirationTimeStamp;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(
+CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(
                                                   IN SearchId nvarchar(32),
                                                   IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024))
@@ -75,28 +78,12 @@ BEGIN
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=SearchId;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spRead{_keyTableName}Chunk(IN Offset bigint(16),
+CREATE PROCEDURE {_keyReadChunkProcedureName}(IN Offset bigint(16),
                                       IN Size bigint(16),
                                       IN SearchId nvarchar(32))
 BEGIN
     select {_keyTableName}.* from {_keyTableName} inner join FilterResults on {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
     where FilterResults.SearchId=SearchId limit offset,size;  
-END;
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE sp{_keyTableName}Range(IN FieldName nvarchar(32))
-BEGIN
-    set @query = CONCAT('SELECT MAX(',FieldName,') \'Max\', MIN(',FieldName,') \'Min\' FROM {_keyTableName};' );
-    PREPARE stmt FROM @query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt; 
-END;
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE sp{_keyTableName}ExistingValues(IN FieldName nvarchar(32))
-BEGIN
-    set @query = CONCAT('SELECT DISTINCT ',FieldName,' \'Value\' FROM {_keyTableName} ORDER BY ',FieldName,' ASC');
-    PREPARE stmt FROM @query;
-    EXECUTE stmt;
-    DEALLOCATE PREPARE stmt; 
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

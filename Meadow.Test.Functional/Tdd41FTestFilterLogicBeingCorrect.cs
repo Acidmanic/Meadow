@@ -11,7 +11,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UseMySql();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -136,7 +136,6 @@ namespace Meadow.Test.Functional
             {
                 logger.LogInformation("{FieldName} Can be: {Value}",fieldName,value);
             }
-            
         }
     }
 }

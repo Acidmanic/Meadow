@@ -7,11 +7,13 @@ namespace Meadow.Scaffolding.Macros;
 public class LineMacro:IMacro
 {
     public string Name { get; } = "Line";
+    
+    public static readonly  string CommentLine ="-- -------------------------------------------------------" +
+                                                "--------------------------------------------------------------"; 
     public string GenerateCode(params string[] arguments)
     {
-        return
-            "-- -------------------------------------------------------" +
-            "--------------------------------------------------------------";
+        return CommentLine;
+
     }
 
     public List<Assembly> LoadedAssemblies { get; set; }

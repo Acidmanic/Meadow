@@ -52,8 +52,8 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyDbQChunkProcedureName,
                 $"spRead{ProcessedType.NameConvention.TableName}Chunk".DoubleQuot());
             
-            replacementList.Add(_keyDbQRangeProcedureName,ProcessedType.NameConvention.Range.DoubleQuot());
-            replacementList.Add(_keyDbQExistingValuesProcedureName,ProcessedType.NameConvention.ExistingValues.DoubleQuot());
+            replacementList.Add(_keyDbQRangeProcedureName,ProcessedType.NameConvention.RangeProcedureName.DoubleQuot());
+            replacementList.Add(_keyDbQExistingValuesProcedureName,ProcessedType.NameConvention.ExistingValuesProcedureName.DoubleQuot());
         }
 
         protected override string Template => $@"

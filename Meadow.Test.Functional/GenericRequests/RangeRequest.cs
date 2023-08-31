@@ -19,7 +19,7 @@ namespace Meadow.Test.Functional.GenericRequests
         
         public override string RequestText
         {
-            get => Configuration.GetNameConvention(typeof(TEntity)).Range;
+            get => Configuration.GetNameConvention(typeof(TEntity)).RangeProcedureName;
             protected set
             {
                 
