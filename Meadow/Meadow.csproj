@@ -7,12 +7,12 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Acidmanic.Utilities" Version="1.0.12" />
+        <PackageReference Include="Acidmanic.Utilities" Version="1.0.13" />
         <PackageReference Include="CorePluralizer" Version="1.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b06" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b07" />
     </ItemGroup>
 
 
