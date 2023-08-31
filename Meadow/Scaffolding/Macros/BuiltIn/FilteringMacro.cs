@@ -15,5 +15,6 @@ public class FilteringMacro : BuiltinMacroBase
             .OverrideEntityType<FilterResult>()
             .OnRepetitionSkipNewOne();
         builder.Add(CommonSnippets.FilteringProcedures).BehaviorUseIdAgnostic();
+        builder.Add(CommonSnippets.DataBound).BehaviorUseIdAgnostic();
     }
 }

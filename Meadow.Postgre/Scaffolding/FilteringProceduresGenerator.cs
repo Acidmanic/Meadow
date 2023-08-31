@@ -100,29 +100,6 @@ begin
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------
-create function {_keyDbQRangeProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
-                returns table({"Max".DoubleQuot()} TEXT,{"Min".DoubleQuot()} TEXT) as $$
-declare sql text = '';
-begin
-    sql = CONCAT('select TEXT(MAX({ll}',{"par_FieldName".DoubleQuot()},'{ll})) {"Max".DoubleQuot()}, TEXT(MIN({ll}' , {"par_FieldName".DoubleQuot()}, '{ll})) {"Min".DoubleQuot()} from {_keyDbQTableName};' );
-     return QUERY execute sql ;    
-end;
-$$ language plpgsql;
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------
-create function {_keyDbQExistingValuesProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
-                returns table({"Value".DoubleQuot()} TEXT) as $$
-declare sql text = '';
-begin
-   
-    sql = CONCAT('select distinct TEXT({ll}',{"par_FieldName".DoubleQuot()},'{ll}) {"Value".DoubleQuot()} from {_keyDbQTableName} order by {"Value".DoubleQuot()} asc');
-     return QUERY execute sql ;    
-end;
-$$ language plpgsql;
--- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
     }
 }
