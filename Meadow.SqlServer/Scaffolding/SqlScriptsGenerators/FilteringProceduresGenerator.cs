@@ -35,6 +35,10 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyEntityParameters = GenerateKey();
+        
+        private readonly string _keyRemoveExisingProcedureName = GenerateKey();
+        private readonly string _keyFilterIfNeededProcedureName = GenerateKey();
+        private readonly string _keyReadChunkProcedureName = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -47,15 +51,19 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             var entityParameters = ProcessedType.Parameters.Select(p => p.Name);
 
             replacementList.Add(_keyEntityParameters, string.Join(',', entityParameters));
+            
+            replacementList.Add(_keyRemoveExisingProcedureName,ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
+            replacementList.Add(_keyFilterIfNeededProcedureName,ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
+            replacementList.Add(_keyReadChunkProcedureName,ProcessedType.NameConvention.ReadChunkProcedureName);
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp BIGINT) AS
+CREATE OR ALTER PROCEDURE {_keyRemoveExisingProcedureName}(@ExpirationTimeStamp BIGINT) AS
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < @ExpirationTimeStamp
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId NVARCHAR(32),
+CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024)) AS
     IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
@@ -69,7 +77,7 @@ CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId NVARCHAR(32),
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset BIGINT,
+CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
                                     @Size BIGINT,
                                     @SearchId nvarchar(32)) AS
     ;WITH Results_CTE AS
@@ -84,18 +92,6 @@ CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset BIGINT,
      FROM Results_CTE
      WHERE RowNum >= (@Offset+1)
        AND RowNum < (@Offset+1) + @Size
-GO
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE sp{_keyTableName}Range(@FieldName nvarchar(32)) AS
-
-    declare @query nvarchar(1024) = CONCAT('SELECT MAX(',@FieldName,') ''Max'', MIN(',@FieldName,') ''Min'' FROM {_keyTableName}' );
-    execute sp_executesql @query
-GO
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE sp{_keyTableName}ExistingValues(@FieldName nvarchar(32)) AS
-
-    declare @query nvarchar(1024) = CONCAT('SELECT DISTINCT ',@FieldName,' ''Value'' FROM {_keyTableName} ORDER BY ',@FieldName,' ASC');
-    execute sp_executesql @query
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

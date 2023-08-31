@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
@@ -18,6 +19,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             : base(new MySqlDbTypeNameMapper(), configuration)
         {
             ProcessedType = Process(type);
+            if (RepetitionHandling != RepetitionHandling.Create)
+            {
+                LogUnSupportedRepetitionHandling("Data Bound");
+            }
+            
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)

@@ -17,7 +17,7 @@ namespace Meadow.Postgre.Scaffolding
         {
             if (RepetitionHandling != RepetitionHandling.Create)
             {
-                LogUnSupportedRepetitionHandling("FilteringProcedures");
+                LogUnSupportedRepetitionHandling("Data Bound");
             }
 
             ProcessedType = Process(type);
@@ -54,7 +54,7 @@ namespace Meadow.Postgre.Scaffolding
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-create function {_keyDbQRangeProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
+create or replace function {_keyDbQRangeProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
                 returns table({"Max".DoubleQuot()} TEXT,{"Min".DoubleQuot()} TEXT) as $$
 declare sql text = '';
 begin
@@ -65,7 +65,7 @@ $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-create function {_keyDbQExistingValuesProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
+create or replace function {_keyDbQExistingValuesProcedureName}({"par_FieldName".DoubleQuot()} TEXT)  
                 returns table({"Value".DoubleQuot()} TEXT) as $$
 declare sql text = '';
 begin
