@@ -69,14 +69,6 @@ AS
     WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE sp{_keyTableName}Range(@FieldName TEXT) AS
-    SELECT MAX(&@FieldName) 'Max', MIN(&@FieldName) 'Min' FROM {_keyTableName};
-GO
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE sp{_keyTableName}ExistingValues(@FieldName TEXT) AS
-    SELECT DISTINCT &@FieldName 'Value' FROM {_keyTableName} ORDER BY &@FieldName ASC;
-GO
--- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
     }
 }
