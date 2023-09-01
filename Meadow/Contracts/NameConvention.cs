@@ -123,6 +123,8 @@ namespace Meadow.Contracts
             
             PerformFilterIfNeededProcedureName = "spPerform" + TableName + "FilterIfNeeded";
             
+            PerformFilterIfNeededProcedureNameFullTree = "spPerform" + TableName + "FilterIfNeededFullTree";
+            
             ReadChunkProcedureName = "spRead" + TableName + "Chunk";
             
             ReadChunkProcedureNameFullTree = "spRead" + TableName + "ChunkFullTree";
@@ -165,6 +167,7 @@ namespace Meadow.Contracts
         public string RemoveExpiredFilterResultsProcedureName => "spRemoveExpiredFilterResults";
         
         public string PerformFilterIfNeededProcedureName { get; }
+        public string PerformFilterIfNeededProcedureNameFullTree { get; }
         
         public string ReadChunkProcedureName { get; }
         

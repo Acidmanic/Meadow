@@ -16,9 +16,12 @@ namespace Meadow.Test.Functional.GenericRequests
         {
             RegisterTranslationTask(t =>
             {
+
+                var filterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()); 
+                
                 ToStorage = new FilterShell
                 {
-                    FilterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()),
+                    FilterExpression = filterExpression,
                     SearchId = searchId ?? Guid.NewGuid().SearchId(),
                     ExpirationTimeStamp = typeof(TStorage).GetFilterResultExpirationPointMilliseconds()
                 };
@@ -27,7 +30,8 @@ namespace Meadow.Test.Functional.GenericRequests
 
         public override string RequestText
         {
-            get => Configuration.GetNameConvention<TStorage>().PerformFilterIfNeededProcedureName;
+            get => FullTreeReadWrite()?Configuration.GetNameConvention<TStorage>().PerformFilterIfNeededProcedureNameFullTree: 
+                Configuration.GetNameConvention<TStorage>().PerformFilterIfNeededProcedureName;
             protected set
             {
                     

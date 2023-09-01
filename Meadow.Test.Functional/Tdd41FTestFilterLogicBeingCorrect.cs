@@ -11,7 +11,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UseMySql();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -136,6 +136,45 @@ namespace Meadow.Test.Functional
             {
                 logger.LogInformation("{FieldName} Can be: {Value}",fieldName,value);
             }
+
+            var fullTreeFilter = new FilterQuery
+            {
+                EntityType = typeof(Person)
+            };
+            fullTreeFilter.Add(new FilterItem
+            {
+                Key = "Job.IncomeInRials",
+                Minimum = "300",
+                ValueComparison = ValueComparison.LargerThan,
+                ValueType = typeof(int)
+            });
+
+            var filtreeResults = engine
+                .PerformRequest(new PerformSearchIfNeededRequest<Person>(fullTreeFilter), true)
+                .FromStorage;
+
+            if (filtreeResults == null || filtreeResults.Count == 0)
+            {
+                throw new Exception("Unable to execute full tree filter request");
+            }
+            var filtreeSearchId = filtreeResults.FirstOrDefault()?.SearchId;
+
+            var filtreePersons = engine
+                .PerformRequest(new ReadChunkRequest<Person>(filtreeSearchId),true)
+                .FromStorage;
+            
+            if (filtreeResults == null || filtreeResults.Count == 0)
+            {
+                throw new Exception("Unable to execute fulltree read chunk request");
+            }
+            
+            foreach (var person in filtreePersons)
+            {
+                Log(logger,person);
+            }
+            
+            logger.LogInformation("[PASS] Full tree filtering is working");
+            
         }
     }
 }

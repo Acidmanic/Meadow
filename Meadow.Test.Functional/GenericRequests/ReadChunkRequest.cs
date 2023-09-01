@@ -19,11 +19,10 @@ namespace Meadow.Test.Functional.GenericRequests
 
         public override string RequestText
         {
-            get => Configuration.GetNameConvention<TStorage>().ReadChunkProcedureName;
-            protected set
-            {
-                    
-            }
+            get => FullTreeReadWrite()
+                ? Configuration.GetNameConvention<TStorage>().ReadChunkProcedureNameFullTree
+                : Configuration.GetNameConvention<TStorage>().ReadChunkProcedureName;
+            protected set { }
         }
     }
 }
