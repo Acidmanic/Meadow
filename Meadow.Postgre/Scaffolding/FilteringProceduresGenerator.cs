@@ -32,28 +32,51 @@ namespace Meadow.Postgre.Scaffolding
         }
 
         private readonly string _keyTableName = GenerateKey();
+
         private readonly string _keyDbQTableName = GenerateKey();
+        private readonly string _keyDbQFullTreeView = GenerateKey();
+
         private readonly string _keyDbQIdFieldName = GenerateKey();
+        private readonly string _keyDbQIdFieldNameFullTree = GenerateKey();
+
         private readonly string _keyDbQFilterProcedureName = GenerateKey();
+        private readonly string _keyDbQFilterProcedureNameFullTree = GenerateKey();
+
         private readonly string _keyDbQChunkProcedureName = GenerateKey();
+        private readonly string _keyDbQChunkProcedureNameFullTree = GenerateKey();
+
+
         private readonly string _keyDbQRangeProcedureName = GenerateKey();
         private readonly string _keyDbQExistingValuesProcedureName = GenerateKey();
 
-        protected static readonly string ll = "\""; 
+        protected static readonly string ll = "\"";
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+
             replacementList.Add(_keyDbQTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
+            replacementList.Add(_keyDbQFullTreeView, ProcessedType.NameConvention.FullTreeViewName.DoubleQuot());
+
             replacementList.Add(_keyDbQFilterProcedureName,
-                $"spPerform{ProcessedType.NameConvention.TableName}FilterIfNeeded".DoubleQuot());
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureName.DoubleQuot());
+            replacementList.Add(_keyDbQFilterProcedureNameFullTree,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree.DoubleQuot());
+
             replacementList.Add(_keyDbQIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name.DoubleQuot() : "[NO-ID-FIELD]");
+            replacementList.Add(_keyDbQIdFieldNameFullTree,
+                ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name.DoubleQuot() : "[NO-ID-FIELD]");
+
             replacementList.Add(_keyDbQChunkProcedureName,
-                $"spRead{ProcessedType.NameConvention.TableName}Chunk".DoubleQuot());
-            
-            replacementList.Add(_keyDbQRangeProcedureName,ProcessedType.NameConvention.RangeProcedureName.DoubleQuot());
-            replacementList.Add(_keyDbQExistingValuesProcedureName,ProcessedType.NameConvention.ExistingValuesProcedureName.DoubleQuot());
+                ProcessedType.NameConvention.ReadChunkProcedureName.DoubleQuot());
+            replacementList.Add(_keyDbQChunkProcedureNameFullTree,
+                ProcessedType.NameConvention.ReadChunkProcedureNameFullTree.DoubleQuot());
+
+            replacementList.Add(_keyDbQRangeProcedureName,
+                ProcessedType.NameConvention.RangeProcedureName.DoubleQuot());
+            replacementList.Add(_keyDbQExistingValuesProcedureName,
+                ProcessedType.NameConvention.ExistingValuesProcedureName.DoubleQuot());
         }
 
         protected override string Template => $@"
@@ -89,6 +112,28 @@ $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
+create function {_keyDbQFilterProcedureNameFullTree} 
+                ({"par_SearchId".DoubleQuot()} TEXT,
+                {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
+                {"par_FilterExpression".DoubleQuot()} TEXT) 
+    returns setof {"FilterResults".DoubleQuot()} as $$
+    declare sql text = '';
+begin 
+    if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
+        {"par_FilterExpression".DoubleQuot()} = 'true';
+    end if;
+    sql = CONCAT('insert into {"FilterResults".DoubleQuot()} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
+        select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
+        where ',{"par_FilterExpression".DoubleQuot()},';');
+    if not exists(select 1 from {"FilterResults".DoubleQuot()} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
+        execute sql; 
+    end if;
+    return query select * from {"FilterResults".DoubleQuot()} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()};
+end;
+$$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQChunkProcedureName}
                 ({"par_Offset".DoubleQuot()} BIGINT,
                  {"par_Size".DoubleQuot()} BIGINT,
@@ -97,6 +142,19 @@ begin
     return query select {_keyDbQTableName}.* from {_keyDbQTableName} 
         inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
         on {_keyDbQTableName}.{_keyDbQIdFieldName} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
+end;
+$$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
+create function {_keyDbQChunkProcedureNameFullTree}
+                ({"par_Offset".DoubleQuot()} BIGINT,
+                 {"par_Size".DoubleQuot()} BIGINT,
+                 {"par_SearchId".DoubleQuot()} TEXT) returns setof {_keyDbQFullTreeView} as $$
+begin
+    return query select {_keyDbQFullTreeView}.* from {_keyDbQFullTreeView} 
+        inner join (select * from {"FilterResults".DoubleQuot()} where {"FilterResults".DoubleQuot()}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
+        on {_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------

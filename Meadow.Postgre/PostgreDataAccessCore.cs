@@ -148,7 +148,7 @@ namespace Meadow.Postgre
 
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadCodeGenerator(typeof(TModel), configuration, false).Generate().Text;
+            var script = new ReadCodeGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -157,7 +157,7 @@ namespace Meadow.Postgre
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadCodeGenerator(typeof(TModel), configuration, false).Generate().Text;
+            var script = new ReadCodeGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
