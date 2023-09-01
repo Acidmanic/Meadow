@@ -29,7 +29,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyIdFieldName = GenerateKey();
 
 
-        protected override string GetProcedureName()
+        protected override string GetProcedureName(bool fullTree)
         {
             return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.UpdateProcedureName;
         }

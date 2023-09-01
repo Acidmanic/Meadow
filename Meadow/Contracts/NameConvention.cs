@@ -36,6 +36,8 @@ namespace Meadow.Contracts
         
         public string ExistingValuesProcedureName { get; private set; }
         
+        public string FullTreeViewName { get; private set; }
+        
 
         public NameConvention(Type entityType) : this(entityType, new PluralDataOwnerNameProvider())
         {
@@ -50,6 +52,8 @@ namespace Meadow.Contracts
             TableNameProvider = tableNameProvider;
 
             TableName = TableNameProvider.GetNameForOwnerType(EntityType);
+            
+            FullTreeViewName = TableName + "FullTree";
 
             DeleteAllProcedureName = "spDeleteAll" + TableName;
 

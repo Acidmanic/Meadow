@@ -20,7 +20,7 @@ namespace Meadow.Test.Functional.GenericRequests
             {
                 var nc = Configuration.GetNameConvention<TEntity>();
 
-                return nc.SelectByIdProcedureName;
+                return FullTreeReadWrite()?nc.SelectByIdProcedureNameFullTree: nc.SelectByIdProcedureName;
             }
         }
     }

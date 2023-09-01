@@ -10,7 +10,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UsePostgre();
+            UseMySql();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -90,7 +90,49 @@ namespace Meadow.Test.Functional
             }
 
             logger.LogInformation("[PASS] Delete By Id is OK");
+
+
+            var fulTrees = engine
+                .PerformRequest(new ReadAllRequest<Person>(), true)
+                .FromStorage;
+
+            // Remember personOfInterest is deleted
+            if (fulTrees.Count != 4)
+            {
+                throw new Exception("Unable to read all items full tree");
+            }
             
+            logger.LogInformation("[PASS] Read All FullTree is OK");
+
+
+            var ftrId = 4;
+            var ftrSeedIndexId = ftrId -1;
+            
+            var fullTreeById = engine
+                .PerformRequest(new ReadByIdRequest<Person, long>(ftrId), true)
+                .FromStorage.FirstOrDefault();
+
+            if (fullTreeById == null)
+            {
+                throw new Exception("Unable to read fulltree by id");
+            }
+
+            if (fullTreeById.Name != Persons[ftrSeedIndexId].Name ||
+                fullTreeById.Surname != Persons[ftrSeedIndexId].Surname ||
+                fullTreeById.JobId != Persons[ftrSeedIndexId].JobId ||
+                fullTreeById.Age != Persons[ftrSeedIndexId].Age ||
+                fullTreeById.Addresses == null ||
+                fullTreeById.Addresses.Count != ftrId ||
+                fullTreeById.Job == null ||
+                fullTreeById.JobId != fullTreeById.Job.Id ||
+                fullTreeById.Job.Title != Jobs[ftrSeedIndexId].Title ||
+                fullTreeById.Job.IncomeInRials != Jobs[ftrSeedIndexId].IncomeInRials ||
+                fullTreeById.Job.JobDescription != Jobs[ftrSeedIndexId].JobDescription)
+            {
+                throw new Exception("FullTree by id has read wrong value");
+            }
+            logger.LogInformation("[PASS] Read By Id FullTree is OK");
+
             logger.LogInformation("{Database}'s Crud operations test has been Passed.",DatabaseName);
         }
     }

@@ -62,7 +62,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             return "";
         }
 
-        protected override string GetProcedureName()
+        protected override string GetProcedureName(bool fullTree)
         {
             var nameConvention = Processed.NameConvention;
 
@@ -73,26 +73,21 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             if (AllNotById)
             {
-                if (Top > 0)
+                return (Top > 0) switch
                 {
-                    if (OrderAscending)
-                    {
-                        return nameConvention.SelectFirstProcedureName;
-                    }
-                    else
-                    {
-                        return nameConvention.SelectLastProcedureName;
-                    }
-                }
-                else
-                {
-                    return nameConvention.SelectAllProcedureName;
-                }
+                    true when OrderAscending => fullTree
+                        ? nameConvention.SelectFirstProcedureNameFullTree
+                        : nameConvention.SelectFirstProcedureName,
+                    true => fullTree
+                        ? nameConvention.SelectLastProcedureNameFullTree
+                        : nameConvention.SelectLastProcedureName,
+                    _ => fullTree
+                        ? nameConvention.SelectAllProcedureNameFullTree
+                        : nameConvention.SelectAllProcedureName
+                };
             }
-            else
-            {
-                return nameConvention.SelectByIdProcedureName;
-            }
+
+            return fullTree ? nameConvention.SelectByIdProcedureNameFullTree : nameConvention.SelectByIdProcedureName;
         }
 
         private readonly string _keyIdParam = GenerateKey();
@@ -100,6 +95,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyTopClause = GenerateKey();
         private readonly string _keyOrderClause = GenerateKey();
+
+        private readonly string _keyFullTreeViewName = GenerateKey();
+        private readonly string _keyWhereClauseFullTree = GenerateKey();
+        private readonly string _keyOrderClauseFullTree = GenerateKey();
 
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -114,15 +113,22 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                 AllNotById ? "" : ("IN " + Processed.IdParameter.Name + " " + Processed.IdParameter.Type));
 
             replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            
+            replacementList.Add(_keyFullTreeViewName, Processed.NameConvention.FullTreeViewName);
 
             replacementList.Add(_keyWhereClause, AllNotById
                 ? ""
                 : ("WHERE " + Processed.NameConvention.TableName + "."
                    + Processed.IdParameter.Name + " = " + Processed.IdParameter.Name));
+            
+            replacementList.Add(_keyWhereClauseFullTree, AllNotById
+                ? ""
+                : ("WHERE " + Processed.NameConvention.FullTreeViewName + "."
+                   + Processed.IdParameterFullTree.Name + " = " + Processed.IdParameter.Name));
 
-            var order = GetOrder(Processed.IdParameter.Name);
+            replacementList.Add(_keyOrderClause, GetOrder(Processed.IdParameter.Name));
 
-            replacementList.Add(_keyOrderClause, order);
+            replacementList.Add(_keyOrderClauseFullTree, GetOrder(Processed.IdParameterFullTree.Name));
 
             replacementList.Add(_keyTopClause, GetTop());
         }
@@ -131,6 +137,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {KeyCreationHeader} {KeyProcedureName}({_keyIdParam})
 BEGIN
     SELECT * FROM {_keyTableName} {_keyWhereClause} {_keyOrderClause} {_keyTopClause};
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
+{KeyCreationHeaderFullTree} {KeyProcedureNameFullTree}({_keyIdParam})
+BEGIN
+    SELECT * FROM {_keyFullTreeViewName} {_keyWhereClauseFullTree} {_keyOrderClauseFullTree} {_keyTopClause};
 END;
 ".Trim();
     }

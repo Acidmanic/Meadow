@@ -15,8 +15,18 @@ namespace Meadow.Scaffolding.Models
         
         public List<Parameter> NoneIdParameters { get; set; }= new List<Parameter>();
         
-        
         public List<Parameter> NoneIdUniqueParameters { get; set; }= new List<Parameter>();
+        
+        public Parameter IdParameter { get; set; }
+        
+        
+        public List<Parameter> ParametersFullTree { get; set; } = new List<Parameter>();
+        
+        public List<Parameter> NoneIdParametersFullTree { get; set; }= new List<Parameter>();
+        
+        public List<Parameter> NoneIdUniqueParametersFullTree { get; set; }= new List<Parameter>();
+        
+        public Parameter IdParameterFullTree { get; set; }
 
         public NameConvention NameConvention { get; set; }
         
@@ -24,7 +34,6 @@ namespace Meadow.Scaffolding.Models
         
         public bool HasId { get; set; }
         
-        public Parameter IdParameter { get; set; }
         
         public bool IsStreamEvent { get; set; }
         

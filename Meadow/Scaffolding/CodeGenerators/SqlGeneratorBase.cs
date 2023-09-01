@@ -6,6 +6,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
+using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -97,7 +98,15 @@ namespace Meadow.Scaffolding.CodeGenerators
             process.Parameters = new List<Parameter>();
             process.NoneIdParameters = new List<Parameter>();
             process.NoneIdUniqueParameters = new List<Parameter>();
+            
+            process.ParametersFullTree = new List<Parameter>();
+            process.NoneIdParametersFullTree = new List<Parameter>();
+            process.NoneIdUniqueParametersFullTree = new List<Parameter>();
 
+            var fullTreeMap = new FullTreeMap(type,
+                Configuration.DatabaseFieldNameDelimiter,
+                Configuration.TableNameProvider);
+            
             WalkThroughLeaves(type, leaf =>
             {
                 var parameter = new Parameter
@@ -105,20 +114,29 @@ namespace Meadow.Scaffolding.CodeGenerators
                     Name = leaf.Name,
                     Type = TypeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginalType(), leaf.PropertyAttributes)
                 };
+                var parameterFullTree = new Parameter
+                {
+                    Type = parameter.Type,
+                    Name = fullTreeMap.GetColumnNameByFullAddress(leaf.GetFullName())
+                };
 
                 process.Parameters.Add(parameter);
+                process.ParametersFullTree.Add(parameterFullTree);
 
                 if (process.HasId &&  leaf.Name == process.IdField.Name)
                 {
                     process.IdParameter = parameter;
+                    process.IdParameterFullTree = parameterFullTree;
                 }
                 else
                 {
                     process.NoneIdParameters.Add(parameter);
+                    process.NoneIdParametersFullTree.Add(parameterFullTree);
 
                     if (leaf.IsUnique)
                     {
                         process.NoneIdUniqueParameters.Add(parameter);
+                        process.NoneIdUniqueParametersFullTree.Add(parameterFullTree);
                     }
                 }
             });
