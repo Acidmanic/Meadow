@@ -5,22 +5,33 @@ using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Postgre.Scaffolding
 {
-
     public class ReadCodeGeneratorPlainOnly : ReadCodeGenerator
     {
-        public ReadCodeGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool byId) : base(type, configuration, byId)
+        public ReadCodeGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool byId) : base(type,
+            configuration, byId)
         {
-            DisableCreateFullTree = true;
         }
-        
+
+        protected override bool DisableCreateFullTree => true;
     }
-    
+
     [CommonSnippet(CommonSnippets.ReadProcedure)]
-    public class ReadCodeGenerator : PostgreByTemplateProcedureGeneratorBase
+    public class ReadCodeGeneratorFullTree : ReadCodeGenerator
+    {
+        public ReadCodeGeneratorFullTree(Type type, MeadowConfiguration configuration, bool byId) : base(type,
+            configuration, byId)
+        {
+        }
+
+        protected override bool DisableCreateFullTree => false;
+    }
+
+
+    public abstract class ReadCodeGenerator : PostgreByTemplateProcedureGeneratorBase
     {
         private bool ById { get; }
 
-        protected bool DisableCreateFullTree { get; set; } = false;
+        protected virtual bool DisableCreateFullTree => false;
 
         public ReadCodeGenerator(Type type, MeadowConfiguration configuration, bool byId) : base(type, configuration)
         {
