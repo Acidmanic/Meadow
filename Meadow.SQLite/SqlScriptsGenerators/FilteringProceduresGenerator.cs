@@ -31,16 +31,34 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             ProcessedType = Process(type);
         }
 
+
+        private readonly string _keyFilterProcedureName = GenerateKey();
+        private readonly string _keyFilterProcedureNameFullTree = GenerateKey();
+        private readonly string _keyReadChunkProcedureName = GenerateKey();
+        private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
+        
         private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyFullTreeView = GenerateKey();
+        
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyIdFieldNameFullTree = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
+            replacementList.Add(_keyFilterProcedureName,ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
+            replacementList.Add(_keyFilterProcedureNameFullTree,ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
+            
+            replacementList.Add(_keyReadChunkProcedureName,ProcessedType.NameConvention.ReadChunkProcedureName);
+            replacementList.Add(_keyReadChunkProcedureNameFullTree,ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
+            
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyFullTreeView, ProcessedType.NameConvention.FullTreeViewName);
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
+            replacementList.Add(_keyIdFieldNameFullTree,
+                ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
         }
 
         protected override string Template => $@"
@@ -50,7 +68,7 @@ AS
     DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < @ExpirationTimeStamp;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spPerform{_keyTableName}FilterIfNeeded(@SearchId TEXT,
+CREATE PROCEDURE {_keyFilterProcedureName}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
                                                   @FilterExpression TEXT)
 AS
@@ -61,11 +79,30 @@ AS
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE spRead{_keyTableName}Chunk(@Offset INTEGER,
+CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
+                                                  @ExpirationTimeStamp INTEGER,
+                                                  @FilterExpression TEXT)
+AS
+    INSERT INTO FilterResults (SearchId, ResultId, ExpirationTimeStamp) 
+    SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView} WHERE &@FilterExpression 
+    AND IIF((select count(Id) from FilterResults where FilterResults.SearchId=@SearchId)>0,false,true);
+
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset INTEGER,
                                       @Size INTEGER,
                                       @SearchId TEXT)
 AS
     SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN FilterResults ON {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
+    WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset INTEGER,
+                                      @Size INTEGER,
+                                      @SearchId TEXT)
+AS
+    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} INNER JOIN FilterResults ON {_keyFullTreeView}.{_keyIdFieldNameFullTree} = FilterResults.ResultId
     WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
