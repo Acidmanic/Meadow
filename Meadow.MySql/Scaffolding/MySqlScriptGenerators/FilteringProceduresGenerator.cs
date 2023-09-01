@@ -48,6 +48,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
+            
+            replacementList.Add(_keyRemoveExistingProcedureName,ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
+            replacementList.Add(_keyFilterIfNeededProcedureName,ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
+            replacementList.Add(_keyReadChunkProcedureName,ProcessedType.NameConvention.ReadChunkProcedureName);
         }
 
         protected override string Template => $@"
