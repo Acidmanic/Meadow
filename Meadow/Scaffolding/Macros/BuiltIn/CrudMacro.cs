@@ -11,6 +11,7 @@ public class CrudMacro : BuiltinMacroBase
     protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
     {
         builder.Add(CommonSnippets.CreateTable).BehaviorUseIdAgnostic();
+        builder.Add(CommonSnippets.FullTreeView).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.InsertProcedure).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
         builder.Add(CommonSnippets.DeleteProcedure).Behavior(CodeGenerateBehavior.UseById | CodeGenerateBehavior.UseAll);
