@@ -44,7 +44,7 @@ CREATE OR ALTER PROCEDURE {_keyRangeProcedureName}(@FieldName nvarchar(32)) AS
     execute sp_executesql @query
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE PROCEDURE {_keyExistingValuesProcedureName}(@FieldName nvarchar(32)) AS
+CREATE OR ALTER PROCEDURE {_keyExistingValuesProcedureName}(@FieldName nvarchar(32)) AS
 
     declare @query nvarchar(1024) = CONCAT('SELECT DISTINCT ',@FieldName,' ''Value'' FROM {_keyTableName} ORDER BY ',@FieldName,' ASC');
     execute sp_executesql @query
