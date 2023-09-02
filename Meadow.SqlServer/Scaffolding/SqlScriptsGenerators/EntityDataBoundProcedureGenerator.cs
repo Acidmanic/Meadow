@@ -38,13 +38,13 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyRangeProcedureName}(@FieldName nvarchar(32)) AS
+CREATE OR ALTER PROCEDURE {_keyRangeProcedureName}(@FieldName nvarchar(32)) AS
 
     declare @query nvarchar(1024) = CONCAT('SELECT MAX(',@FieldName,') ''Max'', MIN(',@FieldName,') ''Min'' FROM {_keyTableName}' );
     execute sp_executesql @query
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyExistingValuesProcedureName}(@FieldName nvarchar(32)) AS
+CREATE OR ALTER PROCEDURE PROCEDURE {_keyExistingValuesProcedureName}(@FieldName nvarchar(32)) AS
 
     declare @query nvarchar(1024) = CONCAT('SELECT DISTINCT ',@FieldName,' ''Value'' FROM {_keyTableName} ORDER BY ',@FieldName,' ASC');
     execute sp_executesql @query
