@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Meadow.Test.Functional.GenericRequests;
@@ -173,8 +174,38 @@ namespace Meadow.Test.Functional
                 Log(logger,person);
             }
             
-            logger.LogInformation("[PASS] Full tree filtering is working");
             
+
+            var badFilter = new FilterQuery { EntityType = typeof(Person) };
+            badFilter.Add(new FilterItem
+            {
+                Key = "Job.Title",
+                ValueComparison = ValueComparison.Equal,
+                ValueType = typeof(string),
+                EqualValues = new List<string>{"the-title-that-does-not-exist"}
+            });
+
+            var badResult = engine
+                .PerformRequest(new PerformSearchIfNeededRequest<Person>(badFilter), true)
+                .FromStorage;
+
+            if (badResult.Count > 0)
+            {
+                throw new Exception("bad filter should not find any items");
+            }
+
+            var badSearchId = badResult.FirstOrDefault()?.SearchId ?? "";
+            
+            var badPersons = engine
+                .PerformRequest(new ReadChunkRequest<Person>(badSearchId),true)
+                .FromStorage;
+
+            if (badPersons.Count > 0)
+            {
+                throw new Exception("null search id should not fetch any items");
+            }
+            
+            logger.LogInformation("[PASS] Full tree filtering is working");
         }
     }
 }
