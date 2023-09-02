@@ -123,7 +123,7 @@ begin
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
     sql = CONCAT('insert into {"FilterResults".DoubleQuot()} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
-        select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
+        select distinct ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
         where ',{"par_FilterExpression".DoubleQuot()},';');
     if not exists(select 1 from {"FilterResults".DoubleQuot()} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 

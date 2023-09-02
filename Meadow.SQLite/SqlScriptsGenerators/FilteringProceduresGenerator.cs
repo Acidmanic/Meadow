@@ -84,7 +84,7 @@ CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
                                                   @FilterExpression TEXT)
 AS
     INSERT INTO FilterResults (SearchId, ResultId, ExpirationTimeStamp) 
-    SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView} WHERE &@FilterExpression 
+    SELECT DISTINCT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView} WHERE &@FilterExpression 
     AND IIF((select count(Id) from FilterResults where FilterResults.SearchId=@SearchId)>0,false,true);
 
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;

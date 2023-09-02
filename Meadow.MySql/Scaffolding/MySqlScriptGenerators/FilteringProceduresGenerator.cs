@@ -106,7 +106,7 @@ BEGIN
         END IF;
         set @query = CONCAT(
             'insert into FilterResults (SearchId,ResultId,ExpirationTimeStamp)',
-            'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
+            'select distinct \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
             ' from {_keyFullTreeViewName} WHERE ' , FilterExpression,';');
         PREPARE stmt FROM @query;
         EXECUTE stmt;
