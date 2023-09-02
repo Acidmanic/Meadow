@@ -20,7 +20,7 @@ namespace Meadow.SqlServer
 
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator(typeof(TModel), configuration, false).Generate().Text;
+            var script = new ReadProcedureGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -29,7 +29,7 @@ namespace Meadow.SqlServer
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureGenerator(typeof(TModel), configuration, false).Generate().Text;
+            var script = new ReadProcedureGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
             var request = new SqlRequest(script);
 

@@ -15,7 +15,9 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
 
         protected readonly string KeyCreationHeader = GenerateKey();
+        protected readonly string KeyCreationHeaderFullTree = GenerateKey();
         protected readonly string KeyProcedureName = GenerateKey();
+        protected readonly string KeyProcedureNameFullTree = GenerateKey();
 
         public SqlServerByTemplateCodeGeneratorBase(Type entityType, MeadowConfiguration configuration)
             : base(new SqlDbTypeNameMapper(), configuration)
@@ -28,13 +30,14 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(KeyCreationHeader, GetCreationHeader());
-            replacementList.Add(KeyProcedureName, GetProcedureName());
+            replacementList.Add(KeyProcedureName, GetProcedureName(false));
+            replacementList.Add(KeyProcedureNameFullTree, GetProcedureName(true));
 
             AddBodyReplacements(replacementList);
         }
 
 
-        protected abstract string GetProcedureName();
+        protected abstract string GetProcedureName(bool fullTree);
         protected abstract void AddBodyReplacements(Dictionary<string, string> replacementList);
 
         private string GetCreationHeader()

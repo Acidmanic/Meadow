@@ -30,7 +30,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyRecordPhrase = GenerateKey();
 
 
-        protected override string GetProcedureName()
+        protected override string GetProcedureName(bool fullTree)
         {
             return IsDatabaseObjectNameForced
                 ? ForcedDatabaseObjectName

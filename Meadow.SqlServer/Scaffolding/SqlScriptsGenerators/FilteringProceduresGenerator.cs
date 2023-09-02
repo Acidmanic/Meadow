@@ -33,28 +33,53 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         }
 
         private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyFullTreeViewName = GenerateKey();
+
+
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyIdFieldNameFullTree = GenerateKey();
+
         private readonly string _keyEntityParameters = GenerateKey();
-        
+        private readonly string _keyEntityParametersFullTree = GenerateKey();
+
         private readonly string _keyRemoveExisingProcedureName = GenerateKey();
+
         private readonly string _keyFilterIfNeededProcedureName = GenerateKey();
+        private readonly string _keyFilterIfNeededProcedureNameFullTree = GenerateKey();
+
         private readonly string _keyReadChunkProcedureName = GenerateKey();
+        private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyFullTreeViewName, ProcessedType.NameConvention.FullTreeViewName);
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
+            replacementList.Add(_keyIdFieldNameFullTree,
+                ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
 
             var entityParameters = ProcessedType.Parameters.Select(p => p.Name);
 
             replacementList.Add(_keyEntityParameters, string.Join(',', entityParameters));
-            
-            replacementList.Add(_keyRemoveExisingProcedureName,ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
-            replacementList.Add(_keyFilterIfNeededProcedureName,ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
-            replacementList.Add(_keyReadChunkProcedureName,ProcessedType.NameConvention.ReadChunkProcedureName);
+
+            var entityParametersFullTree = ProcessedType.ParametersFullTree.Select(p => p.Name);
+
+            replacementList.Add(_keyEntityParametersFullTree, string.Join(',', entityParametersFullTree));
+
+            replacementList.Add(_keyRemoveExisingProcedureName,
+                ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
+
+
+            replacementList.Add(_keyFilterIfNeededProcedureName,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
+            replacementList.Add(_keyFilterIfNeededProcedureNameFullTree,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
+            replacementList.Add(_keyReadChunkProcedureName, ProcessedType.NameConvention.ReadChunkProcedureName);
+            replacementList.Add(_keyReadChunkProcedureNameFullTree,
+                ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
         }
 
         protected override string Template => $@"
@@ -77,6 +102,20 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
     SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32),
+                                                  @ExpirationTimeStamp BIGINT,
+                                                  @FilterExpression NVARCHAR(1024)) AS
+    IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
+    BEGIN
+        SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
+        declare @query nvarchar(1600) = CONCAT(
+            'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp) ',
+            'SELECT DISTINCT ''',@SearchId,''',{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,' FROM {_keyFullTreeViewName} WHERE ' , @FilterExpression);
+        execute sp_executesql @query
+    END  
+    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
                                     @Size BIGINT,
                                     @SearchId nvarchar(32)) AS
@@ -92,6 +131,18 @@ CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
      FROM Results_CTE
      WHERE RowNum >= (@Offset+1)
        AND RowNum < (@Offset+1) + @Size
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset BIGINT,
+                                    @Size BIGINT,
+                                    @SearchId nvarchar(32)) AS
+    SELECT {_keyFullTreeViewName}.* FROM {_keyFullTreeViewName} 
+    INNER JOIN (SELECT * FROM FilterResults 
+                               WHERE FilterResults.SearchId=@SearchId
+                               ORDER BY FilterResults.Id ASC
+                               OFFSET @Offset ROWS 
+                               FETCH FIRST @Size ROWS ONLY) Fr 
+        ON  {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = Fr.ResultId 
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

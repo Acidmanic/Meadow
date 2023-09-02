@@ -26,7 +26,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyOrder = GenerateKey();
 
 
-        protected override string GetProcedureName()
+        protected override string GetProcedureName(bool fullTree)
         {
             if (IsDatabaseObjectNameForced)
             {
