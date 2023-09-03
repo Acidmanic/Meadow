@@ -96,7 +96,7 @@ namespace Meadow.BuildupScripts
                             _scripts.Add(scriptInfo);
 
                             return hadMacro && configuration.MacroPolicy == MacroPolicies.UpdateScripts;
-                        });
+                        }, ExternalToolCallMode.ForceFul);
                     }
                     finally
                     {

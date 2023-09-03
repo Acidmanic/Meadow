@@ -34,7 +34,8 @@ public class MacroEngine
     /// </summary>
     /// <param name="directory">Where .sql files are expected to be.</param>
     /// <param name="filter">If returns 'True', the file would be processed, otherwise the file would be ignored. </param>
-    public void ExecuteMacrosFor(string directory, Func<FileInfo, bool> filter = null)
+    /// <param name="callMode">If provided, it will affect which macros would be replaced depending by their markings.</param>
+    public void ExecuteMacrosFor(string directory,ExternalToolCallMode callMode, Func<FileInfo, bool> filter = null)
     {
         var files = new DirectoryInfo(directory).GetFiles("*.sql");
 
@@ -42,7 +43,7 @@ public class MacroEngine
 
         files = files.Where(filter).ToArray();
 
-        ExecuteMacrosFor(files, (det, content) => true);
+        ExecuteMacrosFor(files, (det, content) => true,callMode);
     }
 
     /// <summary>
@@ -55,7 +56,8 @@ public class MacroEngine
     /// value which is the updated content of the file. If this expression, returns 'True' the updated content would be
     /// saved into the file.
     /// </param>
-    public void ExecuteMacrosFor(FileInfo[] files, Func<bool, string, bool> macroEvaluation)
+    /// <param name="callMode">If provided, it will affect which macros would be replaced depending by their markings.</param>
+    public void ExecuteMacrosFor(FileInfo[] files, Func<bool, string, bool> macroEvaluation,ExternalToolCallMode callMode)
     {
         foreach (var file in files)
         {
@@ -73,7 +75,8 @@ public class MacroEngine
     /// value which is the updated content of the file. If this expression, returns 'True' the updated content would be
     /// saved into the file.
     /// </param>
-    public void ExecuteMacrosFor(FileInfo file, Func<bool, string, bool> macroEvaluation)
+    /// <param name="callMode">If provided, it will affect which macros would be replaced depending by their markings.</param>
+    public void ExecuteMacrosFor(FileInfo file, Func<bool, string, bool> macroEvaluation,ExternalToolCallMode callMode = ExternalToolCallMode.Regular )
     {
         var filePath = file.FullName;
 
@@ -81,6 +84,8 @@ public class MacroEngine
 
         var pointers = ex.ExtractMacros(filePath);
 
+        pointers = pointers.Where(p => ReplaceMacro(p.ExternalToolReplacementMode, callMode)).ToList();
+        
         var updates = EvaluateMacros(pointers);
 
         var anyMacros = pointers.Count > 0;
@@ -93,6 +98,24 @@ public class MacroEngine
         }
     }
 
+    private bool ReplaceMacro(ExternalToolReplacementMode replacementMode, ExternalToolCallMode callMode)
+    {
+        if (callMode == ExternalToolCallMode.Regular)
+        {
+            return replacementMode == ExternalToolReplacementMode.Always ||
+                   replacementMode == ExternalToolReplacementMode.Regular;
+        }else if (callMode == ExternalToolCallMode.ForceFul)
+        {
+            return true;
+        }else if (callMode == ExternalToolCallMode.Weak)
+        {
+            return replacementMode == ExternalToolReplacementMode.Always;
+        }
+        
+        // considered regular - regular 
+        return true;
+    }
+    
 
     private Dictionary<long, string> EvaluateMacros(List<DetectedMacroPointer> pointers)
     {

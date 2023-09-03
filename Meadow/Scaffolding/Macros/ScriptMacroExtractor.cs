@@ -11,24 +11,24 @@ public class ScriptMacroExtractor
         var lines = File.ReadAllLines(filePath);
 
         List<DetectedMacroPointer> stickers = new();
-        
-        for (int lineIndex =0;lineIndex<lines.Length;lineIndex++)
+
+        for (int lineIndex = 0; lineIndex < lines.Length; lineIndex++)
         {
             var line = lines[lineIndex];
-            
+
             var macroContents = GetMacroContent(line);
 
             foreach (var content in macroContents)
             {
                 var sticker = new DetectedMacroPointer();
-                
+
                 if (ParseInto(content, sticker))
                 {
                     sticker.FilePath = filePath;
-                    
+
                     sticker.StickerLineIndex = lineIndex;
-                
-                    stickers.Add(sticker);   
+
+                    stickers.Add(sticker);
                 }
             }
         }
@@ -41,7 +41,7 @@ public class ScriptMacroExtractor
         string chsep = char.ConvertFromUtf32(0);
 
         content = content.Replace(chsep, "");
-        
+
         content = content.Replace("\\ ", chsep);
 
         var segments = content.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -53,13 +53,30 @@ public class ScriptMacroExtractor
             if (!string.IsNullOrWhiteSpace(name))
             {
                 pointer.Name = name;
+
                 if (segments.Length > 1)
                 {
-                    pointer.Parameters = new string[segments.Length - 1];
-                }
-                for (int i = 1; i < segments.Length; i++)
-                {
-                    pointer.Parameters[i - 1] = segments[i];
+                    var parameters = new List<string>();
+
+                    for (int i = 1; i < segments.Length; i++)
+                    {
+                        var segment = segments[i];
+
+                        if ("by-force".Equals(segment, StringComparison.OrdinalIgnoreCase))
+                        {
+                            pointer.ExternalToolReplacementMode = ExternalToolReplacementMode.ByForce;
+                        }
+                        else if ("always".Equals(segment, StringComparison.OrdinalIgnoreCase))
+                        {
+                            pointer.ExternalToolReplacementMode = ExternalToolReplacementMode.Always;
+                        }
+                        else
+                        {
+                            parameters.Add(segment);
+                        }
+                    }
+
+                    pointer.Parameters = parameters.ToArray();
                 }
 
                 return true;

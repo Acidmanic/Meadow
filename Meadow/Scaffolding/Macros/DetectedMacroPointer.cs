@@ -9,4 +9,6 @@ public class DetectedMacroPointer
     public string FilePath { get; set; }
     
     public long StickerLineIndex { get; set; }
+
+    public ExternalToolReplacementMode ExternalToolReplacementMode { get; set; } = ExternalToolReplacementMode.Regular;
 }
