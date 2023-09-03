@@ -23,7 +23,9 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
     [Subcommands(
         typeof(TargetProjectPath),
         typeof(ScriptsDirectory),
-        typeof(MeadowConfigurationProvider)
+        typeof(MeadowConfigurationProvider),
+        typeof(ForceFulCallMode),
+        typeof(WeakCallMode)
     )]
     public class ApplyMacros : CommandBase
     {
@@ -57,7 +59,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
                     if (providerType)
                     {
                         if (PerformApplyingMacros(providerType, assemblies, projectDirectory,
-                                context.GetScriptsDirectoryPath()))
+                                context.GetScriptsDirectoryPath(),context.GetCallMode()))
                         {
                             Logger.LogInformation("Applied Any found Macros");
                         }
@@ -79,7 +81,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
 
         private Result PerformApplyingMacros(Type providerType, List<Assembly> assemblies, string projectDirectory,
-            string scriptsDir)
+            string scriptsDir,ExternalToolCallMode callMode)
         {
             var instance = new ObjectInstantiator().BlindInstantiate(providerType);
 
@@ -96,7 +98,7 @@ namespace Meadow.Tools.Assistant.Commands.ApplyMacros
 
                 var engin = new MacroEngine(configurations, assemblies.ToArray());
 
-                engin.ExecuteMacrosFor(scriptsDirectory, f => true);
+                engin.ExecuteMacrosFor(scriptsDirectory,callMode, f => true);
 
                 return true;
             }

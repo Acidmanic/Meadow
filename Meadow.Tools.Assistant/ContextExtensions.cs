@@ -1,11 +1,14 @@
 using System;
+using System.Security.Policy;
 using CoreCommandLine;
+using Meadow.Scaffolding.Macros;
 
 namespace Meadow.Tools.Assistant
 {
     public static class ContextExtensions
     {
         public static readonly string TargetProjectPathKey = "TargetProjectPathKey";
+        public static readonly string CallModeKey = "ExternalToolCallMode";
         public static readonly string ScriptsDirectoryPathKey = "ScriptsDirectoryPathKey";
         public static readonly string MeadowConfigurationProviderTypeNameKey = "MeadowConfigurationProviderTypeName";
 
@@ -38,6 +41,16 @@ namespace Meadow.Tools.Assistant
         public static string GetMeadowConfigurationProvideTypeName(this Context context)
         {
             return context.Get(MeadowConfigurationProviderTypeNameKey,"");
+        }
+
+        public static void SetCallMode(this Context context, ExternalToolCallMode callMode)
+        {
+            context.Set(CallModeKey,callMode);
+        }
+
+        public static ExternalToolCallMode GetCallMode(this Context context)
+        {
+            return context.Get(CallModeKey, ExternalToolCallMode.Regular);
         }
     }
 }
