@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
+using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -9,18 +10,26 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
+
     [CommonSnippet(CommonSnippets.CreateTable)]
-    public class TableCodeGenerator : ByTemplateSqlGeneratorBase
+    public class TableCodeGenerator : TableCodeGeneratorBase
+    {
+        public TableCodeGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        {
+        }
+    }
+    
+    public abstract class TableCodeGeneratorBase : ByTemplateSqlGeneratorBase
     {
         protected ProcessedType ProcessedType { get; }
 
-        public TableCodeGenerator(Type type, MeadowConfiguration configuration)
+        public TableCodeGeneratorBase(Type type, MeadowConfiguration configuration)
             : base(new PostgreDbTypeNameMapper(), configuration)
         {
             ProcessedType = Process(type);
         }
 
-        private readonly string _keyTableName = GenerateKey();
+        private readonly string _keyDbQTableName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyCreationHeader = GenerateKey();
 
@@ -57,11 +66,17 @@ namespace Meadow.Postgre.Scaffolding
         {
             replacementList.Add(_keyCreationHeader, GetCreationHeader());
 
-            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
+            replacementList.Add(_keyDbQTableName, GetTableName().DoubleQuot());
 
             replacementList.Add(_keyParameters, GetParameters());
         }
 
+
+        protected virtual string GetTableName()
+        {
+            return ProcessedType.NameConvention.TableName;
+        }
+        
         private string GetCreationHeader()
         {
             var creationHeader = "create table";
@@ -81,7 +96,7 @@ namespace Meadow.Postgre.Scaffolding
         }
 
         protected override string Template => $@"
-{_keyCreationHeader} {_keyTableName}({_keyParameters}
+{_keyCreationHeader} {_keyDbQTableName}({_keyParameters}
 );
 ------------------------------------------------------------------------------------------------------------------------
 -- SPLIT
