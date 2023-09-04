@@ -47,6 +47,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         private readonly string _keyFullTreeViewName = GenerateKey();
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
+        
+        private readonly string _keyFilterResultsTableName = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -65,6 +67,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             
             replacementList.Add(_keyFullTreeViewName,ProcessedType.NameConvention.FullTreeViewName);
             replacementList.Add(_keyIdFieldNameFullTree,ProcessedType.IdParameterFullTree.Name);
+            
+            replacementList.Add(_keyFilterResultsTableName,ProcessedType.NameConvention.FilterResultsTableName);
         }
 
         protected override string Template => $@"
@@ -72,7 +76,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 DROP PROCEDURE IF EXISTS {_keyRemoveExistingProcedureName};
 CREATE PROCEDURE {_keyRemoveExistingProcedureName}(IN ExpirationTimeStamp bigint(16))
 BEGIN
-    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < ExpirationTimeStamp;
+    DELETE FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.ExpirationTimeStamp < ExpirationTimeStamp;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(
@@ -80,19 +84,19 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(
                                                   IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024))
 BEGIN
-    if not exists(select 1 from FilterResults where FilterResults.SearchId=SearchId) then
+    if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
         IF FilterExpression IS NULL OR FilterExpression = '' THEN
             set FilterExpression = 'TRUE';
         END IF;
         set @query = CONCAT(
-            'insert into FilterResults (SearchId,ResultId,ExpirationTimeStamp)',
+            'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
             'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
             ' from {_keyTableName} WHERE ' , FilterExpression,';');
         PREPARE stmt FROM @query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
     end if;
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=SearchId;
+    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(
@@ -100,35 +104,35 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(
                                                   IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024))
 BEGIN
-    if not exists(select 1 from FilterResults where FilterResults.SearchId=SearchId) then
+    if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
         IF FilterExpression IS NULL OR FilterExpression = '' THEN
             set FilterExpression = 'TRUE';
         END IF;
         set @query = CONCAT(
-            'insert into FilterResults (SearchId,ResultId,ExpirationTimeStamp)',
+            'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
             'select distinct \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
             ' from {_keyFullTreeViewName} WHERE ' , FilterExpression,';');
         PREPARE stmt FROM @query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
     end if;
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=SearchId;
+    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(IN Offset bigint(16),
                                       IN Size bigint(16),
                                       IN SearchId nvarchar(32))
 BEGIN
-    select {_keyTableName}.* from {_keyTableName} inner join FilterResults on {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-    where FilterResults.SearchId=SearchId limit offset,size;  
+    select {_keyTableName}.* from {_keyTableName} inner join {_keyFilterResultsTableName} on {_keyTableName}.{_keyIdFieldName} = {_keyFilterResultsTableName}.ResultId
+    where {_keyFilterResultsTableName}.SearchId=SearchId limit offset,size;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(IN Offset bigint(16),
                                       IN Size bigint(16),
                                       IN SearchId nvarchar(32))
 BEGIN
-    select {_keyFullTreeViewName}.* from {_keyFullTreeViewName} inner join FilterResults on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = FilterResults.ResultId
-    where FilterResults.SearchId=SearchId limit offset,size;  
+    select {_keyFullTreeViewName}.* from {_keyFullTreeViewName} inner join {_keyFilterResultsTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = {_keyFilterResultsTableName}.ResultId
+    where {_keyFilterResultsTableName}.SearchId=SearchId limit offset,size;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

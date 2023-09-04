@@ -11,6 +11,8 @@ namespace Meadow.Contracts
         public string EntityName { get; private set; }
 
         public string TableName { get; private set; }
+        
+        public string FilterResultsTableName { get; private set; }
 
         public IDataOwnerNameProvider TableNameProvider { get; }
         
@@ -132,6 +134,10 @@ namespace Meadow.Contracts
             RangeProcedureName = "sp" + TableName + "Range";
             
             ExistingValuesProcedureName = "sp" + TableName + "ExistingValues";
+
+            FilterResultsTableName = TableName + "FilterResults";
+
+            RemoveExpiredFilterResultsProcedureName = "spRemoveExpired" + TableName + "FilterResults";
         }
 
         public string DeleteByIdProcedureName { get; }
@@ -164,7 +170,7 @@ namespace Meadow.Contracts
         
         public string SaveProcedureName { get; }
 
-        public string RemoveExpiredFilterResultsProcedureName => "spRemoveExpiredFilterResults";
+        public string RemoveExpiredFilterResultsProcedureName { get; }
         
         public string PerformFilterIfNeededProcedureName { get; }
         public string PerformFilterIfNeededProcedureNameFullTree { get; }

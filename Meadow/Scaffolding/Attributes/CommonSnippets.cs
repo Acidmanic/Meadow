@@ -14,7 +14,8 @@ public enum CommonSnippets
     EventSteamScript,
     FilteringProcedures,
     FullTreeView,
-    DataBound
+    DataBound,
+    FilterResultTable
 }
 
 public class CommonSnippetsInfo
@@ -36,6 +37,7 @@ public class CommonSnippetsInfo
         _idAwares.Add(CommonSnippets.FilteringProcedures,false);
         _idAwares.Add(CommonSnippets.FullTreeView,false);
         _idAwares.Add(CommonSnippets.DataBound,false);
+        _idAwares.Add(CommonSnippets.FilterResultTable,false);
     }
 
     public bool IsIdAware(CommonSnippets snippet)

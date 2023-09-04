@@ -26,7 +26,7 @@ namespace Meadow.Test.Functional
                 ValueType = typeof(int)
             });
 
-            var search = new PerformSearchIfNeededRequest<Person>(filter);
+            var search = new PerformSearchIfNeededRequest<Person,long>(filter);
 
             var searchResult = engine.PerformRequest(search).FromStorage;
 
@@ -45,7 +45,7 @@ namespace Meadow.Test.Functional
             }
 
             var fakeSearchResults = engine.PerformRequest
-                (new PerformSearchIfNeededRequest<Person>(new FilterQuery { EntityType = typeof(Person) },
+                (new PerformSearchIfNeededRequest<Person,long>(new FilterQuery { EntityType = typeof(Person) },
                     searchId))
                 .FromStorage;
 
@@ -79,7 +79,7 @@ namespace Meadow.Test.Functional
                 ValueType = typeof(int)
             });
 
-            searchResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person>(filter)).FromStorage;
+            searchResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person,long>(filter)).FromStorage;
 
             if (searchResult.Count != 3)
             {
@@ -151,7 +151,7 @@ namespace Meadow.Test.Functional
             });
 
             var filtreeResults = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person>(fullTreeFilter), true)
+                .PerformRequest(new PerformSearchIfNeededRequest<Person,long>(fullTreeFilter), true)
                 .FromStorage;
 
             if (filtreeResults == null || filtreeResults.Count == 0)
@@ -186,7 +186,7 @@ namespace Meadow.Test.Functional
             });
 
             var badResult = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person>(badFilter), true)
+                .PerformRequest(new PerformSearchIfNeededRequest<Person,long>(badFilter), true)
                 .FromStorage;
 
             if (badResult.Count > 0)

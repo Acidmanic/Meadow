@@ -1,5 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
+using Acidmanic.Utilities.Filtering.Models;
+using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -60,5 +64,26 @@ namespace Meadow.Scaffolding.CodeGenerators
         {
             Console.WriteLine($"WARNING: {snippetName} Snippets does not support repetition handling.");
         }
+
+
+        protected static Type FilterResultType(Type entityType)
+        {
+            var idLeaf = TypeIdentity.FindIdentityLeaf(entityType);
+
+            if (idLeaf == null)
+            {
+                throw new Exception($"WARNING: the entity of type {entityType.FullName}" +
+                                  $", does not have an identifier field. there for it's not possible " +
+                                  $"to have a filter result table created for it.");
+            }
+
+            var genericType = typeof(FilterResult<>);
+
+            var filterResultType = genericType.MakeGenericType(idLeaf.Type);
+            
+            return filterResultType;
+        }
+        
+        
     }
 }

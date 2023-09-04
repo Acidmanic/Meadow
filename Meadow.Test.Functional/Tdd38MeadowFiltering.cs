@@ -38,7 +38,7 @@ namespace Meadow.Test.Functional
             public string FilterHash { get; set; }
         }
 
-        private sealed class PerformPersonsFilterIfNeededRequest : MeadowRequest<Filter, FilterResult>
+        private sealed class PerformPersonsFilterIfNeededRequest : MeadowRequest<Filter, FilterResult<long>>
         {
             public PerformPersonsFilterIfNeededRequest(FilterQuery filterQuery) : base(true)
             {

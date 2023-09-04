@@ -17,11 +17,18 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     }
 
     [CommonSnippet(CommonSnippets.CreateTable)]
-    public class TableScriptGenerator : ByTemplateSqlGeneratorBase
+    public class TableScriptGenerator : TableScriptGeneratorBase
+    {
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        {
+        }
+    }
+
+    public abstract class TableScriptGeneratorBase : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;
 
-        public TableScriptGenerator(Type type, MeadowConfiguration configuration) : base(new MySqlDbTypeNameMapper(),
+        public TableScriptGeneratorBase(Type type, MeadowConfiguration configuration) : base(new MySqlDbTypeNameMapper(),
             configuration)
         {
             _type = type;
@@ -54,13 +61,22 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyDropping, dropping);
             replacementList.Add(_keyCreation, creation);
 
-            replacementList.Add(_keyTableName,
-                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
+            // replacementList.Add(_keyTableName,
+            //                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
+            
+            replacementList.Add(_keyTableName,GetTableName(process));
 
             var parameters = GetParameters(process);
 
             replacementList.Add(_keyParameters, parameters);
         }
+
+
+        protected virtual string GetTableName(ProcessedType process)
+        {
+            return process.NameConvention.TableName;
+        }
+        
 
         private string GetParameters(ProcessedType process)
         {

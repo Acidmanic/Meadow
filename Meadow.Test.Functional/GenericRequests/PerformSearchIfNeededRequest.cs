@@ -10,7 +10,7 @@ using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.GenericRequests
 {
-    public sealed class PerformSearchIfNeededRequest<TStorage> : MeadowRequest<FilterShell, FilterResult>
+    public sealed class PerformSearchIfNeededRequest<TStorage,TId> : MeadowRequest<FilterShell, FilterResult<TId>>
     {
         public PerformSearchIfNeededRequest(FilterQuery filter,string searchId = null) : base(true)
         {

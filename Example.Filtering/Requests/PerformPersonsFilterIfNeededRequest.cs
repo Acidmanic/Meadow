@@ -9,7 +9,7 @@ using Meadow.Requests;
 
 namespace Example.Filtering.Requests
 {
-    public sealed class PerformPersonsFilterIfNeededRequest : MeadowRequest<FilterShell, FilterResult>
+    public sealed class PerformPersonsFilterIfNeededRequest<TEntity,TId> : MeadowRequest<FilterShell, FilterResult<TId>>
     {
         public PerformPersonsFilterIfNeededRequest(FilterQuery filterQuery,string searchId = null) : base(true)
         {
@@ -21,7 +21,7 @@ namespace Example.Filtering.Requests
                 ToStorage = new FilterShell
                 {
                     FilterExpression = t.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite()),
-                    ExpirationTimeStamp = typeof(Person).GetFilterResultExpirationPointMilliseconds(),
+                    ExpirationTimeStamp = typeof(TEntity).GetFilterResultExpirationPointMilliseconds(),
                     SearchId = searchId
                 };
             });

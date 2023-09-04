@@ -171,7 +171,7 @@ namespace Example.Filtering
             engine.PerformRequest(new RemoveExpiredFilterResultsRequest(1000));
 
             var foundResult = engine.PerformRequest(
-                    new PerformPersonsFilterIfNeededRequest(filter))
+                    new PerformPersonsFilterIfNeededRequest<Person,long>(filter))
                 .FromStorage;
 
             var searchId = foundResult.FirstOrDefault()?.SearchId ?? Guid.NewGuid().SearchId();

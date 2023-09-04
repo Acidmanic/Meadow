@@ -10,10 +10,7 @@ public class FilteringMacro : BuiltinMacroBase
 
     protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
     {
-        builder.Add(CommonSnippets.CreateTable)
-            .BehaviorUseIdAgnostic()
-            .OverrideEntityType<FilterResult>()
-            .OnRepetitionSkipNewOne();
+        builder.Add(CommonSnippets.FilterResultTable).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.FilteringProcedures).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.DataBound).BehaviorUseIdAgnostic();
     }

@@ -13,9 +13,6 @@ public class FilterResultsTableMacro : BuiltinMacroBase
 
     protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
     {
-        builder.Add(CommonSnippets.CreateTable)
-            .BehaviorUseIdAgnostic()
-            .OverrideEntityType<FilterResult>()
-            .OnRepetitionSkipNewOne();
+        builder.Add(CommonSnippets.FilterResultTable).BehaviorUseIdAgnostic();
     }
 }
