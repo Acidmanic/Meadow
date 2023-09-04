@@ -42,6 +42,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
+        
+        private readonly string _keyRemoveExpiredFilterProcedure = GenerateKey();
+        private readonly string _keyFilterResultsTableName = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -59,51 +62,57 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
             replacementList.Add(_keyIdFieldNameFullTree,
                 ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
+            
+            replacementList.Add(_keyRemoveExpiredFilterProcedure,
+                ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
+            
+            replacementList.Add(_keyFilterResultsTableName,ProcessedType.NameConvention.FilterResultsTableName);
+            
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE spRemoveExpiredFilterResults(@ExpirationTimeStamp INTEGER)
+CREATE OR ALTER PROCEDURE {_keyRemoveExpiredFilterProcedure}(@ExpirationTimeStamp INTEGER)
 AS
-    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < @ExpirationTimeStamp;
+    DELETE FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.ExpirationTimeStamp < @ExpirationTimeStamp;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterProcedureName}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
                                                   @FilterExpression TEXT)
 AS
-    INSERT INTO FilterResults (SearchId, ResultId, ExpirationTimeStamp) 
+    INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
-    AND IIF((select count(Id) from FilterResults where FilterResults.SearchId=@SearchId)>0,false,true);
+    AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true);
 
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
+    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
                                                   @FilterExpression TEXT)
 AS
-    INSERT INTO FilterResults (SearchId, ResultId, ExpirationTimeStamp) 
+    INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT DISTINCT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView} WHERE &@FilterExpression 
-    AND IIF((select count(Id) from FilterResults where FilterResults.SearchId=@SearchId)>0,false,true);
+    AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true);
 
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
+    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset INTEGER,
                                       @Size INTEGER,
                                       @SearchId TEXT)
 AS
-    SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN FilterResults ON {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-    WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
+    SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN {_keyFilterResultsTableName} ON {_keyTableName}.{_keyIdFieldName} = {_keyFilterResultsTableName}.ResultId
+    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset INTEGER,
                                       @Size INTEGER,
                                       @SearchId TEXT)
 AS
-    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} INNER JOIN FilterResults ON {_keyFullTreeView}.{_keyIdFieldNameFullTree} = FilterResults.ResultId
-    WHERE FilterResults.SearchId=@SearchId LIMIT @Offset,@Size;  
+    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} INNER JOIN {_keyFilterResultsTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree} = {_keyFilterResultsTableName}.ResultId
+    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

@@ -3,17 +3,24 @@ using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.CreateTable)]
-    public class TableScriptGenerator : ByTemplateSqlGeneratorBase
+    public class TableScriptGenerator : TableScriptGeneratorBase
     {
-        private readonly string _line =
-            "-- ----------------------------------------------------------" +
-            "------------------------------------------------------------";
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        {
+        }
+    }
+    
+    
+    
+    public abstract class TableScriptGeneratorBase : ByTemplateSqlGeneratorBase
+    {
 
         protected ProcessedType ProcessedType { get; }
 
@@ -22,7 +29,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyNoneIdParameters = GenerateKey();
         private readonly string _keyCreationHeader = GenerateKey();
 
-        public TableScriptGenerator(Type type, MeadowConfiguration configuration) : base(new SqLiteTypeNameMapper(),
+        public TableScriptGeneratorBase(Type type, MeadowConfiguration configuration) : base(new SqLiteTypeNameMapper(),
             configuration)
         {
             ProcessedType = Process(type);
@@ -34,7 +41,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyCreationHeader, creationHeader);
 
-            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyTableName, GetTableName());
 
             var idParameters = "\n";
 
@@ -61,6 +68,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ParameterNameTypeJoint(ProcessedType.NoneIdParameters, ","));
         }
 
+        protected virtual string GetTableName()
+        {
+            return ProcessedType.NameConvention.TableName;
+        }
+
         private string GetCreationHeader()
         {
             var creationHeader = "CREATE TABLE";
@@ -83,9 +95,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 {_keyCreationHeader} {_keyTableName}({_keyIdParameters}
     {_keyNoneIdParameters}
 );
-{_line}
+{LineMacro.CommentLine}
 -- SPLIT
-{_line}
+{LineMacro.CommentLine}
 ".Trim();
     }
 }
