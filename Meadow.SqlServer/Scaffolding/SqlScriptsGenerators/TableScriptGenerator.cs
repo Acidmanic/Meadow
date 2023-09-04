@@ -10,7 +10,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class TableScriptGenerator<TEntity> : TableScriptGenerator
+    public class TableScriptGenerator<TEntity> : CreateTableScriptGeneratorBase
     {
         public TableScriptGenerator(MeadowConfiguration configuration, bool appendSplit)
             : base(typeof(TEntity), configuration, appendSplit)
@@ -19,21 +19,26 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.CreateTable)]
-    public class CrudTableScriptGenerator : TableScriptGenerator
+    public class TableScriptGenerator : CreateTableScriptGeneratorBase
     {
-        public CrudTableScriptGenerator(Type type, MeadowConfiguration configuration) 
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration,bool appendSplitter)
+            : base(type, configuration, appendSplitter)
+        {
+        }
+        
+        public TableScriptGenerator(Type type, MeadowConfiguration configuration)
             : base(type, configuration, true)
         {
         }
     }
 
 
-    public class TableScriptGenerator : ByTemplateSqlGeneratorBase
+    public abstract class CreateTableScriptGeneratorBase : ByTemplateSqlGeneratorBase
     {
         private readonly Type _type;
         private readonly bool _appendSplitter;
 
-        public TableScriptGenerator(Type type, MeadowConfiguration configuration, bool appendSplitter) :
+        public CreateTableScriptGeneratorBase(Type type, MeadowConfiguration configuration, bool appendSplitter) :
             base(new SqlDbTypeNameMapper(), configuration)
         {
             _type = type;
@@ -47,7 +52,6 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyCreationHeader = GenerateKey();
 
 
-
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             var process = Process(_type);
@@ -56,8 +60,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
             replacementList.Add(_keyCreationHeader, creationHeader);
 
-            replacementList.Add(_keyTableName,
-                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
+            replacementList.Add(_keyTableName,GetTableName(process));
 
             var parameters = GetParameters(process);
 
@@ -68,6 +71,11 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             var splitTail = _appendSplitter ? ("\n" + line + "\n-- SPLIT\n" + line + "\n") : "";
 
             replacementList.Add(_keySplitTail, splitTail);
+        }
+
+        protected virtual string GetTableName(ProcessedType process)
+        {
+            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName;
         }
 
         private string GetCreationHeader(ProcessedType process)

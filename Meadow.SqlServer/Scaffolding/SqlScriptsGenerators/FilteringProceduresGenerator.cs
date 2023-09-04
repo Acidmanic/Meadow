@@ -49,6 +49,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         private readonly string _keyReadChunkProcedureName = GenerateKey();
         private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
+        
+        private readonly string _keyFilterResultsTable = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -80,40 +82,42 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             replacementList.Add(_keyReadChunkProcedureName, ProcessedType.NameConvention.ReadChunkProcedureName);
             replacementList.Add(_keyReadChunkProcedureNameFullTree,
                 ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
+            
+            replacementList.Add(_keyFilterResultsTable,ProcessedType.NameConvention.FilterResultsTableName);
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE {_keyRemoveExisingProcedureName}(@ExpirationTimeStamp BIGINT) AS
-    DELETE FROM FilterResults WHERE FilterResults.ExpirationTimeStamp < @ExpirationTimeStamp
+    DELETE FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.ExpirationTimeStamp < @ExpirationTimeStamp
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024)) AS
-    IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
+    IF (SELECT Count(Id) from {_keyFilterResultsTable} where {_keyFilterResultsTable}.SearchId=@SearchId) = 0
     BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
-            'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp) ',
+            'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
             'SELECT ''',@SearchId,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
         execute sp_executesql @query
     END  
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
+    SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024)) AS
-    IF (SELECT Count(Id) from FilterResults where FilterResults.SearchId=@SearchId) = 0
+    IF (SELECT Count(Id) from {_keyFilterResultsTable} where {_keyFilterResultsTable}.SearchId=@SearchId) = 0
     BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600) = CONCAT(
-            'INSERT INTO FilterResults (SearchId,ResultId,ExpirationTimeStamp) ',
+            'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
             'SELECT DISTINCT ''',@SearchId,''',{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,' FROM {_keyFullTreeViewName} WHERE ' , @FilterExpression);
         execute sp_executesql @query
     END  
-    SELECT FilterResults.* FROM FilterResults WHERE FilterResults.SearchId=@SearchId;
+    SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
@@ -124,8 +128,8 @@ CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
                   SELECT
                       {_keyTableName}.*,
                       ROW_NUMBER() OVER (ORDER BY {_keyTableName}.{_keyIdFieldName}) AS RowNum
-                  FROM {_keyTableName} INNER JOIN FilterResults on {_keyTableName}.{_keyIdFieldName} = FilterResults.ResultId
-                  WHERE FilterResults.SearchId=@SearchId
+                  FROM {_keyTableName} INNER JOIN {_keyFilterResultsTable} on {_keyTableName}.{_keyIdFieldName} = {_keyFilterResultsTable}.ResultId
+                  WHERE {_keyFilterResultsTable}.SearchId=@SearchId
               )
      SELECT {_keyEntityParameters}
      FROM Results_CTE
@@ -137,9 +141,9 @@ CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset BIGINT,
                                     @Size BIGINT,
                                     @SearchId nvarchar(32)) AS
     SELECT {_keyFullTreeViewName}.* FROM {_keyFullTreeViewName} 
-    INNER JOIN (SELECT * FROM FilterResults 
-                               WHERE FilterResults.SearchId=@SearchId
-                               ORDER BY FilterResults.Id ASC
+    INNER JOIN (SELECT * FROM {_keyFilterResultsTable} 
+                               WHERE {_keyFilterResultsTable}.SearchId=@SearchId
+                               ORDER BY {_keyFilterResultsTable}.Id ASC
                                OFFSET @Offset ROWS 
                                FETCH FIRST @Size ROWS ONLY) Fr 
         ON  {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = Fr.ResultId 
