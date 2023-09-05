@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
@@ -9,31 +10,24 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    
     public class TableScriptSnippetGenerator<TEntity> : TableScriptSnippetGenerator
     {
-        public TableScriptSnippetGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
-    
-    public class TableScriptSnippetGenerator : TableScriptSnippetGeneratorBase
-    {
-        public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public TableScriptSnippetGenerator(MeadowConfiguration configuration)
+            : base(new SnippetConstruction
+            {
+                EntityType = typeof(TEntity),
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.Default())
         {
         }
     }
 
     [CommonSnippet(CommonSnippets.CreateTable)]
-    public abstract class TableScriptSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    public abstract class TableScriptSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        private readonly Type _type;
-
-        public TableScriptSnippetGeneratorBase(Type type, MeadowConfiguration configuration) : base(new MySqlDbTypeNameMapper(),
-            configuration)
+        protected TableScriptSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
-            _type = type;
         }
 
 
@@ -45,14 +39,12 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var process = Process(_type);
-
             var dropping = "";
             var creation = "CREATE TABLE";
 
             if (RepetitionHandling == RepetitionHandling.Alter)
             {
-                dropping = "DROP TABLE IF EXISTS " + process.NameConvention.TableName + ";\n";
+                dropping = "DROP TABLE IF EXISTS " + ProcessedType.NameConvention.TableName + ";\n";
             }
 
             if (RepetitionHandling == RepetitionHandling.Skip)
@@ -63,22 +55,24 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyDropping, dropping);
             replacementList.Add(_keyCreation, creation);
 
-            // replacementList.Add(_keyTableName,
-            //                IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName);
-            
-            replacementList.Add(_keyTableName,GetTableName(process));
+            replacementList.Add(_keyTableName, GetTableName(ProcessedType));
 
-            var parameters = GetParameters(process);
+            var parameters = GetParameters(ProcessedType);
 
             replacementList.Add(_keyParameters, parameters);
         }
 
 
-        protected virtual string GetTableName(ProcessedType process)
+        private string GetTableName(ProcessedType process)
         {
+            if (Configurations.OverrideDbObjectName)
+            {
+                return Configurations.OverrideDbObjectName.Value(Construction);
+            }
+
             return process.NameConvention.TableName;
         }
-        
+
 
         private string GetParameters(ProcessedType process)
         {

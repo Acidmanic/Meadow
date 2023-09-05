@@ -12,7 +12,6 @@ namespace Meadow.Scaffolding.CodeGenerators
     {
         protected IDbTypeNameMapper TypeNameMapper { get; }
 
-
         protected SnippetConstruction Construction { get; }
         protected SnippetConfigurations Configurations { get; }
 
@@ -41,6 +40,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected Type EntityTypeOrOverridenEntityType { get; }
 
+        protected RepetitionHandling RepetitionHandling => Configurations.RepetitionHandling;
 
         public abstract Code Generate();
 
