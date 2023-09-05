@@ -1,53 +1,38 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class FilteringProceduresSnippetGenerator<TEntity> : FilteringProceduresSnippetGenerator
-    {
-        public FilteringProceduresSnippetGenerator(MeadowConfiguration configuration)
-            : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
     public class FilteringProceduresSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; private set; }
-
-        protected Type EntityType { get; }
-
-        public FilteringProceduresSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new MySqlDbTypeNameMapper(), configuration)
+        public FilteringProceduresSnippetGenerator(
+            SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("FilteringProcedures");
-            }
+        }
 
-            EntityType = type;
-            ProcessedType = Process(EntityType);
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupportedRepetitionHandling();
         }
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyRemoveExistingProcedureName = GenerateKey();
-        
+
         private readonly string _keyFilterIfNeededProcedureName = GenerateKey();
         private readonly string _keyReadChunkProcedureName = GenerateKey();
-        
+
         private readonly string _keyFilterIfNeededProcedureNameFullTree = GenerateKey();
         private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
 
         private readonly string _keyFullTreeViewName = GenerateKey();
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
-        
+
         private readonly string _keyFilterResultsTableName = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -56,19 +41,23 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
-            
-            replacementList.Add(_keyRemoveExistingProcedureName,ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
-            
-            replacementList.Add(_keyFilterIfNeededProcedureName,ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
-            replacementList.Add(_keyFilterIfNeededProcedureNameFullTree,ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
-            
-            replacementList.Add(_keyReadChunkProcedureName,ProcessedType.NameConvention.ReadChunkProcedureName);
-            replacementList.Add(_keyReadChunkProcedureNameFullTree,ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
-            
-            replacementList.Add(_keyFullTreeViewName,ProcessedType.NameConvention.FullTreeViewName);
-            replacementList.Add(_keyIdFieldNameFullTree,ProcessedType.IdParameterFullTree.Name);
-            
-            replacementList.Add(_keyFilterResultsTableName,ProcessedType.NameConvention.FilterResultsTableName);
+
+            replacementList.Add(_keyRemoveExistingProcedureName,
+                ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
+
+            replacementList.Add(_keyFilterIfNeededProcedureName,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
+            replacementList.Add(_keyFilterIfNeededProcedureNameFullTree,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
+
+            replacementList.Add(_keyReadChunkProcedureName, ProcessedType.NameConvention.ReadChunkProcedureName);
+            replacementList.Add(_keyReadChunkProcedureNameFullTree,
+                ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
+
+            replacementList.Add(_keyFullTreeViewName, ProcessedType.NameConvention.FullTreeViewName);
+            replacementList.Add(_keyIdFieldNameFullTree, ProcessedType.IdParameterFullTree.Name);
+
+            replacementList.Add(_keyFilterResultsTableName, ProcessedType.NameConvention.FilterResultsTableName);
         }
 
         protected override string Template => $@"
