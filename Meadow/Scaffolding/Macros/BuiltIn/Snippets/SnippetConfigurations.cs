@@ -1,49 +1,25 @@
 using System;
 using Acidmanic.Utilities.Results;
+using Meadow.Configuration;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 public class SnippetConfigurations
 {
-    public CodeGenerateBehavior CodeGenerateBehavior { get; set; }
     
-    public Result<Type> OverrideEntity { get; set; }
+    /// <summary>
+    /// This property is not being used by the Snippet itself, it's just me being lazy for separating this model
+    /// into two proper models, on for snippet to receive, and other for BuiltInMacroBase to consume for CodeGenerator
+    /// instantiation. That's why this property is internal!
+    /// </summary>
+    internal IdAwarenessBehavior IdAwarenessBehavior { get;  set; }
     
+    public Result<Func<SnippetConstruction,Type>> OverrideEntityType { get; internal set; }
     
-    public RepetitionHandling RepetitionHandling { get; set; }
+    public RepetitionHandling RepetitionHandling { get; internal set; }
 
     
-    public SnippetConfigurations( CodeGenerateBehavior codeGenerateBehavior)
-    {
-        CodeGenerateBehavior = codeGenerateBehavior;
-
-        OverrideEntity = new Result<Type>().FailAndDefaultValue();
-    }
-
-    public SnippetConfigurations(CodeGenerateBehavior codeGenerateBehavior,Result<Type> overrideEntity)
-    {
-        CodeGenerateBehavior = codeGenerateBehavior;
-
-        OverrideEntity = overrideEntity;
-    }
-
-    public SnippetConfigurations()
-    {
-        CodeGenerateBehavior = CodeGenerateBehavior.UseNone;
-
-        OverrideEntity = new Result<Type>().FailAndDefaultValue();
-    }
-
-
-    public static implicit operator CodeGenerateBehavior(SnippetConfigurations value)
-    {
-        return value.CodeGenerateBehavior;
-    }
-
-    public static implicit operator SnippetConfigurations(CodeGenerateBehavior value)
-    {
-        return new SnippetConfigurations(value);
-    }
+    public Result<Func<SnippetConstruction,string>> OverrideDbObjectName { get; internal set; }
     
     
     

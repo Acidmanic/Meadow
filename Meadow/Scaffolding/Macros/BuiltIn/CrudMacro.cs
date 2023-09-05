@@ -14,7 +14,7 @@ public class CrudMacro : BuiltinMacroBase
         builder.Add(CommonSnippets.FullTreeView).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.InsertProcedure).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
-        builder.Add(CommonSnippets.DeleteProcedure).Behavior(CodeGenerateBehavior.UseById | CodeGenerateBehavior.UseAll);
+        builder.Add(CommonSnippets.DeleteProcedure).Behavior(IdAwarenessBehavior.UseById | IdAwarenessBehavior.UseAll);
         builder.Add(CommonSnippets.UpdateProcedure).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.SaveProcedure).BehaviorUseIdAgnostic();
     }

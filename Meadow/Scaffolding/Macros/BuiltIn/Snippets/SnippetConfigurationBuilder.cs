@@ -1,5 +1,7 @@
 using System;
 using Acidmanic.Utilities.Results;
+using Meadow.Extensions;
+using Meadow.Search.Utilities;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -18,51 +20,51 @@ public class SnippetConfigurationBuilder
         _configurations = configurations;
     }
 
-    public SnippetConfigurationBuilder Behavior(CodeGenerateBehavior behavior)
+    public SnippetConfigurationBuilder Behavior(IdAwarenessBehavior behavior)
     {
-        _configurations.CodeGenerateBehavior = behavior;
+        _configurations.IdAwarenessBehavior = behavior;
 
         return this;
     }
 
     public SnippetConfigurationBuilder BehaviorUseIdAware()
     {
-        _configurations.CodeGenerateBehavior = CodeGenerateBehavior.UseIdAware;
+        _configurations.IdAwarenessBehavior = IdAwarenessBehavior.UseIdAware;
 
         return this;
     }
 
     public SnippetConfigurationBuilder BehaviorUseAll()
     {
-        _configurations.CodeGenerateBehavior = CodeGenerateBehavior.UseAll;
+        _configurations.IdAwarenessBehavior = IdAwarenessBehavior.UseAll;
 
         return this;
     }
 
     public SnippetConfigurationBuilder BehaviorUseNone()
     {
-        _configurations.CodeGenerateBehavior = CodeGenerateBehavior.UseNone;
+        _configurations.IdAwarenessBehavior = IdAwarenessBehavior.UseNone;
 
         return this;
     }
 
     public SnippetConfigurationBuilder BehaviorUseById()
     {
-        _configurations.CodeGenerateBehavior = CodeGenerateBehavior.UseById;
+        _configurations.IdAwarenessBehavior = IdAwarenessBehavior.UseById;
 
         return this;
     }
 
     public SnippetConfigurationBuilder BehaviorUseEveryMethod()
     {
-        _configurations.CodeGenerateBehavior = CodeGenerateBehavior.UseEveryMethod;
+        _configurations.IdAwarenessBehavior = IdAwarenessBehavior.UseEveryMethod;
 
         return this;
     }
 
     public SnippetConfigurationBuilder BehaviorUseIdAgnostic()
     {
-        _configurations.CodeGenerateBehavior = CodeGenerateBehavior.UseIdAgnostic;
+        _configurations.IdAwarenessBehavior = IdAwarenessBehavior.UseIdAgnostic;
 
         return this;
     }
@@ -70,14 +72,38 @@ public class SnippetConfigurationBuilder
 
     public SnippetConfigurationBuilder OverrideEntityType(Type type)
     {
-        _configurations.OverrideEntity = new Result<Type>(true, type);
+        _configurations.OverrideEntityType = new Result<Func<SnippetConstruction, Type>>(true, c => type);
+
+        return this;
+    }
+
+
+    public SnippetConfigurationBuilder OverrideEntityTypeByFilterResults()
+    {
+        _configurations.OverrideEntityType = new Result<Func<SnippetConstruction, Type>>(true,
+            c => FilteringTypeUtilities.GetFilterResultsType(c.EntityType));
+
+        return this;
+    }
+
+    public SnippetConfigurationBuilder OverrideEntityTypeBySearchIndex()
+    {
+        _configurations.OverrideEntityType = new Result<Func<SnippetConstruction, Type>>(true,
+            c => FilteringTypeUtilities.GetSearchIndexType(c.EntityType));
 
         return this;
     }
 
     public SnippetConfigurationBuilder OverrideEntityType<TEntity>()
     {
-        _configurations.OverrideEntity = new Result<Type>(true, typeof(TEntity));
+        _configurations.OverrideEntityType = new Result<Func<SnippetConstruction, Type>>(true, t => typeof(TEntity));
+
+        return this;
+    }
+
+    public SnippetConfigurationBuilder OverrideEntityType(Func<SnippetConstruction, Type> typeManipulator)
+    {
+        _configurations.OverrideEntityType = new Result<Func<SnippetConstruction, Type>>(true, typeManipulator);
 
         return this;
     }
@@ -111,6 +137,41 @@ public class SnippetConfigurationBuilder
     }
 
 
+    public SnippetConfigurationBuilder OverrideDbObjectName(string name)
+    {
+        _configurations.OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>
+            (true, c => name);
+        return this;
+    }
+
+    public SnippetConfigurationBuilder OverrideDbObjectName(Func<string> nameFactory)
+    {
+        _configurations.OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>
+            (true, c => nameFactory());
+        return this;
+    }
+
+    public SnippetConfigurationBuilder OverrideDbObjectName(Func<SnippetConstruction, string> nameFactory)
+    {
+        _configurations.OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>(true, nameFactory);
+        return this;
+    }
+
+    public SnippetConfigurationBuilder OverrideDbObjectNameToFilterResultsTableName()
+    {
+        _configurations.OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>
+            (true, c => c.MeadowConfiguration.GetNameConvention(c.EntityType).FilterResultsTableName);
+        return this;
+    }
+
+    public SnippetConfigurationBuilder OverrideDbObjectNameToSearchIndexTableName()
+    {
+        _configurations.OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>
+            (true, c => c.MeadowConfiguration.GetNameConvention(c.EntityType).SearchIndexTableName);
+        return this;
+    }
+
+
     public SnippetConfigurations Build()
     {
         var configurations = _configurations;
@@ -119,6 +180,7 @@ public class SnippetConfigurationBuilder
 
         return configurations;
     }
+
 
     public void Clear()
     {

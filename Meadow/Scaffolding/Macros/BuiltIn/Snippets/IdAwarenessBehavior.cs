@@ -3,7 +3,7 @@ using System;
 namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 [Flags]
-public enum CodeGenerateBehavior
+public enum IdAwarenessBehavior
 {
     UseById = 1,
     UseAll = 2,

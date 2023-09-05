@@ -6,9 +6,6 @@ namespace Meadow.Scaffolding.CodeGenerators
 {
     public interface ICodeGenerator
     {
-        
-        RepetitionHandling RepetitionHandling { get; set; }
-        
         Code Generate();
         
     }

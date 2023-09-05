@@ -12,7 +12,9 @@ namespace Meadow.Contracts
 
         public string TableName { get; private set; }
         
-        public string FilterResultsTableName { get; private set; }
+        public string FilterResultsTableName { get;  }
+        
+        public string SearchIndexTableName { get;  }
 
         public IDataOwnerNameProvider TableNameProvider { get; }
         
@@ -136,6 +138,8 @@ namespace Meadow.Contracts
             ExistingValuesProcedureName = "sp" + TableName + "ExistingValues";
 
             FilterResultsTableName = TableName + "FilterResults";
+            
+            SearchIndexTableName = TableName + "SearchIndex";
 
             RemoveExpiredFilterResultsProcedureName = "spRemoveExpired" + TableName + "FilterResults";
         }

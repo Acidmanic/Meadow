@@ -7,125 +7,120 @@ using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
-using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn;
 
 public abstract class BuiltinMacroBase : MacroBase
 {
-    private readonly string _line = "-- ---------------------------------------------------------" +
-                                    "------------------------------------------------------------";
-
-    protected class CodeGeneratorConstruction
-    {
-        public Func<Type, ICodeGenerator> ByIdCodeGenerator { get; set; }
-
-        public Func<Type, ICodeGenerator> AllCodeGenerator { get; set; }
-
-        public Func<Type, ICodeGenerator> IdAgnosticCodeGenerator { get; set; }
-
-
-        public bool IdAware { get; set; }
-    }
-
+    
+   
     public override string GenerateCode(params string[] arguments)
     {
         var type = GrabTypeArgument(arguments, 0);
 
-        var catalog = AvailableCodeGeneratorsCatalog();
+        var catalog = AvailableCodeGeneratorsCatalog(type);
 
-        var code = GenerateCode(type, catalog);
+        var assemblingBehaviorBuilder = new AssemblingBehaviorBuilder();
+        
+        BuildUpAssemblingBehavior(assemblingBehaviorBuilder);
+
+        var assemblingBehavior = assemblingBehaviorBuilder.Build();
+
+        var matchingCodeGenerators = InstantiateMatchingCodeGenerators(type,assemblingBehavior, catalog);
+
+        var code = AssembleGeneratorsCodes(matchingCodeGenerators);
 
         return code;
+    }
+
+    private List<ICodeGenerator> InstantiateMatchingCodeGenerators(
+        Type entityType,
+        AssemblingBehavior assemblingBehavior,
+        Dictionary<CommonSnippets,Type> catalog)
+    {
+        var generators = new List<ICodeGenerator>();
+
+        foreach (var configurationPerSnippet in assemblingBehavior)
+        {
+            var snippet = configurationPerSnippet.Key;
+
+            if (catalog.ContainsKey(snippet))
+            {
+                var snippetConfigurations= configurationPerSnippet.Value;
+
+                var snippetType = catalog[snippet];
+
+                var snippetConstruction = new SnippetConstruction
+                {
+                    EntityType = entityType,
+                    MeadowConfiguration = Configuration
+                };
+                
+                var foundConstructor = snippetType.GetConstructor(new Type[]{ typeof(SnippetConstruction),typeof(SnippetConfigurations)});
+
+                var constructionParameters = new object[] { snippetConstruction, snippetConfigurations };
+
+                AddInstancesRegardingIdAwarenessBehavior(generators,
+                    foundConstructor!, constructionParameters,
+                    snippetConfigurations.IdAwarenessBehavior);
+            }
+            else
+            {
+                //TODO: warn unable to find any implementation for snippet
+            }
+        }
+
+        return generators;
+    }
+
+    private void AddInstancesRegardingIdAwarenessBehavior(
+        List<ICodeGenerator> generators,
+        ConstructorInfo constructor,
+        object[] parameters, IdAwarenessBehavior behavior)
+    {
+
+        if (behavior is IdAwarenessBehavior.UseById)
+        {
+            if (constructor.Invoke(parameters) is IIdAware byId)
+            {
+                byId.ActById = true;
+                
+                generators.Add((ICodeGenerator)byId);
+            }
+            if (constructor.Invoke(parameters) is IIdAware all)
+            {
+                all.ActById = false;
+                
+                generators.Add((ICodeGenerator)all);
+            }
+        }
+        
     }
 
 
     protected abstract void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder);
 
 
-    protected virtual string GenerateCode(Type type, Dictionary<CommonSnippets, CodeGeneratorConstruction> cgCatalog)
+    protected virtual string AssembleGeneratorsCodes(IEnumerable<ICodeGenerator> generators)
     {
-        var builder = new AssemblingBehaviorBuilder();
+        var sb = new StringBuilder();
 
-        BuildUpAssemblingBehavior(builder);
+        foreach (var codeGenerator in generators)
+        {
+            Title(sb, "<" + Name + " Macro >");
 
-        var behaviorsBySnippets = builder.Build();
-
-        var sb = AssembleCodeGenerators(new StringBuilder(), type, cgCatalog, behaviorsBySnippets);
-
-        Title(sb, "</" + Name + ">");
+            Append(sb,codeGenerator);
+        
+            Title(sb, "</" + Name + " Macro>");
+        }
 
         return sb.ToString();
     }
 
-
-    private StringBuilder AssembleCodeGenerators(StringBuilder sb, Type entityType,
-        Dictionary<CommonSnippets, CodeGeneratorConstruction> generatorsCatalog,
-        Dictionary<CommonSnippets, SnippetConfigurations> codeGenerateBehaviors)
-    {
-        foreach (var behaviorItem in codeGenerateBehaviors)
-        {
-            var snippet = behaviorItem.Key;
-
-            var finalEntityType =
-                behaviorItem.Value.OverrideEntity ? behaviorItem.Value.OverrideEntity.Value : entityType;
-
-            if (generatorsCatalog.ContainsKey(snippet))
-            {
-                var behavior = behaviorItem.Value;
-
-                var construction = generatorsCatalog[snippet];
-
-                var codeGeneratorConstructed = ConstructCodeGenerator(construction, behavior, finalEntityType);
-
-                foreach (var generator in codeGeneratorConstructed)
-                {
-                    generator.RepetitionHandling = behaviorItem.Value.RepetitionHandling;
-
-                    Append(sb, generator);
-                }
-            }
-        }
-
-        return sb;
-    }
-
-    private List<ICodeGenerator> ConstructCodeGenerator(CodeGeneratorConstruction construction,
-        SnippetConfigurations behavior, Type finalEntityType)
-    {
-        var generators = new List<ICodeGenerator>();
-
-        if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseIdAgnostic))
-        {
-            if (!construction.IdAware)
-            {
-                generators.Add(construction.IdAgnosticCodeGenerator(finalEntityType));
-            }
-        }
-        else
-        {
-            if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseById))
-            {
-                if (construction.IdAware)
-                {
-                    generators.Add(construction.ByIdCodeGenerator(finalEntityType));
-                }
-            }
-
-            if (behavior.CodeGenerateBehavior.Is(CodeGenerateBehavior.UseAll))
-            {
-                if (construction.IdAware)
-                {
-                    generators.Add(construction.AllCodeGenerator(finalEntityType));
-                }
-            }
-        }
-
-        return generators;
-    }
 
 
     private StringBuilder Append(StringBuilder sb, ICodeGenerator cg)
@@ -141,8 +136,9 @@ public abstract class BuiltinMacroBase : MacroBase
 
     protected void Title(StringBuilder sb, string title)
     {
-        sb.AppendLine(_line).Append("-- ").AppendLine(title)
-            .AppendLine(_line);
+        sb.AppendLine(LineMacro.CommentLine).Append("\n-- ")
+            .AppendLine(title).Append("\n")
+            .AppendLine(LineMacro.CommentLine);
     }
 
     private class NullCodeGenerator : ICodeGenerator
@@ -195,59 +191,44 @@ public abstract class BuiltinMacroBase : MacroBase
         return tModel => constructor.Invoke(new object[] { tModel, Configuration }) as ICodeGenerator;
     }
 
-    protected Dictionary<CommonSnippets, CodeGeneratorConstruction> AvailableCodeGeneratorsCatalog()
+    protected Dictionary<CommonSnippets, Type> AvailableCodeGeneratorsCatalog(Type entityType)
     {
-        var catalog = new Dictionary<CommonSnippets, CodeGeneratorConstruction>();
+        var availableBySnippets = new Dictionary<CommonSnippets, Type>();
 
         foreach (var assembly in LoadedAssemblies)
         {
-            var types = assembly.GetAvailableTypes()
+            
+            // Is ICodeGenerator
+            var availableCodeGenerators = assembly.GetAvailableTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface)
-                .Where(t => TypeCheck.Implements<ICodeGenerator>(t));
+                .Where(TypeCheck.Implements<ICodeGenerator>);
 
-            foreach (var type in types)
+            foreach (var type in availableCodeGenerators)
             {
                 var snippetInfo = type.GetCustomAttribute<CommonSnippetAttribute>();
-
+                // Is Marked as snippet
                 if (snippetInfo != null)
                 {
-                    var idAware = new CommonSnippetsInfo().IsIdAware(snippetInfo.SnippetType);
-
-                    var foundConstructor = FindConstructor(type, idAware);
-
-                    if (foundConstructor)
+                    // Has A Snippet's Constructor
+                    var foundConstructor = type.GetConstructor(new Type[]{ typeof(SnippetConstruction),typeof(SnippetConfigurations)});
+                    
+                    if (foundConstructor!=null)
                     {
-                        var cons = new CodeGeneratorConstruction
-                        {
-                            IdAware = idAware
-                        };
+                        // We have a snippet. now validation!
+                        // If snippet type should be id-aware, is the implementation id-aware too?
+                        var expectedToBeIdAware = new CommonSnippetsInfo().IsIdAware(snippetInfo.SnippetType);
 
-                        if (idAware)
-                        {
-                            cons.IdAgnosticCodeGenerator = t => new NullCodeGenerator();
-                            cons.ByIdCodeGenerator = CreateFactory(foundConstructor, true, true);
-                            cons.AllCodeGenerator = CreateFactory(foundConstructor, true, false);
-                        }
-                        else
-                        {
-                            cons.IdAgnosticCodeGenerator = CreateFactory(foundConstructor, false, false);
-                            cons.ByIdCodeGenerator = cons.IdAgnosticCodeGenerator;
-                            cons.AllCodeGenerator = cons.IdAgnosticCodeGenerator;
-                        }
+                        var actuallyIsIdAware = TypeCheck.Implements<IIdAware>(type);
 
-                        if (catalog.ContainsKey(snippetInfo.SnippetType))
+                        if (!expectedToBeIdAware || actuallyIsIdAware)
                         {
-                            //TODO: warning
-                        }
-                        else
-                        {
-                            catalog.Add(snippetInfo.SnippetType, cons);
+                            
+                            availableBySnippets.Add(snippetInfo.SnippetType,type);
                         }
                     }
                 }
             }
         }
-
-        return catalog;
+        return availableBySnippets;
     }
 }

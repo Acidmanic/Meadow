@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
@@ -12,19 +13,12 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UseSqLite();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
-            var filter = new FilterQuery { EntityType = typeof(Person) };
-            filter.Add(new FilterItem
-            {
-                Key = "Age",
-                Minimum = "50",
-                ValueComparison = ValueComparison.LargerThan,
-                ValueType = typeof(int)
-            });
+            var filter =  new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("50").Build();
 
             var search = new PerformSearchIfNeededRequest<Person,long>(filter);
 
@@ -70,14 +64,7 @@ namespace Meadow.Test.Functional
             }
 
             /*  Test for failing where clause in readChunk */
-            filter = new FilterQuery { EntityType = typeof(Person) };
-            filter.Add(new FilterItem
-            {
-                Key = "Age",
-                Maximum = "50",
-                ValueComparison = ValueComparison.SmallerThan,
-                ValueType = typeof(int)
-            });
+            filter =  new FilterQueryBuilder<Person>().Where(p => p.Age).IsSmallerThan("50").Build();
 
             searchResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person,long>(filter)).FromStorage;
 
@@ -138,17 +125,8 @@ namespace Meadow.Test.Functional
                 logger.LogInformation("{FieldName} Can be: {Value}",fieldName,value);
             }
 
-            var fullTreeFilter = new FilterQuery
-            {
-                EntityType = typeof(Person)
-            };
-            fullTreeFilter.Add(new FilterItem
-            {
-                Key = "Job.IncomeInRials",
-                Minimum = "300",
-                ValueComparison = ValueComparison.LargerThan,
-                ValueType = typeof(int)
-            });
+            var fullTreeFilter =  new FilterQueryBuilder<Person>().Where(p => p.Job.IncomeInRials)
+                .IsLargerThan("499").Build();
 
             var filtreeResults = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person,long>(fullTreeFilter), true)
@@ -176,15 +154,9 @@ namespace Meadow.Test.Functional
             
             
 
-            var badFilter = new FilterQuery { EntityType = typeof(Person) };
-            badFilter.Add(new FilterItem
-            {
-                Key = "Job.Title",
-                ValueComparison = ValueComparison.Equal,
-                ValueType = typeof(string),
-                EqualValues = new List<string>{"the-title-that-does-not-exist"}
-            });
-
+            var badFilter =  new FilterQueryBuilder<Person>().Where(p => p.Job.Title)
+                .IsEqualTo("the-title-that-does-not-exist").Build();
+            
             var badResult = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person,long>(badFilter), true)
                 .FromStorage;
