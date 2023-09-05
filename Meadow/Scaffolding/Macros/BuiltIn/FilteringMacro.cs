@@ -1,4 +1,3 @@
-using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -10,7 +9,14 @@ public class FilteringMacro : BuiltinMacroBase
 
     protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
     {
-        builder.Add(CommonSnippets.FilterResultTable).BehaviorUseIdAgnostic();
+        builder.Add(CommonSnippets.CreateTable)
+            .BehaviorUseIdAgnostic()
+            .OverrideEntityTypeByFilterResults()
+            .OverrideDbObjectNameToFilterResultsTableName();
+        builder.Add(CommonSnippets.CreateTable)
+            .BehaviorUseIdAgnostic()
+            .OverrideEntityTypeBySearchIndex()
+            .OverrideDbObjectNameToSearchIndexTableName();
         builder.Add(CommonSnippets.FilteringProcedures).BehaviorUseIdAgnostic();
         builder.Add(CommonSnippets.DataBound).BehaviorUseIdAgnostic();
     }
