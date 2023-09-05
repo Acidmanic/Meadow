@@ -2,28 +2,35 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class DeleteSnippetProcedureGenerator<TEntity> : DeleteSnippetProcedureGenerator
     {
         public DeleteSnippetProcedureGenerator(MeadowConfiguration configuration,bool allNotById)
-            : base(typeof(TEntity),configuration, allNotById)
+            : base(new SnippetConstruction
+            {
+                EntityType =typeof(TEntity),
+                MeadowConfiguration = configuration
+            },SnippetConfigurations.IdAware(allNotById))
         {
         }
     }
 
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteSnippetProcedureGenerator : MySqlSnippetProcedureGeneratorBase
+    public class DeleteSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase,IIdAware
     {
-        private bool AllNotById { get; }
 
-        public DeleteSnippetProcedureGenerator(Type type,MeadowConfiguration configuration, bool byId) 
-            : base(type,configuration)
+        protected override string Template => ActById ? TemplateAll : TemplateById;
+
+        public DeleteSnippetProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
-            AllNotById = !byId;
         }
 
+        public bool ActById { get; set; }
+        
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
@@ -32,23 +39,23 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            if (IsDatabaseObjectNameForced)
+            if (Configurations.OverrideDbObjectName)
             {
-                return ForcedDatabaseObjectName;
+                return Configurations.OverrideDbObjectName.Value(Construction);
             }
 
-            return AllNotById
-                ? Processed.NameConvention.DeleteAllProcedureName
-                : Processed.NameConvention.DeleteByIdProcedureName;
+            return ActById
+                ? ProcessedType.NameConvention.DeleteAllProcedureName
+                : ProcessedType.NameConvention.DeleteByIdProcedureName;
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            replacementList.Add(_keyIdFieldName, Processed.HasId ? Processed.IdParameter.Name : "[NO-ID-FIELD]");
+            replacementList.Add(_keyIdFieldName, ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
 
-            replacementList.Add(_keyIdFieldTypeName, Processed.HasId ? Processed.IdParameter.Type : "[NO-ID-FIELD]");
+            replacementList.Add(_keyIdFieldTypeName, ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
         }
 
 
@@ -68,6 +75,6 @@ BEGIN
 END;
 ".Trim();
 
-        protected override string Template => AllNotById ? TemplateAll : TemplateById;
+        
     }
 }

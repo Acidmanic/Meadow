@@ -16,7 +16,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     }
 
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateSnippetProcedureGenerator : MySqlSnippetProcedureGeneratorBase
+    public class UpdateSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase
     {
         public UpdateSnippetProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {

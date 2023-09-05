@@ -1,31 +1,20 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public abstract class MySqlSnippetProcedureGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    public abstract class MySqlRepetitionHandlerProcedureGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType Processed { get; }
-
         protected readonly string KeyCreationHeader = GenerateKey();
         protected readonly string KeyProcedureName = GenerateKey();
         protected readonly string KeyCreationHeaderFullTree = GenerateKey();
         protected readonly string KeyProcedureNameFullTree = GenerateKey();
-
-        protected Type EntityType { get; }
-
-        public MySqlSnippetProcedureGeneratorBase(Type entityType, MeadowConfiguration configuration) : base(
-            new MySqlDbTypeNameMapper(), configuration)
+        
+        protected MySqlRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations) 
+            : base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
-            EntityType = entityType;
-            Processed = Process(EntityType);
         }
-
 
         protected string GetCreationHeader(bool fullTree)
         {
@@ -59,5 +48,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected abstract string GetProcedureName(bool fullTree);
 
         protected abstract void AddBodyReplacements(Dictionary<string, string> replacementList);
+
+        
     }
 }

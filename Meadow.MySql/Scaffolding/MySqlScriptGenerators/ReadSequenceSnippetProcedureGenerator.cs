@@ -17,7 +17,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    public class ReadSequenceSnippetProcedureGenerator : MySqlSnippetProcedureGeneratorBase
+    public class ReadSequenceSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase
     {
         public bool AllNotById { get; }
 

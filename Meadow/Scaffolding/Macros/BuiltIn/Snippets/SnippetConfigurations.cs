@@ -33,4 +33,15 @@ public class SnippetConfigurations
             OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>().FailAndDefaultValue()
         };
     }
+    
+    public static SnippetConfigurations IdAware(bool allNotById)
+    {
+        return new SnippetConfigurations
+        {
+            IdAwarenessBehavior = allNotById? IdAwarenessBehavior.UseAll : IdAwarenessBehavior.UseById,
+            RepetitionHandling = RepetitionHandling.Create,
+            OverrideEntityType = new Result<Func<SnippetConstruction, Type>>().FailAndDefaultValue(),
+            OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>().FailAndDefaultValue()
+        };
+    }
 }
