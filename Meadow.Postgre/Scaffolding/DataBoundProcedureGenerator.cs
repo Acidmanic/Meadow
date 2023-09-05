@@ -9,23 +9,17 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.DataBound)]
     public class DataBoundProcedureGenerator : DataBoundProcedureGeneratorBase
     {
-        // public DataBoundProcedureGenerator(Type entityType, MeadowConfiguration configuration) : base(entityType,
-        //     configuration)
-        // {
-        // }
-
-        public DataBoundProcedureGenerator(
-            SnippetConstruction construction, SnippetConfigurations configuration,
-            SnippetConfigurations configurations) : base(construction, configuration, configurations)
+        public DataBoundProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
         }
-        
+       
         protected override bool DelimitByLineNotSplit => false;
 
-        protected override ICodeGenerator CreateEntityDataBoundProcedureGenerator(SnippetConstruction construction,
+        protected override ICodeGenerator CreateEntityDataBoundProcedureGenerator(
+            SnippetConstruction construction,
             SnippetConfigurations configurations)
         {
-            throw new NotImplementedException();
+            return new EntityDataBoundProcedureSnippetGenerator()
         }
 
         // protected override ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type type,
@@ -33,6 +27,7 @@ namespace Meadow.Postgre.Scaffolding
         // {
         //     return new EntityDataBoundProcedureSnippetGenerator(type, configuration);
         // }
+
         
     }
 }

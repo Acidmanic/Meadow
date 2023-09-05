@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Configuration;
 using Meadow.Scaffolding.Macros;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -53,7 +54,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
             foreach (var type in _childrenTypes)
             {
-                var cg = CreateEntityDataBoundProcedureGenerator(type);
+                var cg = CreateEntityDataBoundProcedureGenerator(type,Construction.MeadowConfiguration);
 
                 var code = cg.Generate();
 
@@ -73,20 +74,7 @@ namespace Meadow.Scaffolding.CodeGenerators
             };
         }
 
-        private ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type type)
-        {
-
-            var construction = new SnippetConstruction
-            {
-                EntityType = type,
-                MeadowConfiguration = Construction.MeadowConfiguration
-            };
-            
-            return CreateEntityDataBoundProcedureGenerator(construction,Configurations);
-        }
         
-        protected abstract ICodeGenerator CreateEntityDataBoundProcedureGenerator(
-            SnippetConstruction construction,
-            SnippetConfigurations configurations);
+        protected abstract ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type entityType,MeadowConfiguration configuration);
     }
 }

@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -10,9 +12,13 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyExistingProcedureName = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
 
-        public EntityDataBoundProcedureSnippetGenerator(SnippetConstruction construction,
-            SnippetConfigurations configurations) :
-            base(new MySqlDbTypeNameMapper(), construction, configurations)
+        public EntityDataBoundProcedureSnippetGenerator(Type entityType,MeadowConfiguration configuration) :
+            base(new MySqlDbTypeNameMapper(), 
+                new SnippetConstruction
+                {
+                    EntityType = entityType,
+                    MeadowConfiguration = configuration
+                },SnippetConfigurations.Default())
         {
         }
 

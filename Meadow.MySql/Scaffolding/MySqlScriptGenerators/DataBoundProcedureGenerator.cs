@@ -10,13 +10,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     public class DataBoundProcedureGenerator : DataBoundProcedureGeneratorBase
     {
         protected override bool DelimitByLineNotSplit => true;
-
-        protected override ICodeGenerator CreateEntityDataBoundProcedureGenerator(SnippetConstruction construction,
-            SnippetConfigurations configurations)
+        protected override ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type entityType, MeadowConfiguration configuration)
         {
-            return new EntityDataBoundProcedureSnippetGenerator(construction, configurations);
+            return new EntityDataBoundProcedureSnippetGenerator(entityType, configuration);
         }
-
 
         public DataBoundProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) 
             : base(construction, configurations)
