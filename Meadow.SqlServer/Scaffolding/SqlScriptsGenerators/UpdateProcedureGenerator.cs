@@ -15,7 +15,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
+    public class UpdateProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
     {
         public UpdateProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
         {

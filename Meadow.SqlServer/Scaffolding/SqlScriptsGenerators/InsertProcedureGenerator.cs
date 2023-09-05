@@ -14,7 +14,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
+    public class InsertProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
     {
         public InsertProcedureGenerator(Type type, MeadowConfiguration configuration)
             : base(type, configuration)

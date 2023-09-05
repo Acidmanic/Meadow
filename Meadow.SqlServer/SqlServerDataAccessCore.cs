@@ -79,7 +79,7 @@ namespace Meadow.SqlServer
         protected override string GetSqlForCreatingTable(string tableName,
             TypeDatabaseDefinition parameters, MeadowConfiguration configuration)
         {
-            var script = new TableScriptGenerator(parameters.CorrespondingType, configuration, false).Generate().Text;
+            var script = new TableScriptSnippetGenerator(parameters.CorrespondingType, configuration, false).Generate().Text;
 
             return script;
         }

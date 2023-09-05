@@ -30,7 +30,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
 
-    public abstract class ReadProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
+    public abstract class ReadProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
     {
         public bool ById { get; }
 

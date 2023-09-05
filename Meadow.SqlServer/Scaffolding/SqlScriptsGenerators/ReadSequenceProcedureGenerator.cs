@@ -6,7 +6,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class ReadSequenceProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
+    public class ReadSequenceProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
     {
         public int Count { get; }
 

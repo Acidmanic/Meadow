@@ -14,7 +14,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteProcedureGenerator : SqlServerByTemplateCodeGeneratorBase
+    public class DeleteProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
     {
         public bool ById { get; }
 

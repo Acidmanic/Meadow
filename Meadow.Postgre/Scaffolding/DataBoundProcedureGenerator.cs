@@ -18,7 +18,7 @@ namespace Meadow.Postgre.Scaffolding
         protected override ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type type,
             MeadowConfiguration configuration)
         {
-            return new EntityDataBoundProcedureGenerator(type, configuration);
+            return new EntityDataBoundProcedureSnippetGenerator(type, configuration);
         }
     }
 }
