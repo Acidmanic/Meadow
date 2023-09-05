@@ -1,36 +1,31 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class EntityDataBoundProcedureSnippetGenerator:ByTemplateSqlSnippetGeneratorBase
+    public class EntityDataBoundProcedureSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-
         private readonly string _keyRangeProcedureName = GenerateKey();
         private readonly string _keyExistingProcedureName = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
-        private  ProcessedType ProcessedType { get; }
-        
-        public EntityDataBoundProcedureSnippetGenerator(Type type, MeadowConfiguration configuration) 
-            : base(new MySqlDbTypeNameMapper(), configuration)
+
+        public EntityDataBoundProcedureSnippetGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations) :
+            base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
-            ProcessedType = Process(type);
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("Data Bound");
-            }
-            
+        }
+
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupportedRepetitionHandling();
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyRangeProcedureName,ProcessedType.NameConvention.RangeProcedureName);
-            replacementList.Add(_keyExistingProcedureName,ProcessedType.NameConvention.ExistingValuesProcedureName);
-            replacementList.Add(_keyTableName,ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyRangeProcedureName, ProcessedType.NameConvention.RangeProcedureName);
+            replacementList.Add(_keyExistingProcedureName, ProcessedType.NameConvention.ExistingValuesProcedureName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
         }
 
         protected override string Template => $@"
@@ -51,6 +46,7 @@ BEGIN
     EXECUTE stmt;
     DEALLOCATE PREPARE stmt; 
 END;
--- ---------------------------------------------------------------------------------------------------------------------".Trim();
+-- ---------------------------------------------------------------------------------------------------------------------"
+            .Trim();
     }
 }
