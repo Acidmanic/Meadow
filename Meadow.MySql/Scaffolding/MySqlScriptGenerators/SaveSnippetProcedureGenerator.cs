@@ -16,7 +16,6 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
         }
 
-
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyParameters = GenerateKey();

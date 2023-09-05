@@ -91,6 +91,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
+            return ProvideDbObjectNameSupportingOverriding(() => GetOriginalProcedureName(fullTree));
+        }
+        
+        private string GetOriginalProcedureName(bool fullTree)
+        {
             var nameConvention = ProcessedType.NameConvention;
 
             if (Configurations.OverrideDbObjectName)

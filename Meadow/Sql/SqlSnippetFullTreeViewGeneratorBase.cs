@@ -33,7 +33,7 @@ namespace Meadow.Sql
             : base(mapper, construction, configurations)
         {
 
-            FullTreeMap = construction.MeadowConfiguration.GetFullTreeMap(EntityType);
+            FullTreeMap = construction.MeadowConfiguration.GetFullTreeMap(EntityTypeOrOverridenEntityType);
         }
 
         protected Func<string,string> QuoteIfNeeded()
@@ -47,6 +47,11 @@ namespace Meadow.Sql
         }
         
         protected string GetViewName()
+        {
+            return ProvideDbObjectNameSupportingOverriding(GetOriginalViewName);
+        }
+        
+        private string GetOriginalViewName()
         {
             var tableName = ProcessedType.NameConvention.TableName;
 

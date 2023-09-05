@@ -36,6 +36,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
         {
             declaration.NotSupportedRepetitionHandling();
+            declaration.NotSupportedDbObjectNameOverriding();
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)

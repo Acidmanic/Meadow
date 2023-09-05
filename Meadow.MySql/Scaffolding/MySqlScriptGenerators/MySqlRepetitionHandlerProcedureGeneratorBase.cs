@@ -16,13 +16,14 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         {
         }
 
-        protected string GetCreationHeader(bool fullTree)
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
         {
-            if (RepetitionHandling == RepetitionHandling.Skip)
-            {
-                LogUnSupportedRepetitionHandling("MySql", "Procedures", RepetitionHandling.Skip);
-            }
+            declaration.NotSupported(RepetitionHandling.Skip);
+        }
 
+
+        private string GetCreationHeader(bool fullTree)
+        {
             if (RepetitionHandling == RepetitionHandling.Alter)
             {
                 return "DROP PROCEDURE IF EXISTS " + GetProcedureName(fullTree) + ";" +
