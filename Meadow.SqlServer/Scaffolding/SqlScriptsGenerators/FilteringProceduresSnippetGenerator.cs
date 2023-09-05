@@ -1,35 +1,25 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class FilteringProceduresSnippetGenerator<TEntity> : FilteringProceduresSnippetGenerator
-    {
-        public FilteringProceduresSnippetGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
     public class FilteringProceduresSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        public FilteringProceduresSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqlDbTypeNameMapper(), configuration)
+        public FilteringProceduresSnippetGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new SqlDbTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("FilteringProcedures");
-            }
+        }
 
-            ProcessedType = Process(type);
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+            declaration.NotSupportedRepetitionHandling();
+            declaration.NotSupportedDbObjectNameOverriding();
         }
 
         private readonly string _keyTableName = GenerateKey();
@@ -49,7 +39,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         private readonly string _keyReadChunkProcedureName = GenerateKey();
         private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
-        
+
         private readonly string _keyFilterResultsTable = GenerateKey();
 
 
@@ -82,8 +72,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             replacementList.Add(_keyReadChunkProcedureName, ProcessedType.NameConvention.ReadChunkProcedureName);
             replacementList.Add(_keyReadChunkProcedureNameFullTree,
                 ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
-            
-            replacementList.Add(_keyFilterResultsTable,ProcessedType.NameConvention.FilterResultsTableName);
+
+            replacementList.Add(_keyFilterResultsTable, ProcessedType.NameConvention.FilterResultsTableName);
         }
 
         protected override string Template => $@"

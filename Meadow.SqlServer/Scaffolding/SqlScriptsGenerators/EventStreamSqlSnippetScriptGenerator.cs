@@ -1,20 +1,10 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class EventStreamSqlSnippetScriptGenerator<TEvent> : EventStreamSqlSnippetScriptGenerator
-    {
-        public EventStreamSqlSnippetScriptGenerator(MeadowConfiguration configuration) : base(typeof(TEvent), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamSqlSnippetScriptGenerator : ByTemplateSqlSnippetGeneratorBase
     {
@@ -34,17 +24,20 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyReadAllStreamsChunksProcedureName = GenerateKey();
         private readonly string _keyReadStreamChunkByStreamIdProcedureName = GenerateKey();
 
-        protected ProcessedType ProcessedType { get; }
 
-        public EventStreamSqlSnippetScriptGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqlDbTypeNameMapper(), configuration)
+        public EventStreamSqlSnippetScriptGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new SqlDbTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("EventStream");
-            }
+        }
 
-            ProcessedType = Process(type);
+
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+
+            declaration.NotSupportedRepetitionHandling();
+            declaration.NotSupportedDbObjectNameOverriding();
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)

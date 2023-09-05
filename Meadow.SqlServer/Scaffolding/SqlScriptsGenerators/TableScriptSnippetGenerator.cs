@@ -12,8 +12,10 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class TableScriptSnippetGenerator<TEntity> : CreateTableScriptSnippetGeneratorBase
     {
-        public TableScriptSnippetGenerator(MeadowConfiguration configuration, bool appendSplit)
-            : base(typeof(TEntity), configuration, appendSplit)
+        public TableScriptSnippetGenerator(MeadowConfiguration configuration,bool appendSplitter)
+            : base(new SnippetConstruction
+                    { EntityType = typeof(TEntity),MeadowConfiguration = configuration}, 
+                SnippetConfigurations.Default(), appendSplitter)
         {
         }
     }
@@ -22,12 +24,14 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     public class TableScriptSnippetGenerator : CreateTableScriptSnippetGeneratorBase
     {
         public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration,bool appendSplitter)
-            : base(type, configuration, appendSplitter)
+            : base(new SnippetConstruction
+            { EntityType = type,MeadowConfiguration = configuration}, 
+                SnippetConfigurations.Default(), appendSplitter)
         {
         }
-        
-        public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(type, configuration, true)
+
+        public TableScriptSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) 
+            : base(construction, configurations, true)
         {
         }
     }
@@ -35,13 +39,14 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
     public abstract class CreateTableScriptSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-        private readonly Type _type;
         private readonly bool _appendSplitter;
 
-        public CreateTableScriptSnippetGeneratorBase(Type type, MeadowConfiguration configuration, bool appendSplitter) :
-            base(new SqlDbTypeNameMapper(), configuration)
+        protected CreateTableScriptSnippetGeneratorBase(
+            SnippetConstruction construction, 
+            SnippetConfigurations configurations,
+            bool appendSplitter) 
+            : base(new SqlDbTypeNameMapper(), construction, configurations)
         {
-            _type = type;
             _appendSplitter = appendSplitter;
         }
 
@@ -54,15 +59,14 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            var process = Process(_type);
 
-            var creationHeader = GetCreationHeader(process);
+            var creationHeader = GetCreationHeader(ProcessedType);
 
             replacementList.Add(_keyCreationHeader, creationHeader);
 
-            replacementList.Add(_keyTableName,GetTableName(process));
+            replacementList.Add(_keyTableName,GetTableName());
 
-            var parameters = GetParameters(process);
+            var parameters = GetParameters(ProcessedType);
 
             replacementList.Add(_keyParameters, parameters);
 
@@ -73,9 +77,9 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             replacementList.Add(_keySplitTail, splitTail);
         }
 
-        protected virtual string GetTableName(ProcessedType process)
+        protected string GetTableName()
         {
-            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : process.NameConvention.TableName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.TableName);
         }
 
         private string GetCreationHeader(ProcessedType process)

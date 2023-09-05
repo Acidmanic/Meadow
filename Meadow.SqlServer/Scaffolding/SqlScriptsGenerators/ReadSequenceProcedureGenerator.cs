@@ -1,12 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class ReadSequenceProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
+    public class ReadSequenceProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase
     {
         public int Count { get; }
 
@@ -15,7 +14,9 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         public ReadSequenceProcedureGenerator(Type type, MeadowConfiguration configuration, int count,
             bool orderAscending)
-            : base(type, configuration)
+            : base(new SnippetConstruction
+            {EntityType = type,MeadowConfiguration = configuration}, 
+                SnippetConfigurations.Default())
         {
             Count = count;
             OrderAscending = orderAscending;
@@ -28,14 +29,9 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            if (IsDatabaseObjectNameForced)
-            {
-                return ForcedDatabaseObjectName;
-            }
-
-            return OrderAscending
+            return ProvideDbObjectNameSupportingOverriding(() => OrderAscending
                 ? ProcessedType.NameConvention.SelectFirstProcedureName
-                : ProcessedType.NameConvention.SelectLastProcedureName;
+                : ProcessedType.NameConvention.SelectLastProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)

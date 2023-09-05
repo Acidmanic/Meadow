@@ -1,31 +1,25 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public abstract class SqlSnippetServerByTemplateCodeGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    public abstract class SqlServerRepetitionHandlerProcedureGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-        protected Type EntityType { get; }
-
-        protected ProcessedType ProcessedType { get; }
-
-
         protected readonly string KeyCreationHeader = GenerateKey();
         protected readonly string KeyCreationHeaderFullTree = GenerateKey();
         protected readonly string KeyProcedureName = GenerateKey();
         protected readonly string KeyProcedureNameFullTree = GenerateKey();
 
-        public SqlSnippetServerByTemplateCodeGeneratorBase(Type entityType, MeadowConfiguration configuration)
-            : base(new SqlDbTypeNameMapper(), configuration)
+        protected SqlServerRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new SqlDbTypeNameMapper(), construction, configurations)
         {
-            EntityType = entityType;
-            ProcessedType = Process(EntityType);
         }
-
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -47,12 +41,14 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 return "CREATE OR ALTER PROCEDURE";
             }
 
-            if (RepetitionHandling == RepetitionHandling.Skip)
-            {
-                LogUnSupportedRepetitionHandling("SqlServer", "Procedures", RepetitionHandling.Skip);
-            }
-
             return "CREATE PROCEDURE";
+        }
+
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+
+            declaration.NotSupported(RepetitionHandling.Skip);
         }
 
         protected abstract override string Template { get; }

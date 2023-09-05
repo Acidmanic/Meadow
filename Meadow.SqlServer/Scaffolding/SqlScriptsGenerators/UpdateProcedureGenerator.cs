@@ -1,23 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class UpdateProcedureGenerator<TEntity> : UpdateProcedureGenerator
-    {
-        public UpdateProcedureGenerator(MeadowConfiguration configuration)
-            : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
+    public class UpdateProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase
     {
-        public UpdateProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public UpdateProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(
+            construction, configurations)
         {
         }
 
@@ -28,9 +20,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            return IsDatabaseObjectNameForced
-                ? ForcedDatabaseObjectName
-                : ProcessedType.NameConvention.UpdateProcedureName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.UpdateProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)

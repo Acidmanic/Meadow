@@ -1,5 +1,6 @@
 using System;
 using Meadow.Configuration;
+using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
@@ -7,10 +8,10 @@ using Meadow.Sql;
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.FullTreeView)]
-    public class SnippetFullTreeViewGenerator : SqlSnippetFullTreeViewGeneratorBase
+    public class FullTreeViewCodeGenerator : SqlSnippetFullTreeViewGeneratorBase
     {
-        public SnippetFullTreeViewGenerator(Type type, MeadowConfiguration configuration)
-            : base(type, configuration, new SqlDbTypeNameMapper())
+        public FullTreeViewCodeGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new SqlDbTypeNameMapper(), construction, configurations)
         {
         }
 

@@ -3,24 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class SaveProcedureGenerator<TEntity> : SaveProcedureGenerator
-    {
-        public SaveProcedureGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
+    public class SaveProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase
     {
-        public SaveProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public SaveProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
         }
-
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
@@ -35,9 +28,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            return IsDatabaseObjectNameForced
-                ? ForcedDatabaseObjectName
-                : ProcessedType.NameConvention.SaveProcedureName;
+            return
+                ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.SaveProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)

@@ -3,29 +3,32 @@ using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class EntityDataBoundProcedureSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
 
         public EntityDataBoundProcedureSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqlDbTypeNameMapper(), configuration)
-        {
-            if (RepetitionHandling != RepetitionHandling.Create)
+            : base(new SqlDbTypeNameMapper(), new SnippetConstruction
             {
-                LogUnSupportedRepetitionHandling("Data Bound");
-            }
-
-            ProcessedType = Process(type);
-        }
+                EntityType = type,
+                MeadowConfiguration = configuration
+            },SnippetConfigurations.Default())
+        { }
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyRangeProcedureName = GenerateKey();
         private readonly string _keyExistingValuesProcedureName = GenerateKey();
 
+
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+            
+            declaration.NotSupportedRepetitionHandling();
+            declaration.NotSupportedDbObjectNameOverriding();
+        }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {

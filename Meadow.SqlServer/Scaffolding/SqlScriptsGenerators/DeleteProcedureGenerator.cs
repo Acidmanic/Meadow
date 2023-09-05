@@ -2,26 +2,30 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class DeleteProcedureGenerator<TEntity> : DeleteProcedureGenerator
     {
-        public DeleteProcedureGenerator(MeadowConfiguration configuration, bool byId)
-            : base(typeof(TEntity), configuration, byId)
+        public DeleteProcedureGenerator(MeadowConfiguration configuration, bool actById)
+            : base(new SnippetConstruction
+            {
+                EntityType = typeof(TEntity),
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.IdAware(!actById))
         {
         }
     }
 
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
+    public class DeleteProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase
     {
-        public bool ById { get; }
+        public bool ActById { get; set; }
 
-        public DeleteProcedureGenerator(Type type, MeadowConfiguration configuration, bool byId)
-            : base(type, configuration)
+        public DeleteProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
-            ById = byId;
+            
         }
 
         private readonly string _keyParametersParentheses = GenerateKey();
@@ -31,14 +35,9 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            if (IsDatabaseObjectNameForced)
-            {
-                return ForcedDatabaseObjectName;
-            }
-
-            return ById
-                ? ProcessedType.NameConvention.DeleteByIdProcedureName
-                : ProcessedType.NameConvention.DeleteAllProcedureName;
+           return ProvideDbObjectNameSupportingOverriding(() =>ActById
+               ? ProcessedType.NameConvention.DeleteByIdProcedureName
+               : ProcessedType.NameConvention.DeleteAllProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -46,11 +45,11 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             var idParameter = "( @" + ProcessedType.IdParameter.Name + " "
                               + ProcessedType.IdParameter.Type + ")";
 
-            replacementList.Add(_keyParametersParentheses, ById ? idParameter : "");
+            replacementList.Add(_keyParametersParentheses, ActById ? idParameter : "");
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var whereClause = ById ? $"WHERE {ProcessedType.IdParameter.Name}=@{ProcessedType.IdParameter.Name}" : "";
+            var whereClause = ActById ? $"WHERE {ProcessedType.IdParameter.Name}=@{ProcessedType.IdParameter.Name}" : "";
 
             replacementList.Add(_keyWhereClause, whereClause);
         }

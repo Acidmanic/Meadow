@@ -3,24 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
-    public class InsertProcedureGenerator<TEntity> : InsertProcedureGenerator
-    {
-        public InsertProcedureGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
-        {
-        }
-    }
 
+    
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
+    public class InsertProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase
     {
-        public InsertProcedureGenerator(Type type, MeadowConfiguration configuration)
-            : base(type, configuration)
+        public InsertProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
         }
 
+        public InsertProcedureGenerator(Type entityType,MeadowConfiguration configuration):
+            base(new SnippetConstruction
+            {
+                EntityType = entityType,
+                MeadowConfiguration = configuration
+            },SnippetConfigurations.Default())
+        {
+            
+        }
+        
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
@@ -32,9 +37,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            return IsDatabaseObjectNameForced
-                ? ForcedDatabaseObjectName
-                : ProcessedType.NameConvention.InsertProcedureName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.InsertProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)

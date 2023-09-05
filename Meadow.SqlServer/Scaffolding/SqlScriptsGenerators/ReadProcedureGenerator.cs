@@ -2,16 +2,19 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Macros;
-using Meadow.Scaffolding.Models;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
     public class ReadProcedureGeneratorPlainOnly : ReadProcedureGenerator
     {
-        public ReadProcedureGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool byId) : base(type,
-            configuration, byId)
+        public ReadProcedureGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool actById)
+            : base(new SnippetConstruction
+            {
+                EntityType = type,
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.IdAware(!actById))
         {
         }
 
@@ -21,50 +24,48 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.ReadProcedure)]
     public class ReadProcedureGeneratorFullTree : ReadProcedureGenerator
     {
-        public ReadProcedureGeneratorFullTree(Type type, MeadowConfiguration configuration, bool byId) : base(type,
-            configuration, byId)
+        protected override bool DisableFullTree => false;
+
+        public ReadProcedureGeneratorFullTree(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(construction, configurations)
         {
         }
-
-        protected override bool DisableFullTree => false;
     }
 
 
-    public abstract class ReadProcedureGenerator : SqlSnippetServerByTemplateCodeGeneratorBase
+    public abstract class ReadProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase, IIdAware
     {
-        public bool ById { get; }
+        public bool ActById { get; set; }
 
         protected abstract bool DisableFullTree { get; }
 
-        public ReadProcedureGenerator(Type type, MeadowConfiguration configuration, bool byId)
-            : base(type, configuration)
+        protected ReadProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(construction, configurations)
         {
-            ById = byId;
         }
 
         protected override string GetProcedureName(bool fullTree)
         {
-            if (IsDatabaseObjectNameForced)
+            return ProvideDbObjectNameSupportingOverriding(() =>
             {
-                return ForcedDatabaseObjectName;
-            }
+                if (fullTree)
+                {
+                    return ActById
+                        ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
+                        : ProcessedType.NameConvention.SelectAllProcedureNameFullTree;
+                }
 
-            if (fullTree)
-            {
-                return ById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
-                    : ProcessedType.NameConvention.SelectAllProcedureNameFullTree;    
-            }
-            return ById
-                ? ProcessedType.NameConvention.SelectByIdProcedureName
-                : ProcessedType.NameConvention.SelectAllProcedureName;
+                return ActById
+                    ? ProcessedType.NameConvention.SelectByIdProcedureName
+                    : ProcessedType.NameConvention.SelectAllProcedureName;
+            });
         }
 
         private readonly string _keyIdParameterDeclaration = GenerateKey();
-        
+
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyFullTreeViewName = GenerateKey();
-        
+
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyWhereClauseFullTree = GenerateKey();
 
@@ -72,18 +73,18 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             var parameterDeclaration =
-                ById ? $"(@{ProcessedType.IdParameter.Name} {ProcessedType.IdParameter.Type})" : "";
+                ActById ? $"(@{ProcessedType.IdParameter.Name} {ProcessedType.IdParameter.Type})" : "";
 
             replacementList.Add(_keyIdParameterDeclaration, parameterDeclaration);
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
             replacementList.Add(_keyFullTreeViewName, ProcessedType.NameConvention.FullTreeViewName);
 
-            var whereClause = ById
+            var whereClause = ActById
                 ? $" WHERE {ProcessedType.NameConvention.TableName}.{ProcessedType.IdParameter.Name}" +
                   $" = @{ProcessedType.IdParameter.Name}"
                 : "";
-            var whereClauseFullTree = ById
+            var whereClauseFullTree = ActById
                 ? $" WHERE {ProcessedType.NameConvention.FullTreeViewName}.{ProcessedType.IdParameterFullTree.Name}" +
                   $" = @{ProcessedType.IdParameter.Name}"
                 : "";
