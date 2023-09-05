@@ -9,6 +9,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
+    
     public class TableScriptSnippetGenerator<TEntity> : TableScriptSnippetGenerator
     {
         public TableScriptSnippetGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
@@ -16,7 +17,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
-    [CommonSnippet(CommonSnippets.CreateTable)]
+    
     public class TableScriptSnippetGenerator : TableScriptSnippetGeneratorBase
     {
         public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
@@ -24,6 +25,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
     }
 
+    [CommonSnippet(CommonSnippets.CreateTable)]
     public abstract class TableScriptSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
         private readonly Type _type;
