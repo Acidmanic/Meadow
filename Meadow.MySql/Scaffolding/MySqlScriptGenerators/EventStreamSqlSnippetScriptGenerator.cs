@@ -1,19 +1,10 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class EventStreamSqlSnippetScriptGenerator<TEvent> : EventStreamSqlSnippetScriptGenerator
-    {
-        public EventStreamSqlSnippetScriptGenerator(MeadowConfiguration configuration) : base(typeof(TEvent), configuration)
-        {
-        }
-    }
 
     [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamSqlSnippetScriptGenerator : ByTemplateSqlSnippetGeneratorBase
@@ -34,21 +25,18 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyReadAllStreamsChunksProcedureName = GenerateKey();
         private readonly string _keyReadStreamChunkByStreamIdProcedureName = GenerateKey();
 
-        protected ProcessedType ProcessedType { get; private set; }
 
-        protected Type EntityType { get; set; }
-
-        public EventStreamSqlSnippetScriptGenerator(Type type, MeadowConfiguration configuration)
-            : base(new MySqlDbTypeNameMapper(), configuration)
+        public EventStreamSqlSnippetScriptGenerator(
+            SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("EventStream");
-            }
-
-            ProcessedType = Process(EntityType);
         }
 
+
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupportedRepetitionHandling();
+        }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
