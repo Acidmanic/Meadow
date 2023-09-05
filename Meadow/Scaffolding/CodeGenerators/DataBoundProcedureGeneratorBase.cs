@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Macros;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -15,16 +14,22 @@ namespace Meadow.Scaffolding.CodeGenerators
         public RepetitionHandling RepetitionHandling { get; set; }
 
         private readonly List<Type> _childrenTypes;
-        private readonly MeadowConfiguration _configuration;
+        
+        
+        protected SnippetConstruction Construction { get; }
+        protected SnippetConfigurations Configurations { get; }
 
-        public DataBoundProcedureGeneratorBase(Type entityType, MeadowConfiguration configuration)
+        public DataBoundProcedureGeneratorBase(SnippetConstruction construction,SnippetConfigurations configuration, SnippetConfigurations configurations)
         {
-            _configuration = configuration;
-            var ev = new ObjectEvaluator(entityType);
+            Construction = construction;
+            Configurations = configurations;
+            
+            var ev = new ObjectEvaluator(construction.EntityType);
 
             _childrenTypes = ev.Map.Nodes
                 .Where(n => !n.IsLeaf && !n.IsCollection && TypeCheck.IsModel(n.Type,true))
                 .Select(n => n.Type).ToList();
+            
         }
         
         protected abstract bool DelimitByLineNotSplit { get; }
@@ -47,7 +52,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 
             foreach (var type in _childrenTypes)
             {
-                var cg = CreateEntityDataBoundProcedureGenerator(type, _configuration);
+                var cg = CreateEntityDataBoundProcedureGenerator(type);
 
                 var code = cg.Generate();
 
@@ -67,7 +72,20 @@ namespace Meadow.Scaffolding.CodeGenerators
             };
         }
 
-        protected abstract ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type type,
-            MeadowConfiguration configuration);
+        private ICodeGenerator CreateEntityDataBoundProcedureGenerator(Type type)
+        {
+
+            var construction = new SnippetConstruction
+            {
+                EntityType = type,
+                MeadowConfiguration = Construction.MeadowConfiguration
+            };
+            
+            return CreateEntityDataBoundProcedureGenerator(construction,Configurations);
+        }
+        
+        protected abstract ICodeGenerator CreateEntityDataBoundProcedureGenerator(
+            SnippetConstruction construction,
+            SnippetConfigurations configurations);
     }
 }
