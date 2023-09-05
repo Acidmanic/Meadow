@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 {
@@ -19,7 +20,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     }
 
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase
+    public class DeleteProcedureGenerator : SqlServerRepetitionHandlerProcedureGeneratorBase,IIdAware
     {
         public bool ActById { get; set; }
 
