@@ -257,7 +257,7 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new TableScriptSnippetGenerator(type, configuration).Generate().Text;
+            var script = new TableCodeGenerator(type, configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 
@@ -268,7 +268,7 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new TableScriptSnippetGenerator(type, configuration).Generate().Text;
+            var script = new TableCodeGenerator(type, configuration).Generate().Text;
 
             var request = new SqlRequest(script);
 

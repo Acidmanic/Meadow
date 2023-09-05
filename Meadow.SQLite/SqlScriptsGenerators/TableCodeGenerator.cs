@@ -9,10 +9,10 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    [CommonSnippet(CommonSnippets.CreateTable)]
-    public class TableScriptSnippetGenerator : TableScriptSnippetGeneratorBase
+    
+    public class TableCodeGenerator : TableSnippetGenerator
     {
-        public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration) :
+        public TableCodeGenerator(Type type, MeadowConfiguration configuration) :
             base(new SnippetConstruction
             {
                 EntityType = type,
@@ -22,15 +22,15 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
     }
 
-
-    public abstract class TableScriptSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    [CommonSnippet(CommonSnippets.CreateTable)]
+    public  class TableSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdParameters = GenerateKey();
         private readonly string _keyNoneIdParameters = GenerateKey();
         private readonly string _keyCreationHeader = GenerateKey();
 
-        protected TableScriptSnippetGeneratorBase(SnippetConstruction construction,
+        public TableSnippetGenerator(SnippetConstruction construction,
             SnippetConfigurations configurations)
             : base(new SqLiteTypeNameMapper(), construction, configurations)
         {
