@@ -1,11 +1,20 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
+    public class ReadSnippetProcedureGenerator<TEntity> : ReadSequenceSnippetProcedureGenerator<TEntity>
+    {
+        public ReadSnippetProcedureGenerator(MeadowConfiguration configuration, bool allNotById) :
+            base(configuration, allNotById, 0)
+        {
+        }
+    }
+
     public class ReadSequenceSnippetProcedureGenerator<TEntity> : ReadSequenceSnippetProcedureGenerator
     {
         public ReadSequenceSnippetProcedureGenerator(MeadowConfiguration configuration, bool allNotById, int top,
@@ -15,7 +24,16 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             {
                 EntityType = typeof(TEntity),
                 MeadowConfiguration = configuration
-            }, SnippetConfigurations.IdAware(allNotById),top, orderById, orderAscending)
+            }, SnippetConfigurations.IdAware(allNotById), top, orderById, orderAscending)
+        {
+        }
+    }
+
+    [CommonSnippet(CommonSnippets.ReadProcedure)]
+    public class ReadSnippetProcedureGenerator : ReadSequenceSnippetProcedureGenerator
+    {
+        public ReadSnippetProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
+            base(construction, configurations)
         {
         }
     }
@@ -27,19 +45,19 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         public bool OrderAscending { get; }
 
         public bool OrderById { get; }
-        
+
         public bool ActById { get; set; }
 
-        public ReadSequenceSnippetProcedureGenerator(SnippetConstruction construction,SnippetConfigurations configurations)
-        : this(construction,configurations,Int32.MaxValue,false,true)
+        public ReadSequenceSnippetProcedureGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : this(construction, configurations, 0, false, true)
         {
-            
         }
-        
+
         public ReadSequenceSnippetProcedureGenerator(
             SnippetConstruction construction,
             SnippetConfigurations configurations
-            , int top,bool orderById = false, bool orderAscending = true) : base(construction, configurations)
+            , int top, bool orderById = false, bool orderAscending = true) : base(construction, configurations)
         {
             Top = top;
             OrderAscending = orderAscending;
@@ -122,14 +140,14 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                 !ActById ? "" : ("IN " + ProcessedType.IdParameter.Name + " " + ProcessedType.IdParameter.Type));
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
-            
+
             replacementList.Add(_keyFullTreeViewName, ProcessedType.NameConvention.FullTreeViewName);
 
             replacementList.Add(_keyWhereClause, !ActById
                 ? ""
                 : ("WHERE " + ProcessedType.NameConvention.TableName + "."
                    + ProcessedType.IdParameter.Name + " = " + ProcessedType.IdParameter.Name));
-            
+
             replacementList.Add(_keyWhereClauseFullTree, !ActById
                 ? ""
                 : ("WHERE " + ProcessedType.NameConvention.FullTreeViewName + "."
@@ -153,6 +171,5 @@ BEGIN
     SELECT * FROM {_keyFullTreeViewName} {_keyWhereClauseFullTree} {_keyOrderClauseFullTree} {_keyTopClause};
 END;
 ".Trim();
-        
     }
 }
