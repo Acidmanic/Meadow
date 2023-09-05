@@ -16,8 +16,6 @@ namespace Meadow.Scaffolding.Macros.BuiltIn;
 
 public abstract class BuiltinMacroBase : MacroBase
 {
-    
-   
     public override string GenerateCode(params string[] arguments)
     {
         var type = GrabTypeArgument(arguments, 0);
@@ -25,12 +23,12 @@ public abstract class BuiltinMacroBase : MacroBase
         var catalog = AvailableCodeGeneratorsCatalog(type);
 
         var assemblingBehaviorBuilder = new AssemblingBehaviorBuilder();
-        
+
         BuildUpAssemblingBehavior(assemblingBehaviorBuilder);
 
         var assemblingBehavior = assemblingBehaviorBuilder.Build();
 
-        var matchingCodeGenerators = InstantiateMatchingCodeGenerators(type,assemblingBehavior, catalog);
+        var matchingCodeGenerators = InstantiateMatchingCodeGenerators(type, assemblingBehavior, catalog);
 
         var code = AssembleGeneratorsCodes(matchingCodeGenerators);
 
@@ -40,17 +38,17 @@ public abstract class BuiltinMacroBase : MacroBase
     private List<ICodeGenerator> InstantiateMatchingCodeGenerators(
         Type entityType,
         AssemblingBehavior assemblingBehavior,
-        Dictionary<CommonSnippets,Type> catalog)
+        Dictionary<CommonSnippets, Type> catalog)
     {
         var generators = new List<ICodeGenerator>();
 
-        foreach (var configurationPerSnippet in assemblingBehavior)
+        foreach (var order in assemblingBehavior)
         {
-            var snippet = configurationPerSnippet.Key;
+            var snippet = order.Snippet;
 
             if (catalog.ContainsKey(snippet))
             {
-                var snippetConfigurations= configurationPerSnippet.Value;
+                var snippetConfigurations = order.Configurations;
 
                 var snippetType = catalog[snippet];
 
@@ -59,8 +57,9 @@ public abstract class BuiltinMacroBase : MacroBase
                     EntityType = entityType,
                     MeadowConfiguration = Configuration
                 };
-                
-                var foundConstructor = snippetType.GetConstructor(new Type[]{ typeof(SnippetConstruction),typeof(SnippetConfigurations)});
+
+                var foundConstructor = snippetType.GetConstructor(new Type[]
+                    { typeof(SnippetConstruction), typeof(SnippetConfigurations) });
 
                 var constructionParameters = new object[] { snippetConstruction, snippetConfigurations };
 
@@ -82,23 +81,29 @@ public abstract class BuiltinMacroBase : MacroBase
         ConstructorInfo constructor,
         object[] parameters, IdAwarenessBehavior behavior)
     {
-
         if (behavior is IdAwarenessBehavior.UseById)
         {
             if (constructor.Invoke(parameters) is IIdAware byId)
             {
                 byId.ActById = true;
-                
+
                 generators.Add((ICodeGenerator)byId);
             }
+
             if (constructor.Invoke(parameters) is IIdAware all)
             {
                 all.ActById = false;
-                
+
                 generators.Add((ICodeGenerator)all);
             }
         }
-        
+        else
+        {
+            if (constructor.Invoke(parameters) is ICodeGenerator generator)
+            {
+                generators.Add(generator);
+            }
+        }
     }
 
 
@@ -113,14 +118,13 @@ public abstract class BuiltinMacroBase : MacroBase
         {
             Title(sb, "<" + Name + " Macro >");
 
-            Append(sb,codeGenerator);
-        
+            Append(sb, codeGenerator);
+
             Title(sb, "</" + Name + " Macro>");
         }
 
         return sb.ToString();
     }
-
 
 
     private StringBuilder Append(StringBuilder sb, ICodeGenerator cg)
@@ -197,7 +201,6 @@ public abstract class BuiltinMacroBase : MacroBase
 
         foreach (var assembly in LoadedAssemblies)
         {
-            
             // Is ICodeGenerator
             var availableCodeGenerators = assembly.GetAvailableTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface)
@@ -210,9 +213,10 @@ public abstract class BuiltinMacroBase : MacroBase
                 if (snippetInfo != null)
                 {
                     // Has A Snippet's Constructor
-                    var foundConstructor = type.GetConstructor(new Type[]{ typeof(SnippetConstruction),typeof(SnippetConfigurations)});
-                    
-                    if (foundConstructor!=null)
+                    var foundConstructor = type.GetConstructor(new Type[]
+                        { typeof(SnippetConstruction), typeof(SnippetConfigurations) });
+
+                    if (foundConstructor != null)
                     {
                         // We have a snippet. now validation!
                         // If snippet type should be id-aware, is the implementation id-aware too?
@@ -222,13 +226,13 @@ public abstract class BuiltinMacroBase : MacroBase
 
                         if (!expectedToBeIdAware || actuallyIsIdAware)
                         {
-                            
-                            availableBySnippets.Add(snippetInfo.SnippetType,type);
+                            availableBySnippets.Add(snippetInfo.SnippetType, type);
                         }
                     }
                 }
             }
         }
+
         return availableBySnippets;
     }
 }

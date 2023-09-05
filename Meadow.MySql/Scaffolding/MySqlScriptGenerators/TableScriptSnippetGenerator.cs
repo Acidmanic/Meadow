@@ -23,9 +23,9 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     }
 
     [CommonSnippet(CommonSnippets.CreateTable)]
-    public abstract class TableScriptSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
+    public class TableScriptSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected TableScriptSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+        public TableScriptSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
             : base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
         }

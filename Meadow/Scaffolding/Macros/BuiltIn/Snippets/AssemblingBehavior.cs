@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Runtime.Serialization;
 using Meadow.Scaffolding.Attributes;
 
@@ -8,41 +9,23 @@ namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 /// This class represents the snippets that a macro wants to find (searching the available assemblies) and
 /// also provides configurations for each snippet.
 /// </summary>
-public class AssemblingBehavior : Dictionary<CommonSnippets, SnippetConfigurations>
+public class AssemblingBehavior : List<SnippetOrder>
 {
     public AssemblingBehavior()
     {
     }
 
-    public AssemblingBehavior(IDictionary<CommonSnippets, SnippetConfigurations> dictionary) : base(dictionary)
+    public AssemblingBehavior(IEnumerable<SnippetOrder> collection) : base(collection)
     {
     }
 
-    public AssemblingBehavior(IDictionary<CommonSnippets, SnippetConfigurations> dictionary, IEqualityComparer<CommonSnippets> comparer) : base(dictionary, comparer)
-    {
-    }
 
-    public AssemblingBehavior(IEnumerable<KeyValuePair<CommonSnippets, SnippetConfigurations>> collection) : base(collection)
+    public void Add(CommonSnippets snippet, SnippetConfigurations configurations)
     {
-    }
-
-    public AssemblingBehavior(IEnumerable<KeyValuePair<CommonSnippets, SnippetConfigurations>> collection, IEqualityComparer<CommonSnippets> comparer) : base(collection, comparer)
-    {
-    }
-
-    public AssemblingBehavior(IEqualityComparer<CommonSnippets> comparer) : base(comparer)
-    {
-    }
-
-    public AssemblingBehavior(int capacity) : base(capacity)
-    {
-    }
-
-    public AssemblingBehavior(int capacity, IEqualityComparer<CommonSnippets> comparer) : base(capacity, comparer)
-    {
-    }
-
-    protected AssemblingBehavior(SerializationInfo info, StreamingContext context) : base(info, context)
-    {
+        Add(new SnippetOrder
+        {
+            Snippet = snippet,
+            Configurations = configurations
+        });
     }
 }

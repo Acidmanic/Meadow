@@ -13,7 +13,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqLite();
+            UseMySql();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -126,7 +126,7 @@ namespace Meadow.Test.Functional
             }
 
             var fullTreeFilter =  new FilterQueryBuilder<Person>().Where(p => p.Job.IncomeInRials)
-                .IsLargerThan("499").Build();
+                .IsLargerThan("399").Build();
 
             var filtreeResults = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person,long>(fullTreeFilter), true)
