@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
-using Meadow.Contracts;
-using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
@@ -12,26 +11,36 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         public ReadSequenceSnippetProcedureGenerator(MeadowConfiguration configuration, bool allNotById, int top,
             bool orderById = false,
             bool orderAscending = true)
-            : base(typeof(TEntity), configuration, allNotById, top, orderById, orderAscending)
+            : base(new SnippetConstruction
+            {
+                EntityType = typeof(TEntity),
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.IdAware(allNotById),top, orderById, orderAscending)
         {
         }
     }
 
-    public class ReadSequenceSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase
+    public class ReadSequenceSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase, IIdAware
     {
-        public bool AllNotById { get; }
-
         public int Top { get; }
 
         public bool OrderAscending { get; }
 
-
         public bool OrderById { get; }
+        
+        public bool ActById { get; set; }
 
-        public ReadSequenceSnippetProcedureGenerator(Type type, MeadowConfiguration configuration, bool allNotById, int top,
-            bool orderById = false, bool orderAscending = true) : base(type, configuration)
+        public ReadSequenceSnippetProcedureGenerator(SnippetConstruction construction,SnippetConfigurations configurations)
+        : this(construction,configurations,Int32.MaxValue,false,true)
         {
-            AllNotById = allNotById;
+            
+        }
+        
+        public ReadSequenceSnippetProcedureGenerator(
+            SnippetConstruction construction,
+            SnippetConfigurations configurations
+            , int top,bool orderById = false, bool orderAscending = true) : base(construction, configurations)
+        {
             Top = top;
             OrderAscending = orderAscending;
             OrderById = orderById;
@@ -64,14 +73,14 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            var nameConvention = Processed.NameConvention;
+            var nameConvention = ProcessedType.NameConvention;
 
-            if (IsDatabaseObjectNameForced)
+            if (Configurations.OverrideDbObjectName)
             {
-                return ForcedDatabaseObjectName;
+                return Configurations.OverrideDbObjectName.Value(Construction);
             }
 
-            if (AllNotById)
+            if (!ActById)
             {
                 return (Top > 0) switch
                 {
@@ -103,32 +112,32 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            if (!AllNotById && !Processed.HasId)
+            if (!ActById && !ProcessedType.HasId)
             {
                 throw new Exception("To be able to create a read-by-id procedure for a type, the type" +
                                     " must have an id field.");
             }
 
             replacementList.Add(_keyIdParam,
-                AllNotById ? "" : ("IN " + Processed.IdParameter.Name + " " + Processed.IdParameter.Type));
+                !ActById ? "" : ("IN " + ProcessedType.IdParameter.Name + " " + ProcessedType.IdParameter.Type));
 
-            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
             
-            replacementList.Add(_keyFullTreeViewName, Processed.NameConvention.FullTreeViewName);
+            replacementList.Add(_keyFullTreeViewName, ProcessedType.NameConvention.FullTreeViewName);
 
-            replacementList.Add(_keyWhereClause, AllNotById
+            replacementList.Add(_keyWhereClause, !ActById
                 ? ""
-                : ("WHERE " + Processed.NameConvention.TableName + "."
-                   + Processed.IdParameter.Name + " = " + Processed.IdParameter.Name));
+                : ("WHERE " + ProcessedType.NameConvention.TableName + "."
+                   + ProcessedType.IdParameter.Name + " = " + ProcessedType.IdParameter.Name));
             
-            replacementList.Add(_keyWhereClauseFullTree, AllNotById
+            replacementList.Add(_keyWhereClauseFullTree, !ActById
                 ? ""
-                : ("WHERE " + Processed.NameConvention.FullTreeViewName + "."
-                   + Processed.IdParameterFullTree.Name + " = " + Processed.IdParameter.Name));
+                : ("WHERE " + ProcessedType.NameConvention.FullTreeViewName + "."
+                   + ProcessedType.IdParameterFullTree.Name + " = " + ProcessedType.IdParameter.Name));
 
-            replacementList.Add(_keyOrderClause, GetOrder(Processed.IdParameter.Name));
+            replacementList.Add(_keyOrderClause, GetOrder(ProcessedType.IdParameter.Name));
 
-            replacementList.Add(_keyOrderClauseFullTree, GetOrder(Processed.IdParameterFullTree.Name));
+            replacementList.Add(_keyOrderClauseFullTree, GetOrder(ProcessedType.IdParameterFullTree.Name));
 
             replacementList.Add(_keyTopClause, GetTop());
         }
@@ -144,5 +153,6 @@ BEGIN
     SELECT * FROM {_keyFullTreeViewName} {_keyWhereClauseFullTree} {_keyOrderClauseFullTree} {_keyTopClause};
 END;
 ".Trim();
+        
     }
 }

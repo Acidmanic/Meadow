@@ -1,15 +1,19 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class InsertSnippetProcedureGenerator<TEntity> : InsertSnippetProcedureGenerator
     {
         public InsertSnippetProcedureGenerator(MeadowConfiguration configuration)
-            : base(typeof(TEntity),configuration)
+            : base(new SnippetConstruction
+            {
+                EntityType = typeof(TEntity),
+                MeadowConfiguration = configuration
+            },SnippetConfigurations.Default())
         {
         }
     }
@@ -17,10 +21,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     [CommonSnippet(CommonSnippets.InsertProcedure)]
     public class InsertSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase
     {
-        public InsertSnippetProcedureGenerator(Type type,MeadowConfiguration configuration) : base(type,configuration)
-        {
-        }
-        
+       
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
@@ -28,28 +29,32 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyIdColumn = GenerateKey();
 
 
+        public InsertSnippetProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
+        {
+        }
+        
         protected override string GetProcedureName(bool fullTree)
         {
-            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.InsertProcedureName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.InsertProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            var parameters = string.Join(',', Processed.NoneIdParameters
+            var parameters = string.Join(',', ProcessedType.NoneIdParameters
                 .Select(p => "IN " + p.Name + " " + p.Type));
 
             replacementList.Add(_keyParameters, parameters);
 
-            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var columnsAndValues = string.Join(',', Processed.NoneIdParameters
+            var columnsAndValues = string.Join(',', ProcessedType.NoneIdParameters
                 .Select(p => p.Name));
 
             replacementList.Add(_keyColumns, columnsAndValues);
 
             replacementList.Add(_keyValues, columnsAndValues);
 
-            replacementList.Add(_keyIdColumn, Processed.IdField.Name);
+            replacementList.Add(_keyIdColumn, ProcessedType.IdField.Name);
         }
 
         protected override string Template => @$"
@@ -60,5 +65,6 @@ BEGIN
     SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=@nid;
 END;
 ".Trim();
+        
     }
 }

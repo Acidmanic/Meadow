@@ -1,6 +1,3 @@
-using System;
-using Meadow.Configuration;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
@@ -8,19 +5,22 @@ using Meadow.Sql;
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     [CommonSnippet(CommonSnippets.FullTreeView)]
-    public class SnippetFullTreeViewGenerator : SqlSnippetFullTreeViewGeneratorBase
+    public class FullTreeViewCodeGenerator : SqlSnippetFullTreeViewGeneratorBase
     {
-        public SnippetFullTreeViewGenerator(Type type, MeadowConfiguration configuration)
-            : base(type, configuration, new MySqlDbTypeNameMapper())
+        public FullTreeViewCodeGenerator(
+            SnippetConstruction construction,
+            SnippetConfigurations configurations) 
+            : base(new MySqlDbTypeNameMapper(), construction, configurations)
         {
+        }
+
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupported(RepetitionHandling.Skip);
         }
 
         protected override string GetCreationHeader()
         {
-            if (RepetitionHandling == RepetitionHandling.Skip)
-            {
-                LogUnSupportedRepetitionHandling("MySql", "View", RepetitionHandling.Skip);
-            }
 
             if (RepetitionHandling == RepetitionHandling.Alter)
             {
@@ -30,5 +30,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             return "CREATE VIEW";
         }
+
+        
     }
 }
