@@ -140,8 +140,8 @@ public abstract class BuiltinMacroBase : MacroBase
 
     protected void Title(StringBuilder sb, string title)
     {
-        sb.AppendLine(LineMacro.CommentLine).Append("\n-- ")
-            .AppendLine(title).Append("\n")
+        sb.AppendLine(LineMacro.CommentLine).Append("-- ")
+            .AppendLine(title)
             .AppendLine(LineMacro.CommentLine);
     }
 
