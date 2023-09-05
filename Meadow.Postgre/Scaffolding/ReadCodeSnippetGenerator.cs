@@ -2,13 +2,19 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.Postgre.Scaffolding
 {
     public class ReadCodeSnippetGeneratorPlainOnly : ReadCodeSnippetGenerator
     {
-        public ReadCodeSnippetGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool byId) : base(type,
-            configuration, byId)
+        public ReadCodeSnippetGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool actById) : base(
+            new SnippetConstruction
+            {
+                EntityType = type,
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.IdAware(!actById))
         {
         }
 
@@ -18,25 +24,29 @@ namespace Meadow.Postgre.Scaffolding
     [CommonSnippet(CommonSnippets.ReadProcedure)]
     public class ReadCodeSnippetGeneratorFullTree : ReadCodeSnippetGenerator
     {
-        public ReadCodeSnippetGeneratorFullTree(Type type, MeadowConfiguration configuration, bool byId) : base(type,
-            configuration, byId)
+        protected override bool DisableCreateFullTree => false;
+
+
+        public ReadCodeSnippetGeneratorFullTree(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(construction, configurations)
         {
         }
-
-        protected override bool DisableCreateFullTree => false;
     }
 
 
-    public abstract class ReadCodeSnippetGenerator : PostgreByTemplateProcedureSnippetGeneratorBase
+    public abstract class ReadCodeSnippetGenerator : PostgreRepetitionHandlerProcedureGeneratorBase, IIdAware
     {
-        private bool ById { get; }
+        public bool ActById { get; set; }
+
 
         protected virtual bool DisableCreateFullTree => false;
 
-        public ReadCodeSnippetGenerator(Type type, MeadowConfiguration configuration, bool byId) : base(type, configuration)
+
+        protected ReadCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
+            base(construction, configurations)
         {
-            ById = byId;
         }
+
 
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyParametersFullTree = GenerateKey();
@@ -54,16 +64,18 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override string GetProcedureName()
         {
-            return ById
-                ? ProcessedType.NameConvention.SelectByIdProcedureName.DoubleQuot()
-                : ProcessedType.NameConvention.SelectAllProcedureName.DoubleQuot();
+            return ProvideDbObjectNameSupportingOverriding(() =>
+                ActById
+                    ? ProcessedType.NameConvention.SelectByIdProcedureName
+                    : ProcessedType.NameConvention.SelectAllProcedureName).DoubleQuot();
         }
 
         protected string GetProcedureNameFullTree()
         {
-            return ById
-                ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree.DoubleQuot()
-                : ProcessedType.NameConvention.SelectAllProcedureNameFullTree.DoubleQuot();
+            return ProvideDbObjectNameSupportingOverriding(() =>
+                ActById
+                    ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
+                    : ProcessedType.NameConvention.SelectAllProcedureNameFullTree).DoubleQuot();
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -85,7 +97,7 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyProcedureNameFullTree, GetProcedureNameFullTree());
         }
 
-        protected override string Template => ById ? ByIdTemplate : AllTemplate;
+        protected override string Template => ActById ? ByIdTemplate : AllTemplate;
 
 
         private string ByIdPlainObjectTemplate =>

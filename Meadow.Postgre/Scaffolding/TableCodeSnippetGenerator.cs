@@ -1,32 +1,32 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
-
     [CommonSnippet(CommonSnippets.CreateTable)]
     public class TableCodeSnippetGenerator : TableCodeSnippetGeneratorBase
     {
-        public TableCodeSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public TableCodeSnippetGenerator(Type type, MeadowConfiguration configuration)
+            : base(new SnippetConstruction
+            {
+                EntityType = type,
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.Default())
         {
         }
     }
-    
+
     public abstract class TableCodeSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        public TableCodeSnippetGeneratorBase(Type type, MeadowConfiguration configuration)
-            : base(new PostgreDbTypeNameMapper(), configuration)
+        protected TableCodeSnippetGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new PostgreDbTypeNameMapper(), construction, configurations)
         {
-            ProcessedType = Process(type);
         }
 
         private readonly string _keyDbQTableName = GenerateKey();
@@ -43,7 +43,9 @@ namespace Meadow.Postgre.Scaffolding
             {
                 parameters = $"{ProcessedType.IdParameter.Name.DoubleQuot()} ";
 
-                parameters += IsNumeric(ProcessedType.IdField.Type) ? "SERIAL" : ProcessedType.IdParameter.Type;
+                parameters += TypeCheck.IsNumerical(ProcessedType.IdField.Type)
+                    ? "SERIAL"
+                    : ProcessedType.IdParameter.Type;
 
                 if (ProcessedType.NoneIdParameters.Count > 0)
                 {
@@ -72,11 +74,11 @@ namespace Meadow.Postgre.Scaffolding
         }
 
 
-        protected virtual string GetTableName()
+        private string GetTableName()
         {
-            return ProcessedType.NameConvention.TableName;
+             return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.TableName);
         }
-        
+
         private string GetCreationHeader()
         {
             var creationHeader = "create table";

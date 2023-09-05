@@ -1,5 +1,3 @@
-using System;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
@@ -7,18 +5,12 @@ using Meadow.Sql;
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.FullTreeView)]
-    public class SnippetFullTreeViewGenerator : SqlSnippetFullTreeViewGeneratorBase
+    public class FullTreeViewCodeGenerator : SqlSnippetFullTreeViewGeneratorBase
     {
-        public SnippetFullTreeViewGenerator(Type type,MeadowConfiguration configuration) 
-            : base(type,configuration, new PostgreDbTypeNameMapper())
+        public FullTreeViewCodeGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new PostgreDbTypeNameMapper(), construction, configurations)
         {
         }
-
-        private static readonly string Split = @"
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------"
-            .Trim();
 
         protected override string GetCreationHeader()
         {

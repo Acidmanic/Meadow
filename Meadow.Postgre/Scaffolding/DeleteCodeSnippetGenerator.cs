@@ -2,18 +2,19 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteCodeSnippetGenerator : PostgreByTemplateProcedureSnippetGeneratorBase
+    public class DeleteCodeSnippetGenerator : PostgreRepetitionHandlerProcedureGeneratorBase, IIdAware
     {
-        private bool ById { get; }
+        public bool ActById { get; set; }
 
-        public DeleteCodeSnippetGenerator(Type type,MeadowConfiguration configuration, bool byId)
-            : base(type,configuration)
+        public DeleteCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
+            base(construction, configurations)
         {
-            ById = byId;
         }
 
         private readonly string _keyParameters = GenerateKey();
@@ -22,21 +23,21 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override string GetProcedureName()
         {
-            return ById
+            return ProvideDbObjectNameSupportingOverriding(() => ActById
                 ? ProcessedType.NameConvention.DeleteByIdProcedureName.DoubleQuot()
-                : ProcessedType.NameConvention.DeleteAllProcedureName.DoubleQuot();
+                : ProcessedType.NameConvention.DeleteAllProcedureName.DoubleQuot());
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyParameters,
-                ById
+                ActById
                     ? (("par_" + ProcessedType.IdParameter.Name).DoubleQuot() + " " + ProcessedType.IdParameter.Type)
                     : "");
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName.DoubleQuot());
 
-            var whereClause = ById
+            var whereClause = ActById
                 ? $" where \"{ProcessedType.IdParameter.Name}\" = \"par_{ProcessedType.IdParameter.Name}\""
                 : "";
 

@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
-    public class UpdateCodeSnippetGenerator : PostgreByTemplateProcedureSnippetGeneratorBase
+    public class UpdateCodeSnippetGenerator : PostgreRepetitionHandlerProcedureGeneratorBase
     {
-        public UpdateCodeSnippetGenerator(Type type,MeadowConfiguration configuration) : base(type,configuration)
+        public UpdateCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
+            base(construction, configurations)
         {
         }
 
@@ -20,7 +22,8 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override string GetProcedureName()
         {
-            return ProcessedType.NameConvention.UpdateProcedureName.DoubleQuot();
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.UpdateProcedureName)
+                .DoubleQuot();
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -38,8 +41,8 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyNameValuesSet, nameValuesSet);
 
             var id = ProcessedType.IdParameter.Name;
-            
-            replacementList.Add(_keyWhereExpression,$"\"{id}\" = \"par_{id}\"");
+
+            replacementList.Add(_keyWhereExpression, $"\"{id}\" = \"par_{id}\"");
         }
 
         protected override string Template => $@"

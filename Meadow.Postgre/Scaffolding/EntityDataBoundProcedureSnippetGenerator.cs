@@ -10,17 +10,19 @@ namespace Meadow.Postgre.Scaffolding
 {
     public class EntityDataBoundProcedureSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
         public EntityDataBoundProcedureSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new PostgreDbTypeNameMapper(), configuration)
+            : base(new PostgreDbTypeNameMapper(),
+                new SnippetConstruction
+                {
+                    EntityType = type,
+                    MeadowConfiguration = configuration
+                }, SnippetConfigurations.Default())
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("Data Bound");
-            }
+        }
 
-            ProcessedType = Process(type);
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupportedRepetitionHandling();
         }
 
         private readonly string _keyTableName = GenerateKey();

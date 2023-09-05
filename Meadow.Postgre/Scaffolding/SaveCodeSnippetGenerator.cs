@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveCodeSnippetGenerator : PostgreByTemplateProcedureSnippetGeneratorBase
+    public class SaveCodeSnippetGenerator : PostgreRepetitionHandlerProcedureGeneratorBase
     {
-        public SaveCodeSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public SaveCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(
+            construction, configurations)
         {
         }
+
 
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
@@ -22,7 +25,8 @@ namespace Meadow.Postgre.Scaffolding
 
         protected override string GetProcedureName()
         {
-            return ProcessedType.NameConvention.SaveProcedureName.DoubleQuot();
+            return ProvideDbObjectNameSupportingOverriding(() =>
+                ProcessedType.NameConvention.SaveProcedureName).DoubleQuot();
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)

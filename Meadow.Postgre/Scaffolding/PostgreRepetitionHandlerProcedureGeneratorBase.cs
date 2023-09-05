@@ -1,25 +1,22 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
-    public abstract class PostgreByTemplateProcedureSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    public abstract class PostgreRepetitionHandlerProcedureGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-        protected Type EntityType { get; }
-        protected ProcessedType ProcessedType { get; }
-
         protected readonly string KeyCreationHeader = GenerateKey();
         protected readonly string KeyProcedureName = GenerateKey();
 
-        public PostgreByTemplateProcedureSnippetGeneratorBase(Type entityType,MeadowConfiguration configuration) 
-            : base(new PostgreDbTypeNameMapper(),configuration)
+        protected PostgreRepetitionHandlerProcedureGeneratorBase(
+            SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new PostgreDbTypeNameMapper(), construction, configurations)
         {
-            EntityType = entityType;
-            ProcessedType = Process(EntityType);
         }
 
 

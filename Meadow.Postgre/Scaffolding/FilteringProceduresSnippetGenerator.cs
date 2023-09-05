@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -8,27 +9,20 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
-    public class FilteringProceduresSnippetGenerator<TEntity> : FilteringProceduresSnippetGenerator
-    {
-        public FilteringProceduresSnippetGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
     public class FilteringProceduresSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        public FilteringProceduresSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new PostgreDbTypeNameMapper(), configuration)
+        public FilteringProceduresSnippetGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new PostgreDbTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("FilteringProcedures");
-            }
+        }
 
-            ProcessedType = Process(type);
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+
+            declaration.NotSupportedRepetitionHandling();
         }
 
         private readonly string _keyTableName = GenerateKey();
@@ -81,9 +75,11 @@ namespace Meadow.Postgre.Scaffolding
                 ProcessedType.NameConvention.RangeProcedureName.DoubleQuot());
             replacementList.Add(_keyDbQExistingValuesProcedureName,
                 ProcessedType.NameConvention.ExistingValuesProcedureName.DoubleQuot());
-            
-            replacementList.Add(_keyDbQRemoveExpiredFilterResults,ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
-            replacementList.Add(_keyDbQFilterResultsTableName,ProcessedType.NameConvention.FilterResultsTableName.DoubleQuot());
+
+            replacementList.Add(_keyDbQRemoveExpiredFilterResults,
+                ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
+            replacementList.Add(_keyDbQFilterResultsTableName,
+                ProcessedType.NameConvention.FilterResultsTableName.DoubleQuot());
         }
 
         protected override string Template => $@"

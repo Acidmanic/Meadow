@@ -1,34 +1,23 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using Meadow.Configuration;
+using Acidmanic.Utilities.Reflection;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.Postgre.Scaffolding
 {
     [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        private readonly Type _type;
-
-        public EventStreamCodeSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new PostgreDbTypeNameMapper(), configuration)
+        public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new PostgreDbTypeNameMapper(), construction, configurations)
         {
-            _type = type;
-
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("EventStream");
-            }
-
-            ProcessedType = Process(_type);
         }
 
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupportedRepetitionHandling();
+        }
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyEventIdTypeDeclaration = GenerateKey();
@@ -49,7 +38,7 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.EventStreamTableName.DoubleQuot());
 
             replacementList.Add(_keyEventIdTypeDeclaration,
-                IsNumeric(ProcessedType.EventStream.EventIdType) ? "SERIAL" : ProcessedType.EventIdTypeName);
+                TypeCheck.IsNumerical(ProcessedType.EventStream.EventIdType) ? "SERIAL" : ProcessedType.EventIdTypeName);
 
             replacementList.Add(_keyInsertProcedureName, ProcessedType.NameConvention.InsertEvent.DoubleQuot());
 
