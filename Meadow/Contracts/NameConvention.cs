@@ -15,6 +15,8 @@ namespace Meadow.Contracts
         public string FilterResultsTableName { get;  }
         
         public string SearchIndexTableName { get;  }
+        
+        public string IndexEntityProcedureName { get; }
 
         public IDataOwnerNameProvider TableNameProvider { get; }
         
@@ -140,6 +142,8 @@ namespace Meadow.Contracts
             FilterResultsTableName = TableName + "FilterResults";
             
             SearchIndexTableName = TableName + "SearchIndex";
+
+            IndexEntityProcedureName = "spIndex" + EntityName;
 
             RemoveExpiredFilterResultsProcedureName = "spRemoveExpired" + TableName + "FilterResults";
         }

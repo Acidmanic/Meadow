@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using Meadow.Search.Models;
 using Meadow.Search.Services;
@@ -39,9 +40,20 @@ namespace Meadow.Test.Functional
             
             var transliterationService = new EnglishTransliterationsService();
 
-            var index = new IndexingService<Person>(transliterationService);
+            var indexingService = new IndexingService<Person>(transliterationService);
 
-            var corpus = index.GetIndexCorpus(fullTreePerson, true);
+            var corpus = indexingService.GetIndexCorpus(fullTreePerson, true);
+
+
+            
+
+            var inserted = engine
+                .PerformRequest(new InsertRequest<Person>(fullTreePerson))
+                .FromStorage.FirstOrDefault();
+
+            var indexed = engine
+                .PerformRequest(new IndexEntity<Person,long>(corpus,inserted!.Id))
+                .FromStorage.FirstOrDefault();
 
             Console.WriteLine(corpus);
         }

@@ -35,6 +35,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
 
         private readonly string _keyFilterResultsTableName = GenerateKey();
+        private readonly string _keyIndexProcedureName = GenerateKey();
+        
+        private readonly string _keyIdTypeName = GenerateKey();
+        private readonly string _keySearchIndexTableName = GenerateKey();
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -42,6 +46,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
+
+            replacementList.Add(_keyIdTypeName,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
+            
+            
 
             replacementList.Add(_keyRemoveExistingProcedureName,
                 ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
@@ -59,9 +68,19 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyIdFieldNameFullTree, ProcessedType.IdParameterFullTree.Name);
 
             replacementList.Add(_keyFilterResultsTableName, ProcessedType.NameConvention.FilterResultsTableName);
+            
+            replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
+            replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
         }
 
         protected override string Template => $@"
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyIndexProcedureName}(IN ResultId {_keyIdTypeName},IN IndexCorpus varchar(1024))
+BEGIN
+    INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (ResultId,IndexCorpus);
+    SET @nid = (select LAST_INSERT_ID());
+    SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.Id=@nid;
+END;
 -- ---------------------------------------------------------------------------------------------------------------------
 DROP PROCEDURE IF EXISTS {_keyRemoveExistingProcedureName};
 CREATE PROCEDURE {_keyRemoveExistingProcedureName}(IN ExpirationTimeStamp bigint(16))
