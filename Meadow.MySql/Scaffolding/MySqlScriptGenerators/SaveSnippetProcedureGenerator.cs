@@ -3,23 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    public class SaveSnippetProcedureGenerator<TEntity> : SaveSnippetProcedureGenerator
-    {
-        public SaveSnippetProcedureGenerator(MeadowConfiguration configuration)
-            : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.SaveProcedure)]
     public class SaveSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase
     {
-        public SaveSnippetProcedureGenerator(Type type, MeadowConfiguration configuration)
-            : base(type, configuration)
+        public SaveSnippetProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(construction, configurations)
         {
         }
 
@@ -36,33 +29,33 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.SaveProcedureName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.SaveProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var parameters = string.Join(',', Processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
+            var parameters = string.Join(',', ProcessedType.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 
-            var setClause = string.Join(',', Processed.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
+            var setClause = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
 
             replacementList.Add(_keySetClause, setClause);
 
-            replacementList.Add(_keyIdFieldName, Processed.IdParameter.Name);
+            replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
 
-            replacementList.Add(_keyWhereClause, GetWhereClause(Processed));
+            replacementList.Add(_keyWhereClause, GetWhereClause(ProcessedType));
 
-            var columnsAndValues = string.Join(',', Processed.NoneIdParameters
+            var columnsAndValues = string.Join(',', ProcessedType.NoneIdParameters
                 .Select(p => p.Name));
 
             replacementList.Add(_keyColumns, columnsAndValues);
 
             replacementList.Add(_keyValues, columnsAndValues);
 
-            replacementList.Add(_keyIdColumn, Processed.IdField.Name);
+            replacementList.Add(_keyIdColumn, ProcessedType.IdField.Name);
         }
 
         private bool IsString(Parameter p)

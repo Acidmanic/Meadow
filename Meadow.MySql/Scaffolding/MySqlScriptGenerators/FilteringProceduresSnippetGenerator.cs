@@ -18,6 +18,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
         {
             declaration.NotSupportedRepetitionHandling();
+            declaration.NotSupportedEntityTypeOverriding();
+            declaration.NotSupportedDbObjectNameOverriding();
         }
 
         private readonly string _keyTableName = GenerateKey();
