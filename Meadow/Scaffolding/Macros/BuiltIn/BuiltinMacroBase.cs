@@ -81,7 +81,7 @@ public abstract class BuiltinMacroBase : MacroBase
         ConstructorInfo constructor,
         object[] parameters, IdAwarenessBehavior behavior)
     {
-        if (behavior is IdAwarenessBehavior.UseById)
+        if ((behavior & IdAwarenessBehavior.UseById) != IdAwarenessBehavior.UseNone)
         {
             if (constructor.Invoke(parameters) is IIdAware byId)
             {
