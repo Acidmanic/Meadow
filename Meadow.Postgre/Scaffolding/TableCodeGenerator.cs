@@ -9,10 +9,11 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Postgre.Scaffolding
 {
-    [CommonSnippet(CommonSnippets.CreateTable)]
-    public class TableCodeSnippetGenerator : TableCodeSnippetGeneratorBase
+   
+    
+    public class TableCodeGenerator : TableCodeSnippetGenerator
     {
-        public TableCodeSnippetGenerator(Type type, MeadowConfiguration configuration)
+        public TableCodeGenerator(Type type, MeadowConfiguration configuration)
             : base(new SnippetConstruction
             {
                 EntityType = type,
@@ -22,9 +23,10 @@ namespace Meadow.Postgre.Scaffolding
         }
     }
 
-    public abstract class TableCodeSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    [CommonSnippet(CommonSnippets.CreateTable)]
+    public class TableCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected TableCodeSnippetGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations)
+        public TableCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
             : base(new PostgreDbTypeNameMapper(), construction, configurations)
         {
         }
