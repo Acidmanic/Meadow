@@ -18,8 +18,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
 
 
-        public DataBoundProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configuration,
-            SnippetConfigurations configurations) : base(construction, configuration, configurations)
+        public DataBoundProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) 
+            : base(construction, configurations)
         {
         }
     }

@@ -19,7 +19,8 @@ namespace Meadow.Scaffolding.CodeGenerators
         protected SnippetConstruction Construction { get; }
         protected SnippetConfigurations Configurations { get; }
 
-        public DataBoundProcedureGeneratorBase(SnippetConstruction construction,SnippetConfigurations configuration, SnippetConfigurations configurations)
+        public DataBoundProcedureGeneratorBase(SnippetConstruction construction,
+            SnippetConfigurations configurations)
         {
             Construction = construction;
             Configurations = configurations;
