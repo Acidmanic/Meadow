@@ -66,5 +66,12 @@ namespace Meadow.Scaffolding.CodeGenerators
         {
             return string.Join(delimiter, parameters.Select(p => ParameterNameValueSetJoint(p, valuePrefix)));
         }
+
+        protected string ProvideDbObjectNameSupportingOverriding(Func<string> originalDbObjectNameProvider)
+        {
+            return Configurations.OverrideDbObjectName
+                ? Configurations.OverrideDbObjectName.Value(Construction)
+                : originalDbObjectNameProvider();
+        }
     }
 }

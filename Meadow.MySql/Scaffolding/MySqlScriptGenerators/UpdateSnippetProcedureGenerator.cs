@@ -4,13 +4,19 @@ using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
     public class UpdateSnippetProcedureGenerator<TEntity> : UpdateSnippetProcedureGenerator
     {
-        public UpdateSnippetProcedureGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
+        public UpdateSnippetProcedureGenerator(MeadowConfiguration configuration)
+            : base(new SnippetConstruction
+            {
+                EntityType = typeof(TEntity),
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.Default())
         {
         }
     }
@@ -18,10 +24,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     [CommonSnippet(CommonSnippets.UpdateProcedure)]
     public class UpdateSnippetProcedureGenerator : MySqlRepetitionHandlerProcedureGeneratorBase
     {
-        public UpdateSnippetProcedureGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public UpdateSnippetProcedureGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations) : base(construction, configurations)
         {
         }
-
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
@@ -31,22 +37,22 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string GetProcedureName(bool fullTree)
         {
-            return IsDatabaseObjectNameForced ? ForcedDatabaseObjectName : Processed.NameConvention.UpdateProcedureName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.UpdateProcedureName);
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName, Processed.NameConvention.TableName);
+            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var parameters = string.Join(',', Processed.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
+            var parameters = string.Join(',', ProcessedType.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
 
             replacementList.Add(_keyParameters, parameters);
 
-            var setClause = string.Join(',', Processed.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
+            var setClause = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name + "=" + p.Name));
 
             replacementList.Add(_keySetClause, setClause);
 
-            replacementList.Add(_keyIdFieldName, Processed.IdParameter.Name);
+            replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
         }
 
         protected override string Template => $@"
