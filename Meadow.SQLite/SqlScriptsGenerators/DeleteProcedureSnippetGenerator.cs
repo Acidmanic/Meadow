@@ -3,20 +3,20 @@ using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.DeleteProcedure)]
-    public class DeleteProcedureSnippetGenerator : SqLiteByTemplateProcedureSnippetGeneratorBase
+    public class DeleteProcedureSnippetGenerator : SqLiteRepetitionHandlerProcedureGeneratorBase, IIdAware
     {
-        public bool ById { get; }
+        public bool ActById { get; set; }
 
-
-        public DeleteProcedureSnippetGenerator(Type type,MeadowConfiguration configuration, bool byId)
-            : base(type,configuration)
+        public DeleteProcedureSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
+            base(construction, configurations)
         {
-            ById = byId;
         }
 
         private readonly string _keyProcedureName = GenerateKey();
@@ -26,21 +26,27 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, ById
-                ? ProcessedType.NameConvention.DeleteByIdProcedureName
-                : ProcessedType.NameConvention.DeleteAllProcedureName);
+            replacementList.Add(_keyProcedureName, GetProcedureName());
 
-            var parameters = ById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "";
+            var parameters = ActById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "";
 
             replacementList.Add(_keyParametersDeclaration, parameters);
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var whereClause = ById
+            var whereClause = ActById
                 ? $" WHERE {ProcessedType.NameConvention.TableName}.{ProcessedType.IdParameter.Name} = @{ProcessedType.IdParameter.Name}"
                 : "";
 
             replacementList.Add(_keyWhereClause, whereClause);
+        }
+
+        private string GetProcedureName()
+        {
+            return ProvideDbObjectNameSupportingOverriding(() =>
+                ActById
+                    ? ProcessedType.NameConvention.DeleteByIdProcedureName
+                    : ProcessedType.NameConvention.DeleteAllProcedureName);
         }
 
         protected override string Template => $@"

@@ -1,28 +1,27 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
-using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-   
-
     public class EntityDataBoundProcedureSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        public EntityDataBoundProcedureSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqLiteTypeNameMapper(), configuration)
+        public EntityDataBoundProcedureSnippetGenerator(Type entityType, MeadowConfiguration configuration) :
+            base(new SqLiteTypeNameMapper(),
+                new SnippetConstruction
+                {
+                    EntityType = entityType,
+                    MeadowConfiguration = configuration
+                }, SnippetConfigurations.Default())
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("Data Bound");
-            }
+        }
 
-            ProcessedType = Process(type);
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            declaration.NotSupportedDbObjectNameOverriding();
+            declaration.NotSupportedRepetitionHandling();
         }
 
         private readonly string _keyTableName = GenerateKey();
@@ -32,10 +31,16 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            replacementList.Add(_keyTableName, GetTableName());
 
             replacementList.Add(_keyRangeProcedureName, ProcessedType.NameConvention.RangeProcedureName);
-            replacementList.Add(_keyExistingValuesProcedureName, ProcessedType.NameConvention.ExistingValuesProcedureName);
+            replacementList.Add(_keyExistingValuesProcedureName,
+                ProcessedType.NameConvention.ExistingValuesProcedureName);
+        }
+
+        private string GetTableName()
+        {
+            return ProcessedType.NameConvention.TableName;
         }
 
         protected override string Template => $@"

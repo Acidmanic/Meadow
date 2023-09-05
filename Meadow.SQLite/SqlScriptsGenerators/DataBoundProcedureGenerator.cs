@@ -2,13 +2,15 @@ using System;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.DataBound)]
     public class DataBoundProcedureGenerator : DataBoundProcedureGeneratorBase
     {
-        public DataBoundProcedureGenerator(Type entityType, MeadowConfiguration configuration) : base(entityType, configuration)
+        public DataBoundProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(construction, configurations)
         {
         }
 

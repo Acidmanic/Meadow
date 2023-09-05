@@ -12,17 +12,16 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        public EventStreamCodeSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqLiteTypeNameMapper(), configuration)
+        public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(new SqLiteTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("EventStream");
-            }
+        }
 
-            ProcessedType = Process(type);
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+            
+            declaration.NotSupportedRepetitionHandling();
         }
 
         private readonly string _keyTableName = GenerateKey();

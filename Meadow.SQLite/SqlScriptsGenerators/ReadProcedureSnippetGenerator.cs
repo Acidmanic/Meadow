@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
@@ -10,8 +12,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     [CommonSnippet(CommonSnippets.ReadProcedure)]
     public class ReadProcedureSnippetGeneratorFullTree : ReadProcedureSnippetGenerator
     {
-        public ReadProcedureSnippetGeneratorFullTree(Type type, MeadowConfiguration configuration, bool byId) : base(type,
-            configuration, byId)
+        public ReadProcedureSnippetGeneratorFullTree(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
         }
 
@@ -20,24 +21,28 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
     public class ReadProcedureSnippetGeneratorPlainOnly : ReadProcedureSnippetGenerator
     {
-        public ReadProcedureSnippetGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool byId) : base(type,
-            configuration, byId)
+        public ReadProcedureSnippetGeneratorPlainOnly(Type type, MeadowConfiguration configuration, bool actById) :
+            base(new SnippetConstruction
+                {
+                    EntityType = type,
+                    MeadowConfiguration = configuration
+                },SnippetConfigurations.IdAware(!actById))
         {
         }
 
         protected override bool DisableFullTree => true;
     }
 
-    public abstract class ReadProcedureSnippetGenerator : SqLiteByTemplateProcedureSnippetGeneratorBase
+    public abstract class ReadProcedureSnippetGenerator : SqLiteRepetitionHandlerProcedureGeneratorBase, IIdAware
     {
-        public bool ById { get; }
+        public bool ActById { get; set; }
 
         protected abstract bool DisableFullTree { get; }
 
-        public ReadProcedureSnippetGenerator(Type type, MeadowConfiguration configuration, bool byId)
-            : base(type, configuration)
+
+        protected ReadProcedureSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
+            : base(construction, configurations)
         {
-            ById = byId;
         }
 
         private readonly string _keyProcedureName = GenerateKey();
@@ -54,29 +59,38 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName,
-                ById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureName
-                    : ProcessedType.NameConvention.SelectAllProcedureName);
-            replacementList.Add(_keyProcedureNameFullTree,
-                ById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
-                    : ProcessedType.NameConvention.SelectAllProcedureNameFullTree);
+            replacementList.Add(_keyProcedureName, GetProcedureName());
+            replacementList.Add(_keyProcedureNameFullTree, GetProcedureNameFullTree());
 
 
             replacementList.Add(_keyParametersDeclaration,
-                ById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "");
+                ActById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "");
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
             replacementList.Add(_keyFullTreeView, ProcessedType.NameConvention.FullTreeViewName);
 
             var whereClause =
-                ById ? $" WHERE {ProcessedType.IdParameter?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
+                ActById ? $" WHERE {ProcessedType.IdParameter?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
             var whereClauseFullTree =
-                ById ? $" WHERE {ProcessedType.IdParameterFullTree?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
+                ActById ? $" WHERE {ProcessedType.IdParameterFullTree?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
 
             replacementList.Add(_keyWhereClause, whereClause);
             replacementList.Add(_keyWhereClauseFullTree, whereClauseFullTree);
+        }
+
+
+        private string GetProcedureName()
+        {
+            return ProvideDbObjectNameSupportingOverriding(() => ActById
+                ? ProcessedType.NameConvention.SelectByIdProcedureName
+                : ProcessedType.NameConvention.SelectAllProcedureName);
+        }
+
+        private string GetProcedureNameFullTree()
+        {
+            return ProvideDbObjectNameSupportingOverriding(() => ActById
+                ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
+                : ProcessedType.NameConvention.SelectAllProcedureNameFullTree);
         }
 
 

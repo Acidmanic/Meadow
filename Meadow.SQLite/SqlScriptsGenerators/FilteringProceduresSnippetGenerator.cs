@@ -1,60 +1,53 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class FilteringProceduresSnippetGenerator<TEntity> : FilteringProceduresSnippetGenerator
-    {
-        public FilteringProceduresSnippetGenerator(MeadowConfiguration configuration) : base(typeof(TEntity), configuration)
-        {
-        }
-    }
-
     [CommonSnippet(CommonSnippets.FilteringProcedures)]
     public class FilteringProceduresSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
-        protected ProcessedType ProcessedType { get; }
-
-        public FilteringProceduresSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqLiteTypeNameMapper(), configuration)
+        public FilteringProceduresSnippetGenerator(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new SqLiteTypeNameMapper(), construction, configurations)
         {
-            if (RepetitionHandling != RepetitionHandling.Create)
-            {
-                LogUnSupportedRepetitionHandling("FilteringProcedures");
-            }
-
-            ProcessedType = Process(type);
         }
 
+        protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
+        {
+            base.DeclareUnSupportedFeatures(declaration);
+
+            declaration.NotSupportedRepetitionHandling();
+            declaration.NotSupportedDbObjectNameOverriding();
+        }
 
         private readonly string _keyFilterProcedureName = GenerateKey();
         private readonly string _keyFilterProcedureNameFullTree = GenerateKey();
         private readonly string _keyReadChunkProcedureName = GenerateKey();
         private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
-        
+
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyFullTreeView = GenerateKey();
-        
+
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
-        
+
         private readonly string _keyRemoveExpiredFilterProcedure = GenerateKey();
         private readonly string _keyFilterResultsTableName = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyFilterProcedureName,ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
-            replacementList.Add(_keyFilterProcedureNameFullTree,ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
-            
-            replacementList.Add(_keyReadChunkProcedureName,ProcessedType.NameConvention.ReadChunkProcedureName);
-            replacementList.Add(_keyReadChunkProcedureNameFullTree,ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
-            
+            replacementList.Add(_keyFilterProcedureName,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureName);
+            replacementList.Add(_keyFilterProcedureNameFullTree,
+                ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
+
+            replacementList.Add(_keyReadChunkProcedureName, ProcessedType.NameConvention.ReadChunkProcedureName);
+            replacementList.Add(_keyReadChunkProcedureNameFullTree,
+                ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
+
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
             replacementList.Add(_keyFullTreeView, ProcessedType.NameConvention.FullTreeViewName);
 
@@ -62,12 +55,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
             replacementList.Add(_keyIdFieldNameFullTree,
                 ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
-            
+
             replacementList.Add(_keyRemoveExpiredFilterProcedure,
                 ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
-            
-            replacementList.Add(_keyFilterResultsTableName,ProcessedType.NameConvention.FilterResultsTableName);
-            
+
+            replacementList.Add(_keyFilterResultsTableName, ProcessedType.NameConvention.FilterResultsTableName);
         }
 
         protected override string Template => $@"

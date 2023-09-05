@@ -1,27 +1,18 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public abstract class SqLiteByTemplateProcedureSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
+    public abstract class SqLiteRepetitionHandlerProcedureGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-        protected Type EntityType { get; }
-        protected ProcessedType ProcessedType { get; }
-
 
         protected readonly string KeyHeaderCreation = GenerateKey();
 
-        public SqLiteByTemplateProcedureSnippetGeneratorBase(Type type,MeadowConfiguration configuration)
-            : base(new SqLiteTypeNameMapper(),configuration)
+        protected SqLiteRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations) 
+            : base(new SqLiteTypeNameMapper(), construction, configurations)
         {
-            EntityType = type;
-            ProcessedType = Process(EntityType);
         }
-
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -41,7 +32,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             AddBodyReplacements(replacementList);
         }
-
 
         protected abstract void AddBodyReplacements(Dictionary<string, string> replacementList);
     }

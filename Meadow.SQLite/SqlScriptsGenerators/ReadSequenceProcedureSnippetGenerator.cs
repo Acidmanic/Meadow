@@ -1,14 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    public class ReadSequenceProcedureSnippetGenerator : SqLiteByTemplateProcedureSnippetGeneratorBase
+    public class ReadSequenceProcedureSnippetGenerator : SqLiteRepetitionHandlerProcedureGeneratorBase
     {
-        public bool ById { get; }
+        public bool ActById { get; }
 
         public int Top { get; }
 
@@ -16,9 +15,13 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
 
         public ReadSequenceProcedureSnippetGenerator(Type type, MeadowConfiguration configuration,
-            bool byId, int top, bool orderAscending) : base(type, configuration)
+            bool actById, int top, bool orderAscending) : base(new SnippetConstruction
         {
-            ById = byId;
+            EntityType = type,
+            MeadowConfiguration = configuration
+        }, SnippetConfigurations.IdAware(!actById))
+        {
+            ActById = actById;
             Top = top;
             OrderAscending = orderAscending;
         }
@@ -33,24 +36,28 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName,
-                ById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureName
-                    : ProcessedType.NameConvention.SelectAllProcedureName);
+            replacementList.Add(_keyProcedureName, GetProcedureName());
 
             replacementList.Add(_keyParametersDeclaration,
-                ById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "");
+                ActById ? $"({ParameterNameTypeJoint(ProcessedType.IdParameter, "@")})" : "");
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
             var whereClause =
-                ById ? $" WHERE {ProcessedType.IdParameter?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
+                ActById ? $" WHERE {ProcessedType.IdParameter?.Name} = @{ProcessedType.IdParameter?.Name}" : "";
 
             replacementList.Add(_keyWhereClause, whereClause);
 
             replacementList.Add(_keyOrderClause, OrderAscending ? " ORDER BY ROWID ASC" : " ORDER BY ROWID DESC");
 
             replacementList.Add(_keyTopClause, Top > 0 ? $" LIMIT {Top}" : "");
+        }
+
+        private string GetProcedureName()
+        {
+            return ProvideDbObjectNameSupportingOverriding(() => ActById
+                ? ProcessedType.NameConvention.SelectByIdProcedureName
+                : ProcessedType.NameConvention.SelectAllProcedureName);
         }
 
         protected override string Template => $@"

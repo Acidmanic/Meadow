@@ -1,38 +1,39 @@
 using System;
 using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.CreateTable)]
     public class TableScriptSnippetGenerator : TableScriptSnippetGeneratorBase
     {
-        public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public TableScriptSnippetGenerator(Type type, MeadowConfiguration configuration) :
+            base(new SnippetConstruction
+            {
+                EntityType = type,
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.Default())
         {
         }
     }
-    
-    
-    
+
+
     public abstract class TableScriptSnippetGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-
-        protected ProcessedType ProcessedType { get; }
-
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdParameters = GenerateKey();
         private readonly string _keyNoneIdParameters = GenerateKey();
         private readonly string _keyCreationHeader = GenerateKey();
 
-        public TableScriptSnippetGeneratorBase(Type type, MeadowConfiguration configuration) : base(new SqLiteTypeNameMapper(),
-            configuration)
+        protected TableScriptSnippetGeneratorBase(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(new SqLiteTypeNameMapper(), construction, configurations)
         {
-            ProcessedType = Process(type);
         }
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -51,7 +52,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
                 idParameters += " NOT NULL PRIMARY KEY";
 
-                if (ProcessedType.IdField.IsAutoValued && IsNumeric(ProcessedType.IdField.Type))
+                if (ProcessedType.IdField.IsAutoValued && TypeCheck.IsNumerical(ProcessedType.IdField.Type))
                 {
                     idParameters += " AUTOINCREMENT";
                 }
@@ -70,7 +71,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected virtual string GetTableName()
         {
-            return ProcessedType.NameConvention.TableName;
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.TableName);
         }
 
         private string GetCreationHeader()
@@ -79,7 +80,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             if (RepetitionHandling == RepetitionHandling.Alter)
             {
-                creationHeader = "DROP TABLE IF EXISTS " + ProcessedType.NameConvention.TableName + ";" +
+                creationHeader = "DROP TABLE IF EXISTS " + GetTableName() + ";" +
                                  "\nCREATE TABLE";
             }
 

@@ -1,17 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.SaveProcedure)]
-    public class SaveProcedureSnippetGenerator : SqLiteByTemplateProcedureSnippetGeneratorBase
+    public class SaveProcedureSnippetGenerator : SqLiteRepetitionHandlerProcedureGeneratorBase
     {
-        public SaveProcedureSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public SaveProcedureSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) : base(construction, configurations)
         {
         }
 
@@ -26,7 +23,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.SaveProcedureName);
+            replacementList.Add(_keyProcedureName, GetProcedureName());
 
             replacementList.Add(_keyParameters,
                 ParameterNameTypeJoint(ProcessedType.Parameters, ",", "@"));
@@ -52,6 +49,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 string.Join(',', ProcessedType.NoneIdParameters.Select(p => "@" + p.Name)));
         }
 
+        private string GetProcedureName()
+        {
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.SaveProcedureName);
+        }
+        
         protected override string Template => $@"
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
     UPDATE {_keyTableName}  SET {_keyNoneIdParametersSet} WHERE {_keyWhereClause};

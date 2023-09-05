@@ -3,18 +3,27 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
-using Meadow.Scaffolding.Models;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
     [CommonSnippet(CommonSnippets.InsertProcedure)]
-    public class InsertProcedureSnippetGenerator : SqLiteByTemplateProcedureSnippetGeneratorBase
+    public class InsertProcedureSnippetGenerator : SqLiteRepetitionHandlerProcedureGeneratorBase
     {
-        public InsertProcedureSnippetGenerator(Type type, MeadowConfiguration configuration) : base(type, configuration)
+        public InsertProcedureSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
+            base(construction, configurations)
         {
         }
 
+
+        public InsertProcedureSnippetGenerator(Type entityType, MeadowConfiguration configuration)
+            : this(new SnippetConstruction
+            {
+                EntityType = entityType,
+                MeadowConfiguration = configuration
+            }, SnippetConfigurations.Default())
+        {
+        }
 
         private readonly string _keyProcedureName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
@@ -24,7 +33,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_keyProcedureName, ProcessedType.NameConvention.InsertProcedureName);
+            replacementList.Add(_keyProcedureName, GetProcedureName());
 
             var parameters = ParameterNameTypeJoint(ProcessedType.NoneIdParameters, ",", "@");
 
@@ -37,6 +46,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyColumns, columns);
             replacementList.Add(_keyValues, values);
+        }
+
+        private string GetProcedureName()
+        {
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.InsertProcedureName);
         }
 
         protected override string Template => $@"
