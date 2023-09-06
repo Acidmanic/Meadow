@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
-using Meadow.Search.Services;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.Search.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional
