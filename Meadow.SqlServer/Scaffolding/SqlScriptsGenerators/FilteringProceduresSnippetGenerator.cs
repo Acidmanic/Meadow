@@ -42,6 +42,10 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         private readonly string _keyFilterResultsTable = GenerateKey();
 
+        private readonly string _keyIndexEntityProcedureName = GenerateKey();
+        private readonly string _keySearchIndexTableName = GenerateKey();
+        private readonly string _keyIdFieldType = GenerateKey();
+
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -74,9 +78,20 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
 
             replacementList.Add(_keyFilterResultsTable, ProcessedType.NameConvention.FilterResultsTableName);
+            
+            replacementList.Add(_keyIndexEntityProcedureName,ProcessedType.NameConvention.IndexEntityProcedureName);
+            replacementList.Add(_keySearchIndexTableName,ProcessedType.NameConvention.SearchIndexTableName);
+            replacementList.Add(_keyIdFieldType,ProcessedType.IdParameter.Type);
         }
 
         protected override string Template => $@"
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyIndexEntityProcedureName}(@ResultId {_keyIdFieldType},@IndexCorpus varchar(1024)) AS
+    
+    INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (@ResultId,@IndexCorpus)
+    DECLARE @newId {_keyIdFieldType}=(IDENT_CURRENT('{_keySearchIndexTableName}'));
+    SELECT * FROM {_keySearchIndexTableName} WHERE Id=@newId;
+GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE {_keyRemoveExisingProcedureName}(@ExpirationTimeStamp BIGINT) AS
     DELETE FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.ExpirationTimeStamp < @ExpirationTimeStamp
@@ -84,13 +99,24 @@ GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
-                                                  @FilterExpression NVARCHAR(1024)) AS
+                                                  @FilterExpression NVARCHAR(1024),
+                                                  @SearchExpression NVARCHAR(1024)) AS
     IF (SELECT Count(Id) from {_keyFilterResultsTable} where {_keyFilterResultsTable}.SearchId=@SearchId) = 0
     BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
-        declare @query nvarchar(1600) = CONCAT(
+        declare @query nvarchar(1600);
+
+        IF ISNULL(@SearchExpression,'') = ''
+            SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
-            'SELECT ''',@SearchId,''',{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
+            'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
+        ELSE
+            SET @query = CONCAT(
+            'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
+            'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,
+            ' FROM {_keyTableName} INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId  WHERE (' ,
+             @FilterExpression, ') AND (', @SearchExpression,')');
+
         execute sp_executesql @query
     END  
     SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
@@ -98,13 +124,24 @@ GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
-                                                  @FilterExpression NVARCHAR(1024)) AS
+                                                  @FilterExpression NVARCHAR(1024),
+                                                  @SearchExpression NVARCHAR(1024)) AS
     IF (SELECT Count(Id) from {_keyFilterResultsTable} where {_keyFilterResultsTable}.SearchId=@SearchId) = 0
     BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
-        declare @query nvarchar(1600) = CONCAT(
+        declare @query nvarchar(1600);
+
+        IF ISNULL(@SearchExpression,'') = ''
+            SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
-            'SELECT DISTINCT ''',@SearchId,''',{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,' FROM {_keyFullTreeViewName} WHERE ' , @FilterExpression);
+            'SELECT ''',@SearchId,''',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,' FROM {_keyFullTreeViewName} WHERE ' , @FilterExpression);
+        ELSE
+            SET @query = CONCAT(
+            'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
+            'SELECT ''',@SearchId,''',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,
+            ' FROM {_keyFullTreeViewName} INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId  WHERE (' ,
+             @FilterExpression, ') AND (', @SearchExpression,')');
+        
         execute sp_executesql @query
     END  
     SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;

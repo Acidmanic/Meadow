@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqLite();
+            UseSqlServer();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -69,23 +69,19 @@ namespace Meadow.Test.Functional
                 .IsLargerThan("50")
                 .Build();
 
-            Func<bool, FilterQuery, string, List<Person>> search = (fullTree, filter, q) =>
+            List<Person> Search(bool fullTree, FilterQuery filter, string q)
             {
                 var searchTerms = transliterationService.Transliterate(q)
                     .Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-                Console.WriteLine(
-                    $"FT:{fullTree.ToString().ToUpper()} Q: {string.Join(',', searchTerms)} - Filter: {filter.ToString()}");
+                Console.WriteLine($"FT:{fullTree.ToString().ToUpper()} Q: {string.Join(',', searchTerms)} - Filter: {filter.ToString()}");
 
-                var searchResults = engine
-                    .PerformRequest(new PerformSearchIfNeededRequest<Person, long>
-                        (filter, null, searchTerms), fullTree)
+                var searchResults = engine.PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter, null, searchTerms), fullTree)
                     .FromStorage;
 
                 var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
 
-                var foundPersons = engine
-                    .PerformRequest(new ReadChunkRequest<Person>(searchId), fullTree)
+                var foundPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId), fullTree)
                     .FromStorage;
 
                 foreach (var person in foundPersons)
@@ -94,10 +90,10 @@ namespace Meadow.Test.Functional
                 }
 
                 return foundPersons;
-            };
+            }
 
             // Farimehr, Farshid
-            var result = search(false, new FilterQuery(), "far");
+            var result = Search(false, new FilterQuery(), "far");
 
             if (result.Count != 2)
             {
@@ -107,7 +103,7 @@ namespace Meadow.Test.Functional
             CompareEntities(Persons[4],result[1]);
             
             // Farshid
-            result = search(false, flatFilterOver50, "far");
+            result = Search(false, flatFilterOver50, "far");
             
             if (result.Count != 1)
             {
@@ -116,7 +112,7 @@ namespace Meadow.Test.Functional
             CompareEntities(Persons[3],result[0]);
             
             // Farshid
-            result = search(false, flatFilterOver50, null);
+            result = Search(false, flatFilterOver50, null);
             
             if (result.Count != 2)
             {
@@ -125,7 +121,7 @@ namespace Meadow.Test.Functional
             CompareEntities(Persons[2],result[0]);
             CompareEntities(Persons[3],result[1]);
             
-            result = search(true, new FilterQuery(), "far");
+            result = Search(true, new FilterQuery(), "far");
             
             if (result.Count != 2)
             {
@@ -137,7 +133,7 @@ namespace Meadow.Test.Functional
                 throw new Exception("Problem in full tree");
             }
             
-            result = search(true, fullTreeFilterOver400, "far");
+            result = Search(true, fullTreeFilterOver400, "far");
             
             if (result.Count != 1)
             {
@@ -149,7 +145,7 @@ namespace Meadow.Test.Functional
                 throw new Exception("Problem in full tree");
             }
             
-            result = search(true, fullTreeFilterUnder300, null);
+            result = Search(true, fullTreeFilterUnder300, null);
             
             if (result.Count != 2)
             {
