@@ -91,26 +91,6 @@ END;
 CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(
                                                   IN SearchId nvarchar(32),
                                                   IN ExpirationTimeStamp bigint(16),
-                                                  IN FilterExpression nvarchar(1024))
-BEGIN
-    if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
-        IF FilterExpression IS NULL OR FilterExpression = '' THEN
-            set FilterExpression = 'TRUE';
-        END IF;
-        set @query = CONCAT(
-            'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
-            'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-            ' from {_keyTableName} WHERE ' , FilterExpression,';');
-        PREPARE stmt FROM @query;
-        EXECUTE stmt;
-        DEALLOCATE PREPARE stmt; 
-    end if;
-    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId;
-END;
--- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyFilterIfNeededProcedureName}Extended(
-                                                  IN SearchId nvarchar(32),
-                                                  IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024),
                                                   IN SearchExpression nvarchar(1024))
 BEGIN

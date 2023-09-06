@@ -74,8 +74,8 @@ namespace Meadow.Test.Functional
             
             
             var searchResults = engine
-                .PerformRequest(new PerformSearchIfNeededExtendedRequest<Person, long>
-                    (filter, searchSegments))
+                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>
+                    (filter, null,searchSegments))
                 .FromStorage;
 
             var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
