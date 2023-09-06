@@ -1,11 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
-using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
-using Meadow.MySql;
-using Meadow.Search.Models;
 using Meadow.Search.Services;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;

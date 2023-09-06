@@ -1,8 +1,8 @@
+using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Meadow.Extensions;
 using Meadow.Requests;
-using Meadow.Search.Models;
 
 namespace Meadow.Test.Functional.GenericRequests
 {

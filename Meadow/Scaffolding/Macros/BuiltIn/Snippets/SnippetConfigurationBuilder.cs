@@ -1,7 +1,7 @@
 using System;
+using Acidmanic.Utilities.Filtering.Utilities;
 using Acidmanic.Utilities.Results;
 using Meadow.Extensions;
-using Meadow.Search.Utilities;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
