@@ -35,6 +35,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         private readonly string _keyRemoveExpiredFilterProcedure = GenerateKey();
         private readonly string _keyFilterResultsTableName = GenerateKey();
+        
+        private readonly string _keyIndexProcedureName = GenerateKey();
+        private readonly string _keySearchIndexTableName = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -60,21 +63,33 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
 
             replacementList.Add(_keyFilterResultsTableName, ProcessedType.NameConvention.FilterResultsTableName);
+            
+            replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
+            replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE OR ALTER PROCEDURE {_keyRemoveExpiredFilterProcedure}(@ExpirationTimeStamp INTEGER)
+CREATE PROCEDURE {_keyIndexProcedureName} (@ResultId TEXT,@IndexCorpus TEXT) AS
+    INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus)
+    VALUES (@ResultId,@IndexCorpus);
+    SELECT * FROM {_keySearchIndexTableName} WHERE ROWID=LAST_INSERT_ROWID();
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyRemoveExpiredFilterProcedure}(@ExpirationTimeStamp INTEGER)
 AS
     DELETE FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.ExpirationTimeStamp < @ExpirationTimeStamp;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterProcedureName}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
-                                                  @FilterExpression TEXT)
+                                                  @FilterExpression TEXT,
+                                                  @SearchExpression TEXT)
 AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
-    SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName} WHERE &@FilterExpression 
+    SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName}
+    INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
+    WHERE (&@FilterExpression) AND (&@SearchExpression)
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true);
 
     SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
@@ -82,10 +97,13 @@ GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
-                                                  @FilterExpression TEXT)
+                                                  @FilterExpression TEXT,
+                                                  @SearchExpression TEXT)
 AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
-    SELECT DISTINCT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView} WHERE &@FilterExpression 
+    SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView}
+    INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
+    WHERE (&@FilterExpression) AND (&@SearchExpression) 
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true);
 
     SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;

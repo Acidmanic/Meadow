@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UsePostgre();
+            UseSqLite();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -57,6 +57,11 @@ namespace Meadow.Test.Functional
             var fullTreeFilterOver400 = new FilterQueryBuilder<Person>()
                 .Where(p => p.Job.IncomeInRials)
                 .IsLargerThan("400")
+                .Build();
+            
+            var fullTreeFilterUnder300 = new FilterQueryBuilder<Person>()
+                .Where(p => p.Job.IncomeInRials)
+                .IsSmallerThan("300")
                 .Build();
 
             var flatFilterOver50 = new FilterQueryBuilder<Person>()
@@ -144,17 +149,19 @@ namespace Meadow.Test.Functional
                 throw new Exception("Problem in full tree");
             }
             
-            result = search(true, fullTreeFilterOver400, null);
+            result = search(true, fullTreeFilterUnder300, null);
             
-            if (result.Count != 1)
+            if (result.Count != 2)
             {
                 throw new Exception("Invalid Filter.");
             }
 
-            if (result[0].Addresses.Count == 0 )
+            if (result[0].Addresses.Count == 0 || result[1].Addresses.Count == 0)
             {
                 throw new Exception("Problem in full tree");
             }
+            
+            logger.LogInformation("[PASS] filtering + Search OK");
             
         }
     }

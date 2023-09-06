@@ -60,6 +60,12 @@ namespace Meadow.Sql
 
         public string TranslateSearchTerm(Type entityType, string[] searchTerms)
         {
+
+            if (searchTerms == null || searchTerms.Length == 0)
+            {
+                return EmptyQuery;
+            }
+            
             var nc = Configuration.GetNameConvention(entityType);
 
             Func<string, string> tq = DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s; 
