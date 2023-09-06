@@ -2,7 +2,7 @@ using Meadow.Sql;
 
 namespace Meadow.SqlServer
 {
-    public class SqlServerFilterQueryTranslator : SqlFilterQueryTranslatorBase
+    public class SqlServerExpressionTranslator : SqlExpressionTranslatorBase
     {
         protected override string EscapedSingleQuote => "''";
 

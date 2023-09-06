@@ -7,24 +7,24 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Contracts;
 
-public interface IFilterQueryTranslator
+public interface ISqlExpressionTranslator
 {
-    public class NullFilterQueryTranslator : IFilterQueryTranslator
+    public class NullSqlExpressionTranslator : ISqlExpressionTranslator
     {
-        private NullFilterQueryTranslator()
+        private NullSqlExpressionTranslator()
         {
             
         }
 
-        private static IFilterQueryTranslator _instance = null;
+        private static ISqlExpressionTranslator _instance = null;
         
-        public static IFilterQueryTranslator Instance
+        public static ISqlExpressionTranslator Instance
         {
             get
             {
                 if (_instance == null)
                 {
-                    _instance = new NullFilterQueryTranslator();
+                    _instance = new NullSqlExpressionTranslator();
                 }
 
                 return _instance;

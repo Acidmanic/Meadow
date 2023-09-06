@@ -66,6 +66,6 @@ namespace Meadow.Contracts
 
         IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger);
 
-        IFilterQueryTranslator ProvideFilterQueryTranslator();
+        ISqlExpressionTranslator ProvideFilterQueryTranslator();
     }
 }

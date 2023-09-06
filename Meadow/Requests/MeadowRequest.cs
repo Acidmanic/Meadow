@@ -46,14 +46,14 @@ namespace Meadow.Requests
         internal bool FullTree => FullTreeReadWrite();
 
 
-        private readonly List<Action<IFilterQueryTranslator>> _translationTasks;
+        private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
 
         public MeadowRequest(bool returnsValue)
         {
             ReturnsValue = returnsValue;
 
             Execution = RequestExecution.RequestTextIsNameOfRoutine;
-            _translationTasks = new List<Action<IFilterQueryTranslator>>();
+            _translationTasks = new List<Action<ISqlExpressionTranslator>>();
         }
 
 
@@ -77,7 +77,7 @@ namespace Meadow.Requests
             FailureException = new Exception(reason);
         }
 
-        internal void SetFilterQueryTranslator(IFilterQueryTranslator translator)
+        internal void SetFilterQueryTranslator(ISqlExpressionTranslator translator)
         {
             foreach (var translationTask in _translationTasks)
             {
@@ -85,7 +85,7 @@ namespace Meadow.Requests
             }
         }
 
-        protected void RegisterTranslationTask(Action<IFilterQueryTranslator> task)
+        protected void RegisterTranslationTask(Action<ISqlExpressionTranslator> task)
         {
             _translationTasks.Add(task);
         }

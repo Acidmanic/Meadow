@@ -142,9 +142,9 @@ namespace Meadow.NullCore
             return this;
         }
 
-        public IFilterQueryTranslator ProvideFilterQueryTranslator()
+        public ISqlExpressionTranslator ProvideFilterQueryTranslator()
         {
-            return IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
+            return ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
         }
 
 

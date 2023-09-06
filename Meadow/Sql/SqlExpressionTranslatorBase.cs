@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
 {
-    public abstract class SqlFilterQueryTranslatorBase : IFilterQueryTranslator
+    public abstract class SqlExpressionTranslatorBase : ISqlExpressionTranslator
     {
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }

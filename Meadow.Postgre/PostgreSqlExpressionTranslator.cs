@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Postgre
 {
-    public class PostgreFilterQueryTranslator : SqlFilterQueryTranslatorBase
+    public class PostgreSqlExpressionTranslator : SqlExpressionTranslatorBase
     {
         protected override string EscapedSingleQuote => "\\'";
 

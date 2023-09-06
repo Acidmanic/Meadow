@@ -4,7 +4,7 @@ using Meadow.Sql;
 
 namespace Meadow.MySql
 {
-    public class MySqlFilterQueryTranslator : SqlFilterQueryTranslatorBase
+    public class MySqlExpressionTranslator : SqlExpressionTranslatorBase
     {
         protected override string EscapedSingleQuote => "\\'";
 

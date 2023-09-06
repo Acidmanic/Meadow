@@ -70,7 +70,7 @@ namespace Meadow
 
         private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class, new()
         {
-            var translator = IFilterQueryTranslator.NullFilterQueryTranslator.Instance;
+            var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
 
             try
             {

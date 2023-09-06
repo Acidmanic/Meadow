@@ -36,9 +36,9 @@ namespace Meadow.SqlServer
             await PerformRequestAsync(request, configuration);
         }
 
-        public override IFilterQueryTranslator ProvideFilterQueryTranslator()
+        public override ISqlExpressionTranslator ProvideFilterQueryTranslator()
         {
-            return new SqlServerFilterQueryTranslator();
+            return new SqlServerExpressionTranslator();
         }
 
 
