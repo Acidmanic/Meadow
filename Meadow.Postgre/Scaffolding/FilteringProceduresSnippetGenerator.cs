@@ -46,6 +46,10 @@ namespace Meadow.Postgre.Scaffolding
 
         private readonly string _keyDbQRemoveExpiredFilterResults = GenerateKey();
         private readonly string _keyDbQFilterResultsTableName = GenerateKey();
+        
+        private readonly string _keyDbQIndexProcedureName = GenerateKey();
+        private readonly string _keyDbQSearchIndexTableName = GenerateKey();
+        private readonly string _keyIdTypeName = GenerateKey();
 
         protected static readonly string ll = "\"";
 
@@ -80,11 +84,26 @@ namespace Meadow.Postgre.Scaffolding
                 ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
             replacementList.Add(_keyDbQFilterResultsTableName,
                 ProcessedType.NameConvention.FilterResultsTableName.DoubleQuot());
+            
+            replacementList.Add(_keyIdTypeName,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
+
+            replacementList.Add(_keyDbQIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName.DoubleQuot());
+            replacementList.Add(_keyDbQSearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName.DoubleQuot());
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-create or replace function {_keyDbQRemoveExpiredFilterResults}({"par_ExpirationTimeStamp".DoubleQuot()} BIGINT) 
+create function {_keyDbQIndexProcedureName}({"par_ResultId".DoubleQuot()} {_keyIdTypeName},{"par_IndexCorpus".DoubleQuot()} TEXT) returns setof {_keyDbQSearchIndexTableName} as $$
+        begin
+        return query
+            insert into {_keyDbQSearchIndexTableName} ({"ResultId".DoubleQuot()},{"IndexCorpus".DoubleQuot()})
+            values ({"par_ResultId".DoubleQuot()},{"par_IndexCorpus".DoubleQuot()})
+        returning * ;
+        end;
+        $$ language plpgsql;
+-- ---------------------------------------------------------------------------------------------------------------------
+create function {_keyDbQRemoveExpiredFilterResults}({"par_ExpirationTimeStamp".DoubleQuot()} BIGINT) 
     returns void as $$ 
 begin
     delete from {_keyDbQFilterResultsTableName} where {_keyDbQFilterResultsTableName}.{"ExpirationTimeStamp".DoubleQuot()} < {"par_ExpirationTimeStamp".DoubleQuot()};
@@ -96,16 +115,25 @@ $$ language plpgsql;
 create function {_keyDbQFilterProcedureName} 
                 ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
-                {"par_FilterExpression".DoubleQuot()} TEXT) 
+                {"par_FilterExpression".DoubleQuot()} TEXT,
+                {"par_SearchExpression".DoubleQuot()} TEXT) 
     returns setof {_keyDbQFilterResultsTableName} as $$
     declare sql text = '';
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
-    sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
-        select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
-        where ',{"par_FilterExpression".DoubleQuot()},';');
+    if {"par_SearchExpression".DoubleQuot()} is null or {"par_SearchExpression".DoubleQuot()} ='' then
+        sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
+            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
+            where ',{"par_FilterExpression".DoubleQuot()},';');
+    else
+        sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
+            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
+            inner join {_keyDbQSearchIndexTableName} on {_keyDbQTableName}.{_keyDbQIdFieldName}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
+            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},');');
+    end if;
+    
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
@@ -118,16 +146,25 @@ $$ language plpgsql;
 create function {_keyDbQFilterProcedureNameFullTree} 
                 ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
-                {"par_FilterExpression".DoubleQuot()} TEXT) 
+                {"par_FilterExpression".DoubleQuot()} TEXT,
+                {"par_SearchExpression".DoubleQuot()} TEXT) 
     returns setof {_keyDbQFilterResultsTableName} as $$
     declare sql text = '';
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
-    sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
-        select distinct ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
-        where ',{"par_FilterExpression".DoubleQuot()},';');
+    if {"par_SearchExpression".DoubleQuot()} is null or {"par_SearchExpression".DoubleQuot()} ='' then
+        sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
+            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
+            where ',{"par_FilterExpression".DoubleQuot()},';');
+    else
+        sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
+            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
+            inner join {_keyDbQSearchIndexTableName} on {_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
+            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},');');
+    end if;
+    
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;

@@ -88,7 +88,18 @@ namespace Meadow.Test.Functional
 
         protected void Log(ILogger logger, Person p)
         {
-            logger.LogInformation($"{p.Name} {p.Surname} : {p.Age} years old. JI-{p.JobId}");
+            var ft = "";
+            if (p.Job != null)
+            {
+                ft += $"Job:{p.Job.Title}+{p.Job.IncomeInRials} ";
+            }
+
+            if (p.Addresses.Count > 0)
+            {
+                ft += $"LAdd: {p.Addresses.Last().AddressName}";
+            }
+
+            logger.LogInformation($"{p.Name} {p.Surname} : {p.Age} years old. JI-{p.JobId} {ft}");
         }
 
         private bool AreEqual(object o1, object o2)
@@ -153,7 +164,7 @@ namespace Meadow.Test.Functional
             Main(engine, logger);
         }
 
-        protected object ReadByHeadlessAddress<T>(string headlessAddress,object owner)
+        protected object ReadByHeadlessAddress<T>(string headlessAddress, object owner)
         {
             var ev = new ObjectEvaluator(typeof(T));
 

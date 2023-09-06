@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Search.Services;
 using Meadow.Test.Functional.GenericRequests;
@@ -13,12 +14,11 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseMySql();
+            UsePostgre();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
-
             var fullTreePerson = new Person
             {
                 Age = 10,
@@ -35,14 +35,11 @@ namespace Meadow.Test.Functional
                     A(4, 12),
                 }
             };
-            
-            
+
+
             var transliterationService = new EnglishTransliterationsService();
 
             var indexingService = new IndexingService<Person>(transliterationService);
-
-            
-
 
             var allPersons = engine
                 .PerformRequest(new ReadAllRequest<Person>(), true)
@@ -51,40 +48,113 @@ namespace Meadow.Test.Functional
             foreach (var person in allPersons)
             {
                 var corpus = indexingService.GetIndexCorpus(person, true);
-                
+
                 var indexed = engine
-                    .PerformRequest(new IndexEntity<Person,long>(corpus,person.Id))
-                    .FromStorage.FirstOrDefault();    
+                    .PerformRequest(new IndexEntity<Person, long>(corpus, person.Id))
+                    .FromStorage.FirstOrDefault();
             }
 
-            var q = "far";
-
-            var searchSegments = transliterationService.Transliterate(q)
-                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-            
-            var filter = new FilterQueryBuilder<Person>()
+            var fullTreeFilterOver400 = new FilterQueryBuilder<Person>()
                 .Where(p => p.Job.IncomeInRials)
                 .IsLargerThan("400")
                 .Build();
-            
-            
-            var searchResults = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>
-                    (filter, null,searchSegments),true)
-                .FromStorage;
 
-            var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
+            var flatFilterOver50 = new FilterQueryBuilder<Person>()
+                .Where(p => p.Age)
+                .IsLargerThan("50")
+                .Build();
 
-            var foundPersons = engine
-                .PerformRequest(new ReadChunkRequest<Person>(searchId),true)
-                .FromStorage;
-
-            foreach (var person in foundPersons)
+            Func<bool, FilterQuery, string, List<Person>> search = (fullTree, filter, q) =>
             {
-                Log(logger,person);
+                var searchTerms = transliterationService.Transliterate(q)
+                    .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                Console.WriteLine(
+                    $"FT:{fullTree.ToString().ToUpper()} Q: {string.Join(',', searchTerms)} - Filter: {filter.ToString()}");
+
+                var searchResults = engine
+                    .PerformRequest(new PerformSearchIfNeededRequest<Person, long>
+                        (filter, null, searchTerms), fullTree)
+                    .FromStorage;
+
+                var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
+
+                var foundPersons = engine
+                    .PerformRequest(new ReadChunkRequest<Person>(searchId), fullTree)
+                    .FromStorage;
+
+                foreach (var person in foundPersons)
+                {
+                    Log(logger, person);
+                }
+
+                return foundPersons;
+            };
+
+            // Farimehr, Farshid
+            var result = search(false, new FilterQuery(), "far");
+
+            if (result.Count != 2)
+            {
+                throw new Exception("Invalid search.");
+            }
+            CompareEntities(Persons[3],result[0]);
+            CompareEntities(Persons[4],result[1]);
+            
+            // Farshid
+            result = search(false, flatFilterOver50, "far");
+            
+            if (result.Count != 1)
+            {
+                throw new Exception("Invalid search.");
+            }
+            CompareEntities(Persons[3],result[0]);
+            
+            // Farshid
+            result = search(false, flatFilterOver50, null);
+            
+            if (result.Count != 2)
+            {
+                throw new Exception("Invalid Filter.");
+            }
+            CompareEntities(Persons[2],result[0]);
+            CompareEntities(Persons[3],result[1]);
+            
+            result = search(true, new FilterQuery(), "far");
+            
+            if (result.Count != 2)
+            {
+                throw new Exception("Invalid Filter.");
+            }
+
+            if (result[0].Addresses.Count == 0 || result[1].Addresses.Count == 1)
+            {
+                throw new Exception("Problem in full tree");
             }
             
+            result = search(true, fullTreeFilterOver400, "far");
+            
+            if (result.Count != 1)
+            {
+                throw new Exception("Invalid Filter.");
+            }
+
+            if (result[0].Addresses.Count == 0 )
+            {
+                throw new Exception("Problem in full tree");
+            }
+            
+            result = search(true, fullTreeFilterOver400, null);
+            
+            if (result.Count != 1)
+            {
+                throw new Exception("Invalid Filter.");
+            }
+
+            if (result[0].Addresses.Count == 0 )
+            {
+                throw new Exception("Problem in full tree");
+            }
             
         }
     }

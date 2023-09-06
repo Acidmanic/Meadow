@@ -5,25 +5,23 @@ using Meadow.Search.Contracts;
 
 namespace Meadow.Search.Services;
 
-public class EnglishTransliterationsService :ITransliterationService
+public class EnglishTransliterationsService : ITransliterationService
 {
-
     private readonly Dictionary<string, string> _replaces = new Dictionary<string, string>()
     {
-        {"ou","u"},
-        {"oo","o"},
-        {"ee","i"},
-        {"y","i"},
-        {"sch","$"},
-        {"sh","$"},
-        {"ce","se"},
-        {"ci","si"},
-        {"ck","k"}
+        { "ou", "u" },
+        { "oo", "o" },
+        { "ee", "i" },
+        { "y", "i" },
+        { "sch", "$" },
+        { "sh", "$" },
+        { "ce", "se" },
+        { "ci", "si" },
+        { "ck", "k" }
     };
 
     public string Transliterate(string text)
     {
-
         var transliterated = FilterLetterOrDigit(text);
 
         foreach (var replace in _replaces)
@@ -32,7 +30,7 @@ public class EnglishTransliterationsService :ITransliterationService
         }
 
         transliterated = CompressLossy(transliterated);
-        
+
         return transliterated;
     }
 
@@ -55,9 +53,11 @@ public class EnglishTransliterationsService :ITransliterationService
 
         return compressed;
     }
-    
+
     private string FilterLetterOrDigit(string text)
     {
+        text ??= "";
+
         var sb = new StringBuilder();
 
         var chars = text.ToCharArray();

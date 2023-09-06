@@ -82,7 +82,6 @@ BEGIN
     SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.Id=@nid;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
-DROP PROCEDURE IF EXISTS {_keyRemoveExistingProcedureName};
 CREATE PROCEDURE {_keyRemoveExistingProcedureName}(IN ExpirationTimeStamp bigint(16))
 BEGIN
     DELETE FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.ExpirationTimeStamp < ExpirationTimeStamp;
