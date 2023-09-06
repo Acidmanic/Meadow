@@ -68,20 +68,20 @@ namespace Meadow.Test.Functional
 
             
             var filter = new FilterQueryBuilder<Person>()
-                .Where(p => p.Age)
-                .IsLargerThan("50")
+                .Where(p => p.Job.IncomeInRials)
+                .IsLargerThan("400")
                 .Build();
             
             
             var searchResults = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person, long>
-                    (filter, null,searchSegments))
+                    (filter, null,searchSegments),true)
                 .FromStorage;
 
             var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
 
             var foundPersons = engine
-                .PerformRequest(new ReadChunkRequest<Person>(searchId))
+                .PerformRequest(new ReadChunkRequest<Person>(searchId),true)
                 .FromStorage;
 
             foreach (var person in foundPersons)

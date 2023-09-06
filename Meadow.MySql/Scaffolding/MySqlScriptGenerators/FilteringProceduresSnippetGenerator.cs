@@ -121,16 +121,26 @@ END;
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(
                                                   IN SearchId nvarchar(32),
                                                   IN ExpirationTimeStamp bigint(16),
-                                                  IN FilterExpression nvarchar(1024))
+                                                  IN FilterExpression nvarchar(1024),
+                                                  IN SearchExpression nvarchar(1024))
 BEGIN
     if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
         IF FilterExpression IS NULL OR FilterExpression = '' THEN
             set FilterExpression = 'TRUE';
         END IF;
-        set @query = CONCAT(
+        set @query ='';
+        IF SearchExpression IS NULL OR SearchExpression = '' THEN
+            set @query = CONCAT(
             'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
-            'select distinct \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
-            ' from {_keyFullTreeViewName} WHERE ' , FilterExpression,';');
+            'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldName},',ExpirationTimeStamp,
+            ' from {_keyFullTreeViewName}  WHERE ' , FilterExpression, ';');
+        ELSE
+            set @query = CONCAT(
+                'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
+                'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
+                ' from {_keyFullTreeViewName} inner join {_keySearchIndexTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ');');
+        END IF;
+        
         PREPARE stmt FROM @query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
