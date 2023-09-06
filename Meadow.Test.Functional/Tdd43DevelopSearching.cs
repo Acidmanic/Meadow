@@ -2,6 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
+using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Filtering.Utilities;
+using Meadow.MySql;
 using Meadow.Search.Models;
 using Meadow.Search.Services;
 using Meadow.Test.Functional.GenericRequests;
@@ -42,20 +45,58 @@ namespace Meadow.Test.Functional
 
             var indexingService = new IndexingService<Person>(transliterationService);
 
-            var corpus = indexingService.GetIndexCorpus(fullTreePerson, true);
-
-
             
 
-            var inserted = engine
-                .PerformRequest(new InsertRequest<Person>(fullTreePerson))
-                .FromStorage.FirstOrDefault();
 
-            var indexed = engine
-                .PerformRequest(new IndexEntity<Person,long>(corpus,inserted!.Id))
-                .FromStorage.FirstOrDefault();
+            var allPersons = engine
+                .PerformRequest(new ReadAllRequest<Person>(), true)
+                .FromStorage;
 
-            Console.WriteLine(corpus);
+            foreach (var person in allPersons)
+            {
+                var corpus = indexingService.GetIndexCorpus(person, true);
+                
+                var indexed = engine
+                    .PerformRequest(new IndexEntity<Person,long>(corpus,person.Id))
+                    .FromStorage.FirstOrDefault();    
+            }
+
+            var q = "far";
+
+            var searchSegments = transliterationService.Transliterate(q)
+                .Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+            var qt = new MySqlFilterQueryTranslator();
+
+            qt.Configuration = Configuration;
+            qt.Logger = logger;
+
+            var searchExpression = qt.TranslateSearchTerm<Person>(searchSegments);
+
+
+            var filter = new FilterQueryBuilder<Person>()
+                .Where(p => p.Age)
+                .IsLargerThan("50")
+                .Build();
+            
+            
+            var searchResults = engine
+                .PerformRequest(new PerformSearchIfNeededExtendedRequest<Person, long>
+                    (filter, searchExpression))
+                .FromStorage;
+
+            var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
+
+            var foundPersons = engine
+                .PerformRequest(new ReadChunkRequest<Person>(searchId))
+                .FromStorage;
+
+            foreach (var person in foundPersons)
+            {
+                Log(logger,person);
+            }
+            
+            
         }
     }
 }

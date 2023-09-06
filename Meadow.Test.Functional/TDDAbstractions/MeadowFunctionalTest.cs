@@ -75,6 +75,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
 
             DatabaseName = "My Sql";
+            
+            UpdateConfigurations();
         }
 
         protected void UseSqlServer()
@@ -91,6 +93,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
             
             DatabaseName = "Sql Server";
+            
+            UpdateConfigurations();
         }
 
         protected void UsePostgre()
@@ -107,6 +111,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
             MeadowEngine.UseDataAccess(new CoreProvider<PostgreDataAccessCore>());
             
             DatabaseName = "Postgre";
+            
+            UpdateConfigurations();
         }
 
         protected void UseSqLite()
@@ -123,18 +129,26 @@ namespace Meadow.Test.Functional.TDDAbstractions
             MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
             
             DatabaseName = "SqLite";
+
+            UpdateConfigurations();
         }
+
+        private void UpdateConfigurations()
+        {
+            Configuration = new MeadowConfiguration
+            {
+                ConnectionString = ConnectionString,
+                BuildupScriptDirectory = ScriptsDirectory,
+                MacroPolicy = MacroPolicies.UpdateScripts,
+                MacroContainingAssemblies = new List<Assembly>(MeadowConfigurationAssemblies)
+            };
+        }
+
+        protected MeadowConfiguration Configuration { get; private set; }
 
         protected MeadowEngine CreateEngine()
         {
-            return new MeadowEngine(
-                new MeadowConfiguration
-                {
-                    ConnectionString = ConnectionString,
-                    BuildupScriptDirectory = ScriptsDirectory,
-                    MacroPolicy = MacroPolicies.UpdateScripts,
-                    MacroContainingAssemblies = new List<Assembly>(MeadowConfigurationAssemblies)
-                });
+            return new MeadowEngine(Configuration);
         }
 
         protected void PrintObject(object o)
@@ -230,9 +244,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
         protected MeadowEngine SetupClearDatabase(bool fromScratch = true)
         {
             var engine = CreateEngine();
-
-            engine.UseSqlServer();
-
+            
             if (fromScratch)
             {
                 if (engine.DatabaseExists())

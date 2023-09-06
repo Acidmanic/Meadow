@@ -39,7 +39,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         
         private readonly string _keyIdTypeName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
-
+        
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
@@ -101,6 +101,36 @@ BEGIN
             'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
             'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
             ' from {_keyTableName} WHERE ' , FilterExpression,';');
+        PREPARE stmt FROM @query;
+        EXECUTE stmt;
+        DEALLOCATE PREPARE stmt; 
+    end if;
+    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId;
+END;
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyFilterIfNeededProcedureName}Extended(
+                                                  IN SearchId nvarchar(32),
+                                                  IN ExpirationTimeStamp bigint(16),
+                                                  IN FilterExpression nvarchar(1024),
+                                                  IN SearchExpression nvarchar(1024))
+BEGIN
+    if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
+        IF FilterExpression IS NULL OR FilterExpression = '' THEN
+            set FilterExpression = 'TRUE';
+        END IF;
+        set @query ='';
+        IF SearchExpression IS NULL OR SearchExpression = '' THEN
+            set @query = CONCAT(
+            'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
+            'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
+            ' from {_keyTableName}  WHERE ' , FilterExpression, ';');
+        ELSE
+            set @query = CONCAT(
+                'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
+                'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
+                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ');');
+        END IF;
+        
         PREPARE stmt FROM @query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
