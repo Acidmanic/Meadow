@@ -13,14 +13,16 @@ namespace Meadow.Test.Functional.GenericRequests
     public sealed class
         PerformSearchIfNeededExtendedRequest<TStorage, TId> : MeadowRequest<FilterShellExtended, FilterResult<TId>>
     {
-        public PerformSearchIfNeededExtendedRequest(FilterQuery filter, string searchExpression = null,
+        public PerformSearchIfNeededExtendedRequest(FilterQuery filter, string[] searchTerms = null,
             string searchId = null) : base(true)
         {
             RegisterTranslationTask(t =>
             {
-                searchExpression ??= "";
+                searchTerms ??= new string[]{};
 
                 var filterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite());
+
+                var searchExpression = t.TranslateSearchTerm(typeof(TStorage), searchTerms);
 
                 ToStorage = new FilterShellExtended
                 {

@@ -36,24 +36,33 @@ public interface IFilterQueryTranslator
         
         public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree)
         {
-            Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +
-                                "You can modify this behavior by creating a DataAccessCore inherited from the one you already are using," +
-                                "and implementing the ProvideFilterQueryTranslator() method in and returning a valid " +
-                                "implementation of interface IFilterQueryTranslator and use this new data access core " +
-                                "instead of the one you already have by calling MeadowEngine.UseDataAccess(new " +
-                                "CoreProvider<YOUR-DATA-ACCESS-CORE>()).");
+            LogError();
+
             return "";
         }
 
         public string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree)
         {
-            Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +
-                            "You can modify this behavior by creating a DataAccessCore inherited from the one you already are using," +
-                            "and implementing the ProvideFilterQueryTranslator() method in and returning a valid " +
-                            "implementation of interface IFilterQueryTranslator and use this new data access core " +
-                            "instead of the one you already have by calling MeadowEngine.UseDataAccess(new " +
-                            "CoreProvider<YOUR-DATA-ACCESS-CORE>()).");
+            LogError();
+
             return "";
+        }
+
+        public string TranslateSearchTerm(Type entityType, string[] searchTerms)
+        {
+            LogError();
+
+            return "";
+        }
+
+        private void LogError()
+        {
+            Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +
+                                        "You can modify this behavior by creating a DataAccessCore inherited from the one you already are using," +
+                                        "and implementing the ProvideFilterQueryTranslator() method in and returning a valid " +
+                                        "implementation of interface IFilterQueryTranslator and use this new data access core " +
+                                        "instead of the one you already have by calling MeadowEngine.UseDataAccess(new " +
+                                        "CoreProvider<YOUR-DATA-ACCESS-CORE>()).");
         }
     }
 
@@ -65,4 +74,6 @@ public interface IFilterQueryTranslator
     string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree);
 
     string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
+
+    string TranslateSearchTerm(Type entityType, string[] searchTerms);
 }

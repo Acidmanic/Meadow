@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Reflection;
@@ -20,13 +21,12 @@ namespace Meadow.Sql
 
         public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree)
         {
-            
             Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, item.Key);
 
             if (fullTree)
             {
                 var columns = Configuration.GetFullTreeMap(filterQuery.EntityType);
-                
+
                 pickColumName = item => columns.GetColumnName(item.Key);
             }
 
@@ -35,7 +35,7 @@ namespace Meadow.Sql
             var anyFilters = false;
 
             var sep = "";
-            
+
             foreach (var filter in filterQuery.Items())
             {
                 anyFilters = true;
@@ -58,7 +58,22 @@ namespace Meadow.Sql
             return EmptyQuery;
         }
 
-        public string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree)
+        public string TranslateSearchTerm(Type entityType, string[] searchTerms)
+        {
+            var nc = Configuration.GetNameConvention(entityType);
+
+            Func<string, string> tq = DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s; 
+            Func<string, string> cq = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s; 
+            
+            var searchIndexTable = nc.SearchIndexTableName;
+
+            var columnFullName = tq(searchIndexTable) +"." +  cq("IndexCorpus");
+
+            return string.Join(" OR ", searchTerms.Select(
+                s => $"{columnFullName} like '%{s}%'"));
+        }
+
+        public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
         {
             if (fullTree)
             {
@@ -120,9 +135,11 @@ namespace Meadow.Sql
         protected abstract string EscapedSingleQuote { get; }
 
         protected abstract bool DoubleQuotesColumnNames { get; }
+        
+        protected abstract bool DoubleQuotesTableNames { get; }
 
         protected virtual string EmptyQuery => "";
-        
+
         protected virtual string HandleQuotingAndEscaping(string value, Type type)
         {
             if (value == null)

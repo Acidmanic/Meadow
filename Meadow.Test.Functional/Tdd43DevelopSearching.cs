@@ -66,14 +66,7 @@ namespace Meadow.Test.Functional
             var searchSegments = transliterationService.Transliterate(q)
                 .Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
-            var qt = new MySqlFilterQueryTranslator();
-
-            qt.Configuration = Configuration;
-            qt.Logger = logger;
-
-            var searchExpression = qt.TranslateSearchTerm<Person>(searchSegments);
-
-
+            
             var filter = new FilterQueryBuilder<Person>()
                 .Where(p => p.Age)
                 .IsLargerThan("50")
@@ -82,7 +75,7 @@ namespace Meadow.Test.Functional
             
             var searchResults = engine
                 .PerformRequest(new PerformSearchIfNeededExtendedRequest<Person, long>
-                    (filter, searchExpression))
+                    (filter, searchSegments))
                 .FromStorage;
 
             var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();

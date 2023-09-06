@@ -14,5 +14,6 @@ namespace Meadow.Postgre
         protected override string EscapedSingleQuote => "\\'";
 
         protected override bool DoubleQuotesColumnNames => true;
+        protected override bool DoubleQuotesTableNames => true;
     }
 }
