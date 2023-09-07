@@ -101,7 +101,7 @@ create function {_keyDbQIndexProcedureName}({"par_ResultId".DoubleQuot()} {_keyI
         if (updateCount > 0) then
             return query
                     update {_keyDbQSearchIndexTableName} set 
-                    {_keyDbQSearchIndexTableName}.{"IndexCorpus".DoubleQuot()}={"par_IndexCorpus".DoubleQuot()}
+                    {"IndexCorpus".DoubleQuot()}={"par_IndexCorpus".DoubleQuot()}
                     where {_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}={"par_ResultId".DoubleQuot()}
                     returning *;
         else
