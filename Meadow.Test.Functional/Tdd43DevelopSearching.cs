@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UseMySql();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -156,9 +156,37 @@ namespace Meadow.Test.Functional
             {
                 throw new Exception("Problem in full tree");
             }
-            
+
             logger.LogInformation("[PASS] filtering + Search OK");
+
+            var dad = new Person
+            {
+                Age = 63,
+                Id = 4,
+                JobId = Persons[3].JobId,
+                Surname = "Moayedi",
+                Name = "Dad"
+            };
+            engine.PerformRequest(new UpdateRequest<Person>(dad));
+
+            var dadIndexCorpus =  indexingService.GetIndexCorpus(dad, true);
             
+            engine.PerformRequest(new IndexEntity<Person, long>(dadIndexCorpus, dad.Id));
+            
+            result = Search(true, new FilterQuery(), "far");
+            
+            if (result.Count != 1 ||
+                result[0].Name.ToLower()!="farimehr")
+            {
+                throw new Exception("Invalid Index Update");
+            }
+            
+            if (result[0].Addresses.Count == 0 || result[1].Addresses.Count == 0)
+            {
+                throw new Exception("Problem in full tree");
+            }
+
+            logger.LogInformation("[PASS] indexing updates OK");
         }
     }
 }
