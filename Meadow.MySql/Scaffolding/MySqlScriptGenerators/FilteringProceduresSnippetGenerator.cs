@@ -77,9 +77,14 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyIndexProcedureName}(IN ResultId {_keyIdTypeName},IN IndexCorpus varchar(1024))
 BEGIN
-    INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (ResultId,IndexCorpus);
-    SET @nid = (select LAST_INSERT_ID());
-    SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.Id=@nid;
+    IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=ResultId) THEN
+        UPDATE {_keySearchIndexTableName} SET {_keySearchIndexTableName}.IndexCorpus=IndexCorpus;
+        SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=ResultId;
+    ELSE
+        INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (ResultId,IndexCorpus);
+        SET @nid = (select LAST_INSERT_ID());
+        SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.Id=@nid;
+    END IF;
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyRemoveExistingProcedureName}(IN ExpirationTimeStamp bigint(16))
@@ -131,7 +136,7 @@ BEGIN
         IF SearchExpression IS NULL OR SearchExpression = '' THEN
             set @query = CONCAT(
             'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
-            'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldName},',ExpirationTimeStamp,
+            'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
             ' from {_keyFullTreeViewName}  WHERE ' , FilterExpression, ';');
         ELSE
             set @query = CONCAT(
