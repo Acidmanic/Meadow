@@ -78,7 +78,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 CREATE PROCEDURE {_keyIndexProcedureName}(IN ResultId {_keyIdTypeName},IN IndexCorpus varchar(1024))
 BEGIN
     IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=ResultId) THEN
-        UPDATE {_keySearchIndexTableName} SET {_keySearchIndexTableName}.IndexCorpus=IndexCorpus ;
+        UPDATE {_keySearchIndexTableName} SET {_keySearchIndexTableName}.IndexCorpus=IndexCorpus WHERE {_keySearchIndexTableName}.ResultId=ResultId;
         SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=ResultId;
     ELSE
         INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (ResultId,IndexCorpus);
