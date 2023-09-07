@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UsePostgre();
+            UseSqLite();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)

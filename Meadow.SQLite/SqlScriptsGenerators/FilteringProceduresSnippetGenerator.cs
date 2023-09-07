@@ -31,11 +31,12 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyFullTreeView = GenerateKey();
 
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyIdFieldType = GenerateKey();
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
 
         private readonly string _keyRemoveExpiredFilterProcedure = GenerateKey();
         private readonly string _keyFilterResultsTableName = GenerateKey();
-        
+
         private readonly string _keyIndexProcedureName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
 
@@ -56,6 +57,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
+            replacementList.Add(_keyIdFieldType,
+                ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
+            
             replacementList.Add(_keyIdFieldNameFullTree,
                 ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
 
@@ -63,17 +67,21 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
 
             replacementList.Add(_keyFilterResultsTableName, ProcessedType.NameConvention.FilterResultsTableName);
-            
+
             replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
             replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyIndexProcedureName} (@ResultId TEXT,@IndexCorpus TEXT) AS
+CREATE PROCEDURE {_keyIndexProcedureName} (@ResultId {_keyIdFieldType},@IndexCorpus TEXT) AS
+    UPDATE {_keySearchIndexTableName}  SET IndexCorpus=@IndexCorpus
+        WHERE {_keySearchIndexTableName}.ResultId=@ResultId;
     INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus)
-    VALUES (@ResultId,@IndexCorpus);
+            SELECT @ResultId,@IndexCorpus WHERE NOT EXISTS(SELECT * FROM {_keySearchIndexTableName}
+            WHERE {_keySearchIndexTableName}.ResultId=@ResultId);
     SELECT * FROM {_keySearchIndexTableName} WHERE ROWID=LAST_INSERT_ROWID();
+    SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId OR ROWID = LAST_INSERT_ROWID() LIMIT 1;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyRemoveExpiredFilterProcedure}(@ExpirationTimeStamp INTEGER)
