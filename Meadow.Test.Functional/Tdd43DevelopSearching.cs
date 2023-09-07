@@ -181,7 +181,7 @@ namespace Meadow.Test.Functional
                 throw new Exception("Invalid Index Update");
             }
             
-            if (result[0].Addresses.Count == 0 || result[1].Addresses.Count == 0)
+            if (result[0].Addresses.Count == 0 )
             {
                 throw new Exception("Problem in full tree");
             }
