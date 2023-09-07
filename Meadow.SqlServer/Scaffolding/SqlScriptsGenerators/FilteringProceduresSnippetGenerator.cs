@@ -88,9 +88,18 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyIndexEntityProcedureName}(@ResultId {_keyIdFieldType},@IndexCorpus varchar(1024)) AS
     
-    INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (@ResultId,@IndexCorpus)
-    DECLARE @newId {_keyIdFieldType}=(IDENT_CURRENT('{_keySearchIndexTableName}'));
-    SELECT * FROM {_keySearchIndexTableName} WHERE Id=@newId;
+    IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId)
+        BEGIN
+            UPDATE {_keySearchIndexTableName} SET IndexCorpus=@IndexCorpus WHERE {_keySearchIndexTableName}.ResultId=@ResultId;
+            
+            SELECT TOP 1 * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId; 
+        END
+    ELSE
+        BEGIN
+            INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (@ResultId,@IndexCorpus)
+            DECLARE @newId {_keyIdFieldType}=(IDENT_CURRENT('{_keySearchIndexTableName}'));
+            SELECT * FROM {_keySearchIndexTableName} WHERE Id=@newId;
+        END
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE OR ALTER PROCEDURE {_keyRemoveExisingProcedureName}(@ExpirationTimeStamp BIGINT) AS
