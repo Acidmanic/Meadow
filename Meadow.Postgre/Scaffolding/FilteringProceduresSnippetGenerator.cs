@@ -95,13 +95,23 @@ namespace Meadow.Postgre.Scaffolding
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQIndexProcedureName}({"par_ResultId".DoubleQuot()} {_keyIdTypeName},{"par_IndexCorpus".DoubleQuot()} TEXT) returns setof {_keyDbQSearchIndexTableName} as $$
-        begin
-        return query
-            insert into {_keyDbQSearchIndexTableName} ({"ResultId".DoubleQuot()},{"IndexCorpus".DoubleQuot()})
-            values ({"par_ResultId".DoubleQuot()},{"par_IndexCorpus".DoubleQuot()})
-        returning * ;
-        end;
-        $$ language plpgsql;
+    declare updateCount int := 0;
+    begin
+        updateCount := (select count(*) from {_keyDbQSearchIndexTableName} where {_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}={"par_ResultId".DoubleQuot()});
+        if (updateCount > 0) then
+            return query
+                    update {_keyDbQSearchIndexTableName} set 
+                    {_keyDbQSearchIndexTableName}.{"IndexCorpus".DoubleQuot()}={"par_IndexCorpus".DoubleQuot()}
+                    where {_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}={"par_ResultId".DoubleQuot()}
+                    returning *;
+        else
+            return query
+                insert into {_keyDbQSearchIndexTableName} ({"ResultId".DoubleQuot()},{"IndexCorpus".DoubleQuot()})
+                values ({"par_ResultId".DoubleQuot()},{"par_IndexCorpus".DoubleQuot()})
+            returning * ;
+        end if;
+    end;
+    $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQRemoveExpiredFilterResults}({"par_ExpirationTimeStamp".DoubleQuot()} BIGINT) 
     returns void as $$ 
