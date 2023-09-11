@@ -2,6 +2,7 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
+using Meadow.Contracts.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -55,6 +56,13 @@ public interface ISqlExpressionTranslator
             return "";
         }
 
+        public string TranslateOrders(Type entityType, OrderTerm[] orders,bool fullTree)
+        {
+            LogError();
+
+            return "";
+        }
+
         private void LogError()
         {
             Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +
@@ -76,4 +84,7 @@ public interface ISqlExpressionTranslator
     string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
 
     string TranslateSearchTerm(Type entityType, string[] searchTerms);
+
+
+    string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree);
 }

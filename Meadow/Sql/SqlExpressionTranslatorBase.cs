@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.Contracts.Models;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Microsoft.Extensions.Logging;
@@ -55,7 +55,7 @@ namespace Meadow.Sql
                 return sb.ToString();
             }
 
-            return EmptyQuery;
+            return EmptyConditionExpression;
         }
 
         public string TranslateSearchTerm(Type entityType, string[] searchTerms)
@@ -63,7 +63,7 @@ namespace Meadow.Sql
 
             if (searchTerms == null || searchTerms.Length == 0)
             {
-                return EmptyQuery;
+                return EmptyConditionExpression;
             }
             
             var nc = Configuration.GetNameConvention(entityType);
@@ -79,12 +79,39 @@ namespace Meadow.Sql
                 s => $"{columnFullName} like '%{s}%'"));
         }
 
+        public string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree)
+        {
+            if (orders == null || orders.Length == 0)
+            {
+                return "";
+            }
+            
+            Func<string, string> q = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s;
+            var map = Configuration.GetFullTreeMap(entityType);
+            Func<OrderTerm, string> sort = o => o.Sort == OrderSort.Descending ? "DESC" : "ASC";
+            Func<OrderTerm, string> column = o => q(TranslateFieldName(map, o.Key, fullTree));
+            
+            var terms = orders.Select(o =>column(o) + " " + sort(o));
+
+            return string.Join(',', terms);
+        }
+
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
         {
             if (fullTree)
             {
                 var map = Configuration.GetFullTreeMap(ownerEntityType);
 
+                return TranslateFieldName(map, headlessAddress, true);
+            }
+
+            return headlessAddress;
+        }
+        
+        private string TranslateFieldName(FullTreeMap map, string headlessAddress, bool fullTree)
+        {
+            if (fullTree)
+            {
                 var fieldName = map.GetColumnName(headlessAddress);
 
                 if (fieldName)
@@ -144,7 +171,7 @@ namespace Meadow.Sql
         
         protected abstract bool DoubleQuotesTableNames { get; }
 
-        protected virtual string EmptyQuery => "";
+        protected virtual string EmptyConditionExpression => "";
 
         protected virtual string HandleQuotingAndEscaping(string value, Type type)
         {

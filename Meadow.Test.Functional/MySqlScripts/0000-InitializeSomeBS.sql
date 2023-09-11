@@ -6,3 +6,8 @@
 -- {{Crud Meadow.Test.Functional.Models.Person}}
 -- {{Filtering Meadow.Test.Functional.Models.Person}}
 -- ---------------------------------------------------------------------------------------------------------------------
+
+
+insert into Persons (Name, Surname, Age, JobId) values ('Manuk','Patuk',37,5);
+
+select * from Persons order by Persons.Age asc,Persons.Surname DESC 

@@ -10,7 +10,7 @@ namespace Meadow.SQLite
         protected override bool DoubleQuotesTableNames => false;
 
 
-        protected override string EmptyQuery => "TRUE";
+        protected override string EmptyConditionExpression => "TRUE";
         
         
     }
