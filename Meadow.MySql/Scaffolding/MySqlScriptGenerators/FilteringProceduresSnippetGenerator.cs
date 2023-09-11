@@ -96,23 +96,28 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(
                                                   IN SearchId nvarchar(32),
                                                   IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024),
-                                                  IN SearchExpression nvarchar(1024))
+                                                  IN SearchExpression nvarchar(1024),
+                                                  IN OrderExpression nvarchar(2014))
 BEGIN
     if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
         IF FilterExpression IS NULL OR FilterExpression = '' THEN
             set FilterExpression = 'TRUE';
+        END IF;
+        SET @orderClause = '';
+        IF OrderExpression IS NOT NULL AND NOT OrderExpression = '' THEN
+            set @orderClause = CONCAT(' ORDER BY ',  OrderExpression);
         END IF;
         set @query ='';
         IF SearchExpression IS NULL OR SearchExpression = '' THEN
             set @query = CONCAT(
             'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
             'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-            ' from {_keyTableName}  WHERE ' , FilterExpression, ';');
+            ' from {_keyTableName}  WHERE ' , FilterExpression,@orderClause, ';');
         ELSE
             set @query = CONCAT(
                 'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
                 'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ');');
+                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ')',@orderClause,';');
         END IF;
         
         PREPARE stmt FROM @query;
@@ -126,25 +131,29 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(
                                                   IN SearchId nvarchar(32),
                                                   IN ExpirationTimeStamp bigint(16),
                                                   IN FilterExpression nvarchar(1024),
-                                                  IN SearchExpression nvarchar(1024))
+                                                  IN SearchExpression nvarchar(1024),
+                                                  IN OrderExpression nvarchar(2014))
 BEGIN
     if not exists(select 1 from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId) then
         IF FilterExpression IS NULL OR FilterExpression = '' THEN
             set FilterExpression = 'TRUE';
         END IF;
+        SET @orderClause = '';
+        IF OrderExpression IS NOT NULL AND NOT OrderExpression = '' THEN
+            set @orderClause = CONCAT(' ORDER BY ',  OrderExpression);
+        END IF;
         set @query ='';
         IF SearchExpression IS NULL OR SearchExpression = '' THEN
             set @query = CONCAT(
             'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
-            'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
-            ' from {_keyFullTreeViewName}  WHERE ' , FilterExpression, ';');
+            'select distinct \'',SearchId,'\',ORD.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
+            ' from  (select distinct * from {_keyFullTreeViewName}  WHERE ' , FilterExpression,@orderClause, ') ORD;');
         ELSE
             set @query = CONCAT(
                 'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
-                'select \'',SearchId,'\',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
-                ' from {_keyFullTreeViewName} inner join {_keySearchIndexTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ');');
+                'select distinct \'',SearchId,'\',ORD.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
+                ' from (select distinct * from  {_keyFullTreeViewName} inner join {_keySearchIndexTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ')',@orderClause,') ORD;');
         END IF;
-        
         PREPARE stmt FROM @query;
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
@@ -157,7 +166,7 @@ CREATE PROCEDURE {_keyReadChunkProcedureName}(IN Offset bigint(16),
                                       IN SearchId nvarchar(32))
 BEGIN
     select {_keyTableName}.* from {_keyTableName} inner join {_keyFilterResultsTableName} on {_keyTableName}.{_keyIdFieldName} = {_keyFilterResultsTableName}.ResultId
-    where {_keyFilterResultsTableName}.SearchId=SearchId limit offset,size;  
+    where {_keyFilterResultsTableName}.SearchId=SearchId order by {_keyFilterResultsTableName}.Id limit offset,size;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(IN Offset bigint(16),
@@ -165,7 +174,7 @@ CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(IN Offset bigint(16),
                                       IN SearchId nvarchar(32))
 BEGIN
     select {_keyFullTreeViewName}.* from {_keyFullTreeViewName} inner join {_keyFilterResultsTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = {_keyFilterResultsTableName}.ResultId
-    where {_keyFilterResultsTableName}.SearchId=SearchId limit offset,size;  
+    where {_keyFilterResultsTableName}.SearchId=SearchId order by {_keyFilterResultsTableName}.Id limit offset,size;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

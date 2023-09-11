@@ -93,7 +93,7 @@ namespace Meadow.Sql
             
             var terms = orders.Select(o =>column(o) + " " + sort(o));
 
-            return string.Join(',', terms);
+            return string.Join(", ", terms);
         }
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
