@@ -83,7 +83,7 @@ namespace Meadow.Sql
         {
             if (orders == null || orders.Length == 0)
             {
-                return "";
+                return EmptyOrderExpression(entityType,fullTree);
             }
             
             Func<string, string> q = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s;
@@ -172,6 +172,11 @@ namespace Meadow.Sql
         protected abstract bool DoubleQuotesTableNames { get; }
 
         protected virtual string EmptyConditionExpression => "";
+
+        protected virtual string EmptyOrderExpression(Type entityType,bool fullTree)
+        {
+            return "";
+        }
 
         protected virtual string HandleQuotingAndEscaping(string value, Type type)
         {

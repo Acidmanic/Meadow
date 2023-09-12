@@ -92,13 +92,15 @@ GO
 CREATE PROCEDURE {_keyFilterProcedureName}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
                                                   @FilterExpression TEXT,
-                                                  @SearchExpression TEXT)
+                                                  @SearchExpression TEXT,
+                                                  @OrderExpression TEXT)
 AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName}
     INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression)
-    AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true);
+    AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
+    ORDER BY &@OrderExpression;
 
     SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
 GO
@@ -106,13 +108,15 @@ GO
 CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
                                                   @ExpirationTimeStamp INTEGER,
                                                   @FilterExpression TEXT,
-                                                  @SearchExpression TEXT)
+                                                  @SearchExpression TEXT,
+                                                  @OrderExpression TEXT)
 AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView}
     INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression) 
-    AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true);
+    AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
+    ORDER BY &@OrderExpression;
 
     SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
 GO
@@ -122,7 +126,7 @@ CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset INTEGER,
                                       @SearchId TEXT)
 AS
     SELECT {_keyTableName}.* FROM {_keyTableName} INNER JOIN {_keyFilterResultsTableName} ON {_keyTableName}.{_keyIdFieldName} = {_keyFilterResultsTableName}.ResultId
-    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId LIMIT @Offset,@Size;  
+    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId ORDER BY {_keyFilterResultsTableName}.Id LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset INTEGER,
@@ -130,7 +134,7 @@ CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset INTEGER,
                                       @SearchId TEXT)
 AS
     SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} INNER JOIN {_keyFilterResultsTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree} = {_keyFilterResultsTableName}.ResultId
-    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId LIMIT @Offset,@Size;  
+    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId ORDER BY {_keyFilterResultsTableName}.Id LIMIT @Offset,@Size;  
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

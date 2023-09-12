@@ -10,7 +10,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UsePostgre();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
