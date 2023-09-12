@@ -1,0 +1,12 @@
+
+
+
+function bump_inc(){
+    
+    release auto inc betainc SourceRoot ../ VersionStandard  beta-semantic
+    #nugcast
+}
+
+
+
+

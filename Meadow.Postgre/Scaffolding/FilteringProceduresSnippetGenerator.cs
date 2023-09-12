@@ -126,28 +126,32 @@ create function {_keyDbQFilterProcedureName}
                 ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
                 {"par_FilterExpression".DoubleQuot()} TEXT,
-                {"par_SearchExpression".DoubleQuot()} TEXT) 
+                {"par_SearchExpression".DoubleQuot()} TEXT, 
+                {"par_OrderExpression".DoubleQuot()} TEXT) 
     returns setof {_keyDbQFilterResultsTableName} as $$
     declare sql text = '';
+    declare orderClause text = '';
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
+    if {"par_OrderExpression".DoubleQuot()} is not null and not {"par_OrderExpression".DoubleQuot()} = '' then
+        orderClause = CONCAT(' order by ' , {"par_OrderExpression".DoubleQuot()},' ');
+    end if;
     if {"par_SearchExpression".DoubleQuot()} is null or {"par_SearchExpression".DoubleQuot()} ='' then
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
             select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
-            where ',{"par_FilterExpression".DoubleQuot()},';');
+            where ',{"par_FilterExpression".DoubleQuot()}, orderClause,';');
     else
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
             select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
             inner join {_keyDbQSearchIndexTableName} on {_keyDbQTableName}.{_keyDbQIdFieldName}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
-            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},');');
+            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},')',orderClause,';');
     end if;
-    
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select * from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()};
+    return query select * from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()} order by {"Id".DoubleQuot()} ASC;
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -157,28 +161,34 @@ create function {_keyDbQFilterProcedureNameFullTree}
                 ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
                 {"par_FilterExpression".DoubleQuot()} TEXT,
-                {"par_SearchExpression".DoubleQuot()} TEXT) 
+                {"par_SearchExpression".DoubleQuot()} TEXT, 
+                {"par_OrderExpression".DoubleQuot()} TEXT)  
     returns setof {_keyDbQFilterResultsTableName} as $$
     declare sql text = '';
+    declare orderClause text = '';
+    declare groupByExpression text = '';
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
+    if {"par_OrderExpression".DoubleQuot()} is not null and not {"par_OrderExpression".DoubleQuot()} = '' then
+        groupByExpression =  REGEXP_REPLACE(REGEXP_REPLACE({"par_OrderExpression".DoubleQuot()},'\s+asc','','i'),'\s+desc','','i');
+        orderClause = CONCAT(' group by {_keyDbQIdFieldNameFullTree}, ', groupByExpression , ' order by ' , {"par_OrderExpression".DoubleQuot()},' ');
+    end if;
     if {"par_SearchExpression".DoubleQuot()} is null or {"par_SearchExpression".DoubleQuot()} ='' then
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
-            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
-            where ',{"par_FilterExpression".DoubleQuot()},';');
+            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' 
+            from {_keyDbQFullTreeView} where ',{"par_FilterExpression".DoubleQuot()},orderClause,';');
     else
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
             select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
             inner join {_keyDbQSearchIndexTableName} on {_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
-            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},');');
+            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},')',orderClause,';');
     end if;
-    
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select * from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()};
+    return query select * from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}  order by {"Id".DoubleQuot()} ASC;
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -191,7 +201,7 @@ create function {_keyDbQChunkProcedureName}
 begin
     return query select {_keyDbQTableName}.* from {_keyDbQTableName} 
         inner join (select * from {_keyDbQFilterResultsTableName} where {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
-        on {_keyDbQTableName}.{_keyDbQIdFieldName} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
+        on {_keyDbQTableName}.{_keyDbQIdFieldName} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()} order by {"FR".DoubleQuot()}.{"Id".DoubleQuot()} ASC;
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -204,7 +214,7 @@ create function {_keyDbQChunkProcedureNameFullTree}
 begin
     return query select {_keyDbQFullTreeView}.* from {_keyDbQFullTreeView} 
         inner join (select * from {_keyDbQFilterResultsTableName} where {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()} LIMIT {"par_Size".DoubleQuot()} OFFSET {"par_Offset".DoubleQuot()}) {"FR".DoubleQuot()}
-        on {_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()};
+        on {_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree} = {"FR".DoubleQuot()}.{"ResultId".DoubleQuot()}  order by {"FR".DoubleQuot()}.{"Id".DoubleQuot()} ASC;
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------

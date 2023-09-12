@@ -7,7 +7,7 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Acidmanic.Utilities" Version="1.0.16" />
+        <PackageReference Include="Acidmanic.Utilities" Version="1.0.17" />
         <PackageReference Include="CorePluralizer" Version="1.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.3" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -20,7 +20,7 @@
         <!-- NuGet -->
         <Id>Meadow.Framework</Id>
         <PackageId>Meadow.Framework</PackageId>
-        <Version>1.2.4-b25</Version>
+        <Version>1.2.4-b26</Version>
         <Authors>Mani Moayedi</Authors>
         <Company>Acidmanic</Company>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
