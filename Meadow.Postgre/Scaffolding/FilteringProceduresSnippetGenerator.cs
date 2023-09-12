@@ -150,7 +150,6 @@ begin
             inner join {_keyDbQSearchIndexTableName} on {_keyDbQTableName}.{_keyDbQIdFieldName}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
             where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},')',orderClause,';');
     end if;
-    insert into {"SqGen".DoubleQuot()} ({"Sql".DoubleQuot()}) values (sql);
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
@@ -169,17 +168,19 @@ create function {_keyDbQFilterProcedureNameFullTree}
     returns setof {_keyDbQFilterResultsTableName} as $$
     declare sql text = '';
     declare orderClause text = '';
+    declare groupByExpression text = '';
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
     end if;
     if {"par_OrderExpression".DoubleQuot()} is not null and not {"par_OrderExpression".DoubleQuot()} = '' then
-        orderClause = CONCAT(' order by ' , {"par_OrderExpression".DoubleQuot()},' ');
+        groupByExpression =  REGEXP_REPLACE(REGEXP_REPLACE({"par_OrderExpression".DoubleQuot()},'\s+asc','','i'),'\s+desc','','i');
+        orderClause = CONCAT(' group by {_keyDbQIdFieldNameFullTree}, ', groupByExpression , ' order by ' , {"par_OrderExpression".DoubleQuot()},' ');
     end if;
     if {"par_SearchExpression".DoubleQuot()} is null or {"par_SearchExpression".DoubleQuot()} ='' then
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
-            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
-            where ',{"par_FilterExpression".DoubleQuot()},orderClause,';');
+            select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' 
+            from {_keyDbQFullTreeView} where ',{"par_FilterExpression".DoubleQuot()},orderClause,';');
     else
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
             select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQFullTreeView}
