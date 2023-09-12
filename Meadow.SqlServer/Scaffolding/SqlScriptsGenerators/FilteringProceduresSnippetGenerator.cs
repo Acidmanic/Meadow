@@ -86,6 +86,10 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
+create table SqGen(Sql nvarchar(1600));
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyIndexEntityProcedureName}(@ResultId {_keyIdFieldType},@IndexCorpus varchar(1024)) AS
     
     IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId)
@@ -109,22 +113,28 @@ GO
 CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024),
-                                                  @SearchExpression NVARCHAR(1024)) AS
+                                                  @SearchExpression NVARCHAR(1024),
+                                                  @OrderExpression NVARCHAR(1024)) AS
     IF (SELECT Count(Id) from {_keyFilterResultsTable} where {_keyFilterResultsTable}.SearchId=@SearchId) = 0
     BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600);
+        declare @orderClause nvarchar(128);
+        SET @orderClause = '';
+
+        IF NOT ISNULL(@OrderExpression,'')=''
+            SET @orderClause = CONCAT(' ORDER BY ', @OrderExpression);
 
         IF ISNULL(@SearchExpression,'') = ''
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
-            'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression);
+            'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression,@orderClause);
         ELSE
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
             'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,
             ' FROM {_keyTableName} INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId  WHERE (' ,
-             @FilterExpression, ') AND (', @SearchExpression,')');
+             @FilterExpression, ') AND (', @SearchExpression,')',@orderClause);
 
         execute sp_executesql @query
     END  
@@ -134,23 +144,34 @@ GO
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32),
                                                   @ExpirationTimeStamp BIGINT,
                                                   @FilterExpression NVARCHAR(1024),
-                                                  @SearchExpression NVARCHAR(1024)) AS
+                                                  @SearchExpression NVARCHAR(1024),
+                                                  @OrderExpression NVARCHAR(1024)) AS
     IF (SELECT Count(Id) from {_keyFilterResultsTable} where {_keyFilterResultsTable}.SearchId=@SearchId) = 0
     BEGIN
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600);
+        declare @orderClause nvarchar(1024);
+        declare @groupExpression nvarchar(512);
+        SET @orderClause = '';
+        SET @groupExpression = '';
 
+        IF NOT ISNULL(@OrderExpression,'')=''
+        BEGIN
+            SET @groupExpression = REPLACE(@OrderExpression,' asc','');
+            SET @groupExpression = REPLACE(@groupExpression,' desc','');
+            SET @orderClause = CONCAT(' GROUP BY {_keyFullTreeViewName}.{_keyIdFieldNameFullTree},', @groupExpression ,' ORDER BY ', @OrderExpression);
+        END
         IF ISNULL(@SearchExpression,'') = ''
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
-            'SELECT ''',@SearchId,''',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,' FROM {_keyFullTreeViewName} WHERE ' , @FilterExpression);
+            'SELECT ''',@SearchId,''',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,' FROM {_keyFullTreeViewName} WHERE ' , @FilterExpression,@orderClause);
         ELSE
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
             'SELECT ''',@SearchId,''',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,
             ' FROM {_keyFullTreeViewName} INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId  WHERE (' ,
-             @FilterExpression, ') AND (', @SearchExpression,')');
-        
+             @FilterExpression, ') AND (', @SearchExpression,')',@orderClause);
+        insert into SqGen (Sql) values (@query);
         execute sp_executesql @query
     END  
     SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
@@ -159,18 +180,14 @@ GO
 CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
                                     @Size BIGINT,
                                     @SearchId nvarchar(32)) AS
-    ;WITH Results_CTE AS
-              (
-                  SELECT
-                      {_keyTableName}.*,
-                      ROW_NUMBER() OVER (ORDER BY {_keyTableName}.{_keyIdFieldName}) AS RowNum
-                  FROM {_keyTableName} INNER JOIN {_keyFilterResultsTable} on {_keyTableName}.{_keyIdFieldName} = {_keyFilterResultsTable}.ResultId
-                  WHERE {_keyFilterResultsTable}.SearchId=@SearchId
-              )
-     SELECT {_keyEntityParameters}
-     FROM Results_CTE
-     WHERE RowNum >= (@Offset+1)
-       AND RowNum < (@Offset+1) + @Size
+    SELECT {_keyTableName}.* FROM {_keyTableName} 
+    INNER JOIN (SELECT * FROM {_keyFilterResultsTable} 
+                               WHERE {_keyFilterResultsTable}.SearchId=@SearchId
+                               ORDER BY {_keyFilterResultsTable}.Id ASC
+                               OFFSET @Offset ROWS 
+                               FETCH FIRST @Size ROWS ONLY) Fr 
+        ON  {_keyTableName}.{_keyIdFieldName} = Fr.ResultId 
+        order by Fr.Id 
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset BIGINT,
@@ -182,7 +199,8 @@ CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset BIGINT,
                                ORDER BY {_keyFilterResultsTable}.Id ASC
                                OFFSET @Offset ROWS 
                                FETCH FIRST @Size ROWS ONLY) Fr 
-        ON  {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = Fr.ResultId 
+        ON  {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = Fr.ResultId
+        order by Fr.Id 
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
