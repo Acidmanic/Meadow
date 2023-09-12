@@ -13,7 +13,7 @@
         <!-- NuGet -->
         <Id>Meadow.MySql</Id>
         <PackageId>Meadow.MySql</PackageId>
-        <Version>1.2.1-b23</Version>
+        <Version>1.2.1-b24</Version>
         <Authors>Mani Moayedi</Authors>
         <Company>Acidmanic</Company>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
