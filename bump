@@ -7,6 +7,12 @@ function bump_inc(){
     #nugcast
 }
 
+PROJECTS=$(cat .publishes) 
 
 
+
+for PROJECT in $PROJECTS
+do
+    (cd $PROJECT && bump_inc)
+done
 
