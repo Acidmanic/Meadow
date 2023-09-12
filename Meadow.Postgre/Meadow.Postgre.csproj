@@ -17,7 +17,7 @@
     <!-- NuGet -->
     <Id>Meadow.Postgre</Id>
     <PackageId>Meadow.Postgre</PackageId>
-    <Version>1.2.0-b20</Version>
+    <Version>1.2.0-b21</Version>
     <Authors>Mani Moayedi</Authors>
     <Company>Acidmanic</Company>
     <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
