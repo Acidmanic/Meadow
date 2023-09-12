@@ -3,7 +3,6 @@ using Acidmanic.Utilities.DataTypes;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
-using Meadow.Contracts.Models;
 using Meadow.Extensions;
 using Meadow.Requests;
 using Meadow.Test.Functional.GenericRequests.Models;

@@ -1,8 +1,8 @@
 using System;
 using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
-using Meadow.Contracts.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 

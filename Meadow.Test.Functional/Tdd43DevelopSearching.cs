@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Filtering.Utilities;
-using Meadow.Contracts.Models;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Search.Services;
@@ -206,20 +206,10 @@ namespace Meadow.Test.Functional
 
             var orderByAge = new OrderTerm[] { new OrderTerm { Key = "Age" } };
 
-            var orderSurnameAscAgeDesc = new OrderTerm[]
-            {
-                new OrderTerm
-                {
-                    Key = "Surname",
-                    Sort = OrderSort.Ascending
-                },
-                new OrderTerm
-                {
-                    Key = "Age",
-                    Sort = OrderSort.Descending
-                }
-            };
-
+            var orderSurnameAscAgeDesc = new OrderSetBuilder<Person>()
+                .OrderAscendingBy(p => p.Surname)
+                .OrderDescendingBy(p => p.Age).Build();
+            
             result = Search(false, new FilterQuery(), null, orderByAge);
 
             if (result.Count != Persons.Length)
@@ -266,19 +256,11 @@ namespace Meadow.Test.Functional
                 }
             }
 
-            var orderSurnameAscIncomeDesc = new OrderTerm[]
-            {
-                new OrderTerm
-                {
-                    Key = "Surname",
-                    Sort = OrderSort.Ascending
-                },
-                new OrderTerm
-                {
-                    Key = "Job.IncomeInRials",
-                    Sort = OrderSort.Descending
-                }
-            };
+            var orderSurnameAscIncomeDesc = new OrderSetBuilder<Person>()
+                .OrderAscendingBy(p => p.Surname)
+                .OrderDescendingBy(p => p.Job.IncomeInRials)
+                .Build();
+
 
             result = Search(true, new FilterQuery(), null, orderSurnameAscIncomeDesc);
 
@@ -296,8 +278,6 @@ namespace Meadow.Test.Functional
                     throw new Exception("Invalid IncomeInRials - invalid order");
                 }
             }
-
-
             logger.LogInformation("[PASS] Ordering OK");
         }
     }
