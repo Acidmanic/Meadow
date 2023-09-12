@@ -122,8 +122,6 @@ $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-create table {"SqGen".DoubleQuot()}({"Id".DoubleQuot()} SERIAL,{"Sql".DoubleQuot()} text,PRIMARY KEY ({"Id".DoubleQuot()}));
--- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQFilterProcedureName} 
                 ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
@@ -187,7 +185,6 @@ begin
             inner join {_keyDbQSearchIndexTableName} on {_keyDbQFullTreeView}.{_keyDbQIdFieldNameFullTree}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
             where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},')',orderClause,';');
     end if;
-    insert into {"SqGen".DoubleQuot()} ({"Sql".DoubleQuot()}) values (sql);
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;

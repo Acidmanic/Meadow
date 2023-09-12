@@ -86,10 +86,6 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-create table SqGen(Sql nvarchar(1600));
--- ---------------------------------------------------------------------------------------------------------------------
--- SPLIT
--- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyIndexEntityProcedureName}(@ResultId {_keyIdFieldType},@IndexCorpus varchar(1024)) AS
     
     IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId)
@@ -171,7 +167,6 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32
             'SELECT ''',@SearchId,''',{_keyFullTreeViewName}.{_keyIdFieldNameFullTree}, ',@ExpirationTimeStamp,
             ' FROM {_keyFullTreeViewName} INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId  WHERE (' ,
              @FilterExpression, ') AND (', @SearchExpression,')',@orderClause);
-        insert into SqGen (Sql) values (@query);
         execute sp_executesql @query
     END  
     SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
