@@ -10,7 +10,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UsePostgre();
+            UseSqLite();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -33,6 +33,15 @@ namespace Meadow.Test.Functional
 
             var fullTreePersonRead = engine
                 .PerformRequest(new ReadByIdRequest<Person, long>(inserted.Id), true)
+                .FromStorage.FirstOrDefault();
+
+            if (fullTreePersonRead == null)
+            {
+                throw new Exception("Problem Reading FullTree");
+            }
+            
+            fullTreePersonRead = engine
+                .PerformRequest(new ReadByIdRequest<Person, long>(2), true)
                 .FromStorage.FirstOrDefault();
 
             if (fullTreePersonRead == null)
