@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd44FullTreeReadingWithNullLeaves().Main();
+            new Tdd45SaveWithoutAutoValuedId().Main();
         }
     }
 }
