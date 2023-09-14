@@ -16,9 +16,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNoneIdParametersSet = GenerateKey();
-        private readonly string _keyNonIdColumns = GenerateKey();
+        private readonly string _keyInsertColumns = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
-        private readonly string _keyNoneIdParameterValues = GenerateKey();
+        private readonly string _keyInsertParameterValues = GenerateKey();
 
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -33,9 +33,17 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             replacementList.Add(_keyNoneIdParametersSet,
                 ParameterNameValueSetJoint(ProcessedType.NoneIdParameters, ",", "@"));
 
-            replacementList.Add(_keyNonIdColumns,
-                string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name)));
 
+            var insertParameters = (ProcessedType.HasId && ProcessedType.IdField.IsAutoValued)
+                ? ProcessedType.NoneIdParameters
+                : ProcessedType.Parameters;
+            
+            replacementList.Add(_keyInsertColumns,
+                string.Join(',', insertParameters.Select(p => p.Name)));
+
+            replacementList.Add(_keyInsertParameterValues,
+                string.Join(',', insertParameters.Select(p => "@" + p.Name)));
+            
             var whereClause = ParameterNameValueSetJoint(ProcessedType.NoneIdUniqueParameters, " AND ", "@");
 
             if (ProcessedType.NoneIdUniqueParameters.Count == 0)
@@ -45,8 +53,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyWhereClause, whereClause);
 
-            replacementList.Add(_keyNoneIdParameterValues,
-                string.Join(',', ProcessedType.NoneIdParameters.Select(p => "@" + p.Name)));
+            
         }
 
         private string GetProcedureName()
@@ -57,7 +64,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         protected override string Template => $@"
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
     UPDATE {_keyTableName}  SET {_keyNoneIdParametersSet} WHERE {_keyWhereClause};
-    INSERT INTO {_keyTableName} ({_keyNonIdColumns}) SELECT {_keyNoneIdParameterValues}
+    INSERT INTO {_keyTableName} ({_keyInsertColumns}) SELECT {_keyInsertParameterValues}
         WHERE NOT EXISTS(SELECT * FROM {_keyTableName} WHERE {_keyWhereClause});
     SELECT * FROM {_keyTableName} WHERE {_keyWhereClause} OR ROWID = LAST_INSERT_ROWID() LIMIT 1;
 GO
