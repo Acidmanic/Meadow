@@ -1,10 +1,16 @@
 
 
 
+TAGS="";
+NL=$(echo -e '\n')
+
 function bump_inc(){
     
     release auto inc betainc SourceRoot ../ VersionStandard  beta-semantic
-    nugcast
+    TAG=$(git for-each-ref refs/tags --sort=-taggerdate --format "tag:%(refname:strip=2), %(subject)" --count=1)
+    TAGS=$TAGS$NL$TAG
+    git nugcast
+    
 }
 
 PROJECTS=$(cat .publishes) 
@@ -16,3 +22,5 @@ do
     (cd $PROJECT && bump_inc)
 done
 
+
+echo $TAGS

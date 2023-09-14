@@ -65,8 +65,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
-            MeadowConfigurationAssemblies.Add(typeof(MySqlDataAccessCore).Assembly);
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMySqlMeadowAssembly());
 
             ScriptsDirectory = "MySqlScripts";
 
@@ -83,8 +83,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
-            MeadowConfigurationAssemblies.Add(typeof(SqlServerDataAccessCore).Assembly);
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetSqlServerMeadowAssembly());
 
             ScriptsDirectory = "SqlServerScripts";
 
@@ -101,8 +101,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
-            MeadowConfigurationAssemblies.Add(typeof(PostgreDataAccessCore).Assembly);
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetPostgreMeadowAssembly());
 
             ScriptsDirectory = "PostgreScripts";
 
@@ -119,8 +119,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(typeof(IMacro).Assembly);
-            MeadowConfigurationAssemblies.Add(typeof(SqLiteDataAccessCore).Assembly);
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetSqLiteMeadowAssembly());
 
             ScriptsDirectory = "SqLiteScripts";
 
