@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Postgre.Scaffolding
@@ -57,8 +58,11 @@ namespace Meadow.Postgre.Scaffolding
 
             replacementList.Add(_keyNameValuesSet, nameValuesSet);
 
-            var columns = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name.DoubleQuot()));
-            var values = string.Join(',', ProcessedType.NoneIdParameters.Select(p => ("par_" + p.Name).DoubleQuot()));
+
+            var insertParameters = ProcessedType.GetInsertParameters();
+            
+            var columns = string.Join(',', insertParameters.Select(p => p.Name.DoubleQuot()));
+            var values = string.Join(',', insertParameters.Select(p => ("par_" + p.Name).DoubleQuot()));
 
             replacementList.Add(_keyColumns, columns);
             replacementList.Add(_keyValues, values);
