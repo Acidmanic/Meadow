@@ -87,9 +87,27 @@ namespace Meadow.Test.Functional
             
             logger.LogInformation("[PASS] Save Existing object Pass");
             
+            
+            category.Id = "mashghuled";
+
+            var insertedCategory = engine.PerformRequest(new InsertRequest<Category>(category))
+                .FromStorage.FirstOrDefault();
+
+            if (insertedCategory == null)
+            {
+                throw new Exception("Insertion problem");
+            }
+
+            var insertedPerson = engine.PerformRequest(new InsertRequest<Person>(mashti))
+                .FromStorage.FirstOrDefault();
+
+
+            if (insertedPerson == null)
+            {
+                throw new Exception("Insertion problem");
+            }
+            
             logger.LogInformation("[PASS] Save procedure for {DbName} Is OK",DatabaseName);
-            
-            
         }
     }
 }

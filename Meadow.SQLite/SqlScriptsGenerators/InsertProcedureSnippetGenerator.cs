@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
@@ -33,16 +34,18 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
+            var insertParameters = ProcessedType.GetInsertParameters();
+            
             replacementList.Add(_keyProcedureName, GetProcedureName());
 
-            var parameters = ParameterNameTypeJoint(ProcessedType.NoneIdParameters, ",", "@");
+            var parameters = ParameterNameTypeJoint(insertParameters, ",", "@");
 
             replacementList.Add(_keyParameters, parameters);
 
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
-            var columns = string.Join(',', ProcessedType.NoneIdParameters.Select(p => p.Name));
-            var values = string.Join(',', ProcessedType.NoneIdParameters.Select(p => "@" + p.Name));
+            var columns = string.Join(',', insertParameters.Select(p => p.Name));
+            var values = string.Join(',', insertParameters.Select(p => "@" + p.Name));
 
             replacementList.Add(_keyColumns, columns);
             replacementList.Add(_keyValues, values);

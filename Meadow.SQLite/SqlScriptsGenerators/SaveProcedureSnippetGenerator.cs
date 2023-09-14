@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
@@ -32,11 +33,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyNoneIdParametersSet,
                 ParameterNameValueSetJoint(ProcessedType.NoneIdParameters, ",", "@"));
-
-
-            var insertParameters = (ProcessedType.HasId && ProcessedType.IdField.IsAutoValued)
-                ? ProcessedType.NoneIdParameters
-                : ProcessedType.Parameters;
+            
+            var insertParameters = ProcessedType.GetInsertParameters();
             
             replacementList.Add(_keyInsertColumns,
                 string.Join(',', insertParameters.Select(p => p.Name)));
