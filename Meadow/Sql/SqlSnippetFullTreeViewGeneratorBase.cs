@@ -131,7 +131,7 @@ namespace Meadow.Sql
             var pointedAtIdField = TypeIdentity.FindIdentityLeaf(nodePointedAt.Type).Name;
 
             return
-                $"INNER JOIN {q(joinTableName)} ON {q(pointerTableName)}.{q(pointerIdFieldName)} =" +
+                $"LEFT JOIN {q(joinTableName)} ON {q(pointerTableName)}.{q(pointerIdFieldName)} =" +
                 $" {q(pointedAtTableName)}.{q(pointedAtIdField)}";
         }
 
