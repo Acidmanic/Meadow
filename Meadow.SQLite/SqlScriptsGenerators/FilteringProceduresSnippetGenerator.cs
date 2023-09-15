@@ -116,6 +116,7 @@ AS
     INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression) 
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
+    GROUP BY {_keyFullTreeView}.{_keyIdFieldNameFullTree}
     ORDER BY &@OrderExpression;
 
     SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
@@ -133,9 +134,13 @@ CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(@Offset INTEGER,
                                       @Size INTEGER,
                                       @SearchId TEXT)
 AS
-    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} INNER JOIN {_keyFilterResultsTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree} = {_keyFilterResultsTableName}.ResultId
-    WHERE {_keyFilterResultsTableName}.SearchId=@SearchId ORDER BY {_keyFilterResultsTableName}.Id LIMIT @Offset,@Size;  
+    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} 
+        INNER JOIN (SELECT * FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId 
+        ORDER BY {_keyFilterResultsTableName}.Id LIMIT @Offset,@Size) FR
+    ON {_keyFullTreeView}.{_keyIdFieldNameFullTree} = FR.ResultId ;  
 GO
+
+
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
     }

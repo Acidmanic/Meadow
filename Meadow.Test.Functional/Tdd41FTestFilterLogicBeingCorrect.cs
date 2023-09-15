@@ -6,6 +6,7 @@ using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Crypto.Operators;
 
 namespace Meadow.Test.Functional
 {
@@ -13,23 +14,28 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseMySql();
+            UseSqLite();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
+            
+            Index(engine,Persons);
+            
             var filter =  new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("50").Build();
+           
+            var filterRequest = new PerformSearchIfNeededRequest<Person,long>(filter);
 
-            var search = new PerformSearchIfNeededRequest<Person,long>(filter);
+            var filterResponse = engine.PerformRequest(filterRequest);
+            
+            var filterResult = filterResponse.FromStorage;
 
-            var searchResult = engine.PerformRequest(search).FromStorage;
-
-            if (searchResult.Count != 2)
+            if (filterResult.Count != 2)
             {
-                throw new Exception($"Search result must be 2 items but it was {searchResult.Count} items");
+                throw new Exception($"Search result must be 2 items but it was {filterResult.Count} items");
             }
 
-            var searchId = searchResult[0].SearchId;
+            var searchId = filterResult[0].SearchId;
 
             var searchResultPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId)).FromStorage;
 
@@ -66,14 +72,14 @@ namespace Meadow.Test.Functional
             /*  Test for failing where clause in readChunk */
             filter =  new FilterQueryBuilder<Person>().Where(p => p.Age).IsSmallerThan("50").Build();
 
-            searchResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person,long>(filter)).FromStorage;
+            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person,long>(filter)).FromStorage;
 
-            if (searchResult.Count != 3)
+            if (filterResult.Count != 3)
             {
-                throw new Exception($"Search result must be 3 items but it was {searchResult.Count} items");
+                throw new Exception($"Search result must be 3 items but it was {filterResult.Count} items");
             }
 
-            searchId = searchResult[0].SearchId;
+            searchId = filterResult[0].SearchId;
 
             searchResultPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId)).FromStorage;
 
@@ -152,8 +158,6 @@ namespace Meadow.Test.Functional
                 Log(logger,person);
             }
             
-            
-
             var badFilter =  new FilterQueryBuilder<Person>().Where(p => p.Job.Title)
                 .IsEqualTo("the-title-that-does-not-exist").Build();
             
@@ -177,22 +181,51 @@ namespace Meadow.Test.Functional
                 throw new Exception("null search id should not fetch any items");
             }
 
+            /*  Pagination Test For plain object    */
+            
+            filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("30").Build();
+            
+            var filterResults = engine
+                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
+                .FromStorage;
+
+            if (filterResults == null || filterResults.Count != 4)
+            {
+                throw new Exception("Invalid Filtering for full-tree, probably distinction issue in filter");
+            }
+            
+            searchId = filterResults.First().SearchId;
+
+            var moayedies = engine
+                .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3))
+                .FromStorage;
+
+            if (moayedies == null || moayedies.Count != 3)
+            {
+                throw new Exception("Invalid FullTree ReadChunk");
+            }
+            
+            CompareEntities(moayedies[0],Persons[0]);
+            CompareEntities(moayedies[1],Persons[1]);
+            CompareEntities(moayedies[2],Persons[2]);
+            
+            
             /*  Pagination Test For FullTree    */
 
             filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("30").Build();
 
-            var filterResults = engine
+            filterResults = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter),true)
                 .FromStorage;
 
             if (filterResults == null || filterResults.Count != 4)
             {
-                throw new Exception("Invalid Filtering for full-tree");
+                throw new Exception("Invalid Filtering for full-tree, probably distinction issue in filter");
             }
 
             searchId = filterResults.First().SearchId;
 
-            var moayedies = engine
+            moayedies = engine
                 .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3), true)
                 .FromStorage;
 
