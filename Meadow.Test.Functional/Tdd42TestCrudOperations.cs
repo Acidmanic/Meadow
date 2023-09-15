@@ -15,6 +15,9 @@ namespace Meadow.Test.Functional
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
+            // This method has been added after Tdd43, because after development of search, other filtering 
+            // features also might need to index
+            Index(engine,Persons);
             
             var allPersons = engine.PerformRequest(new ReadAllRequest<Person>()).FromStorage;
             

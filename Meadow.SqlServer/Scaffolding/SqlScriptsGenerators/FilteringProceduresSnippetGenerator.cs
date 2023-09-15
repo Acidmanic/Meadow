@@ -161,6 +161,9 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32
             SET @groupExpression = REPLACE(@groupExpression,' desc','');
             SET @orderClause = CONCAT(' GROUP BY {_keyFullTreeViewName}.{_keyIdFieldNameFullTree},', @groupExpression ,' ORDER BY ', @OrderExpression);
         END
+        ELSE
+            SET @orderClause = CONCAT(' GROUP BY {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}',' ORDER BY {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}');
+        
         IF ISNULL(@SearchExpression,'') = ''
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
