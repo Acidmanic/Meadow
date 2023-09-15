@@ -11,6 +11,7 @@ using Meadow.Postgre;
 using Meadow.Scaffolding.Macros;
 using Meadow.SQLite;
 using Meadow.SqlServer;
+using Meadow.Test.Functional.Models;
 using Meadow.Utility;
 using Microsoft.Extensions.Logging;
 
@@ -142,6 +143,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
                 MacroPolicy = MacroPolicies.UpdateScripts,
                 MacroContainingAssemblies = new List<Assembly>(MeadowConfigurationAssemblies)
             };
+            
         }
 
         protected MeadowConfiguration Configuration { get; private set; }

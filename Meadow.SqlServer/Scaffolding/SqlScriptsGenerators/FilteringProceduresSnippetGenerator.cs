@@ -45,6 +45,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIndexEntityProcedureName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
         private readonly string _keyIdFieldType = GenerateKey();
+        
+        private readonly string _keyCorpusFieldType = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -82,11 +84,13 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             replacementList.Add(_keyIndexEntityProcedureName,ProcessedType.NameConvention.IndexEntityProcedureName);
             replacementList.Add(_keySearchIndexTableName,ProcessedType.NameConvention.SearchIndexTableName);
             replacementList.Add(_keyIdFieldType,ProcessedType.IdParameter.Type);
+            
+            replacementList.Add(_keyCorpusFieldType,ProcessedType.IndexCorpusParameter.Type);
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyIndexEntityProcedureName}(@ResultId {_keyIdFieldType},@IndexCorpus varchar(1024)) AS
+CREATE PROCEDURE {_keyIndexEntityProcedureName}(@ResultId {_keyIdFieldType},@IndexCorpus {_keyCorpusFieldType}) AS
     
     IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId)
         BEGIN

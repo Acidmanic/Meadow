@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.DataTypeMapping;
+using Meadow.DataTypeMapping.Attributes;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Attributes;
@@ -13,6 +17,9 @@ namespace Meadow.Utility;
 
 public static class EntityTypeUtilities
 {
+
+    public static readonly int IndexCorpusSize = 4000;
+
     public static void WalkThroughLeaves<TEntity>(bool fullTree, Action<AccessNode> leafAction)
     {
         WalkThroughLeaves(typeof(TEntity), fullTree, leafAction);
@@ -50,13 +57,57 @@ public static class EntityTypeUtilities
         }
     }
 
+    private static AccessNode SearchIndexCorpusLeaf()
+    {
+        var rootOnlyNode = ObjectStructure.CreateStructure(typeof(SearchIndex<object>), false);
+
+        return rootOnlyNode.GetChildren().First(c => c.Name == nameof(SearchIndex<object>.IndexCorpus));
+    }
+
     public static ProcessedType Process<TEntity>(MeadowConfiguration configuration, IDbTypeNameMapper typeNameMapper)
     {
         return Process(typeof(TEntity), configuration, typeNameMapper);
     }
 
+    public static string GetTypeName(
+        AccessNode leaf, 
+        MeadowConfiguration configuration,
+        IDbTypeNameMapper typeNameMapper)
+    {
+        var searchIndexCorpusAddress = MemberOwnerUtilities.GetAddress<SearchIndex<object>, string>
+            (s => s.IndexCorpus);
+
+        var searchIndexCorpusColumnSize = 4000;
+
+        var sizesByAddress = new Dictionary<string, int>();
+        
+        foreach (var item in configuration.ExternallyForcedColumnSizesByNodeAddress)
+        {
+            sizesByAddress.Add(item.Key.ToLower(),item.Value);
+        }
+        
+        sizesByAddress.Add(searchIndexCorpusAddress.ToLower(),searchIndexCorpusColumnSize);
+
+        var leafKey = leaf.GetFullName().ToLower();
+
+        var propertyAttributes = new List<Attribute>(leaf.PropertyAttributes);
+        
+        if (sizesByAddress.ContainsKey(leafKey))
+        {
+            var leafColumnSize = sizesByAddress[leafKey];
+            
+            propertyAttributes.Add(new ForceColumnSizeAttribute(leafColumnSize));
+        }
+
+        var typeName = typeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginalType(), propertyAttributes);
+
+        return typeName;
+
+    }
+
     public static ProcessedType Process(Type type, MeadowConfiguration configuration, IDbTypeNameMapper typeNameMapper)
     {
+        
         var process = new ProcessedType
         {
             NameConvention = configuration.GetNameConvention(type),
@@ -72,6 +123,14 @@ public static class EntityTypeUtilities
         process.NoneIdParametersFullTree = new List<Parameter>();
         process.NoneIdUniqueParametersFullTree = new List<Parameter>();
 
+        var indexCorpusLeaf = SearchIndexCorpusLeaf();
+        
+        process.IndexCorpusParameter = new Parameter
+        {
+            Name = indexCorpusLeaf.Name,
+            Type = GetTypeName(indexCorpusLeaf, configuration, typeNameMapper)
+        };
+        
         var fullTreeMap = new FullTreeMap(type,
             configuration.DatabaseFieldNameDelimiter,
             configuration.TableNameProvider);
@@ -81,8 +140,7 @@ public static class EntityTypeUtilities
             var parameter = new Parameter
             {
                 Name = leaf.Name,
-                Type = typeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginalType(),
-                    leaf.PropertyAttributes)
+                Type = GetTypeName(leaf,configuration,typeNameMapper)
             };
             var parameterFullTree = new Parameter
             {

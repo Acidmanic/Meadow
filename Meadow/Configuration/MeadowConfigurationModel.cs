@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Meadow.Configuration;
 
 public class MeadowConfigurationModel
@@ -11,4 +13,7 @@ public class MeadowConfigurationModel
     public MacroPolicies MacroPolicy { get; set; } = MacroPolicies.Ignore;
 
     public bool UsesLegacyConditionalStandardRelationalMapping { get; set; } = false;
+
+    public Dictionary<string, int> ExternallyForcedColumnSizesByNodeAddress { get; set; } =
+        new Dictionary<string, int>();
 }
