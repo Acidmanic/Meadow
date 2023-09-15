@@ -17,7 +17,7 @@ NL=$(echo '\n');
 for PROJECT in $PROJECTS
 do
     (cd $PROJECT && bump_inc)
-    TAG=(git for-each-ref refs/tags --sort=-taggerdate --format "tag:%(refname:strip=2), %(subject)" --count=1);
+    TAG=$(git for-each-ref refs/tags --sort=-taggerdate --format "tag:%(refname:strip=2), %(subject)" --count=1);
     TAGS="$TAGS $NL $PROJECT: $TAG"
 done
 
