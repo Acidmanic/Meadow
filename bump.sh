@@ -10,13 +10,18 @@ function bump_inc(){
 
 PROJECTS=$(cat .publishes) 
 
-COUNT=0;
+TAGS="";
+TAG="";
+NL=$(echo '\n');
 
 for PROJECT in $PROJECTS
 do
     (cd $PROJECT && bump_inc)
-    COUNT=$((COUNT+1));
+    TAG=(git for-each-ref refs/tags --sort=-taggerdate --format "tag:%(refname:strip=2), %(subject)" --count=1);
+    TAGS="$TAGS $NL $PROJECT: $TAG"
 done
 
 
-git for-each-ref refs/tags --sort=-taggerdate --format "tag:%(refname:strip=2), %(subject)" --count=$COUNT
+echo $TAGS
+
+
