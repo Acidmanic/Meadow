@@ -204,7 +204,17 @@ namespace Meadow.Test.Functional
             CompareEntities(moayedies[0],Persons[0]);
             CompareEntities(moayedies[1],Persons[1]);
             CompareEntities(moayedies[2],Persons[2]);
-            CompareEntities(moayedies[3],Persons[3]);
+            
+            moayedies = engine
+                .PerformRequest(new ReadChunkRequest<Person>(searchId, 3, 3), true)
+                .FromStorage;
+            
+            if (moayedies == null || moayedies.Count != 1)
+            {
+                throw new Exception("Invalid FullTree ReadChunk");
+            }
+            
+            CompareEntities(moayedies[0],Persons[3]);
             
             logger.LogInformation("[PASS] Full tree filtering is working");
         }

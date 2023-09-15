@@ -184,8 +184,10 @@ CREATE PROCEDURE {_keyReadChunkProcedureNameFullTree}(IN Offset bigint(16),
                                       IN Size bigint(16),
                                       IN SearchId nvarchar(32))
 BEGIN
-    select {_keyFullTreeViewName}.* from {_keyFullTreeViewName} inner join {_keyFilterResultsTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = {_keyFilterResultsTableName}.ResultId
-    where {_keyFilterResultsTableName}.SearchId=SearchId order by {_keyFilterResultsTableName}.Id limit offset,size;  
+    select {_keyFullTreeViewName}.* from {_keyFullTreeViewName} 
+    inner join (select * from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=SearchId 
+                order by {_keyFilterResultsTableName}.Id limit offset,size) FR
+                on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree} = FR.ResultId;  
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
