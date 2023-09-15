@@ -41,4 +41,5 @@ public static class MeadowConfigurationRelatedInstantiationsExtensions
     {
         return new FullTreeMap<T>(configuration.DatabaseFieldNameDelimiter, configuration.TableNameProvider);
     }
+    
 }

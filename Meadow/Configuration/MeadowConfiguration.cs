@@ -9,5 +9,6 @@ namespace Meadow.Configuration
         public List<Assembly> MacroContainingAssemblies { get; set; } = new List<Assembly>();
 
         public IDataOwnerNameProvider TableNameProvider { get; set; } = new PluralDataOwnerNameProvider();
+        
     }
 }

@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd45SaveWithoutAutoValuedId().Main();
+            new Tdd43DevelopSearching().Main();
         }
     }
 }

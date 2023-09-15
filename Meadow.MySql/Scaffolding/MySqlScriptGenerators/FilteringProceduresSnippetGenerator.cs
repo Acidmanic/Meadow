@@ -1,7 +1,11 @@
 using System.Collections.Generic;
+using System.Linq;
+using Acidmanic.Utilities.Filtering.Models;
+using Acidmanic.Utilities.Reflection;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Utility;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
@@ -40,6 +44,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyIdTypeName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
         
+        private readonly string _keyCorpusFieldType = GenerateKey();
+        
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
@@ -71,11 +77,16 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             
             replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
             replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
+            
+            replacementList.Add(_keyCorpusFieldType,ProcessedType.IndexCorpusParameter.Type);
+            
+            
+            
         }
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyIndexProcedureName}(IN ResultId {_keyIdTypeName},IN IndexCorpus varchar(1024))
+CREATE PROCEDURE {_keyIndexProcedureName}(IN ResultId {_keyIdTypeName},IN IndexCorpus {_keyCorpusFieldType})
 BEGIN
     IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=ResultId) THEN
         UPDATE {_keySearchIndexTableName} SET {_keySearchIndexTableName}.IndexCorpus=IndexCorpus WHERE {_keySearchIndexTableName}.ResultId=ResultId;
