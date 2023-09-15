@@ -7,12 +7,12 @@ namespace Meadow.Test.Functional.GenericRequests
 {
     public sealed class ReadChunkRequest<TStorage> : MeadowRequest<ChunkShell, TStorage> where TStorage : class, new()
     {
-        public ReadChunkRequest(string searchId) : base(true)
+        public ReadChunkRequest(string searchId,long offset =0,long size =100) : base(true)
         {
             ToStorage = new ChunkShell
             {
-                Offset = 0,
-                Size = 100,
+                Offset = offset,
+                Size = size,
                 SearchId = searchId
             };
         }

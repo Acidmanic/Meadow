@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd43DevelopSearching().Main();
+            new Tdd41FTestFilterLogicBeingCorrect().Main();
         }
     }
 }

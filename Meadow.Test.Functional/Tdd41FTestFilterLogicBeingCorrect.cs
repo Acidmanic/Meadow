@@ -13,7 +13,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UseMySql();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -176,6 +176,35 @@ namespace Meadow.Test.Functional
             {
                 throw new Exception("null search id should not fetch any items");
             }
+
+            /*  Pagination Test For FullTree    */
+
+            filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("30").Build();
+
+            var filterResults = engine
+                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter),true)
+                .FromStorage;
+
+            if (filterResults == null || filterResults.Count != 4)
+            {
+                throw new Exception("Invalid Filtering for full-tree");
+            }
+
+            searchId = filterResults.First().SearchId;
+
+            var moayedies = engine
+                .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3), true)
+                .FromStorage;
+
+            if (moayedies == null || moayedies.Count != 3)
+            {
+                throw new Exception("Invalid FullTree ReadChunk");
+            }
+            
+            CompareEntities(moayedies[0],Persons[0]);
+            CompareEntities(moayedies[1],Persons[1]);
+            CompareEntities(moayedies[2],Persons[2]);
+            CompareEntities(moayedies[3],Persons[3]);
             
             logger.LogInformation("[PASS] Full tree filtering is working");
         }

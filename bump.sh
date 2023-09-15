@@ -12,7 +12,7 @@ PROJECTS=$(cat .publishes)
 
 TAGS="";
 TAG="";
-NL=$(echo '\n');
+NL=$(echo -e '\n');
 
 for PROJECT in $PROJECTS
 do
