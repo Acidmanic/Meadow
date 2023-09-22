@@ -17,7 +17,12 @@ namespace Meadow.MySql.Comments
                 new Rule<char, UnCommentContext>
                 {
                     Applies = c => c!='*',
-                    Invoke = (c,cx ) => new InCodeState()
+                    Invoke = (c,cx ) =>
+                    {
+                        cx.Content.Append('/');
+                        cx.Content.Append(c);
+                        return new InCodeState();
+                    }
                 }
             };
         }
