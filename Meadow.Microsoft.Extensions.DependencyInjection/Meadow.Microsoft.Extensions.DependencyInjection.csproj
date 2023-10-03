@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+
+  <PropertyGroup>
+    <!-- NuGet -->
+    <Id>Meadow.Microsoft.Extensions.DependencyInjection</Id>
+    <PackageId>Meadow.Microsoft.Extensions.DependencyInjection</PackageId>
+    <Version>1.0.0-b01</Version>
+    <Authors>Mani Moayedi</Authors>
+    <Company>Acidmanic</Company>
+    <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
+    <Description>Meadow Microsoft Di Adapter</Description>
+    <Summary>Provides some extension methods to configure meadow easier</Summary>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <RepositoryUrl>https://github.com/Acidmanic/Meadow</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageProjectUrl>https://github.com/Acidmanic/Meadow</PackageProjectUrl>
+    <Title>MEADOW - Managed and Enhanced ADO Wrapper - MySql Adapter</Title>
+    <PackageReadmeFile>Readme.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../Graphics/MeadowIcon.png">
+      <Pack>true</Pack>
+      <PackagePath>Graphics/MeadowIcon.png</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="../LICENSE.txt">
+      <Pack>true</Pack>
+      <PackagePath>LICENSE.txt</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="../Readme.md">
+      <Pack>true</Pack>
+      <Link>Readme.md</Link>
+      <PackagePath>/</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
+    <PackageReference Include="Meadow.Framework" Version="1.2.4-b33" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4" />
+  </ItemGroup>
+  
+  
+</Project>
