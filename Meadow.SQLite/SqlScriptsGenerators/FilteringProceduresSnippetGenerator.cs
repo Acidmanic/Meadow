@@ -97,7 +97,7 @@ CREATE PROCEDURE {_keyFilterProcedureName}(@SearchId TEXT,
 AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName}
-    INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
+    LEFT JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression)
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     ORDER BY &@OrderExpression;
@@ -113,7 +113,7 @@ CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
 AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView}
-    INNER JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
+    LEFT JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression) 
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     GROUP BY {_keyFullTreeView}.{_keyIdFieldNameFullTree}
