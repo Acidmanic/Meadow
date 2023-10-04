@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.Requests;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Crypto.Operators;
 
@@ -14,7 +16,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseSqlServer();
+            UseSqLite();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
@@ -250,6 +252,48 @@ namespace Meadow.Test.Functional
             CompareEntities(moayedies[0],Persons[3]);
             
             logger.LogInformation("[PASS] Full tree filtering is working");
+            
+            
+            /* UnIndexed results must be found in non-search operations */
+
+            var unIndexedPerson = new Person
+            {
+                Age = 123,
+                Name = "Un Indexed",
+                Surname = "Persons",
+                JobId = 1
+            };
+
+            unIndexedPerson.Id = engine.PerformRequest(new InsertRequest<Person>(unIndexedPerson))
+                .FromStorage.First().Id;
+
+            var unIndexedPersonFilter = new FilterQueryBuilder<Person>()
+                .Where(p => p.Age).IsEqualTo("123")
+                .Build();
+
+            var unIndexedFilterResult = engine.PerformRequest
+                    (new PerformSearchIfNeededRequest<Person, long>(unIndexedPersonFilter, null, null, null))
+                .FromStorage;
+
+            if (unIndexedFilterResult.Count != 1)
+            {
+                throw new Exception("Invalid Filtering for UnIndexed Entity");
+            }
+
+            var unIndexedSearchId = unIndexedFilterResult.First().SearchId;
+
+            var unIndexedPersonRead = engine.PerformRequest
+                    (new ReadChunkRequest<Person>(unIndexedSearchId))
+                .FromStorage.FirstOrDefault();
+
+            if (unIndexedPersonRead == null)
+            {
+                throw new Exception("ReadChunk Issue for UnIndexed Entity");
+            }
+            
+            CompareEntities(unIndexedPerson,unIndexedPersonRead);
+            
+            logger.LogInformation("[PASS] UnIndexed Entity Filtering works Fine.");
         }
     }
 }

@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd46MeadowCreateFunctionArithmaticMinusIssue().Main();
+            new Tdd41FTestFilterLogicBeingCorrect().Main();
         }
     }
 }
