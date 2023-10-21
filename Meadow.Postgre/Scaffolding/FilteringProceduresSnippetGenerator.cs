@@ -135,6 +135,7 @@ create function {_keyDbQFilterProcedureName}
     returns setof {"FilterResponse".DoubleQuot()} as $$
     declare sql text = '';
     declare orderClause text = '';
+    declare resultCount bigint = 0;
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
@@ -155,7 +156,8 @@ begin
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select Count({"par_SearchId".DoubleQuot()}) as {"Count".DoubleQuot()}, {"par_SearchId".DoubleQuot()} as {"SearchId".DoubleQuot()} FROM {_keyDbQFilterResultsTableName} WHERE {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()};
+    select Count({"par_SearchId".DoubleQuot()}) into resultCount FROM {_keyDbQFilterResultsTableName} WHERE {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()};
+    return query select resultCount as {"Count".DoubleQuot()}, {"par_SearchId".DoubleQuot()} as {"SearchId".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -172,6 +174,7 @@ create function {_keyDbQFilterProcedureNameFullTree}
     declare orderClause text = '';
     declare groupByExpression text = '';
     declare groupByClause text = '';
+    declare resultCount bigint = 0;
 begin 
     if {"par_FilterExpression".DoubleQuot()} is null or {"par_FilterExpression".DoubleQuot()} ='' then
         {"par_FilterExpression".DoubleQuot()} = 'true';
@@ -197,7 +200,8 @@ begin
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select Count({"par_SearchId".DoubleQuot()}) as {"Count".DoubleQuot()}, {"par_SearchId".DoubleQuot()} as {"SearchId".DoubleQuot()} FROM {_keyDbQFilterResultsTableName} WHERE {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()};
+    select Count({"par_SearchId".DoubleQuot()}) into resultCount FROM {_keyDbQFilterResultsTableName} WHERE {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()};
+    return query select resultCount as {"Count".DoubleQuot()}, {"par_SearchId".DoubleQuot()} as {"SearchId".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
