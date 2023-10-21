@@ -102,7 +102,7 @@ AS
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     ORDER BY &@OrderExpression;
 
-    SELECT Count({_keyFilterResultsTableName}) 'Count', @SearchId 'SearchId' FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
+    SELECT Count(SearchId) 'Count', @SearchId 'SearchId' FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterProcedureNameFullTree}(@SearchId TEXT,
@@ -118,8 +118,8 @@ AS
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     GROUP BY {_keyFullTreeView}.{_keyIdFieldNameFullTree}
     ORDER BY &@OrderExpression;
-
-    SELECT Count({_keyFilterResultsTableName}) 'Count', @SearchId 'SearchId' FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
+    
+    SELECT Count(SearchId) 'Count', @SearchId 'SearchId' FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=@SearchId;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset INTEGER,
