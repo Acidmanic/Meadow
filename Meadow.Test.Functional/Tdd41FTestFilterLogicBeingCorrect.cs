@@ -1,15 +1,10 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
-using Meadow.Requests;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
-using Meadow.Test.Functional.Requests;
 using Microsoft.Extensions.Logging;
-using Org.BouncyCastle.Crypto.Operators;
 
 namespace Meadow.Test.Functional
 {
@@ -17,7 +12,7 @@ namespace Meadow.Test.Functional
     {
         protected override void SelectDatabase()
         {
-            UseMySql();
+            UseSqlServer();
         }
 
         protected override void Main(MeadowEngine engine, ILogger logger)
