@@ -122,13 +122,17 @@ $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
+create type {"FilterResponse".DoubleQuot()} AS ({"Count".DoubleQuot()} BIGINT, {"SearchId".DoubleQuot()} TEXT);
+-- ---------------------------------------------------------------------------------------------------------------------
+-- SPLIT
+-- ---------------------------------------------------------------------------------------------------------------------
 create function {_keyDbQFilterProcedureName} 
                 ({"par_SearchId".DoubleQuot()} TEXT,
                 {"par_ExpirationTimeStamp".DoubleQuot()} BIGINT,
                 {"par_FilterExpression".DoubleQuot()} TEXT,
                 {"par_SearchExpression".DoubleQuot()} TEXT, 
                 {"par_OrderExpression".DoubleQuot()} TEXT) 
-    returns setof {_keyDbQFilterResultsTableName} as $$
+    returns setof {"FilterResponse".DoubleQuot()} as $$
     declare sql text = '';
     declare orderClause text = '';
 begin 
@@ -151,7 +155,7 @@ begin
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select * from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()} order by {"Id".DoubleQuot()} ASC;
+    return query select Count({"par_SearchId".DoubleQuot()}) as {"Count".DoubleQuot()}, {"par_SearchId".DoubleQuot()} as {"SearchId".DoubleQuot()} FROM {_keyDbQFilterResultsTableName} WHERE {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -163,7 +167,7 @@ create function {_keyDbQFilterProcedureNameFullTree}
                 {"par_FilterExpression".DoubleQuot()} TEXT,
                 {"par_SearchExpression".DoubleQuot()} TEXT, 
                 {"par_OrderExpression".DoubleQuot()} TEXT)  
-    returns setof {_keyDbQFilterResultsTableName} as $$
+    returns setof {"FilterResponse".DoubleQuot()} as $$
     declare sql text = '';
     declare orderClause text = '';
     declare groupByExpression text = '';
@@ -193,7 +197,7 @@ begin
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 
     end if;
-    return query select * from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}  order by {"Id".DoubleQuot()} ASC;
+    return query select Count({"par_SearchId".DoubleQuot()}) as {"Count".DoubleQuot()}, {"par_SearchId".DoubleQuot()} as {"SearchId".DoubleQuot()} FROM {_keyDbQFilterResultsTableName} WHERE {_keyDbQFilterResultsTableName}.{"SearchId".DoubleQuot()}={"par_SearchId".DoubleQuot()};
 end;
 $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
