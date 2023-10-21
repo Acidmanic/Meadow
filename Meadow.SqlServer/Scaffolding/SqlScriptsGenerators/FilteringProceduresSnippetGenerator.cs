@@ -120,6 +120,7 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
         SET @FilterExpression = coalesce(nullif(@FilterExpression, ''), '1=1')
         declare @query nvarchar(1600);
         declare @orderClause nvarchar(128);
+        declare @resultCount bigint;
         SET @orderClause = '';
 
         IF NOT ISNULL(@OrderExpression,'')=''
@@ -138,7 +139,8 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
 
         execute sp_executesql @query
     END  
-    SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
+    SET @resultCount = (SELECT Count(SearchId) FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId);
+    SELECT @resultCount 'Count', @SearchId 'SearchId';
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32),
@@ -152,6 +154,7 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32
         declare @query nvarchar(1600);
         declare @orderClause nvarchar(1024);
         declare @groupExpression nvarchar(512);
+        declare @resultCount bigint;
         SET @orderClause = '';
         SET @groupExpression = '';
 
@@ -176,7 +179,8 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(@SearchId NVARCHAR(32
              @FilterExpression, ') AND (', @SearchExpression,')',@orderClause);
         execute sp_executesql @query
     END  
-    SELECT {_keyFilterResultsTable}.* FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId;
+    SET @resultCount = (SELECT Count(SearchId) FROM {_keyFilterResultsTable} WHERE {_keyFilterResultsTable}.SearchId=@SearchId);
+    SELECT @resultCount 'Count', @SearchId 'SearchId';
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(@Offset BIGINT,
