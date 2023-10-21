@@ -60,38 +60,37 @@ namespace Meadow.Sql
 
         public string TranslateSearchTerm(Type entityType, string[] searchTerms)
         {
-
             if (searchTerms == null || searchTerms.Length == 0)
             {
                 return EmptyConditionExpression;
             }
-            
+
             var nc = Configuration.GetNameConvention(entityType);
 
-            Func<string, string> tq = DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s; 
-            Func<string, string> cq = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s; 
-            
+            Func<string, string> tq = DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s;
+            Func<string, string> cq = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s;
+
             var searchIndexTable = nc.SearchIndexTableName;
 
-            var columnFullName = tq(searchIndexTable) +"." +  cq("IndexCorpus");
+            var columnFullName = tq(searchIndexTable) + "." + cq("IndexCorpus");
 
             return string.Join(" OR ", searchTerms.Select(
                 s => $"{columnFullName} like '%{s}%'"));
         }
 
-        public string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree)
+        public string TranslateOrders(Type entityType, OrderTerm[] orders, bool fullTree)
         {
             if (orders == null || orders.Length == 0)
             {
-                return EmptyOrderExpression(entityType,fullTree);
+                return EmptyOrderExpression(entityType, fullTree);
             }
-            
+
             Func<string, string> q = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s;
             var map = Configuration.GetFullTreeMap(entityType);
             Func<OrderTerm, string> sort = o => o.Sort == OrderSort.Descending ? "DESC" : "ASC";
             Func<OrderTerm, string> column = o => q(TranslateFieldName(map, o.Key, fullTree));
-            
-            var terms = orders.Select(o =>column(o) + " " + sort(o));
+
+            var terms = orders.Select(o => column(o) + " " + sort(o));
 
             return string.Join(", ", terms);
         }
@@ -107,7 +106,7 @@ namespace Meadow.Sql
 
             return headlessAddress;
         }
-        
+
         private string TranslateFieldName(FullTreeMap map, string headlessAddress, bool fullTree)
         {
             if (fullTree)
@@ -129,7 +128,7 @@ namespace Meadow.Sql
         {
             var max = HandleQuotingAndEscaping(filter.Maximum, filter.ValueType);
             var min = HandleQuotingAndEscaping(filter.Minimum, filter.ValueType);
-            var equals = HandleQuotingAndEscaping(filter.EqualValues, filter.ValueType);
+            var equalities = HandleQuotingAndEscaping(filter.EqualityValues, filter.ValueType);
 
             var foundKey = pickKey(filter);
 
@@ -137,6 +136,7 @@ namespace Meadow.Sql
             {
                 var columnName = DoubleQuotesColumnNames ? $"\"{foundKey.Value}\"" : foundKey.Value;
 
+                var sep = "";
                 switch (filter.ValueComparison)
                 {
                     case ValueComparison.SmallerThan:
@@ -151,11 +151,19 @@ namespace Meadow.Sql
                             .Append(columnName).Append('>').Append(min);
                         break;
                     case ValueComparison.Equal:
-                        var sep = "";
-
-                        foreach (var equalValue in equals)
+                        sep = "";
+                        foreach (var equalValue in equalities)
                         {
                             sb.Append(sep).Append(columnName).Append('=').Append(equalValue);
+                            sep = " OR ";
+                        }
+
+                        break;
+                    case ValueComparison.NotEqual:
+                        sep = "";
+                        foreach (var equalValue in equalities)
+                        {
+                            sb.Append(sep).Append(columnName).Append(NotEqualOperator).Append(equalValue);
                             sep = " OR ";
                         }
 
@@ -168,12 +176,14 @@ namespace Meadow.Sql
         protected abstract string EscapedSingleQuote { get; }
 
         protected abstract bool DoubleQuotesColumnNames { get; }
-        
+
         protected abstract bool DoubleQuotesTableNames { get; }
 
         protected virtual string EmptyConditionExpression => "";
+        
+        protected virtual string NotEqualOperator => "!=";
 
-        protected virtual string EmptyOrderExpression(Type entityType,bool fullTree)
+        protected virtual string EmptyOrderExpression(Type entityType, bool fullTree)
         {
             return "";
         }

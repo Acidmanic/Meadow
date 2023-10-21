@@ -15,5 +15,7 @@ namespace Meadow.Postgre
 
         protected override bool DoubleQuotesColumnNames => true;
         protected override bool DoubleQuotesTableNames => true;
+
+        protected override string NotEqualOperator => "<>";
     }
 }
