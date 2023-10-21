@@ -136,7 +136,7 @@ BEGIN
         DEALLOCATE PREPARE stmt; 
     end if;
     SET @Count = (SELECT COUNT(SearchId) FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId);
-    SELECT Count 'Count', SearchId 'SearchId';
+    SELECT @Count 'Count', SearchId 'SearchId';
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(
@@ -171,7 +171,7 @@ BEGIN
         DEALLOCATE PREPARE stmt; 
     end if;
     SET @Count = (SELECT COUNT(SearchId) FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId);
-    SELECT Count 'Count', SearchId 'SearchId';
+    SELECT @Count 'Count', SearchId 'SearchId';
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(IN Offset bigint(16),
