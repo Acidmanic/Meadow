@@ -161,10 +161,11 @@ namespace Meadow.Sql
                         break;
                     case ValueComparison.NotEqual:
                         sep = "";
+                        
                         foreach (var equalValue in equalities)
                         {
                             sb.Append(sep).Append(columnName).Append(NotEqualOperator).Append(equalValue);
-                            sep = " OR ";
+                            sep = " AND ";
                         }
 
                         break;

@@ -106,10 +106,10 @@ namespace Meadow.Test.Functional
                     throw new Exception("Expected Not Find Mani Or Mona here but yet I did!");
                 }
 
-                Console.WriteLine($"Correct Result Person For Not-Equal: {person.Name}, {person.Age}");
+                logger.LogInformation($"Correct Result Person For Not-Equal: {person.Name}, {person.Age}");
             }
 
-            Console.WriteLine("[PASS] Not Equality worked");
+            logger.LogInformation("[PASS] Not Equality worked");
 
             /*  Test for failing where clause in readChunk */
             filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsSmallerThan("50").Build();
