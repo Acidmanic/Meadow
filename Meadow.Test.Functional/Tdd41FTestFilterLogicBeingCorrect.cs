@@ -28,14 +28,14 @@ namespace Meadow.Test.Functional
 
             var filterResponse = engine.PerformRequest(filterRequest);
 
-            var filterResult = filterResponse.FromStorage;
+            var filterResult = filterResponse.FromStorage.First();
 
             if (filterResult.Count != 2)
             {
                 throw new Exception($"Search result must be 2 items but it was {filterResult.Count} items");
             }
 
-            var searchId = filterResult[0].SearchId;
+            var searchId = filterResult.SearchId;
 
             var searchResultPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId)).FromStorage;
 
@@ -47,14 +47,14 @@ namespace Meadow.Test.Functional
             var fakeSearchResults = engine.PerformRequest
                 (new PerformSearchIfNeededRequest<Person, long>(new FilterQuery { EntityType = typeof(Person) },
                     searchId))
-                .FromStorage;
+                .FromStorage.First();
 
             if (fakeSearchResults.Count != 2)
             {
                 throw new Exception("Aha this is the fucking bug!");
             }
 
-            var fakeSearchId = fakeSearchResults[0].SearchId;
+            var fakeSearchId = fakeSearchResults.SearchId;
 
             if (fakeSearchId != searchId)
             {
@@ -77,14 +77,14 @@ namespace Meadow.Test.Functional
                 .Build();
 
             filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
-                .FromStorage;
+                .FromStorage.First();
 
             if (filterResult.Count != 3)
             {
                 throw new Exception("Problem in Filtering Not Equals");
             }
 
-            searchId = filterResult.First().SearchId;
+            searchId = filterResult.SearchId;
 
             var notManiAndMona = engine.PerformRequest(new ReadChunkRequest<Person>(searchId))
                 .FromStorage;
@@ -109,14 +109,15 @@ namespace Meadow.Test.Functional
             /*  Test for failing where clause in readChunk */
             filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsSmallerThan("50").Build();
 
-            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter)).FromStorage;
+            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
+                .FromStorage.First();
 
             if (filterResult.Count != 3)
             {
                 throw new Exception($"Search result must be 3 items but it was {filterResult.Count} items");
             }
 
-            searchId = filterResult[0].SearchId;
+            searchId = filterResult.SearchId;
 
             searchResultPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId)).FromStorage;
 
@@ -203,14 +204,14 @@ namespace Meadow.Test.Functional
 
             var badResult = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(badFilter), true)
-                .FromStorage;
+                .FromStorage.First();
 
             if (badResult.Count > 0)
             {
                 throw new Exception("bad filter should not find any items");
             }
 
-            var badSearchId = badResult.FirstOrDefault()?.SearchId ?? "";
+            var badSearchId = badResult.SearchId ?? "";
 
             var badPersons = engine
                 .PerformRequest(new ReadChunkRequest<Person>(badSearchId), true)
@@ -227,14 +228,14 @@ namespace Meadow.Test.Functional
 
             var filterResults = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
-                .FromStorage;
+                .FromStorage.First();
 
             if (filterResults == null || filterResults.Count != 4)
             {
                 throw new Exception("Invalid Filtering for full-tree, probably distinction issue in filter");
             }
 
-            searchId = filterResults.First().SearchId;
+            searchId = filterResults.SearchId;
 
             var moayedies = engine
                 .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3))
@@ -256,14 +257,14 @@ namespace Meadow.Test.Functional
 
             filterResults = engine
                 .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter), true)
-                .FromStorage;
+                .FromStorage.First();
 
             if (filterResults == null || filterResults.Count != 4)
             {
                 throw new Exception("Invalid Filtering for full-tree, probably distinction issue in filter");
             }
 
-            searchId = filterResults.First().SearchId;
+            searchId = filterResults.SearchId;
 
             moayedies = engine
                 .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3), true)

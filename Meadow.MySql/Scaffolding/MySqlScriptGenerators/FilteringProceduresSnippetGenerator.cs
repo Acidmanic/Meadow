@@ -135,7 +135,8 @@ BEGIN
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
     end if;
-    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId;
+    SET @Count = (SELECT COUNT(SearchId) FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId);
+    SELECT @Count 'Count', SearchId 'SearchId';
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFilterIfNeededProcedureNameFullTree}(
@@ -169,7 +170,8 @@ BEGIN
         EXECUTE stmt;
         DEALLOCATE PREPARE stmt; 
     end if;
-    SELECT {_keyFilterResultsTableName}.* FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId;
+    SET @Count = (SELECT COUNT(SearchId) FROM {_keyFilterResultsTableName} WHERE {_keyFilterResultsTableName}.SearchId=SearchId);
+    SELECT @Count 'Count', SearchId 'SearchId';
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyReadChunkProcedureName}(IN Offset bigint(16),
