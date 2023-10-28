@@ -46,7 +46,7 @@
 
   <ItemGroup>
     <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
-    <PackageReference Include="Meadow.Framework" Version="1.2.4-b33" />
+    <PackageReference Include="Meadow.Framework" Version="1.2.4-b36" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0-rc.1.23419.4" />
   </ItemGroup>
   
