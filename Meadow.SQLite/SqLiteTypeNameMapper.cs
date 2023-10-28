@@ -47,9 +47,15 @@ namespace Meadow.SQLite
             //_typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;   
         }
 
-        public override string GetDatabaseTypeName(Type type)
+
+        protected override string GetMappedType(Type type)
         {
             return _typeMap[type];
+        }
+
+        protected override string GetLargeTextDataType(Type type)
+        {
+            return "TEXT";
         }
     }
 }

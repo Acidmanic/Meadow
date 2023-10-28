@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Meadow.DataTypeMapping.Attributes;
 
@@ -19,7 +20,24 @@ public abstract class DbTypeNameMapperBase : IDbTypeNameMapper
         return typeName;
     }
 
-    public abstract string GetDatabaseTypeName(Type type);
+    public string GetDatabaseTypeName(Type type)
+    {
+        if (type == typeof(string))
+        {
+            if (type.GetCustomAttribute<IsLargeTextAttribute>() != null)
+            {
+                return GetLargeTextDataType(type);
+            }
+        }
+
+        return GetMappedType(type);
+    }
+    
+    
+    protected abstract string GetMappedType(Type type);
+
+
+    protected abstract string GetLargeTextDataType(Type type);
 
     public string GetDatabaseTypeName(Type type, IEnumerable<Attribute> propertyAttributes)
     {
