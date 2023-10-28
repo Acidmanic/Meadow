@@ -1,10 +1,8 @@
-using System;
 using System.IO;
-using Acidmanic.Utilities;
+using Acidmanic.Utilities.Extensions;
 using CoreCommandLine;
 using CoreCommandLine.Attributes;
 using CoreCommandLine.CommonCommandBases;
-using Meadow.BuildupScripts;
 using Meadow.Models;
 using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.Commands.ProjectAssembly;

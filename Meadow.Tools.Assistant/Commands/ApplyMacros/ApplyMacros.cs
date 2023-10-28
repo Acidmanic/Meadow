@@ -1,20 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Results;
 using CoreCommandLine;
 using CoreCommandLine.Attributes;
 using Meadow.Contracts;
-using Meadow.Extensions;
 using Meadow.Scaffolding.Macros;
 using Meadow.Tools.Assistant.Commands.Arguments;
 using Meadow.Tools.Assistant.Commands.ProjectAssembly;
-using Meadow.Tools.Assistant.DotnetProject;
-using Meadow.Tools.Assistant.Utils;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Tools.Assistant.Commands.ApplyMacros
