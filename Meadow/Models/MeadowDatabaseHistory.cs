@@ -14,7 +14,7 @@ namespace Meadow.Models
 
         public string ScriptName { get; set; }
 
-        [ForceColumnSize(4000)]
+        [IsLargeText]
         public string Script { get; set; }
     }
 }

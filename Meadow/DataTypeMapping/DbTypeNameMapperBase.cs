@@ -20,27 +20,25 @@ public abstract class DbTypeNameMapperBase : IDbTypeNameMapper
         return typeName;
     }
 
-    public string GetDatabaseTypeName(Type type)
-    {
-        if (type == typeof(string))
-        {
-            if (type.GetCustomAttribute<IsLargeTextAttribute>() != null)
-            {
-                return GetLargeTextDataType(type);
-            }
-        }
-
-        return GetMappedType(type);
-    }
+  
     
-    
-    protected abstract string GetMappedType(Type type);
+    public abstract string GetDatabaseTypeName(Type type);
 
-
-    protected abstract string GetLargeTextDataType(Type type);
+    protected abstract string GetLargeTextDataType();
 
     public string GetDatabaseTypeName(Type type, IEnumerable<Attribute> propertyAttributes)
     {
+
+        if (type == typeof(string))
+        {
+            var isLargeText = propertyAttributes.Any(a => a is IsLargeTextAttribute);
+
+            if (isLargeText)
+            {
+                return GetLargeTextDataType();
+            }
+        }
+        
         var forcedTypeAttribute = propertyAttributes
             .OfType<ForceDatabaseTypeAttribute>().FirstOrDefault();
 

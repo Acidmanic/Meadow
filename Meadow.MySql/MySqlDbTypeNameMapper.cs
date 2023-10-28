@@ -48,12 +48,12 @@ namespace Meadow.MySql
             //_typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;   
         }
 
-        protected override string GetMappedType(Type type)
+        public override string GetDatabaseTypeName(Type type)
         {
             return _typeMap[type];
         }
 
-        protected override string GetLargeTextDataType(Type type)
+        protected override string GetLargeTextDataType()
         {
             return "LONGTEXT";
         }
