@@ -24,7 +24,7 @@ namespace Meadow.Test.Functional
         private class ParentProxy
         {
             [UniqueMember] public string Id { get; set; }
-            
+
             public List<ChildProxy> Children { get; set; }
         }
 
@@ -34,7 +34,7 @@ namespace Meadow.Test.Functional
             public string Id { get; set; }
 
             public string Name { get; set; }
-            
+
             public string ParentId { get; set; }
         }
 
@@ -44,16 +44,16 @@ namespace Meadow.Test.Functional
             [UniqueMember] public string Id { get; set; }
 
             public string ParentId { get; set; }
-            
+
             public string Name { get; set; }
         }
 
 
-        public void Main()
+        private void PrintForType<T>()
         {
             var construct = new SnippetConstruction
             {
-                EntityType = typeof(ParentProxy),
+                EntityType = typeof(T),
                 MeadowConfiguration = new MeadowConfiguration()
                 {
                     TableNameProvider = new PluralDataOwnerNameProvider(),
@@ -74,6 +74,13 @@ namespace Meadow.Test.Functional
             var codeText = code.Text;
 
             Console.WriteLine(codeText);
+        }
+
+
+        public void Main()
+        {
+            PrintForType<ParentProxy>();
+            PrintForType<Parent>();
         }
     }
 }
