@@ -124,11 +124,11 @@ namespace Meadow.Sql
 
         private string GetReferencedIdFieldName(AccessNode node)
         {
-            var foundAttribute = node.PropertyAttributes.FirstOrDefault(a => a is NToOneTargetFieldAttribute);
+            var foundAttribute = node.Type.GetCustomAttributes(true).FirstOrDefault(a => a is OneToMany);
 
-            if (foundAttribute is NToOneTargetFieldAttribute nToOneAtt)
+            if (foundAttribute is OneToMany nToOneAtt)
             {
-                return nToOneAtt.FieldName;
+                return nToOneAtt.ReferenceFieldName;
             }
 
             return node.Name + "Id";

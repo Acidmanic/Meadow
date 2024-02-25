@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd047ScriptCompression().Main();
+            new Tdd010FullTreeViewManualReference().Main();
         }
     }
 }
