@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Attributes;
 using Meadow.Configuration;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
@@ -120,12 +121,26 @@ namespace Meadow.Sql
             return joins;
         }
 
+
+        private string GetReferencedIdFieldName(AccessNode node)
+        {
+            var foundAttribute = node.PropertyAttributes.FirstOrDefault(a => a is NToOneTargetFieldAttribute);
+
+            if (foundAttribute is NToOneTargetFieldAttribute nToOneAtt)
+            {
+                return nToOneAtt.FieldName;
+            }
+
+            return node.Name + "Id";
+        }
+        
+        
         private string GetJoinTerm(AccessNode joinNode, AccessNode pointerNode, AccessNode nodePointedAt,
             Func<string, string> q)
         {
             var joinTableName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(joinNode.Type);
             var pointerTableName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(pointerNode.Type);
-            var pointerIdFieldName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(nodePointedAt.Type) + "Id";
+            var pointerIdFieldName = GetReferencedIdFieldName(nodePointedAt);
             var pointedAtTableName =
                 ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(nodePointedAt.Type);
             var pointedAtIdField = TypeIdentity.FindIdentityLeaf(nodePointedAt.Type).Name;
