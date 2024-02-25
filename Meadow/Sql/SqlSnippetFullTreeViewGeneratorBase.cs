@@ -125,7 +125,7 @@ namespace Meadow.Sql
         {
             var joinTableName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(joinNode.Type);
             var pointerTableName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(pointerNode.Type);
-            var pointerIdFieldName = nodePointedAt.Name + "Id";
+            var pointerIdFieldName = ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(nodePointedAt.Type) + "Id";
             var pointedAtTableName =
                 ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(nodePointedAt.Type);
             var pointedAtIdField = TypeIdentity.FindIdentityLeaf(nodePointedAt.Type).Name;
