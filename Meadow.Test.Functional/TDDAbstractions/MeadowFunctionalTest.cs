@@ -61,15 +61,16 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
             Console.WriteLine($@"****Database: '{DbName}' is being used for this test.*****");
         }
+        
 
-        protected void UseMySql()
+        protected void UseMySql(string scriptsDirectory="MySqlScripts")
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
             MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
             MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMySqlMeadowAssembly());
 
-            ScriptsDirectory = "MySqlScripts";
+            ScriptsDirectory = scriptsDirectory;
 
             ConnectionString = ExampleConnectionString.GetMySqlConnectionString(DbName);
 

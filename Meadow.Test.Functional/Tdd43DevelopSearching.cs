@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Filtering.Utilities;
@@ -12,7 +13,7 @@ using SQLitePCL;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd43DevelopSearching : MeadowMultiDatabaseTestBase
+    public class Tdd43DevelopSearching : PersonUseCaseTestBase
     {
         protected override void SelectDatabase()
         {
@@ -21,6 +22,8 @@ namespace Meadow.Test.Functional
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
+            base.Main(engine,logger);
+            
             var fullTreePerson = new Person
             {
                 Age = 10,

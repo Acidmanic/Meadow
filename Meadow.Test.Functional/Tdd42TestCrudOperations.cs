@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd42TestCrudOperations : MeadowMultiDatabaseTestBase
+    public class Tdd42TestCrudOperations : PersonUseCaseTestBase
     {
         protected override void SelectDatabase()
         {
@@ -15,6 +15,9 @@ namespace Meadow.Test.Functional
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
+            
+            base.Main(engine,logger);
+            
             // This method has been added after Tdd43, because after development of search, other filtering 
             // features also might need to index
             Index(engine,Persons);

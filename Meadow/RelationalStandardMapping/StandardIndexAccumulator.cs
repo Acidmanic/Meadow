@@ -23,21 +23,21 @@ namespace Meadow.RelationalStandardMapping
         private readonly bool _hasId;
         private readonly AccessNode _idLeaf;
         private readonly string _idLeafIdentifier;
-        private readonly VerbositySelectLogger _logger; 
+        private readonly VerbositySelectLogger _logger;
 
         private class VerbositySelectLogger : ILogger
         {
-
             private readonly ILogger _logger;
 
             public bool LogVerbose { get; set; } = false;
-            
+
             public VerbositySelectLogger(ILogger logger)
             {
                 _logger = logger;
             }
 
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+                Func<TState, Exception, string> formatter)
             {
                 if (logLevel == LogLevel.Trace || logLevel == LogLevel.Debug)
                 {
@@ -46,7 +46,8 @@ namespace Meadow.RelationalStandardMapping
                         return;
                     }
                 }
-                _logger.Log(logLevel,eventId,state,exception,formatter);
+
+                _logger.Log(logLevel, eventId, state, exception, formatter);
             }
 
             public bool IsEnabled(LogLevel logLevel)
@@ -171,7 +172,7 @@ namespace Meadow.RelationalStandardMapping
                 MarkApplied(dp);
             }
         }
-        
+
 
         private List<Record> SortHomogeneously(IEnumerable<Record> records)
         {

@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd010FullTreeViewManualReference().Main();
+            new Tdd48Null3RdLevelIdTestCase().Main();
         }
     }
 }

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd44FullTreeReadingWithNullLeaves:MeadowMultiDatabaseTestBase
+    public class Tdd44FullTreeReadingWithNullLeaves:PersonUseCaseTestBase
     {
         protected override void SelectDatabase()
         {
@@ -15,6 +15,8 @@ namespace Meadow.Test.Functional
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
+            base.Main(engine, logger);
+            
             var person = new Person
             {
                 Name = "Loner",

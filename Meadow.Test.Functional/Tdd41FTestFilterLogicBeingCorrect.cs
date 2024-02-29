@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd41FTestFilterLogicBeingCorrect : MeadowMultiDatabaseTestBase
+    public class Tdd41FTestFilterLogicBeingCorrect : PersonUseCaseTestBase
     {
         protected override void SelectDatabase()
         {
@@ -17,6 +17,8 @@ namespace Meadow.Test.Functional
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
+            base.Main(engine, logger);
+            
             Index(engine, Persons);
 
 

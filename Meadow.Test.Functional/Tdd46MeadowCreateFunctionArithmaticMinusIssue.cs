@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd46MeadowCreateFunctionArithmaticMinusIssue : MeadowMultiDatabaseTestBase
+    public class Tdd46MeadowCreateFunctionArithmaticMinusIssue : PersonUseCaseTestBase
     {
         protected override void SelectDatabase()
         {
@@ -17,18 +17,7 @@ namespace Meadow.Test.Functional
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
-            // var request = new SqlRequest(FunctionDeclaration);
-            //
-            // var response = engine.PerformRequest(request);
-            //
-            // if (response.Failed)
-            // {
-            //     logger.LogError(response.FailureException,"Error executing sql request {Ex}",response.FailureException);
-            // }
-            // else
-            // {
-            //     logger.LogInformation("Fixed");
-            // }
+            base.Main(engine, logger);
 
             string[] testStrings =
             {
@@ -44,7 +33,7 @@ namespace Meadow.Test.Functional
                 {
                     logger.LogError("Wrong uncommented code: " +
                                     "\n{Code} instead of " +
-                                    "\n{Original}", unComment,testString);
+                                    "\n{Original}", unComment, testString);
 
                     return;
                 }

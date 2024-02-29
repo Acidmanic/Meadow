@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional
 {
-    public class Tdd45SaveWithoutAutoValuedId:MeadowMultiDatabaseTestBase
+    public class Tdd45SaveWithoutAutoValuedId:PersonUseCaseTestBase
     {
         protected override void SelectDatabase()
         {
@@ -16,6 +16,7 @@ namespace Meadow.Test.Functional
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
 
+            base.Main(engine,logger);
 
             var category = new Category
             {
