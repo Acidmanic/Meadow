@@ -67,8 +67,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMySqlMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMySqlMeadowAssembly());
 
             ScriptsDirectory = scriptsDirectory;
 
@@ -85,8 +85,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetSqlServerMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqlServerMeadowAssembly());
 
             ScriptsDirectory = "SqlServerScripts";
 
@@ -103,8 +103,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetPostgreMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetPostgreMeadowAssembly());
 
             ScriptsDirectory = "PostgreScripts";
 
@@ -121,8 +121,8 @@ namespace Meadow.Test.Functional.TDDAbstractions
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetMeadowAssembly());
-            MeadowConfigurationAssemblies.Add(Meadow.Anchor.GetSqLiteMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+            MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqLiteMeadowAssembly());
 
             ScriptsDirectory = "SqLiteScripts";
 

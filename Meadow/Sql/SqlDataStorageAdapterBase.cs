@@ -4,10 +4,13 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using Acidmanic.Utilities.Reflection.Attributes;
+using Acidmanic.Utilities.Reflection.Casting;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
+using Acidmanic.Utilities.Reflection.Utilities;
+using Meadow.Casting;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
@@ -19,20 +22,21 @@ namespace Meadow.Sql
     public abstract class SqlDataStorageAdapterBase : IStandardDataStorageAdapter<IDbCommand, IDataReader>
     {
         private readonly ILogger _logger;
+        private readonly MeadowBuiltinCastList _castings;
 
-        protected SqlDataStorageAdapterBase(MeadowConfiguration configuration,ILogger logger)
+        protected SqlDataStorageAdapterBase(MeadowConfiguration configuration, ILogger logger)
         {
             FieldNameDelimiter = configuration.DatabaseFieldNameDelimiter;
             DataOwnerNameProvider = configuration.TableNameProvider;
             _logger = logger;
-
             RelationalIdentifierToStandardFieldMapper = configuration.GetRelationalStandardMapper();
+            _castings = new MeadowBuiltinCastList(configuration.ExternalTypeCasts);
         }
 
         public char FieldNameDelimiter { get; }
 
         public IDataOwnerNameProvider DataOwnerNameProvider { get; }
-        
+
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
         public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion<TModel> fromStorageInclusion,
@@ -55,17 +59,20 @@ namespace Meadow.Sql
 
             List<TModel> results = new List<TModel>();
 
-            foreach (var record in indexedStandard)
+            using (var s = CastScope.Create(_castings))
             {
-                var evaluator = new ObjectEvaluator(typeof(TModel));
-
-                evaluator.LoadStandardData(record);
-
-                var recordObject = evaluator.As<TModel>();
-
-                if (recordObject != null)
+                foreach (var record in indexedStandard)
                 {
-                    results.Add(recordObject);
+                    var evaluator = new ObjectEvaluator(typeof(TModel));
+
+                    evaluator.LoadStandardData(record);
+
+                    var recordObject = evaluator.As<TModel>();
+
+                    if (recordObject != null)
+                    {
+                        results.Add(recordObject);
+                    }
                 }
             }
 
@@ -97,8 +104,8 @@ namespace Meadow.Sql
                         var alterCast = expectedType.GetCustomAttribute<AlteredTypeAttribute>();
 
                         var actualType = value.GetType();
-                        
-                        if (alterCast != null && alterCast.AlternativeType==actualType)
+
+                        if (alterCast != null && alterCast.AlternativeType == actualType)
                         {
                             value = value.CastTo(expectedType);
                         }

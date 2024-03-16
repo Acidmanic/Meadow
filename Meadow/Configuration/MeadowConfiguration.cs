@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using Acidmanic.Utilities.Reflection.Casting;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 
 namespace Meadow.Configuration
@@ -9,6 +10,7 @@ namespace Meadow.Configuration
         public List<Assembly> MacroContainingAssemblies { get; set; } = new List<Assembly>();
 
         public IDataOwnerNameProvider TableNameProvider { get; set; } = new PluralDataOwnerNameProvider();
-        
+
+        public List<ICast> ExternalTypeCasts { get; set; } = new List<ICast>();
     }
 }

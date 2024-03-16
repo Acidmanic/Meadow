@@ -1,14 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
-using Example.AlteredType.Models;
-using Example.AlteredType.Requests;
+using System.Reflection;
+using Example.EntityStorage.Entities;
+using Example.EntityStorage.Requests;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.MySql;
 using Microsoft.Extensions.Logging.LightWeight;
 
-namespace Example.AlteredType
+namespace Example.EntityStorage
 {
     class Program
     {
@@ -22,7 +24,14 @@ namespace Example.AlteredType
             {
                 ConnectionString = GetConnectionString(),
                 BuildupScriptDirectory = "Scripts",
-                DatabaseFieldNameDelimiter = '_'
+                DatabaseFieldNameDelimiter = '_',
+                MacroContainingAssemblies = new List<Assembly>
+                {
+                    Assembly.GetEntryAssembly(),
+                    TheMeadow.Anchor.GetMeadowAssembly(),
+                    TheMeadow.Anchor.GetMySqlMeadowAssembly(),
+                },
+                MacroPolicy = MacroPolicies.UpdateScripts
             };
             // Create Engine:
             var engine = new MeadowEngine(configuration).UseMySql();
@@ -39,31 +48,18 @@ namespace Example.AlteredType
             // Setup (update regarding scripts)
             engine.BuildUpDatabase();
             // ready to use
-            
-            var newJob = new Job
-            {
-                Color = Color.White,
-                Title = "TheCode",
-                JobDescription = "Being Compiled",
-                IncomeInRials = -10000
-            };
 
-            newJob = engine.PerformRequest(new InsertJobRequest(newJob)).FromStorage[0];
-
-            var newPerson = new Person
-            {
-                Age = 895,
-                Job = newJob,
-                JobId = newJob.Id,
-                Name = "Meadow",
-                Surname = "Framework"
-            };
+            var firstPlant = Plant.Create("Rose");
             
-            engine.PerformRequest(new InsertPersonRequest(newPerson));
+            var insertedFirstPlant = engine.PerformRequest(new InsertPlantRequest(firstPlant));
             
+            
+            var secondPlant = Plant.Create("Rose");
+            
+            var insertedSecondPlant = engine.PerformRequest(new InsertPlantRequest(secondPlant));
             
             // Make a request
-            var request = new GetAllPersonsFullTreeRequest();
+            var request = new ReadAllPlantsRequest();
 
             var response = engine.PerformRequest(request);
 
@@ -71,7 +67,7 @@ namespace Example.AlteredType
 
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
-            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Surname}"));
+            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Id}"));
 
             
         }

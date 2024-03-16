@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
+    <ProjectReference Include="..\Meadow\Meadow.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Scripts\0000-initialize.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
+  </ItemGroup>
+
+</Project>

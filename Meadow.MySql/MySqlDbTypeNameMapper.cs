@@ -25,7 +25,7 @@ namespace Meadow.MySql
             _typeMap[typeof(bool)] = "BOOL";
             _typeMap[typeof(string)] = MySqlDbType.VarChar.ToString().ToLower() + "(256)";
             _typeMap[typeof(char)] = MySqlDbType.VarChar.ToString().ToLower() + "(1)";
-            _typeMap[typeof(Guid)] = "BINARY(16)";
+            _typeMap[typeof(Guid)] = "CHAR(36)";
             _typeMap[typeof(DateTime)] = MySqlDbType.DateTime.ToString().ToLower();
             _typeMap[typeof(DateTimeOffset)] = MySqlDbType.DateTime.ToString().ToLower();
             _typeMap[typeof(byte[])] = MySqlDbType.Binary.ToString().ToLower();
@@ -42,7 +42,7 @@ namespace Meadow.MySql
             _typeMap[typeof(decimal?)] = MySqlDbType.Decimal.ToString().ToLower();
             _typeMap[typeof(bool?)] = "BOOL";
             _typeMap[typeof(char?)] = MySqlDbType.VarChar.ToString().ToLower() + "(1)";
-            _typeMap[typeof(Guid?)] = "BINARY(16)";
+            _typeMap[typeof(Guid?)] = "CHAR(36)";
             _typeMap[typeof(DateTime?)] = MySqlDbType.DateTime.ToString().ToLower();
             _typeMap[typeof(DateTimeOffset?)] = MySqlDbType.DateTime.ToString().ToLower();
             //_typeMap[typeof(System.Data.Linq.Binary)] = DbType.Binary;   
