@@ -61,20 +61,20 @@ namespace Example.EntityStorage
             var insertedFirstPlant = engine.PerformRequest(new InsertPlantRequest(firstPlant));
             
             
-            var secondPlant = Plant.Create("Rose");
+            var secondPlant = Plant.Create("Volerian",PlantTypes.Vegetable);
             
             var insertedSecondPlant = engine.PerformRequest(new InsertPlantRequest(secondPlant));
             
             // Make a request
-            var request = new ReadAllPlantsRequest();
+            var request = new ReadAllPlantsFullTreeRequest();
 
             var response = engine.PerformRequest(request,true);
 
-            var allPersons = response.FromStorage;
+            var allPlants = response.FromStorage;
 
-            Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
+            Console.WriteLine($"Read {allPlants.Count} Persons from database, which where inserted from scripts.");
             
-            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Id} Created At: {p.CreateDate}"));
+            allPlants.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Id} Created At: {p.CreateDate}"));
             
         }
         
