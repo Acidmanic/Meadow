@@ -16,7 +16,7 @@ public class Plant
     [UniqueMember]
     public Guid Id { get; set; }
     
-    
+    public Guid TypeId { get; set; }
     public PlantType Type { get; set; }
 
     public static Plant Create(string name, PlantType type = null)
@@ -28,7 +28,8 @@ public class Plant
             Id = Guid.NewGuid(),
             Name = name,
             CreateDate = DateTime.Now,
-            Type = type
+            Type = type,
+            TypeId = type.Id
         };
     }
 }

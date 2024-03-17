@@ -39,13 +39,13 @@ namespace Meadow.DataAccessCore
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new()
+            where TOut : class
         {
             return PerformRequestAsync(request, configuration).Result;
         }
 
         public virtual async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
-            MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class, new()
+            MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class
         {
             request.InitializeBeforeExecution();
 
@@ -123,7 +123,7 @@ namespace Meadow.DataAccessCore
         protected virtual TToStorageCarrier ProvideCarrier<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new()
+            where TOut : class
         {
             var carrier = StorageCommunication.CreateToStorageCarrier(request, configuration);
 

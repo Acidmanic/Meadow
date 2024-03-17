@@ -98,7 +98,7 @@ namespace Meadow.Requests
 
 
     public class MeadowRequest<TIn, TOut> : MeadowRequest
-        where TOut : class, new()
+        where TOut : class
     {
         public virtual TIn ToStorage { get; set; }
 

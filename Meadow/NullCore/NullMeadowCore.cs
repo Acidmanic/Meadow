@@ -23,7 +23,7 @@ namespace Meadow.NullCore
         }
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request,
-            MeadowConfiguration configuration) where TOut : class, new()
+            MeadowConfiguration configuration) where TOut : class
         {
             _logger.LogError("No DataAccessCore has been introduced to meadow engine.");
 
@@ -36,7 +36,7 @@ namespace Meadow.NullCore
         }
 
         public Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request,
-            MeadowConfiguration configuration) where TOut : class, new()
+            MeadowConfiguration configuration) where TOut : class
         {
             return Task.Run(() => PerformRequest(request, configuration));
         }

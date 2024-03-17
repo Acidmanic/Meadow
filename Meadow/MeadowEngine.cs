@@ -68,7 +68,7 @@ namespace Meadow
         }
 
 
-        private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class, new()
+        private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class
         {
             var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
 
@@ -98,7 +98,7 @@ namespace Meadow
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             bool suggestFullTreeAccess = false)
-            where TOut : class, new()
+            where TOut : class
         {
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
 
@@ -143,7 +143,7 @@ namespace Meadow
         }
 
         private ConfigurationRequestResult PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request)
-            where TOut : class, new()
+            where TOut : class
         {
             try
             {

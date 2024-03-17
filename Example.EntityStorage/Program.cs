@@ -4,10 +4,12 @@ using System.IO;
 using System.Reflection;
 using Example.EntityStorage.Entities;
 using Example.EntityStorage.Requests;
+using Example.EntityStorage.ValueObjects;
 using Meadow;
 using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.MySql;
+using Meadow.Requests;
 using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.EntityStorage
@@ -49,6 +51,11 @@ namespace Example.EntityStorage
             engine.BuildUpDatabase();
             // ready to use
 
+            foreach (var plantType in PlantTypes.Items)
+            {
+                engine.PerformRequest(new InsertPlantTypeRequest(plantType));
+            }
+
             var firstPlant = Plant.Create("Rose");
             
             var insertedFirstPlant = engine.PerformRequest(new InsertPlantRequest(firstPlant));
@@ -61,14 +68,13 @@ namespace Example.EntityStorage
             // Make a request
             var request = new ReadAllPlantsRequest();
 
-            var response = engine.PerformRequest(request);
+            var response = engine.PerformRequest(request,true);
 
             var allPersons = response.FromStorage;
 
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
             allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Id} Created At: {p.CreateDate}"));
-
             
         }
         

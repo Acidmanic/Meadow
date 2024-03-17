@@ -12,12 +12,12 @@ namespace Meadow.Contracts
         MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new();
+            where TOut : class;
         
         Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new();
+            where TOut : class;
 
 
         void CreateDatabase(MeadowConfiguration configuration);

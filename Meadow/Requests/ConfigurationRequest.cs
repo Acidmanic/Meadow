@@ -5,7 +5,7 @@ using Meadow.Utility;
 namespace Meadow.Requests
 {
     public abstract class ConfigurationRequest<TResult> : MeadowRequest<MeadowVoid, TResult>
-        where TResult : class, new()
+        where TResult : class
     {
         protected MeadowConfiguration Configuration { get; private set; }
 
