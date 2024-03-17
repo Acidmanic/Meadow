@@ -67,7 +67,7 @@ namespace Example.EntityStorage
 
             Console.WriteLine($"Read {allPersons.Count} Persons from database, which where inserted from scripts.");
             
-            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Id}"));
+            allPersons.ForEach(p=> Console.WriteLine($"--- {p.Name + " " + p.Id} Created At: {p.CreateDate}"));
 
             
         }

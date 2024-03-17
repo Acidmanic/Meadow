@@ -39,6 +39,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
+            if (!ProcessedType.HasId)
+            {
+                return;
+            }
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
             var parameters = string.Join(',', ProcessedType.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
@@ -52,12 +56,12 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
         }
 
-        protected override string Template => $@"
+        protected override string Template => ProcessedType.HasId? $@"
 {KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
     UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
     SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
 END;
-".Trim();
+".Trim():"";
     }
 }

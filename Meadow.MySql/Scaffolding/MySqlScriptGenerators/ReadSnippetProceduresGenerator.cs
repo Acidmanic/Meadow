@@ -135,10 +135,9 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            if (!ActById && !ProcessedType.HasId)
+            if (ActById && !ProcessedType.HasId)
             {
-                throw new Exception("To be able to create a read-by-id procedure for a type, the type" +
-                                    " must have an id field.");
+                return;
             }
 
             replacementList.Add(_keyIdParam,
@@ -158,14 +157,18 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                 : ("WHERE " + ProcessedType.NameConvention.FullTreeViewName + "."
                    + ProcessedType.IdParameterFullTree.Name + " = " + ProcessedType.IdParameter.Name));
 
-            replacementList.Add(_keyOrderClause, GetOrder(ProcessedType.IdParameter.Name));
+            var orderParameter = ProcessedType.HasId ? ProcessedType.IdParameter:ProcessedType.Parameters[0];
+            
+            var fullTreeOrderParameter = ProcessedType.HasId ? ProcessedType.IdParameter:ProcessedType.ParametersFullTree[0];
+            
+            replacementList.Add(_keyOrderClause, GetOrder(orderParameter.Name));
 
-            replacementList.Add(_keyOrderClauseFullTree, GetOrder(ProcessedType.IdParameterFullTree.Name));
+            replacementList.Add(_keyOrderClauseFullTree, GetOrder(fullTreeOrderParameter.Name));
 
             replacementList.Add(_keyTopClause, GetTop());
         }
 
-        protected override string Template => @$"
+        protected override string Template =>(ActById && !ProcessedType.HasId)?"": @$"
 {KeyCreationHeader} {KeyProcedureName}({_keyIdParam})
 BEGIN
     SELECT * FROM {_keyTableName} {_keyWhereClause} {_keyOrderClause} {_keyTopClause};

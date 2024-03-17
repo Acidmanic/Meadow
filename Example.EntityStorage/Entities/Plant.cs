@@ -15,14 +15,20 @@ public class Plant
     
     [UniqueMember]
     public Guid Id { get; set; }
+    
+    
+    public PlantType Type { get; set; }
 
-    public static Plant Create(string name)
+    public static Plant Create(string name, PlantType type = null)
     {
+        type ??= PlantTypes.General;
+        
         return new Plant
         {
             Id = Guid.NewGuid(),
             Name = name,
-            CreateDate = DateTime.Now
+            CreateDate = DateTime.Now,
+            Type = type
         };
     }
 }

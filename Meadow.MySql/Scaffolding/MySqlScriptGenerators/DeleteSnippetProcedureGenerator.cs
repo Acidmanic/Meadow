@@ -46,6 +46,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
+            if (!ProcessedType.HasId)
+            {
+                return;
+            }
+            
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
             replacementList.Add(_keyIdFieldName,
@@ -56,13 +61,13 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         }
 
 
-        private string TemplateAll => $@"
+        private string TemplateAll => ProcessedType.HasId? $@"
 {KeyCreationHeader} {KeyProcedureName}() 
 BEGIN
     DELETE FROM {_keyTableName};
     SELECT TRUE Success;
 END;
-".Trim();
+".Trim():"";
 
         private string TemplateById => $@"
 {KeyCreationHeader} {KeyProcedureName}(IN {_keyIdFieldName} {_keyIdFieldTypeName}) 

@@ -35,6 +35,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
+            if (!ProcessedType.HasId)
+            {
+                return;
+            }
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
             var parameters = string.Join(',', ProcessedType.Parameters.Select(p => ParameterNameTypeJoint(p, "IN ")));
@@ -95,7 +99,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             return EqualityClause(process.NameConvention.TableName, process.IdParameter);
         }
 
-        protected override string Template => $@"
+        protected override string Template => ProcessedType.HasId? $@"
 {KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
     IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause}) then
@@ -110,6 +114,6 @@ BEGIN
         SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @nid;
     END IF;
 END;
-".Trim();
+".Trim():"";
     }
 }
