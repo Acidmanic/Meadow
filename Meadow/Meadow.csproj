@@ -3,6 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
     </PropertyGroup>
 
 
@@ -12,7 +13,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b10" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b12" />
     </ItemGroup>
 
 

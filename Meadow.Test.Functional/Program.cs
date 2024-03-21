@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd48Null3RdLevelIdTestCase().Main();
+            new Tdd49DevelopViews().Main();
         }
     }
 }

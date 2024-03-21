@@ -9,7 +9,6 @@ using Meadow;
 using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.MySql;
-using Meadow.Requests;
 using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Example.EntityStorage
