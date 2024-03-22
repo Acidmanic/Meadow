@@ -17,30 +17,30 @@ internal class QueryTarget<TModel, TProperty> : IToQueryTarget<TModel, TProperty
         _source = source;
     }
 
-    private IChainSelector<TModel, TProperty> Select(Type type, FieldKey? fieldKey, bool isConstant, string? value)
+    private IChainSelector<TModel, TProperty> Select(Type modelType, FieldKey? fieldKey, bool isConstant,Type? valueType, string? value)
     {
-        _onSelect(new TargetValueMark( type,fieldKey, isConstant, value));
+        _onSelect(new TargetValueMark(modelType,fieldKey, isConstant, valueType, value));
 
         return new ChainSelector<TModel, TProperty>(_source);
     }
 
     private IChainSelector<TModel, TProperty> Target<TValue>(TValue value)
     {
-        return Select(typeof(ValueTuple),null, true, value?.ToString());
+        return Select(null,null, true,typeof(TValue), value?.ToString());
     }
 
     private IChainSelector<TModel, TProperty> Target<TField>(Expression<Func<TModel, TField>> select)
     {
         var key = MemberOwnerUtilities.GetKey(select);
         
-        return Select(typeof(TModel),key, false, null);
+        return Select(typeof(TModel),key, false, null,null);
     }
 
     private IChainSelector<TModel, TProperty> Target<TField>(Expression<Func<TProperty, TField>> select)
     {
         var key = MemberOwnerUtilities.GetKey(select);
         
-        return Select(typeof(TProperty), key, false, null);
+        return Select(typeof(TProperty), key, false, null,null);
     }
 
     public IChainSelector<TModel, TProperty> To<TValue>(TValue value) => Target(value);

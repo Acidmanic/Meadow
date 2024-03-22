@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Attributes;
 using Meadow.Configuration;
-using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Inclusion.Fluent;
 using Meadow.Inclusion.Fluent.Markers;
@@ -21,7 +21,7 @@ public abstract class View<TModel>
 
     internal readonly List<InclusionRecord> _inclusions = new List<InclusionRecord>();
 
-    public Type Type => typeof(TModel);
+    public Type ModelType => typeof(TModel);
 
     public View()
     {
@@ -50,14 +50,15 @@ select * from Plants
 
     public string Script(MeadowConfiguration configuration)
     {
-        var mainConventions = configuration.GetNameConvention(Type);
+        var mainConventions = configuration.GetNameConvention(ModelType);
 
         MarkInclusions();
-
-        var script = $"SELECT * FROM {mainConventions.TableName}";
-
+        
         var fullTreeMap = configuration.GetFullTreeMap<TModel>();
 
+        var parametersTable = GetParametersTable(QuotTableNames, fullTreeMap, configuration);
+        
+        var script = $"SELECT {parametersTable} FROM {mainConventions.TableName}";
 
         foreach (var inclusion in _inclusions)
         {
@@ -75,19 +76,21 @@ select * from Plants
 
                 var target = "";
 
-                if (condition.TargetValue.IsConstant)
+                if (condition.Target.IsConstant)
                 {
-                    target = condition.TargetValue.Value;
+                    target = condition.Target.Value;
                 }
                 else
                 {
-                    var conTarConventions = configuration.GetNameConvention(condition.TargetValue.TargetModelType!);
+                    var conTarConventions = configuration.GetNameConvention(condition.Target.TargetModelType!);
 
-                    target = $"{conTarConventions.TableName}.{condition.TargetValue.FieldKey.Headless()}";
+                    target = $"{conTarConventions.TableName}.{condition.Target.FieldKey.Headless()}";
                 }
 
+                var comparison = TranslateComparisonOperators(condition.Operator, condition.GetSourceType(), condition.GetTargetType());
+                
                 where +=
-                    $" {conSrcConventions.TableName}.{condition.SourceField.Headless()} {condition.Operator} {target}";
+                    $" {conSrcConventions.TableName}.{condition.SourceField.Headless()} {comparison} {target}";
             }
 
             var join = GetJoinTerm(joinPoints, where, joinNames);
@@ -97,6 +100,50 @@ select * from Plants
 
         return script;
     }
+
+
+
+    private List<KeyValuePair<string,FieldKey>> IncludedColumns(FullTreeMap fullTreeMap)
+    {
+        var columns = new List<KeyValuePair<string,FieldKey>>();
+
+        foreach (var columnKey in fullTreeMap.RelationalMap)
+        {
+            if (_inclusions.Any(i => columnKey.Value.Equals(columnKey.Value,FieldKeyComparisons.IgnoreAllIndexes)))
+            {
+                columns.Add(columnKey);
+            }
+        }
+
+        return columns;
+    }
+
+
+    private string GetParametersTable(Func<string, string> q, FullTreeMap fullTreeMap, MeadowConfiguration configuration)
+    {
+        var relationalMap = IncludedColumns(fullTreeMap);
+        
+        var parameterTable = "";
+        var tab = "        ";
+        var sep = "";
+        foreach (var columnKey in relationalMap)
+        {
+            var fullTreeAlias = columnKey.Key;
+            var key = columnKey.Value;
+            var node = fullTreeMap.AddressKeyNodeMap.NodeByKey(key);
+            var ownerType = node.Parent.Type;
+            var ownerConventions = configuration.GetNameConvention(ownerType);
+            var tableName = ModelType==ownerType? ownerConventions.TableName: ownerConventions.JoinedAliasName;
+            var originalColumnName = q(tableName) + "." + q(node.Name);
+
+            parameterTable += sep + tab + originalColumnName + tab + $"{AliasQuote}{fullTreeAlias}{AliasQuote}";
+            sep = ",\n";
+        }
+
+        return parameterTable.Trim();
+    }
+    
+    
 
     private JoinNames GetJoinNames(JoinPoint joinPoints, MeadowConfiguration configuration)
     {
@@ -176,7 +223,7 @@ select * from Plants
                 };
                 inclusionRecord.Conditions.Add(condition);
             }, o => inclusionRecord.Conditions.Last().Operator = o,
-            t => inclusionRecord.Conditions.Last().TargetValue = t);
+            t => inclusionRecord.Conditions.Last().Target = t);
     }
 
     protected IQuerySource<TModel, TProperty> Include<TProperty>(
@@ -201,7 +248,7 @@ select * from Plants
                 };
                 inclusionRecord.Conditions.Add(condition);
             }, o => inclusionRecord.Conditions.Last().Operator = o,
-            t => inclusionRecord.Conditions.Last().TargetValue = t);
+            t => inclusionRecord.Conditions.Last().Target = t);
     }
 
 
@@ -210,6 +257,41 @@ select * from Plants
         return tableName;
     }
 
+    protected virtual string TranslateComparisonOperators(Operators o,Type sourceType, Type targetType)
+    {
+        var stringType = typeof(string);
+
+        var isString = sourceType == stringType || targetType == stringType;
+
+        var equality = isString ? "like" : "=";
+        
+        var inEquality = isString ? "NOT LIKE" : "!=";
+        
+        if (o == Operators.IsEqualTo)
+        {
+            return equality;
+        }else if (o == Operators.IsNotEqualTo)
+        {
+            return inEquality;
+        }else if (o == Operators.IsGreaterThan)
+        {
+            return ">";
+        }else if (o == Operators.IsSmallerThan)
+        {
+            return "<";
+        }else if (o == Operators.IsGreaterOrEqualTo)
+        {
+            return ">=";
+        }else if (o == Operators.IsSmallerOrEqualTo)
+        {
+            return "<=";
+        }
+
+        return "=";
+    }
+    
+    protected virtual string AliasQuote => "'";
+    
     // IFieldInclusionMarker<TModel> this<TProperty>[](
     //     Expression<Func<TModel, TProperty>> select,
     //     Action<QuerySource<TProperty>> where);
