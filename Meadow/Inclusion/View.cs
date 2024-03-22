@@ -103,13 +103,43 @@ select * from Plants
 
 
 
+    private bool StartsWith(FieldKey start, FieldKey key)
+    {
+        if (key.Count < start.Count)
+        {
+            return false;
+        }
+        
+        for (int i = 0; i < start.Count; i++)
+        {
+            if (start[i].Name != key[i].Name)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    
+
     private List<KeyValuePair<string,FieldKey>> IncludedColumns(FullTreeMap fullTreeMap)
     {
         var columns = new List<KeyValuePair<string,FieldKey>>();
 
+        // var inclusions = _inclusions.Select(i =>
+        //     i.IncludedField.TerminalSegment().Indexed ? i.IncludedField.UpLevel() : i.IncludedField).ToList();
+        //
+        
+        var inclusions = _inclusions.Select(i => i.IncludedField).ToList();
+        
+        var firstSegment = new ObjectEvaluator(typeof(TModel)).RootNode.Name;
+        
         foreach (var columnKey in fullTreeMap.RelationalMap)
         {
-            if (_inclusions.Any(i => columnKey.Value.Equals(columnKey.Value,FieldKeyComparisons.IgnoreAllIndexes)))
+            if (inclusions.Any(i => StartsWith(i,columnKey.Value)))
+            {
+                columns.Add(columnKey);
+            }else if (columnKey.Value.Count == 2 && columnKey.Value[0].Name == firstSegment)
             {
                 columns.Add(columnKey);
             }
