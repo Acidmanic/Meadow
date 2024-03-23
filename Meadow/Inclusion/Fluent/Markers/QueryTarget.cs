@@ -13,17 +13,19 @@ internal class QueryTarget<TParametersModel,TModel, TProperty> : IToQueryTarget<
 
     private readonly IQuerySource<TParametersModel,TModel, TProperty> _source;
 
-    public QueryTarget(Action<TargetValueMark> onSelect, IQuerySource<TParametersModel, TModel, TProperty> source)
+    private readonly Action<BooleanRelation> _onRelateToNext;
+    public QueryTarget(Action<TargetValueMark> onSelect, IQuerySource<TParametersModel, TModel, TProperty> source, Action<BooleanRelation> onRelateToNext)
     {
         _onSelect = onSelect;
         _source = source;
+        _onRelateToNext = onRelateToNext;
     }
 
     private IChainSelector<TParametersModel,TModel, TProperty> Select(TargetTypes targetType, Type? modelType, FieldKey? fieldKey, Type? valueType, string? value)
     {
         _onSelect(new TargetValueMark(targetType, modelType,fieldKey, valueType, value));
 
-        return new ChainSelector<TParametersModel,TModel, TProperty>(_source);
+        return new ChainSelector<TParametersModel,TModel, TProperty>(_source,_onRelateToNext);
     }
     
     private IChainSelector<TParametersModel, TModel, TProperty> Target<TValue>(TValue value)
@@ -76,17 +78,20 @@ internal class QueryTarget<TModel, TProperty> : IToQueryTarget<TModel, TProperty
     private readonly Action<TargetValueMark> _onSelect;
 
     private readonly IQuerySource<TModel, TProperty> _source;
-    public QueryTarget(Action<TargetValueMark> onSelect, IQuerySource<TModel, TProperty> source)
+    
+    private readonly Action<BooleanRelation> _onRelateToNext;
+    public QueryTarget(Action<TargetValueMark> onSelect, IQuerySource<TModel, TProperty> source, Action<BooleanRelation> onRelateToNext)
     {
         _onSelect = onSelect;
         _source = source;
+        _onRelateToNext = onRelateToNext;
     }
 
     private IChainSelector<TModel, TProperty> Select(TargetTypes targetType, Type? modelType, FieldKey? fieldKey, Type? valueType, string? value)
     {
         _onSelect(new TargetValueMark( targetType,modelType,fieldKey, valueType, value));
 
-        return new ChainSelector<TModel, TProperty>(_source);
+        return new ChainSelector<TModel, TProperty>(_source,_onRelateToNext);
     }
 
     private IChainSelector<TModel, TProperty> Target<TValue>(TValue value)

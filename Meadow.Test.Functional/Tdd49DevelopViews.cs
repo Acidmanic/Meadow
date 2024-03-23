@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Acidmanic.Utilities.Reflection.Extensions;
 using Meadow.Configuration;
 using Meadow.Inclusion;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -21,14 +20,14 @@ namespace Meadow.Test.Functional
 
         public record Mas(Guid Id, List<User> Users, Shambal Shambal, Guid ShambalId, string First, string Second, int Index);
 
-        public class CustomView : View<CustomView,Mas>
+
+        public record CustomParameters(Guid CurrentUserId);
+        public class CustomView : View<CustomParameters,Mas>
         {
-            
-            public Guid CurrentUserId { get; set; }
-            
+
             protected override void MarkInclusions()
             {
-                Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id);
+                //Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id);
                 
                 Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id)
                     .Or().Where(u => u.Id).IsEqual().To(v => v.CurrentUserId);

@@ -151,6 +151,8 @@ public abstract class ViewBase<TModel>
             
             var where = inclusion.Conditions.Any() ? " WHERE " : "";
 
+            var relation = BooleanRelation.None;
+            
             foreach (var condition in inclusion.Conditions)
             {
                 var conSrcConventions = configuration.GetNameConvention(condition.SourceModelType);
@@ -175,9 +177,13 @@ public abstract class ViewBase<TModel>
                 }
 
                 var comparison = TranslateComparisonOperators(condition.Operator, condition.GetSourceType(), condition.GetTargetType());
+
+                var relationString = relation == BooleanRelation.None ? "" : " " + RelationString(relation);
                 
                 where +=
-                    $" {conSrcConventions.TableName}.{condition.SourceField.Headless()} {comparison} {target}";
+                    $"{relationString} {conSrcConventions.TableName}.{condition.SourceField.Headless()} {comparison} {target}";
+
+                relation = condition.NextRelation;
             }
 
             var join = GetJoinTerm(joinPoints, where, joinNames);
@@ -186,6 +192,15 @@ public abstract class ViewBase<TModel>
         }
 
         return script;
+    }
+
+    private string RelationString(BooleanRelation relation)
+    {
+        if (relation == BooleanRelation.And) return "AND";
+
+        if (relation == BooleanRelation.Or) return "OR";
+
+        return "";
     }
 
     private bool StartsWith(FieldKey start, FieldKey key)
@@ -335,7 +350,7 @@ public abstract class ViewBase<TModel>
 
         AddInclusion(inclusionRecord);
 
-        return new FieldAddressQuerySource<TParametersModel,TModel, TProperty>(
+        var source =  new FieldAddressQuerySource<TParametersModel,TModel, TProperty>(
             sfk =>
             {
                 var condition = new InclusionCondition
@@ -345,7 +360,13 @@ public abstract class ViewBase<TModel>
                 };
                 inclusionRecord.Conditions.Add(condition);
             }, o => inclusionRecord.Conditions.Last().Operator = o,
-            t => inclusionRecord.Conditions.Last().Target = t);
+            t => inclusionRecord.Conditions.Last().Target = t, b =>
+            {
+                _inclusions.Last().Conditions.Last().NextRelation = b;
+            });
+
+        return source;
+
     }
     
     protected IQuerySource<TModel, TProperty> IncludeWithoutParameters<TProperty>(FieldKey includedField)
@@ -370,7 +391,10 @@ public abstract class ViewBase<TModel>
                 };
                 inclusionRecord.Conditions.Add(condition);
             }, o => inclusionRecord.Conditions.Last().Operator = o,
-            t => inclusionRecord.Conditions.Last().Target = t);
+            t => inclusionRecord.Conditions.Last().Target = t, b =>
+            {
+                _inclusions.Last().Conditions.Last().NextRelation = b;
+            });
     }
 
     internal void AddInclusion(InclusionRecord inclusionRecord)

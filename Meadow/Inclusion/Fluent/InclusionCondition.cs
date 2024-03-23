@@ -30,4 +30,6 @@ internal class InclusionCondition
             return Target.TargetModelType!;
         }
     }
+    
+    public BooleanRelation NextRelation { get; set; }
 }

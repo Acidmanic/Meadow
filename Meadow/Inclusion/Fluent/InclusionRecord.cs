@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
+using Meadow.Inclusion.Enums;
 
 namespace Meadow.Inclusion.Fluent;
 
