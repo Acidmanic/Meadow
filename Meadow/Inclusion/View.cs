@@ -8,6 +8,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Attributes;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Inclusion.Fluent;
 using Meadow.Inclusion.Fluent.Markers;
@@ -19,28 +20,89 @@ public abstract class View<TModel>
 {
     protected abstract void MarkInclusions();
 
-    internal readonly List<InclusionRecord> _inclusions = new List<InclusionRecord>();
+    private readonly List<InclusionRecord> _inclusions;
+    
+    private readonly Dictionary<FieldKey, NameConvention> _conventionsByFieldKey;
+
+    private readonly ObjectEvaluator _modelEvaluator ;
+
+    private readonly FieldKey _modelFieldKey ;
+
+    private NameConvention _modelTypeConventions = new NameConvention(typeof(TModel));
+    
+    private readonly List<FieldKey> _extraJoins;
+    private readonly List<FieldKey> _allJoins;
 
     public Type ModelType => typeof(TModel);
+    
+    
+    private void PostProcessIndexes(MeadowConfiguration configuration)
+    {
+        // Translate Inclusion keys
+        foreach (var inclusion in _inclusions)
+        {
+            inclusion.IncludedField = _modelEvaluator.Map.FieldKeyByAddress(inclusion.IncludedField.ToString());
+        }
+        
+        ExtractJoins();
+        
+        _modelTypeConventions = configuration.GetNameConvention(ModelType);
+        
+        _conventionsByFieldKey.Clear();
+        
+        foreach (var inclusion in _inclusions)
+        {
+            _conventionsByFieldKey.Add(inclusion.IncludedField,configuration.GetNameConvention(inclusion.Type)); 
+        }
 
+        foreach (var extraJoin in _extraJoins)
+        {
+            _conventionsByFieldKey.Add(extraJoin,configuration.GetNameConvention(_modelEvaluator.Map.NodeByKey(extraJoin).Type)); 
+        }
+        _conventionsByFieldKey.Add(_modelFieldKey,_modelTypeConventions);
+
+        
+    }
+
+    private void ExtractJoins()
+    {
+        _extraJoins.Clear();
+        _allJoins.Clear();
+        
+        foreach (var inclusion in _inclusions)
+        {
+            var currentKey = new FieldKey(inclusion.IncludedField);
+        
+            while (currentKey.Count >1)
+            {
+                var currentNode = _modelEvaluator.Map.NodeByKey(currentKey);
+
+                if (!currentNode.IsCollection)
+                {
+                    if (!_extraJoins.Contains(currentKey) && ! _inclusions.Any(i => i.IncludedField.Equals(currentKey)))
+                    {
+                        _extraJoins.Add(currentKey);
+                    }
+
+                    if (!_allJoins.Contains(currentKey))
+                    {
+                        _allJoins.Add(currentKey);
+                    }
+                }
+
+                currentKey = currentKey.UpLevel();
+            }
+        }
+    }
+    
     public View()
     {
-        /*
-         select * from Plants;
-
-
-select * from Plants left join PlantTypes on Plants.TypeId = PlantTypes.Id;
-
-
-select * from Plants left join PlantTypes on Plants.TypeId = PlantTypes.Id;
-
-select * from Plants 
-    left join 
-        (select * from PlantTypes where TypeName like 'Vegetable') as PT
-        on Plants.TypeId = PT.Id;
-         
-          
-         */
+        _inclusions = new List<InclusionRecord>();
+        _conventionsByFieldKey = new Dictionary<FieldKey, NameConvention>();
+        _modelEvaluator = new ObjectEvaluator(typeof(TModel));
+        _modelFieldKey = _modelEvaluator.Map.FieldKeyByNode(_modelEvaluator.RootNode);
+        _extraJoins = new List<FieldKey>();
+        _allJoins = new List<FieldKey>();
     }
 
     private sealed record JoinPoint(AccessNode IncludedNode, AccessNode Pointer, AccessNode PointedAt);
@@ -50,16 +112,31 @@ select * from Plants
 
     public string Script(MeadowConfiguration configuration)
     {
-        var mainConventions = configuration.GetNameConvention(ModelType);
-
-        MarkInclusions();
         
+        MarkInclusions();
+
+        PostProcessIndexes(configuration);
+        
+       
         var fullTreeMap = configuration.GetFullTreeMap<TModel>();
 
         var parametersTable = GetParametersTable(QuotTableNames, fullTreeMap, configuration);
         
-        var script = $"SELECT {parametersTable} FROM {mainConventions.TableName}";
+        var script = $"SELECT {parametersTable} FROM {_modelTypeConventions.TableName}";
 
+        foreach (var extraJoin in _extraJoins)
+        {
+            var joinNode = fullTreeMap.AddressKeyNodeMap.NodeByKey(extraJoin);
+
+            var joinPoints = GetJoinPoints(joinNode);
+
+            var joinNames = GetJoinNames(joinPoints, configuration);
+            
+            var join = GetJoinTerm(joinPoints, "", joinNames);
+
+            script += "\n" + join;
+        }
+        
         foreach (var inclusion in _inclusions)
         {
             var includedNode = fullTreeMap.AddressKeyNodeMap.NodeByKey(inclusion.IncludedField);
@@ -68,7 +145,7 @@ select * from Plants
 
             var joinNames = GetJoinNames(joinPoints, configuration);
             
-            var where = inclusion.Conditions.Any() ? " where " : "";
+            var where = inclusion.Conditions.Any() ? " WHERE " : "";
 
             foreach (var condition in inclusion.Conditions)
             {
@@ -98,9 +175,12 @@ select * from Plants
             script += "\n" + join;
         }
 
+       
+
         return script;
     }
 
+   
 
 
     private bool StartsWith(FieldKey start, FieldKey key)
@@ -136,7 +216,7 @@ select * from Plants
         
         foreach (var columnKey in fullTreeMap.RelationalMap)
         {
-            if (inclusions.Any(i => StartsWith(i,columnKey.Value)))
+            if (inclusions.Any(i => StartsWith(i,columnKey.Value) && columnKey.Value.Count == i.Count+1))
             {
                 columns.Add(columnKey);
             }else if (columnKey.Value.Count == 2 && columnKey.Value[0].Name == firstSegment)
@@ -172,25 +252,46 @@ select * from Plants
 
         return parameterTable.Trim();
     }
-    
-    
+
+    private string GetJoinName(AccessNode node, MeadowConfiguration configuration)
+    {
+        var key = _modelEvaluator.Map.FieldKeyByAddress(node.GetFullName());
+
+        if (_allJoins.Contains(key))
+        {
+            return _conventionsByFieldKey[key].JoinedAliasName;
+        }
+
+        return _conventionsByFieldKey[key].TableName;
+    }
 
     private JoinNames GetJoinNames(JoinPoint joinPoints, MeadowConfiguration configuration)
     {
-        var pointerConv = configuration.GetNameConvention(joinPoints.Pointer.Type);
+        // var pointerConv = configuration.GetNameConvention(joinPoints.Pointer.Type);
+        //
+        // var pointedAtConv = configuration.GetNameConvention(joinPoints.PointedAt.Type);
+        //
+        //
+        // if (joinPoints.IncludedNode == joinPoints.Pointer)
+        // {
+        //     return new JoinNames(pointerConv.TableName, pointerConv.JoinedAliasName, pointerConv.JoinedAliasName,
+        //         pointedAtConv.TableName);
+        // }
+        // else
+        // {
+        //     return new JoinNames(pointedAtConv.TableName, pointedAtConv.JoinedAliasName, pointerConv.TableName,
+        //         pointedAtConv.JoinedAliasName);
+        // }
 
-        var pointedAtConv = configuration.GetNameConvention(joinPoints.PointedAt.Type);
+        var includedConventions = _conventionsByFieldKey[_modelEvaluator.Map.FieldKeyByAddress(joinPoints.IncludedNode.GetFullName())];
 
-        if (joinPoints.IncludedNode == joinPoints.Pointer)
-        {
-            return new JoinNames(pointerConv.TableName, pointerConv.JoinedAliasName, pointerConv.JoinedAliasName,
-                pointedAtConv.TableName);
-        }
-        else
-        {
-            return new JoinNames(pointedAtConv.TableName, pointedAtConv.JoinedAliasName, pointerConv.TableName,
-                pointedAtConv.JoinedAliasName);
-        }
+        // if (_conventionsByFieldKey.ContainsKey(_modelEvaluator.Map.FieldKeyByNode(joinPoints.Pointer)))
+        // {
+        //     
+        // }
+
+        return new JoinNames(includedConventions.TableName, includedConventions.JoinedAliasName,
+            GetJoinName(joinPoints.Pointer, configuration), GetJoinName(joinPoints.PointedAt, configuration));
     }
 
     private string GetJoinTerm(JoinPoint join, string where, JoinNames joinAlias)
@@ -231,13 +332,18 @@ select * from Plants
         }
     }
 
+    
+
     protected IQuerySource<TModel, TProperty> Include<TProperty>(
         Expression<Func<TModel, List<TProperty>>> select)
     {
+        var includedField = MemberOwnerUtilities.GetKey(select);
+        
+        
         var inclusionRecord = new InclusionRecord
         {
             Conditions = new List<InclusionCondition>(),
-            IncludedField = MemberOwnerUtilities.GetKey(select),
+            IncludedField = includedField,
             Type = typeof(TProperty)
         };
 

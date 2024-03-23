@@ -11,4 +11,5 @@ internal class InclusionRecord
     public List<InclusionCondition> Conditions { get; set; }
     
     public Type Type { get; set; }
+    
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Inclusion;
 using Meadow.Test.Functional.TDDAbstractions;
+using Ubiety.Dns.Core.Records.NotUsed;
 
 namespace Meadow.Test.Functional
 {
@@ -12,7 +13,9 @@ namespace Meadow.Test.Functional
         public record User(string Name, string Surname, Guid Id, Guid MasId);
 
 
-        public record Shambal(Guid Id, string Title, string Description);
+        public record Shambal(Guid Id, Guid GhozmitId, Ghozmit Ghozmit, string Title, string Description);
+
+        public record Ghozmit(Guid Id, string Name);
 
         public record Mas(Guid Id, List<User> Users, Shambal Shambal, Guid ShambalId, string First, string Second, int Index);
 
@@ -23,6 +26,8 @@ namespace Meadow.Test.Functional
                 Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id);
 
                 Include(m => m.Shambal);
+
+                Include(m => m.Shambal.Ghozmit);
             }
         }
         
