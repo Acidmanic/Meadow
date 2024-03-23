@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Meadow.Configuration;
 using Meadow.Inclusion;
 using Meadow.Test.Functional.TDDAbstractions;
-using Ubiety.Dns.Core.Records.NotUsed;
 
 namespace Meadow.Test.Functional
 {
+
+
     public class Tdd49DevelopViews : IFunctionalTest
     {
         
@@ -19,11 +21,17 @@ namespace Meadow.Test.Functional
 
         public record Mas(Guid Id, List<User> Users, Shambal Shambal, Guid ShambalId, string First, string Second, int Index);
 
-        public class ViewT : View<Mas>
+        public class CustomView : View<CustomView,Mas>
         {
+            
+            public Guid CurrentUserId { get; set; }
+            
             protected override void MarkInclusions()
             {
                 Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id);
+                
+                Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id)
+                    .Or().Where(u => u.Id).IsEqual().To(v => v.CurrentUserId);
 
                 Include(m => m.Shambal);
 
@@ -45,8 +53,7 @@ namespace Meadow.Test.Functional
             // var meeh = MemberOwnerUtilities.GetKey<Mas,string>(m => m.First);
             //
             
-            var v = new FullTreeMas();
-
+            var v = new CustomView();
 
             var configuration = new MeadowConfiguration();
 

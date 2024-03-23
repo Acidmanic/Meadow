@@ -1,6 +1,7 @@
 using System;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
+using Meadow.Inclusion.Enums;
 using Meadow.Inclusion.Fluent.Markers;
 
 namespace Meadow.Inclusion.Fluent;
@@ -20,7 +21,7 @@ internal class InclusionCondition
 
     public Type GetTargetType()
     {
-        if (Target.IsConstant)
+        if (Target.TargetType==TargetTypes.Constant)
         {
             return Target.ValueType!;
         }
