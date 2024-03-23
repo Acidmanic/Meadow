@@ -30,7 +30,11 @@ namespace Meadow.Test.Functional
                 Include(m => m.Shambal.Ghozmit);
             }
         }
-        
+
+        public class FullTreeMas : FullTreeView<Mas>
+        {
+        }
+
         public void Main()
         {
 
@@ -41,7 +45,7 @@ namespace Meadow.Test.Functional
             // var meeh = MemberOwnerUtilities.GetKey<Mas,string>(m => m.First);
             //
             
-            var v = new ViewT();
+            var v = new FullTreeMas();
 
 
             var configuration = new MeadowConfiguration();

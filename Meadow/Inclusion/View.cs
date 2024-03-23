@@ -228,10 +228,19 @@ public abstract class View<TModel>
         return columns;
     }
 
+    private class MappedKeyColumnPairComparer : IComparer<KeyValuePair<string, FieldKey>>
+    {
+        public int Compare(KeyValuePair<string, FieldKey> x, KeyValuePair<string, FieldKey> y)
+        {
+            return x.Value.Count - y.Value.Count;
+        }
+    }
 
     private string GetParametersTable(Func<string, string> q, FullTreeMap fullTreeMap, MeadowConfiguration configuration)
     {
         var relationalMap = IncludedColumns(fullTreeMap);
+        
+        relationalMap.Sort(new MappedKeyColumnPairComparer());
         
         var parameterTable = "";
         var tab = "        ";
@@ -362,6 +371,11 @@ public abstract class View<TModel>
             t => inclusionRecord.Conditions.Last().Target = t);
     }
 
+    internal void AddInclusion(InclusionRecord record)
+    {
+            _inclusions.Add(record);
+    }
+
     protected IQuerySource<TModel, TProperty> Include<TProperty>(
         Expression<Func<TModel, TProperty>> select)
     {
@@ -431,4 +445,53 @@ public abstract class View<TModel>
     // IFieldInclusionMarker<TModel> this<TProperty>[](
     //     Expression<Func<TModel, TProperty>> select,
     //     Action<QuerySource<TProperty>> where);
+}
+
+
+public abstract class FullTreeView<TModel>:View<TModel>
+{
+
+
+    private List<AccessNode> GetDescendants(AccessNode node)
+    {
+        var nodes = new List<AccessNode>();
+
+        GetDescendants(node, nodes);
+
+        return nodes;
+    }
+    
+    private void GetDescendants(AccessNode node, List<AccessNode> nodes)
+    {
+        var children = node.GetChildren();
+
+        foreach (var child in children)
+        {
+            nodes.Add(child);
+
+            GetDescendants(child, nodes);
+        }
+
+    }
+
+    protected override void MarkInclusions()
+    {
+        var ev = new ObjectEvaluator(typeof(TModel));
+        
+        var joinNodes = GetDescendants(ev.RootNode)
+            .Where(n => !n.IsLeaf && !n.IsCollection && n != ev.RootNode)
+            .ToList();
+
+        foreach (var joinNode in joinNodes)
+        {
+            var inclusion = new InclusionRecord
+            {
+                Conditions = new List<InclusionCondition>(),
+                Type = joinNode.Type,
+                IncludedField = ev.Map.FieldKeyByNode(joinNode)
+            };
+            
+            AddInclusion(inclusion);
+        }
+    }
 }
