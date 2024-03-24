@@ -33,8 +33,6 @@ namespace Meadow.Test.Functional
                 Include(m => m.Users).Where(u => u.MasId).IsEqual().To((Mas m) => m.Id)
                     .Or().Where(u => u.Id).IsEqual().To(v => v.CurrentUserId);
 
-                Include(m => m.Shambal);
-
                 Include(m => m.Shambal.Ghozmit);
             }
         }
@@ -55,20 +53,23 @@ namespace Meadow.Test.Functional
             //
             // var meeh = MemberOwnerUtilities.GetKey<Mas,string>(m => m.First);
             //
+
+            var vt = new ViewTranslator();
             
             var v = new CustomView();
-
+            
             var configuration = new MeadowConfiguration();
 
-            Console.WriteLine(v.Script(configuration, new Translator()));
+            Console.WriteLine(vt.Script(v.ModelType,configuration,v.Inclusions,new Translator()));
 
 
 
             Console.WriteLine("--------------------------------------------");
             Console.WriteLine("--------------------------------------------");
 
+            var fv = new FullTreeMas();
 
-            Console.WriteLine(new FullTreeMas().Script(configuration, new Translator()));
+            Console.WriteLine(vt.Script(fv.ModelType,configuration,fv.Inclusions,new Translator()));
             
         }
     }

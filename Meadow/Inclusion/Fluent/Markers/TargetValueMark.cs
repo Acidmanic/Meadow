@@ -4,7 +4,7 @@ using Meadow.Inclusion.Enums;
 
 namespace Meadow.Inclusion.Fluent.Markers;
 
-internal record TargetValueMark(
+public record TargetValueMark(
     TargetTypes TargetType,
     Type? TargetModelType, 
     FieldKey? FieldKey,  

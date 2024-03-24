@@ -5,7 +5,7 @@ using Meadow.Inclusion.Enums;
 
 namespace Meadow.Inclusion.Fluent;
 
-internal class InclusionRecord
+public class InclusionRecord
 {
     public FieldKey IncludedField { get; set; }
     

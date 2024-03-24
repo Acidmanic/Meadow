@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
+using Meadow.Inclusion.Enums;
 
 namespace Meadow.Extensions
 {
@@ -86,6 +87,25 @@ namespace Meadow.Extensions
             }
 
             return result;
+        }
+
+
+        public static bool StartsWith(this FieldKey key, FieldKey starter)
+        {
+            if (key.Count < starter.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < starter.Count; i++)
+            {
+                if (starter[i].Name != key[i].Name)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 }

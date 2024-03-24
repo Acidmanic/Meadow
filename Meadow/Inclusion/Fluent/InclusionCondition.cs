@@ -6,7 +6,7 @@ using Meadow.Inclusion.Fluent.Markers;
 
 namespace Meadow.Inclusion.Fluent;
 
-internal class InclusionCondition
+public class InclusionCondition
 {
     public FieldKey SourceField { get; set; }
     
