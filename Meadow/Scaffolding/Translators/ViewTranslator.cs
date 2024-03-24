@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
@@ -17,7 +18,6 @@ namespace Meadow.Scaffolding.Translators;
 
 public class ViewTranslator
 {
-    
     private class Context
     {
         public NameConvention ModelTypeConventions;
@@ -25,62 +25,60 @@ public class ViewTranslator
         public Type ModelType;
 
         public ObjectEvaluator ModelEvaluator;
-        
-        public  Dictionary<FieldKey, NameConvention> ConventionsByFieldKey;
 
-        public  FieldKey ModelFieldKey;
-        
-        public  List<FieldKey> ExtraJoins;
-        
-        public  List<FieldKey> AllJoins;
+        public Dictionary<FieldKey, NameConvention> ConventionsByFieldKey;
+
+        public FieldKey ModelFieldKey;
+
+        public List<FieldKey> JoinOnlyEntities;
+
+        public List<FieldKey> RelatedEntities;
 
         public List<InclusionRecord> Inclusions;
 
         public FullTreeMap FullTreeMap;
 
-        public MeadowConfiguration configurations;
+        public MeadowConfiguration Configurations;
 
         public ISqlLanguageTranslator Translator;
+
+        public Dictionary<FieldKey, bool> HasCondition;
+
+        public Dictionary<FieldKey, bool> IsIncluded;
     }
-    
-    
-    private sealed record JoinPoint(AccessNode IncludedNode, AccessNode Pointer, AccessNode PointedAt);
 
-    private sealed record JoinNames(string IncludedTableName, string IncludedJoinAlias, string Pointer,
-        string PointedAt);
+    //
+    // private sealed record JoinPoint(FieldKey IncludedKey, AccessNode IncludedNode, AccessNode Pointer,
+    //     AccessNode PointedAt);
+    //
+    // private sealed record JoinNames(string IncludedTableName, string IncludedJoinAlias, string Pointer,
+    //     string PointedAt);
 
-    
-    public string Script(Type modelType, MeadowConfiguration configuration, List<InclusionRecord> inclusions, ISqlLanguageTranslator translator)
+
+    private sealed record JoinPoint(FieldKey IncludedKey, FieldKey Pointer, FieldKey PointedAt);
+
+    private string CreateJoin(FieldKey entity, Context context, string where = "")
     {
-        //MarkInclusions();
+        var joinPoints = GetJoinPoints(entity, context);
 
-        var context = PostProcessIndexes(modelType,configuration,inclusions, translator);
-        
+        var join = GetJoinTerm(joinPoints, where, context);
+
+        return join;
+    }
+
+    public string Script(Type modelType, MeadowConfiguration configuration, List<InclusionRecord> inclusions,
+        ISqlLanguageTranslator translator)
+    {
+        var context = PostProcessIndexes(modelType, configuration, inclusions, translator);
+
         var parametersTable = GetParametersTable(context);
 
         var script = $"SELECT {parametersTable} FROM {context.ModelTypeConventions.TableName}";
 
-        foreach (var extraJoin in context.ExtraJoins)
-        {
-            var joinNode = context.FullTreeMap.AddressKeyNodeMap.NodeByKey(extraJoin);
-
-            var joinPoints = GetJoinPoints(joinNode);
-
-            var joinNames = GetJoinNames(joinPoints, context);
-
-            var join = GetJoinTerm(joinPoints, "", joinNames,translator.QuotNames);
-
-            script += "\n" + join;
-        }
+        script += "\n" + string.Join("\n", context.JoinOnlyEntities!.Select(e => CreateJoin(e, context)));
 
         foreach (var inclusion in inclusions)
         {
-            var includedNode = context.FullTreeMap.AddressKeyNodeMap.NodeByKey(inclusion.IncludedField);
-
-            var joinPoints = GetJoinPoints(includedNode);
-
-            var joinNames = GetJoinNames(joinPoints, context);
-
             var where = inclusion.Conditions.Any() ? " WHERE " : "";
 
             var relation = BooleanRelation.None;
@@ -119,33 +117,33 @@ public class ViewTranslator
                 relation = condition.NextRelation;
             }
 
-            var join = GetJoinTerm(joinPoints, where, joinNames,translator.QuotNames);
-
-            script += "\n" + join;
+            script += "\n" + CreateJoin(inclusion.IncludedField, context, where);
         }
 
         return script;
     }
-    
-    private Context PostProcessIndexes(Type modelType, MeadowConfiguration configuration, List<InclusionRecord> inclusions,ISqlLanguageTranslator translator)
-    {
 
+    private Context PostProcessIndexes(Type modelType, MeadowConfiguration configuration,
+        List<InclusionRecord> inclusions, ISqlLanguageTranslator translator)
+    {
         var context = new Context()
         {
             ModelType = modelType,
-            ModelTypeConventions =configuration.GetNameConvention(modelType) ,
+            ModelTypeConventions = configuration.GetNameConvention(modelType),
             ModelEvaluator = new ObjectEvaluator(modelType),
-            AllJoins = new List<FieldKey>(),
-            ExtraJoins = new List<FieldKey>(),
+            RelatedEntities = new List<FieldKey>(),
+            JoinOnlyEntities = new List<FieldKey>(),
             ConventionsByFieldKey = new Dictionary<FieldKey, NameConvention>(),
-            Inclusions = inclusions ,
+            Inclusions = inclusions,
             FullTreeMap = configuration.GetFullTreeMap(modelType),
             Translator = translator,
-            configurations = configuration,
+            Configurations = configuration,
+            HasCondition = new Dictionary<FieldKey, bool>(),
+            IsIncluded = new Dictionary<FieldKey, bool>(),
         };
 
         context.ModelFieldKey = context.ModelEvaluator.Map.FieldKeyByNode(context.ModelEvaluator.RootNode);
-        
+
         // Translate Inclusion keys
         foreach (var inclusion in inclusions)
         {
@@ -161,7 +159,7 @@ public class ViewTranslator
             context.ConventionsByFieldKey.Add(inclusion.IncludedField, configuration.GetNameConvention(inclusion.Type));
         }
 
-        foreach (var extraJoin in context.ExtraJoins)
+        foreach (var extraJoin in context.JoinOnlyEntities)
         {
             context.ConventionsByFieldKey.Add(extraJoin,
                 configuration.GetNameConvention(context.ModelEvaluator.Map.NodeByKey(extraJoin).Type));
@@ -174,8 +172,8 @@ public class ViewTranslator
 
     private void ExtractJoins(Context context)
     {
-        context.ExtraJoins.Clear();
-        context.AllJoins.Clear();
+        context.JoinOnlyEntities.Clear();
+        context.RelatedEntities.Clear();
 
         foreach (var inclusion in context.Inclusions)
         {
@@ -187,22 +185,36 @@ public class ViewTranslator
 
                 if (!currentNode.IsCollection)
                 {
-                    if (!context.ExtraJoins.Contains(currentKey) && !context.Inclusions.Any(i => i.IncludedField.Equals(currentKey)))
+                    if (!context.JoinOnlyEntities.Contains(currentKey) &&
+                        !context.Inclusions.Any(i => i.IncludedField.Equals(currentKey)))
                     {
-                        context.ExtraJoins.Add(currentKey);
+                        context.JoinOnlyEntities.Add(currentKey);
                     }
 
-                    if (!context.AllJoins.Contains(currentKey))
+                    if (!context.RelatedEntities.Contains(currentKey))
                     {
-                        context.AllJoins.Add(currentKey);
+                        context.RelatedEntities.Add(currentKey);
                     }
                 }
 
                 currentKey = currentKey.UpLevel();
             }
         }
+
+        foreach (var entity in context.RelatedEntities)
+        {
+            var inclusion = context.Inclusions.FirstOrDefault(I => I.IncludedField.EqualsIgnoreIndex(entity));
+
+            var isIncluded = inclusion != null;
+
+            context.IsIncluded.Add(entity, isIncluded);
+
+            bool hasCondition = inclusion?.Conditions.Count > 0;
+
+            context.HasCondition.Add(entity, hasCondition);
+        }
     }
-    
+
     private class MappedKeyColumnPairComparer : IComparer<KeyValuePair<string, FieldKey>>
     {
         public int Compare(KeyValuePair<string, FieldKey> x, KeyValuePair<string, FieldKey> y)
@@ -211,7 +223,7 @@ public class ViewTranslator
         }
     }
 
-    
+
     private string GetParametersTable(Context context)
     {
         var relationalMap = IncludedColumns(context);
@@ -221,24 +233,27 @@ public class ViewTranslator
         var parameterTable = "";
         var tab = "        ";
         var sep = "";
+        
         foreach (var columnKey in relationalMap)
         {
             var fullTreeAlias = columnKey.Key;
-            var key = columnKey.Value;
-            var node = context.FullTreeMap.AddressKeyNodeMap.NodeByKey(key);
-            var ownerType = node.Parent.Type;
-            var ownerConventions = context.configurations.GetNameConvention(ownerType);
-            var tableName = context.ModelType == ownerType ? ownerConventions.TableName : ownerConventions.JoinedAliasName;
-            var originalColumnName = context.Translator.QuotNames(tableName) + "." + context.Translator.QuotNames(node.Name);
+            
+            var node = context.FullTreeMap.AddressKeyNodeMap.NodeByKey(columnKey.Value);
+            
+            var tableName = GetSourceNameForUsage(columnKey.Value.UpLevel(), context);
+            
+            var originalColumnName =
+                context.Translator.QuotNames(tableName) + "." + context.Translator.QuotNames(node.Name);
 
-            parameterTable += sep + tab + originalColumnName + tab + $"{context.Translator.TableAliasQuot}{fullTreeAlias}{context.Translator.TableAliasQuot}";
+            parameterTable += sep + tab + originalColumnName + tab +
+                              $"{context.Translator.TableAliasQuot}{fullTreeAlias}{context.Translator.TableAliasQuot}";
             sep = ",\n";
         }
 
         return parameterTable.Trim();
     }
-    
-    
+
+
     private List<KeyValuePair<string, FieldKey>> IncludedColumns(Context context)
     {
         var columns = new List<KeyValuePair<string, FieldKey>>();
@@ -263,11 +278,16 @@ public class ViewTranslator
     }
 
 
-    private string GetJoinName(AccessNode node, Context context)
+    private bool HasCondition(FieldKey key, Context context)
     {
-        var key = context.ModelEvaluator.Map.FieldKeyByAddress(node.GetFullName());
+        if (context.HasCondition.ContainsKey(key)) return context.HasCondition[key];
 
-        if (context.AllJoins.Contains(key))
+        return false;
+    }
+
+    private string GetSourceNameForUsage(FieldKey key, Context context)
+    {
+        if (HasCondition(key, context))
         {
             return context.ConventionsByFieldKey[key].JoinedAliasName;
         }
@@ -275,27 +295,38 @@ public class ViewTranslator
         return context.ConventionsByFieldKey[key].TableName;
     }
 
-    private JoinNames GetJoinNames(JoinPoint joinPoints, Context context)
+    private string GetJoinTerm(JoinPoint join, string where, Context context)
     {
-        var includedConventions =
-            context.ConventionsByFieldKey[context.ModelEvaluator.Map.FieldKeyByAddress(joinPoints.IncludedNode.GetFullName())];
+        var includedConventions = context.ConventionsByFieldKey[join.IncludedKey];
 
-        return new JoinNames(includedConventions.TableName, includedConventions.JoinedAliasName,
-            GetJoinName(joinPoints.Pointer, context), GetJoinName(joinPoints.PointedAt, context));
+        var q = context.Translator.QuotNames;
+
+        var pointerIdFieldName = GetReferencedIdFieldName(join.PointedAt, context);
+
+        var pointerSourceName = GetSourceNameForUsage(join.Pointer, context);
+
+        var pointedAtSourceName = GetSourceNameForUsage(join.PointedAt, context);
+
+        var pointedAtIdField = TypeIdentity.FindIdentityLeaf(context.ModelEvaluator.Map.NodeByKey(join.PointedAt).Type)
+            .Name;
+        if (HasCondition(join.IncludedKey, context))
+        {
+            return
+                $"LEFT JOIN (SELECT * FROM {q(includedConventions.TableName)}{where}) AS " +
+                $"{includedConventions.JoinedAliasName} ON {q(pointerSourceName)}.{q(pointerIdFieldName)} =" +
+                $" {q(pointedAtSourceName)}.{q(pointedAtIdField)}";
+        }
+        else
+        {
+            return $"LEFT JOIN {includedConventions.TableName} ON {q(pointerSourceName)}.{q(pointerIdFieldName)} =" +
+                   $" {q(pointedAtSourceName)}.{q(pointedAtIdField)}";
+        }
     }
 
-    private string GetJoinTerm(JoinPoint join, string where, JoinNames joinAlias,Func<string, string> q)
+    private string GetReferencedIdFieldName(FieldKey field, Context context)
     {
-        var pointerIdFieldName = GetReferencedIdFieldName(join.PointedAt);
-        var pointedAtIdField = TypeIdentity.FindIdentityLeaf(join.PointedAt.Type).Name;
+        var node = context.ModelEvaluator.Map.NodeByKey(field);
 
-        return
-            $"LEFT JOIN (SELECT * FROM {q(joinAlias.IncludedTableName)}{where}) AS {joinAlias.IncludedJoinAlias} ON {q(joinAlias.Pointer)}.{q(pointerIdFieldName)} =" +
-            $" {q(joinAlias.PointedAt)}.{q(pointedAtIdField)}";
-    }
-
-    private string GetReferencedIdFieldName(AccessNode node)
-    {
         var foundAttribute = node.Type.GetCustomAttributes(true).FirstOrDefault(a => a is OneToMany);
 
         if (foundAttribute is OneToMany nToOneAtt)
@@ -307,18 +338,26 @@ public class ViewTranslator
     }
 
 
-    private JoinPoint GetJoinPoints(AccessNode includedNode)
+    private JoinPoint GetJoinPoints(FieldKey includedKey, Context context)
     {
+        var includedNode = context.ModelEvaluator.Map.NodeByKey(includedKey);
+
+        FieldKey pointer;
+        FieldKey pointed;
+
         if (includedNode.IsCollectable)
         {
             // N -> 1 | GrandFather
-            return new JoinPoint(includedNode, includedNode, includedNode.Parent.Parent);
+            pointer = includedKey;
+            pointed = context.ModelEvaluator.Map.FieldKeyByNode(includedNode.Parent.Parent);
         }
         else
         {
-            //The parent 
-            return new JoinPoint(includedNode, includedNode.Parent, includedNode);
+            //The parent
+            pointer = context.ModelEvaluator.Map.FieldKeyByNode(includedNode.Parent);
+            pointed = includedKey;
         }
-    }
 
+        return new JoinPoint(includedKey, pointer, pointed);
+    }
 }

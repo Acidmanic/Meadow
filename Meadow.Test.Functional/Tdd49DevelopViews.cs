@@ -46,14 +46,7 @@ namespace Meadow.Test.Functional
         }
         public void Main()
         {
-
-
-            // var ov = new ObjectEvaluator(typeof(Mas));
-            //
-            //
-            // var meeh = MemberOwnerUtilities.GetKey<Mas,string>(m => m.First);
-            //
-
+            
             var vt = new ViewTranslator();
             
             var v = new CustomView();
