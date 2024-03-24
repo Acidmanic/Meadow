@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Inclusion;
+using Meadow.Scaffolding.Translators;
 using Meadow.Test.Functional.TDDAbstractions;
 
 namespace Meadow.Test.Functional
@@ -42,6 +43,9 @@ namespace Meadow.Test.Functional
         {
         }
 
+        public class  Translator:BaseSqlLanguageTranslator
+        {
+        }
         public void Main()
         {
 
@@ -56,7 +60,16 @@ namespace Meadow.Test.Functional
 
             var configuration = new MeadowConfiguration();
 
-            Console.WriteLine(v.Script(configuration));
+            Console.WriteLine(v.Script(configuration, new Translator()));
+
+
+
+            Console.WriteLine("--------------------------------------------");
+            Console.WriteLine("--------------------------------------------");
+
+
+            Console.WriteLine(new FullTreeMas().Script(configuration, new Translator()));
+            
         }
     }
 }

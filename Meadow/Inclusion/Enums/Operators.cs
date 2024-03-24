@@ -1,4 +1,4 @@
-namespace Meadow.Inclusion;
+namespace Meadow.Inclusion.Enums;
 
 public enum Operators
 {
