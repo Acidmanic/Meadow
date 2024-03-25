@@ -55,8 +55,6 @@ namespace Meadow.Test.Functional
 
             Console.WriteLine(vt.Script(v.ModelType,configuration,v.Inclusions,new Translator()));
 
-
-
             Console.WriteLine("--------------------------------------------");
             Console.WriteLine("--------------------------------------------");
 
