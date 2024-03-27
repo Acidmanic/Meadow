@@ -3,21 +3,11 @@ using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.Requests
 {
-    public class IdShell
+    public class GetPersonByIdFullTree : MeadowRequest<Person>
     {
-        public long Id { get; set; }
-    }
-
-    public class GetPersonByIdFullTree : MeadowRequest<IdShell, Person>
-    {
-        public GetPersonByIdFullTree(long id) : base(true)
+        public GetPersonByIdFullTree(long id) : base(new {Id = id})
         {
-            this.ToStorage = new IdShell {Id = id};
-        }
-
-        protected override bool FullTreeReadWrite()
-        {
-            return true;
+            
         }
     }
 }

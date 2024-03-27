@@ -9,9 +9,12 @@ namespace Meadow.Configuration.Requests
 {
     public sealed class MarkExecutionInHistoryRequest : InsertSpRequest<MeadowDatabaseHistory>
     {
-        public MarkExecutionInHistoryRequest(ScriptInfo script)
+        public MarkExecutionInHistoryRequest(ScriptInfo script):base(CreateHistory(script)) 
+        { }
+
+        private static MeadowDatabaseHistory CreateHistory(ScriptInfo script)
         {
-            ToStorage = new MeadowDatabaseHistory
+            return new MeadowDatabaseHistory
             {
                 Script = script.Script.CompressAsync(Compressions.GZip, CompressionLevel.Optimal).Result,
                 ScriptName = script.Name,
@@ -20,10 +23,6 @@ namespace Meadow.Configuration.Requests
         }
 
 
-        public override string RequestText
-        {
-            get => Configuration.GetNameConvention<MeadowDatabaseHistory>().InsertProcedureName;
-            protected set { }
-        }
+        public override string RequestText => Configuration.GetNameConvention<MeadowDatabaseHistory>().InsertProcedureName;
     }
 }

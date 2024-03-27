@@ -4,10 +4,9 @@ using Meadow.Utility;
 
 namespace Meadow.Requests
 {
-    public abstract class ConfigurationRequest<TResult> : MeadowRequest<MeadowVoid, TResult>
+    public abstract class ConfigurationRequest<TResult> : MeadowRequest<TResult>
         where TResult : class
     {
-        protected MeadowConfiguration Configuration { get; private set; }
 
         protected Dictionary<string, string> ConfigurationMap { get; private set; } = new Dictionary<string, string>();
 
@@ -16,24 +15,14 @@ namespace Meadow.Requests
         {
             Execution = RequestExecution.RequestTextIsExecutable;
         }
-
-        protected abstract string GetRequestText();
         
-        public override string RequestText
-        {
-            get { return GetRequestText(); }
-            protected set { }
-        }
-
         public ConfigurationRequestResult Result { get; set; }
 
-        public virtual MeadowConfiguration PreConfigure(MeadowConfiguration configuration)
+        public virtual MeadowConfiguration PreConfigure()
         {
-            Configuration = configuration;
+            ConfigurationMap = new ConnectionStringParser().Parse(Configuration.ConnectionString);
         
-            ConfigurationMap = new ConnectionStringParser().Parse(configuration.ConnectionString);
-        
-            configuration = ReConfigure(configuration, ConfigurationMap);
+            var configuration = ReConfigure(Configuration, ConfigurationMap);
 
             return configuration;
         }

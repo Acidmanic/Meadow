@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.Requests;
@@ -68,7 +67,7 @@ namespace Meadow
         }
 
 
-        private void SetupQueryTranslator<TIn, TOut>(MeadowRequest<TIn, TOut> request) where TOut : class
+        private void SetupQueryTranslator<TOut>(MeadowRequest<TOut> request) where TOut : class
         {
             var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
 
@@ -95,13 +94,10 @@ namespace Meadow
             request.SetFilterQueryTranslator(translator);
         }
 
-        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
-            MeadowRequest<TIn, TOut> request,
-            bool suggestFullTreeAccess = false)
+        public MeadowRequest<TOut> PerformRequest<TOut>(
+            MeadowRequest<TOut> request)
             where TOut : class
         {
-            request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
-
             request.SetConfigurations(_configuration);
 
             SetupQueryTranslator(request);
@@ -119,13 +115,9 @@ namespace Meadow
             return CreateInitializedCore(_configuration).PerformRequest(request, _configuration);
         }
 
-        public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
-            MeadowRequest<TIn, TOut> request,
-            bool suggestFullTreeAccess = false)
+        public async Task<MeadowRequest<TOut>> PerformRequestAsync<TOut>(MeadowRequest<TOut> request)
             where TOut : class, new()
         {
-            request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
-
             request.SetConfigurations(_configuration);
 
             SetupQueryTranslator(request);
@@ -147,7 +139,7 @@ namespace Meadow
         {
             try
             {
-                var config = request.PreConfigure(_configuration);
+                var config = request.PreConfigure();
                 // Run Configuration Request As a Script Request
                 var meadowRequest = CreateInitializedCore(_configuration).PerformRequest(request, config);
 
@@ -168,12 +160,11 @@ namespace Meadow
         }
 
         private async Task<ConfigurationRequestResult> PerformConfigurationRequestAsync<TOut>(
-            ConfigurationRequest<TOut> request)
-            where TOut : class, new()
+            ConfigurationRequest<TOut> request) where TOut : class, new()
         {
             try
             {
-                var config = request.PreConfigure(_configuration);
+                var config = request.PreConfigure();
                 // Run Configuration Request As a Script Request
                 var meadowRequest = await CreateInitializedCore(_configuration).PerformRequestAsync(request, config);
 
@@ -275,11 +266,11 @@ namespace Meadow
         }
 
 
-        private async Task<TModel> ReadLastInsertedRecordAsync<TModel>() where TModel : class, new()
+        private async Task<TModel?> ReadLastInsertedRecordAsync<TModel>() where TModel : class, new()
         {
             var response = await PerformRequestAsync(new ReadLastModel<TModel>());
 
-            if (response.FromStorage != null && response.FromStorage.Count == 1)
+            if (response.FromStorage.Count == 1)
             {
                 return response.FromStorage[0];
             }

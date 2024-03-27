@@ -1,4 +1,4 @@
-namespace Meadow.Test.Functional.GenericRequests.Models
+namespace Meadow.Requests.Common.Models
 {
     public class FieldRange
     {

@@ -1,18 +1,9 @@
+using Meadow.Extensions;
+
 namespace Meadow.Requests.Common
 {
-    public abstract class ReadAllSpRequest<TModel> : MeadowRequest<MeadowVoid, TModel>
-        where TModel : class, new()
+    public abstract class ReadAllSpRequest<TModel> : MeadowRequest<TModel>
     {
-        private readonly bool _fullTree;
-
-        protected ReadAllSpRequest(bool fullTree) : base(true)
-        {
-            _fullTree = fullTree;
-        }
-
-        public ReadAllSpRequest() : this(false)
-        {
-        }
-
+        public override string RequestText => Convention<TModel>().SelectAllProcedureName;
     }
 }

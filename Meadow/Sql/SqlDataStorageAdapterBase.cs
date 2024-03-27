@@ -39,8 +39,7 @@ namespace Meadow.Sql
 
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion<TModel> fromStorageInclusion,
-            bool fullTreeRead)
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion fromStorageInclusion, bool fullTreeRead)
         {
             var storageData = ReadAllRecords(carrier);
 

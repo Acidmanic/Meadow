@@ -18,7 +18,7 @@ namespace Meadow.Test.Functional
 {
     public abstract class MeadowMultiDatabaseTestBase : MeadowFunctionalTest
     {
-        protected static void InsertAll<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class, new()
+        protected static void InsertAll<T>(MeadowEngine engine, IEnumerable<T> seed)
         {
             var idLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
             

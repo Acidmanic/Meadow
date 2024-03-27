@@ -1,18 +1,13 @@
+using Meadow.Extensions;
+
 namespace Meadow.Requests.Common
 {
-    public abstract class ReadByIdSpRequest<TModel, TId> : ByIdRequestBase<TModel, TId, TModel>
-        where TModel : class, new()
+    public abstract class ReadByIdSpRequest<TModel, TId> : MeadowRequest<TModel>
     {
-        private readonly bool _fullTree;
-
-        protected ReadByIdSpRequest(bool fullTree) : base(true, fullTree)
-        {
-            _fullTree = fullTree;
-        }
-
-        public ReadByIdSpRequest() : this(false)
+        protected ReadByIdSpRequest(TId id) : base(typeof(TModel).CreateIdShellFor(id))
         {
         }
-
+        
+        public override string RequestText => Convention<TModel>().SelectByIdProcedureName;
     }
 }

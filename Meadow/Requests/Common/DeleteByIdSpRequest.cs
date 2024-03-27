@@ -2,14 +2,13 @@ using Meadow.Requests.Common.Models;
 
 namespace Meadow.Requests.Common
 {
-    public abstract class DeleteByIdSpRequest<TModel,TId> : ByIdRequestBase<TModel,TId,DeletionResult>
-        where TModel : class, new()
+    public abstract class DeleteByIdSpRequest<TModel,TId> : MeadowRequest<DeletionResult>
     {
     
-        protected DeleteByIdSpRequest() : base(true, false)
+        protected DeleteByIdSpRequest(TId id) : base(typeof(TModel).CreateIdShellFor(id))
         {
         }
        
-        
+        public override string RequestText => Convention<TModel>().DeleteByIdProcedureName;
     }
 }

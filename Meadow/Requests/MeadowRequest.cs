@@ -1,61 +1,25 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Sockets;
+using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
-using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
-using Meadow.Utility;
+using Meadow.Extensions;
+using Meadow.Inclusion;
+using Meadow.Inclusion.Fluent;
 
 namespace Meadow.Requests
 {
     public abstract class MeadowRequest
     {
-        public virtual string RequestText { get; protected set; }
+        public virtual string RequestText => DefaultRequestName;
 
+        protected readonly string DefaultRequestName ;
         
         protected MeadowConfiguration Configuration { get; private set; }
         public bool ReturnsValue { get; }
-
-        /// <summary>
-        /// Engine Can Suggest the request to consider itself a full-tree access request. This suggestion is made
-        /// by client code using Meadow. This way a request's full-tree access behavior can be determined out side of
-        /// the request. For example, you can Update the procedure's sql to fullTree access, and you dont have access
-        /// to the request's code, and the only thing you need to read the full-tree data, is to tell the request to be
-        /// a full-tree request.  
-        /// </summary>
-        private bool _suggestedFullTreeAccess = false;
-        internal void SuggestFullTreeReadWrite(bool fullTree)
-        {
-            _suggestedFullTreeAccess = fullTree;
-        }
-        /// <summary>
-        /// This is where a specific implementation of a request is able to discard the suggested full-tree behavior,
-        /// and override it the way that implementation see's suitable.
-        /// </summary>
-        /// <returns>The Request implementation's decision about full-tree behavior. Default is
-        /// to return the value of SuggestedFullTreeAccess which it's default is false.
-        /// </returns>
-        protected virtual bool FullTreeReadWrite()
-        {
-            return _suggestedFullTreeAccess;
-        }
-        /// <summary>
-        /// This is the outlet that meadow Engine/DataAccessCore would check to see If the request should be treated as
-        /// full-tree or not.  
-        /// </summary>
-        internal bool FullTree => FullTreeReadWrite();
-
-
-        private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
-
-        public MeadowRequest(bool returnsValue)
-        {
-            ReturnsValue = returnsValue;
-
-            Execution = RequestExecution.RequestTextIsNameOfRoutine;
-            _translationTasks = new List<Action<ISqlExpressionTranslator>>();
-        }
-
 
         public RequestExecution Execution { get; protected set; }
 
@@ -63,6 +27,55 @@ namespace Meadow.Requests
 
         public Exception FailureException { get; private set; }
 
+        private readonly FiledManipulationMarker _manipulationMarker;
+
+        internal IFieldInclusion InputInclusions => _manipulationMarker;
+
+        protected IFieldInclusionMarker InputFields => _manipulationMarker;
+        
+        private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
+        
+        public List<object> ToStorage { get; set; }
+        
+        public Type?[] InTypes => ToStorage.Select(o => o?.GetType()).ToArray();
+        
+        public MeadowRequest(bool returnsValue, params object[] toStorage)
+        {
+            ReturnsValue = returnsValue;
+
+            Execution = RequestExecution.RequestTextIsNameOfRoutine;
+            
+            _translationTasks = new List<Action<ISqlExpressionTranslator>>();
+            
+            DefaultRequestName = GetProcedureNameFromRequestName();
+
+            _manipulationMarker = new FiledManipulationMarker();
+
+            ToStorage = new List<object>();
+            
+            ToStorage.AddRange(toStorage);
+        }
+
+        protected string GetProcedureNameFromRequestName()
+        {
+            var name = this.GetType().Name;
+
+            if (name.ToLower().EndsWith("request"))
+            {
+                name = name.Substring(0, name.Length - "request".Length);
+            }
+
+            name = "sp" + name;
+
+            if (QuoteProcedureName())
+            {
+                name = $"\"{name}\"";
+            }
+
+            return name;
+        }
+        
+        
         public void SetFailure(Exception exception)
         {
             Failed = true;
@@ -94,69 +107,76 @@ namespace Meadow.Requests
         {
             Configuration = configuration;
         }
-    }
-
-
-    public class MeadowRequest<TIn, TOut> : MeadowRequest
-        where TOut : class
-    {
-        public virtual TIn ToStorage { get; set; }
-
-        public List<TOut> FromStorage { get; set; }
-
-
-        private FiledManipulationMarker<TIn> _toStorageManipulator;
-        private FiledManipulationMarker<TOut> _fromStorageManipulator;
-
-        public MeadowRequest(bool returnsValue) : base(returnsValue)
-        {
-            FromStorage = new List<TOut>();
-        }
-
-        internal void InitializeBeforeExecution()
-        {
-            RequestText = GetProcedureNameFromRequestName();
-
-
-            _toStorageManipulator = new FiledManipulationMarker<TIn>();
-            _fromStorageManipulator = new FiledManipulationMarker<TOut>();
-
-            _toStorageManipulator.Clear();
-
-            OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
-        }
-
-        protected string GetProcedureNameFromRequestName()
-        {
-            var name = this.GetType().Name;
-
-            if (name.ToLower().EndsWith("request"))
-            {
-                name = name.Substring(0, name.Length - "request".Length);
-            }
-
-            name = "sp" + name;
-
-            if (QuoteProcedureName())
-            {
-                name = $"\"{name}\"";
-            }
-
-            return name;
-        }
-
+        
         protected virtual bool QuoteProcedureName()
         {
             return false;
         }
 
-        protected virtual void OnFieldManipulation(IFieldInclusionMarker<TIn> toStorage,
-            IFieldInclusionMarker<TOut> fromStorage)
+        protected NameConvention Convention<TModel>() => Convention(typeof(TModel));
+
+        protected NameConvention Convention(Type type)
         {
+            return Configuration.GetNameConvention(type);
         }
 
+        protected void SetToStorage(params object[] parameters)
+        {
+            ToStorage.Clear();
+            
+            ToStorage.AddRange(parameters);
+        }
+        
+    }
 
-        internal IFieldInclusion<TIn> ToStorageInclusion => _toStorageManipulator;
-        internal IFieldInclusion<TOut> FromStorageInclusion => _fromStorageManipulator;
+
+    public class MeadowRequest<TOut> : MeadowRequest
+    {
+
+        public static Type OutType { get; }
+        
+        public static Type ReadModelType { get; }
+        
+        public static bool ReadsFromView { get; }
+        
+        public static IView? View { get; }
+        
+        protected NameConvention ReadModelConventions { get; }
+
+        public List<TOut> FromStorage { get; }
+
+
+        static MeadowRequest()
+        {
+            var type = typeof(TOut);
+
+            OutType = type;
+
+            ReadsFromView = false;
+
+            ReadModelType = type;
+
+            if (TypeCheck.InheritsFrom(typeof(ViewBase<>), type))
+            {
+                if (new ObjectInstantiator().BlindInstantiate(type) is IView view)
+                {
+                    ReadModelType = view.ModelType;
+
+                    ReadsFromView = true;
+
+                    View = view;
+                }
+            }
+
+        }
+
+        public MeadowRequest(params object[] toStorage) : base(true,toStorage)
+        {
+            FromStorage = new List<TOut>();
+
+            ReadModelConventions = Configuration.GetNameConvention(ReadModelType);
+        }
+
+        
     }
 }

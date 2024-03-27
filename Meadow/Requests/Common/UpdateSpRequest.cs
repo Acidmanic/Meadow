@@ -1,10 +1,13 @@
+using Meadow.Extensions;
+
 namespace Meadow.Requests.Common
 {
-    public abstract class UpdateSpRequest<TModel> : MeadowRequest<TModel, TModel>
-        where TModel : class, new()
+    public abstract class UpdateSpRequest<TModel> : MeadowRequest<TModel>
     {
-        protected UpdateSpRequest() : base(true)
+        protected UpdateSpRequest(TModel value) : base(value)
         {
         }
+        
+        public override string RequestText => Convention<TModel>().UpdateProcedureName;
     }
 }

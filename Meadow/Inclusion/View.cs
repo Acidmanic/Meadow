@@ -10,13 +10,23 @@ using Meadow.Inclusion.Fluent.Markers;
 
 namespace Meadow.Inclusion;
 
-public abstract class ViewBase<TModel>
+public interface IView
 {
     
+    List<InclusionRecord> Inclusions { get; }
 
+    Type ModelType { get; }
+
+    Type? ParametersType { get; }
+
+    bool IsParametric { get; }
+}
+
+public abstract class ViewBase<TModel> : IView
+{
     private readonly List<InclusionRecord> _inclusions;
 
-  
+
     public ViewBase()
     {
         _inclusions = new List<InclusionRecord>();
@@ -86,11 +96,11 @@ public abstract class ViewBase<TModel>
         get
         {
             _inclusions.Clear();
-            
+
             MarkInclusions();
 
             return _inclusions;
-        }   
+        }
     }
 
     protected abstract void MarkInclusions();

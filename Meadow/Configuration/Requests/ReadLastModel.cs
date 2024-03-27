@@ -4,17 +4,8 @@ using Meadow.Requests;
 
 namespace Meadow.Configuration.Requests
 {
-    public class ReadLastModel<TModel> : MeadowRequest<MeadowVoid, TModel> where TModel : class, new()
+    public class ReadLastModel<TModel> : MeadowRequest<TModel> where TModel : class, new()
     {
-        public ReadLastModel() : base(true)
-        {
-        }
-
-
-        public override string RequestText
-        {
-            get => Configuration.GetNameConvention<TModel>().SelectLastProcedureName;
-            protected set { }
-        }
+        public override string RequestText => Configuration.GetNameConvention<TModel>().SelectLastProcedureName;
     }
 }

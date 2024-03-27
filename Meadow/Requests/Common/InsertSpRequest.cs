@@ -4,54 +4,28 @@ using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
+using Meadow.Extensions;
 
 namespace Meadow.Requests.Common
 {
-    public abstract class InsertSpRequest<TModel> : MeadowRequest<TModel, TModel>
-        where TModel : class, new()
+    public abstract class InsertSpRequest<TModel> : MeadowRequest<TModel>
     {
-        protected InsertSpRequest() : base(true)
+        protected InsertSpRequest(params object[] toStorage) : base(toStorage)
         {
-        }
-
-        protected override void OnFieldManipulation(IFieldInclusionMarker<TModel> toStorage, IFieldInclusionMarker<TModel> fromStorage)
-        {
-
             var entityType = typeof(TModel);
             
             var evaluator = new ObjectEvaluator(entityType);
             
-            var allLeaves = evaluator.RootNode.EnumerateLeavesBelow();
-            
-            var idLeaf = TypeIdentity.FindIdentityLeaf(entityType);
-
-            FieldKey idKey = GetKey(idLeaf, evaluator, allLeaves);
+            var idKey = evaluator.FindIdField();
 
             if (idKey != null)
             {
-                toStorage.Exclude(idKey);   
+                InputFields.Exclude(idKey);   
             }
         }
+
+        public override string RequestText => Configuration.GetNameConvention<TModel>().InsertProcedureName;
         
-        private FieldKey GetKey(AccessNode idLeaf, ObjectEvaluator evaluator, List<AccessNode> allLeaves)
-        {
-            if (idLeaf == null)
-            {
-                return null;
-            }
-
-            var fullName = idLeaf.GetFullName();
-
-            var corresponding  = allLeaves.FirstOrDefault(l => l.GetFullName() == fullName);
-
-            if (corresponding == null)
-            {
-                return null;
-            }
-
-            return evaluator.Map.FieldKeyByNode(corresponding);
-
-        }
 
     }
 }

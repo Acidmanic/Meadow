@@ -2,17 +2,11 @@ namespace Meadow.Requests
 {
     public class SqlRequest : ConfigurationCommandRequest
     {
-        private readonly string _sql = "";
-
         public SqlRequest(string sql)
         {
-            _sql = sql;
+            RequestText = sql;
         }
 
-
-        protected override string GetRequestText()
-        {
-            return _sql;
-        }
+        public override string RequestText { get; }
     }
 }
