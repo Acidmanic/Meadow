@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Meadow.Test.Functional.GenericRequests;
+using Meadow.Requests.Common;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
 
@@ -34,7 +34,7 @@ namespace Meadow.Test.Functional
             }
 
             var fullTreePersonRead = engine
-                .PerformRequest(new ReadByIdRequest<Person, long>(inserted.Id), true)
+                .PerformRequest(new ReadByIdRequest<Person>(inserted.Id))
                 .FromStorage.FirstOrDefault();
 
             if (fullTreePersonRead == null)
@@ -43,7 +43,7 @@ namespace Meadow.Test.Functional
             }
             
             fullTreePersonRead = engine
-                .PerformRequest(new ReadByIdRequest<Person, long>(2), true)
+                .PerformRequest(new ReadByIdRequest<Person, long>(2))
                 .FromStorage.FirstOrDefault();
 
             if (fullTreePersonRead == null)

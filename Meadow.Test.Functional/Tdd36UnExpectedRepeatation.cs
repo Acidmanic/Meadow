@@ -114,10 +114,9 @@ namespace Meadow.Test.Functional
 
             var relationalData = csv.Data;
 
-            var mapper = new ConditionalRelationalToStandardMapper
+            var mapper = new FlatRelationalToStandardMapper(new PluralDataOwnerNameProvider())
             {
-                Separator = '_',
-                DataOwnerNameProvider = new PluralDataOwnerNameProvider()
+                DatabaseFieldNameDelimiter = '_'
             };
 
             var standardUnIndexed = relationalData.RelationalToStandard<Iteration>(mapper, true);

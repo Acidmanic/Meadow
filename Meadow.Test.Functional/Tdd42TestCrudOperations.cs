@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Meadow.Requests.Common;
-using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
 
@@ -62,7 +61,7 @@ namespace Meadow.Test.Functional
             var firson = allPersons[0];
 
             var readFirson = engine
-                .PerformRequest(new ReadByIdRequest<Person, long>(firson.Id))
+                .PerformRequest(new ReadByIdRequest<Person>(firson.Id))
                 .FromStorage.FirstOrDefault();
             
             CompareEntities(firson,readFirson);
@@ -72,7 +71,7 @@ namespace Meadow.Test.Functional
             var interestId = personOfInterest.Id;
 
             var deletionSuccess = engine
-                .PerformRequest(new DeleteById<Person, long>(interestId))
+                .PerformRequest(new DeleteByIdRequest<Person>(interestId))
                 .FromStorage
                 .FirstOrDefault();
 
@@ -100,7 +99,7 @@ namespace Meadow.Test.Functional
 
 
             var fulTrees = engine
-                .PerformRequest(new ReadAllRequest<Person>(), true)
+                .PerformRequest(new ReadAllRequest<Person>())
                 .FromStorage;
 
             // Remember personOfInterest is deleted
@@ -116,7 +115,7 @@ namespace Meadow.Test.Functional
             var ftrSeedIndexId = ftrId -1;
             
             var fullTreeById = engine
-                .PerformRequest(new ReadByIdRequest<Person, long>(ftrId), true)
+                .PerformRequest(new ReadByIdRequest<Person, long>(ftrId))
                 .FromStorage.FirstOrDefault();
 
             if (fullTreeById == null)

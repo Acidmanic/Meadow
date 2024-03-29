@@ -3,7 +3,6 @@ using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Requests.Common;
-using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +26,7 @@ namespace Meadow.Test.Functional
 
             var filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("50").Build();
 
-            var filterRequest = new PerformSearchIfNeededRequest<Person, long>(filter);
+            var filterRequest = new PerformSearchIfNeededRequest<Person>(filter);
 
             var filterResponse = engine.PerformRequest(filterRequest);
 
@@ -48,7 +47,7 @@ namespace Meadow.Test.Functional
             }
 
             var fakeSearchResults = engine.PerformRequest
-                (new PerformSearchIfNeededRequest<Person, long>(new FilterQuery { EntityType = typeof(Person) },
+                (new PerformSearchIfNeededRequest<Person>(new FilterQuery { EntityType = typeof(Person) },
                     searchId))
                 .FromStorage.First();
 
@@ -79,7 +78,7 @@ namespace Meadow.Test.Functional
                 .IsNotEqualTo("Mani", "Mona")
                 .Build();
 
-            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
+            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person>(filter))
                 .FromStorage.First();
 
             if (filterResult.Count != 3)
@@ -112,7 +111,7 @@ namespace Meadow.Test.Functional
             /*  Test for failing where clause in readChunk */
             filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsSmallerThan("50").Build();
 
-            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
+            filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Person>(filter))
                 .FromStorage.First();
 
             if (filterResult.Count != 3)
@@ -178,7 +177,7 @@ namespace Meadow.Test.Functional
                 .IsLargerThan("399").Build();
 
             var filtreeResults = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(fullTreeFilter), true)
+                .PerformRequest(new PerformSearchIfNeededRequest<Person>(fullTreeFilter))
                 .FromStorage;
 
             if (filtreeResults == null || filtreeResults.Count == 0)
@@ -189,7 +188,7 @@ namespace Meadow.Test.Functional
             var filtreeSearchId = filtreeResults.FirstOrDefault()?.SearchId;
 
             var filtreePersons = engine
-                .PerformRequest(new ReadChunkRequest<Person>(filtreeSearchId), true)
+                .PerformRequest(new ReadChunkRequest<Person>(filtreeSearchId))
                 .FromStorage;
 
             if (filtreeResults == null || filtreeResults.Count == 0)
@@ -206,7 +205,7 @@ namespace Meadow.Test.Functional
                 .IsEqualTo("the-title-that-does-not-exist").Build();
 
             var badResult = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(badFilter), true)
+                .PerformRequest(new PerformSearchIfNeededRequest<Person>(badFilter))
                 .FromStorage.First();
 
             if (badResult.Count > 0)
@@ -217,7 +216,7 @@ namespace Meadow.Test.Functional
             var badSearchId = badResult.SearchId ?? "";
 
             var badPersons = engine
-                .PerformRequest(new ReadChunkRequest<Person>(badSearchId), true)
+                .PerformRequest(new ReadChunkRequest<Person>(badSearchId))
                 .FromStorage;
 
             if (badPersons.Count > 0)
@@ -230,7 +229,7 @@ namespace Meadow.Test.Functional
             filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("30").Build();
 
             var filterResults = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter))
+                .PerformRequest(new PerformSearchIfNeededRequest<Person>(filter))
                 .FromStorage.First();
 
             if (filterResults == null || filterResults.Count != 4)
@@ -259,7 +258,7 @@ namespace Meadow.Test.Functional
             filter = new FilterQueryBuilder<Person>().Where(p => p.Age).IsLargerThan("30").Build();
 
             filterResults = engine
-                .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(filter), true)
+                .PerformRequest(new PerformSearchIfNeededRequest<Person>(filter))
                 .FromStorage.First();
 
             if (filterResults == null || filterResults.Count != 4)
@@ -270,7 +269,7 @@ namespace Meadow.Test.Functional
             searchId = filterResults.SearchId;
 
             moayedies = engine
-                .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3), true)
+                .PerformRequest(new ReadChunkRequest<Person>(searchId, 0, 3))
                 .FromStorage;
 
             if (moayedies == null || moayedies.Count != 3)
@@ -283,7 +282,7 @@ namespace Meadow.Test.Functional
             CompareEntities(moayedies[2], Persons[2]);
 
             moayedies = engine
-                .PerformRequest(new ReadChunkRequest<Person>(searchId, 3, 3), true)
+                .PerformRequest(new ReadChunkRequest<Person>(searchId, 3, 3))
                 .FromStorage;
 
             if (moayedies == null || moayedies.Count != 1)
@@ -314,7 +313,7 @@ namespace Meadow.Test.Functional
                 .Build();
 
             var unIndexedFilterResult = engine.PerformRequest
-                    (new PerformSearchIfNeededRequest<Person, long>(unIndexedPersonFilter, null, null, null))
+                    (new PerformSearchIfNeededRequest<Person>(unIndexedPersonFilter, null, null, null))
                 .FromStorage;
 
             if (unIndexedFilterResult.Count != 1)

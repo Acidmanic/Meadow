@@ -18,21 +18,22 @@ namespace Meadow.Test.Functional
             public long ProductClassId { get; set; }
         }
 
-        private class ReadAllTagsRequest : MeadowRequest<Tag, Tag>
+        private class ReadAllTagsRequest : MeadowRequest<Tag>
         {
-            public ReadAllTagsRequest() : base(true)
+
+            public ReadAllTagsRequest():base()
             {
-                this.RequestText = "spReadAllTags";
             }
+
+            public override string RequestText => "spReadAllTags";
         }
 
-        private class InsertNewTagRequest : MeadowRequest<Tag, Tag>
+        private class InsertNewTagRequest : MeadowRequest<Tag>
         {
-            public InsertNewTagRequest(Tag newTag) : base(true)
-            {
-                this.RequestText = "spInsertTag";
-                this.ToStorage = newTag;
-            }
+            public InsertNewTagRequest(Tag newTag) : base(newTag)
+            { }
+
+            public override string RequestText => "spInsertTag";
         }
 
         public override void Main()

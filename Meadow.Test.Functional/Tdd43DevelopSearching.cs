@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Requests.Common;
-using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Search.Services;
 using Microsoft.Extensions.Logging;
-using SQLitePCL;
 
 namespace Meadow.Test.Functional
 {
@@ -48,7 +45,7 @@ namespace Meadow.Test.Functional
             var indexingService = new IndexingService<Person>(transliterationService);
 
             var allPersons = engine
-                .PerformRequest(new ReadAllRequest<Person>(), true)
+                .PerformRequest(new ReadAllRequest<Person>())
                 .FromStorage;
 
             foreach (var person in allPersons)
@@ -92,13 +89,13 @@ namespace Meadow.Test.Functional
 
                 Console.WriteLine("------------------------------------------------");
                 var searchResults = engine
-                    .PerformRequest(new PerformSearchIfNeededRequest<Person, long>(
-                        filter, null, searchTerms, orders), fullTree)
+                    .PerformRequest(new PerformSearchIfNeededRequest<Person>(
+                        filter, null, searchTerms, orders))
                     .FromStorage;
 
                 var searchId = searchResults.FirstOrDefault()?.SearchId ?? Guid.NewGuid().ToString();
 
-                var foundPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId), fullTree)
+                var foundPersons = engine.PerformRequest(new ReadChunkRequest<Person>(searchId))
                     .FromStorage;
 
                 foreach (var person in foundPersons)

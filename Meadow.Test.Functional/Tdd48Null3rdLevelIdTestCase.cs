@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Meadow.Test.Functional.GenericRequests;
+using Meadow.Requests.Common;
 using Meadow.Test.Functional.Models.Null3rdLevelIdCase;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -86,7 +86,7 @@ namespace Meadow.Test.Functional
 
             var request = new ReadByIdRequest<EvaluationSessionStorage, string>(evaluation.Id);
 
-            var response = engine.PerformRequest(request, true);
+            var response = engine.PerformRequest(request);
 
             if (string.IsNullOrWhiteSpace(response.FromStorage[0].Exam?.Questions[1].ExamId))
             {
@@ -108,7 +108,7 @@ namespace Meadow.Test.Functional
 
             // engine.PerformRequest(new DeleteById<UserAnswerStorage, string>(userAnswer.Id));
             
-            response = engine.PerformRequest(request, true);
+            response = engine.PerformRequest(request);
 
             if (string.IsNullOrWhiteSpace(response.FromStorage[0].Exam?.Questions[1].ExamId))
             {

@@ -35,30 +35,21 @@ namespace Meadow.Test.Functional
             public A A { get; set; }
         }
 
-        private class PrintManipulationsRequest : MeadowRequest<Person,MeadowVoid >
+        private class PrintManipulationsRequest : MeadowRequest<MeadowVoid>
         {
             public PrintManipulationsRequest() : base(true)
             {
-            }
+                InputFields.Exclude((Person p) => p.Id);
 
-            protected override bool FullTreeReadWrite()
-            {
-                return true;
-            }
-
-            protected override void OnFieldManipulation(IFieldInclusionMarker<Person> toStorage, IFieldInclusionMarker<MeadowVoid> fromStorage)
-            {
-                toStorage.Exclude(p => p.Id);
-
-                toStorage.Exclude(p => p.Name);
-                toStorage.Exclude(p => p.A.Id);
-                toStorage.Exclude(p => p.A.B.Name);
-
-
-                Manipulator = toStorage;
+                InputFields.Exclude((Person p) => p.Name);
+                InputFields.Exclude((Person p) => p.A.Id);
+                InputFields.Exclude((Person p) => p.A.B.Name);
+                
+                Manipulator = InputFields;
+                
                 Console.WriteLine("Happened");
             }
-            
+
             public object Manipulator { get; private set; }
 
         }

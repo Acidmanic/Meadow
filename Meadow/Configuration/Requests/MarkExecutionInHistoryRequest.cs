@@ -7,7 +7,7 @@ using Meadow.Requests.Common;
 
 namespace Meadow.Configuration.Requests
 {
-    public sealed class MarkExecutionInHistoryRequest : InsertSpRequest<MeadowDatabaseHistory>
+    public sealed class MarkExecutionInHistoryRequest : InsertRequest<MeadowDatabaseHistory>
     {
         public MarkExecutionInHistoryRequest(ScriptInfo script):base(CreateHistory(script)) 
         { }

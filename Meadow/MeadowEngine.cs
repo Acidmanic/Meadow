@@ -67,7 +67,7 @@ namespace Meadow
         }
 
 
-        private void SetupQueryTranslator<TOut>(MeadowRequest<TOut> request) where TOut : class
+        private void SetupQueryTranslator<TOut>(MeadowRequest<TOut> request)
         {
             var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
 
@@ -94,9 +94,7 @@ namespace Meadow
             request.SetFilterQueryTranslator(translator);
         }
 
-        public MeadowRequest<TOut> PerformRequest<TOut>(
-            MeadowRequest<TOut> request)
-            where TOut : class
+        public MeadowRequest<TOut> PerformRequest<TOut>(MeadowRequest<TOut> request)
         {
             request.SetConfigurations(_configuration);
 

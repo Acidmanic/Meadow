@@ -17,9 +17,9 @@ namespace Meadow.Test.Functional
             [AutoValuedMember] [UniqueMember] public long Id { get; set; }
         }
 
-        private class ReadAllPersonsRequest : MeadowRequest<MeadowVoid, Person>
+        private class ReadAllPersonsRequest : MeadowRequest< Person>
         {
-            public ReadAllPersonsRequest() : base(true)
+            public ReadAllPersonsRequest() : base()
             {
             }
         }

@@ -1,16 +1,11 @@
-using System.Collections.Generic;
-using System.Linq;
-using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Extensions;
 
 namespace Meadow.Requests.Common
 {
-    public abstract class InsertSpRequest<TModel> : MeadowRequest<TModel>
+    public class InsertRequest<TModel> : MeadowRequest<TModel>
     {
-        protected InsertSpRequest(params object[] toStorage) : base(toStorage)
+        public InsertRequest(params object[] toStorage) : base(toStorage)
         {
             var entityType = typeof(TModel);
             

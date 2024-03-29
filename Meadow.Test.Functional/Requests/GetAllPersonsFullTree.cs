@@ -3,7 +3,7 @@ using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.Requests
 {
-    public class GetAllPersonsFullTree : ReadAllSpRequest<Person>
+    public class GetAllPersonsFullTree : ReadAllRequest<Person>
     {
         
     }

@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Requests;
-using Meadow.Test.Functional.GenericRequests;
-using Meadow.Test.Functional.Models;
+using Meadow.Requests.Common;
 using Meadow.Test.Functional.Search.Services;
 using Meadow.Test.Functional.TDDAbstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
-using Org.BouncyCastle.Security;
 
 namespace Meadow.Test.Functional
 {

@@ -35,6 +35,6 @@ namespace Meadow.Contracts
         /// <param name="evaluator">An Instance of ObjectEvaluator, initialized with actual object which is going to be
         /// written into carrier.
         /// </param>
-        void WriteToStorage<TModel>(TToStorageCarrier carrier, IFieldInclusion toStorageInclusion, ObjectEvaluator evaluator);
+        void WriteToStorage(TToStorageCarrier carrier, IFieldInclusion toStorageInclusion, ObjectEvaluator evaluator);
     }
 }

@@ -20,8 +20,8 @@ namespace Meadow.Test.Functional
             jobs.FromStorage.ForEach(PrintObject);
             
             var insertRequest = new InsertPerson
-            {
-                ToStorage = new Person
+            (
+                 new Person
                 {
                     Age = 12,
                     Job = new Job(),
@@ -29,7 +29,7 @@ namespace Meadow.Test.Functional
                     Surname = "Khadivz",
                     JobId = 1
                 }
-            };
+            );
 
             Console.WriteLine("====================================");
             

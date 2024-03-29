@@ -13,9 +13,9 @@ namespace Meadow.Test.Functional
 {
     public class Tdd38MeadowFiltering : MeadowFunctionalTest
     {
-        private class ReadAllPersonsRequest : MeadowRequest<MeadowVoid, Person>
+        private class ReadAllPersonsRequest : MeadowRequest<Person>
         {
-            public ReadAllPersonsRequest() : base(true)
+            public ReadAllPersonsRequest() : base()
             {
             }
         }
@@ -38,33 +38,33 @@ namespace Meadow.Test.Functional
             public string FilterHash { get; set; }
         }
 
-        private sealed class PerformPersonsFilterIfNeededRequest : MeadowRequest<Filter, FilterResult<long>>
+        private sealed class PerformPersonsFilterIfNeededRequest : MeadowRequest<FilterResult<long>>
         {
-            public PerformPersonsFilterIfNeededRequest(FilterQuery filterQuery) : base(true)
+            public PerformPersonsFilterIfNeededRequest(FilterQuery filterQuery) : base()
             {
                 RegisterTranslationTask(tr =>
                 {
-                    ToStorage = new Filter
+                    SetToStorage(new Filter
                     {
                         FilterHash = filterQuery.Hash(),
                         ExpirationTimeStamp = TimeStamp.Now.TotalMilliSeconds +
                                               typeof(Person).GetFilterResultExpirationDurationMilliseconds(),
-                        WhereClause = tr.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite())
-                    };
+                        WhereClause = tr.TranslateFilterQueryToDbExpression(filterQuery, false)
+                    });
                 });
             }
         }
 
-        private sealed class ReadPersonsChunkRequest : MeadowRequest<FilterChunk, Person>
+        private sealed class ReadPersonsChunkRequest : MeadowRequest<Person>
         {
-            public ReadPersonsChunkRequest(long offset, long size, string filterHash) : base(true)
+            public ReadPersonsChunkRequest(long offset, long size, string filterHash) : base()
             {
-                ToStorage = new FilterChunk
+                SetToStorage(new FilterChunk
                 {
                     Offset = offset,
                     Size = size,
                     FilterHash = filterHash
-                };
+                });
             }
         }
 

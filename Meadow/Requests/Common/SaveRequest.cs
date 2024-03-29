@@ -1,10 +1,8 @@
-using Meadow.Extensions;
-
 namespace Meadow.Requests.Common
 {
-    public abstract class SaveSpRequest<TModel> : MeadowRequest<TModel>
+    public class SaveRequest<TModel> : MeadowRequest<TModel>
     {
-        protected SaveSpRequest(TModel value) : base(value)
+        public SaveRequest(TModel value) : base(value)
         {
         }
         

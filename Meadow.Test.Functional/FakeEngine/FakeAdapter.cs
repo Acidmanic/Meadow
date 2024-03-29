@@ -13,8 +13,9 @@ namespace Meadow.Test.Functional.FakeEngine
             return new List<TModel>();
         }
 
-        public void WriteToStorage<TModel>(int carrier, IFieldInclusion toStorageInclusion, ObjectEvaluator evaluator)
+        public void WriteToStorage(int carrier, IFieldInclusion toStorageInclusion, ObjectEvaluator evaluator)
         {
+            
         }
     }
 }

@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Meadow.Test.Functional.GenericRequests;
+using Meadow.Requests.Common;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
 

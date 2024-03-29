@@ -24,9 +24,9 @@ namespace Meadow.Test.Functional
             public byte[] Data { get; set; }
         }
 
-        class InsertRequest : MeadowRequest<Model, Model>
+        class InsertRequest : MeadowRequest<Model>
         {
-            public InsertRequest() : base(true)
+            public InsertRequest(Model model) : base(model)
             {
             }
         }
@@ -42,7 +42,7 @@ namespace Meadow.Test.Functional
             
             var adapter = new SqlDataStorageAdapter(configuration, new ConsoleLogger());
 
-            var filed = new FiledManipulationMarker<Model>();
+            var filed = new FiledManipulationMarker();
 
 
             var model = new Model
