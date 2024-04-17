@@ -1,19 +1,25 @@
 using Meadow.Requests.Common.Models;
+using Meadow.Requests.Context;
+using Meadow.Sql;
 
 namespace Meadow.Requests.Common
 {
     public sealed class ExistingValuesRequest<TEntity> : MeadowRequest<ValueShell<object>>
     {
-        public ExistingValuesRequest(string fieldName) 
-        {
-            RegisterTranslationTask(t =>
-            {
-                ToStorage.Clear();
+        private readonly string _fieldName;
 
-                ToStorage.Add(new
-                {
-                    FieldName = t.TranslateFieldName(typeof(TEntity), fieldName, false),
-                });
+        public ExistingValuesRequest(string fieldName)
+        {
+            _fieldName = fieldName;
+        }
+
+        protected override void OnPreExecution(MeadowExecutionContext context)
+        {
+            ToStorage.Clear();
+
+            ToStorage.Add(new
+            {
+                FieldName = context.FilteringTranslator.TranslateFieldName(typeof(TEntity), _fieldName),
             });
         }
 

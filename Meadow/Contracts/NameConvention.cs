@@ -3,11 +3,18 @@ using System.Reflection;
 using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using CorePluralizer.Extensions;
+using Meadow.RelationalStandardMapping;
 
 namespace Meadow.Contracts
 {
     public class NameConvention
     {
+
+        public static class Reserved
+        {
+            public static readonly string DatabaseExists = "spDatabaseExists";
+        }
+        
         public string EntityName { get; private set; }
 
         public string TableName { get; private set; }

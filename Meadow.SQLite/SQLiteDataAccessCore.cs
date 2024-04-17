@@ -31,7 +31,7 @@ namespace Meadow.SQLite
         }
 
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator()
+        public override ISqlFilteringTranslator ProvideFilterQueryTranslator()
         {
             return new SqLiteExpressionTranslator();
         }
@@ -259,7 +259,7 @@ namespace Meadow.SQLite
 
             var script = new TableCodeGenerator(type, configuration).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -270,7 +270,7 @@ namespace Meadow.SQLite
 
             var script = new TableCodeGenerator(type, configuration).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             return PerformRequestAsync(request, configuration);
         }
@@ -317,7 +317,7 @@ namespace Meadow.SQLite
         {
             var script = new ReadProcedureSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -326,7 +326,7 @@ namespace Meadow.SQLite
         {
             var script = new ReadProcedureSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }

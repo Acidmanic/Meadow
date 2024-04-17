@@ -1,10 +1,23 @@
 using System;
 using Meadow.Inclusion.Enums;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.Scaffolding.Translators;
 
 public abstract class BaseSqlLanguageTranslator:ISqlLanguageTranslator
 {
+
+    public virtual string EscapedSingleQuote => "\'";
+
+    public virtual string QuotesColumnName(string name) => name;
+
+    public virtual string QuoteTableName(string name) => name;
+    public string QuoteProcedureName(string name) => name;
+
+    public string EmptyOrderExpression(Type entityType) => "";
+
+    public virtual string TableAliasQuot { get; } = "'";
+    
     public virtual string ComparisonOperator(Operators opr, Type sourceType, Type targetType)
     {
         var stringType = typeof(string);
@@ -51,11 +64,19 @@ public abstract class BaseSqlLanguageTranslator:ISqlLanguageTranslator
 
         return "";
     }
-    
-    public virtual string TableAliasQuot { get; } = "'";
-    
-    public virtual string QuotNames(string name)
+
+    public virtual string CreateDatabase(string databaseName)
     {
-        return name;
+        return $@"CREATE DATABASE {databaseName}";
+    }
+
+    public string DatabaseExists(string databaseName)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string TranslateToTable(ProcessedType type)
+    {
+        throw new NotImplementedException();
     }
 }

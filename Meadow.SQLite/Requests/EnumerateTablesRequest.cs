@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Meadow.Models;
 using Meadow.Requests;
+using Meadow.Requests.Configuration.Abstractions;
 
 namespace Meadow.SQLite.Requests
 {

@@ -7,41 +7,38 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Contracts;
 
-public interface ISqlExpressionTranslator
+public interface ISqlFilteringTranslator
 {
-    public class NullSqlExpressionTranslator : ISqlExpressionTranslator
+
+    public static readonly ISqlFilteringTranslator Null = new NullSqlExpressionTranslator();
+     
+    ILogger Logger { get; }
+    
+    MeadowConfiguration Configuration { get; }
+    
+    string TranslateFilterQueryToDbExpression(FilterQuery filterQuery);
+
+    string TranslateFieldName(Type ownerEntityType,string headlessAddress);
+
+    string TranslateSearchTerm(Type entityType, string[] searchTerms);
+
+    string TranslateOrders(Type entityType,  OrderTerm[] orders);
+    
+    
+    private class NullSqlExpressionTranslator : ISqlFilteringTranslator
     {
-        private NullSqlExpressionTranslator()
-        {
-            
-        }
 
-        private static ISqlExpressionTranslator _instance = null;
-        
-        public static ISqlExpressionTranslator Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new NullSqlExpressionTranslator();
-                }
-
-                return _instance;
-            }
-        }
-        
         public ILogger Logger { get; set; } = NullLogger.Instance;
-        public MeadowConfiguration Configuration { get; set; }
+        public MeadowConfiguration Configuration { get; set; } = new MeadowConfiguration();
         
-        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree)
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery)
         {
             LogError();
 
             return "";
         }
 
-        public string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree)
+        public string TranslateFieldName(Type ownerEntityType,string headlessAddress)
         {
             LogError();
 
@@ -55,7 +52,7 @@ public interface ISqlExpressionTranslator
             return "";
         }
 
-        public string TranslateOrders(Type entityType, OrderTerm[] orders,bool fullTree)
+        public string TranslateOrders(Type entityType, OrderTerm[] orders)
         {
             LogError();
 
@@ -72,18 +69,4 @@ public interface ISqlExpressionTranslator
                                         "CoreProvider<YOUR-DATA-ACCESS-CORE>()).");
         }
     }
-
-    ILogger Logger { get; set; }
-    
-    MeadowConfiguration Configuration { get; set; }
-    
-
-    string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree);
-
-    string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
-
-    string TranslateSearchTerm(Type entityType, string[] searchTerms);
-
-
-    string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree);
 }

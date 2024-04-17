@@ -47,13 +47,6 @@ public class ViewTranslator
         public Dictionary<FieldKey, bool> IsIncluded;
     }
 
-    //
-    // private sealed record JoinPoint(FieldKey IncludedKey, AccessNode IncludedNode, AccessNode Pointer,
-    //     AccessNode PointedAt);
-    //
-    // private sealed record JoinNames(string IncludedTableName, string IncludedJoinAlias, string Pointer,
-    //     string PointedAt);
-
 
     private sealed record JoinPoint(FieldKey IncludedKey, FieldKey Pointer, FieldKey PointedAt);
 
@@ -243,7 +236,7 @@ public class ViewTranslator
             var tableName = GetSourceNameForUsage(columnKey.Value.UpLevel(), context);
             
             var originalColumnName =
-                context.Translator.QuotNames(tableName) + "." + context.Translator.QuotNames(node.Name);
+                context.Translator.QuoteTableName(tableName) + "." + context.Translator.QuoteTableName(node.Name);
 
             parameterTable += sep + tab + originalColumnName + tab +
                               $"{context.Translator.TableAliasQuot}{fullTreeAlias}{context.Translator.TableAliasQuot}";
@@ -299,7 +292,7 @@ public class ViewTranslator
     {
         var includedConventions = context.ConventionsByFieldKey[join.IncludedKey];
 
-        var q = context.Translator.QuotNames;
+        var q = context.Translator.QuoteTableName;
 
         var pointerIdFieldName = GetReferencedIdFieldName(join.PointedAt, context);
 

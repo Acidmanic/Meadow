@@ -18,7 +18,7 @@ namespace Meadow.MySql
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator()
+        public override ISqlFilteringTranslator ProvideFilterQueryTranslator()
         {
             return new MySqlExpressionTranslator();
         }
@@ -168,7 +168,7 @@ namespace Meadow.MySql
         {
             var script = new TableScriptSnippetGenerator<TModel>(configuration).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -177,7 +177,7 @@ namespace Meadow.MySql
         {
             var script = new TableScriptSnippetGenerator<TModel>(configuration).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }
@@ -186,7 +186,7 @@ namespace Meadow.MySql
         {
             var script = new InsertSnippetProcedureGenerator<TModel>(configuration).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -197,7 +197,7 @@ namespace Meadow.MySql
 
             var script = new InsertSnippetProcedureGenerator<TModel>(configuration).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }
@@ -207,7 +207,7 @@ namespace Meadow.MySql
             var script = new ReadSequenceSnippetProcedureGenerator<TModel>
                 (configuration,true, 1, true, false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -217,7 +217,7 @@ namespace Meadow.MySql
             var script = new ReadSequenceSnippetProcedureGenerator<TModel>
                 (configuration,true, 1, true, false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }
@@ -226,7 +226,7 @@ namespace Meadow.MySql
         {
             var script = new ReadSnippetProcedureGenerator<TModel>(configuration,false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -235,7 +235,7 @@ namespace Meadow.MySql
         {
             var script = new ReadSnippetProcedureGenerator<TModel>(configuration,false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }

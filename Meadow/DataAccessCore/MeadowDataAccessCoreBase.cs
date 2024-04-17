@@ -5,6 +5,8 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
+using Meadow.Requests.Configuration;
+using Meadow.Requests.Configuration.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -113,7 +115,7 @@ namespace Meadow.DataAccessCore
             return InitializeDerivedClass(configuration);
         }
 
-        public abstract ISqlExpressionTranslator ProvideFilterQueryTranslator();
+        public abstract ISqlFilteringTranslator ProvideFilterQueryTranslator();
 
         protected virtual IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
@@ -148,14 +150,12 @@ namespace Meadow.DataAccessCore
 
         protected List<TOut> PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new()
         {
             return PerformConfigurationRequestAsync(request, configuration).Result;
         }
 
         protected async Task<List<TOut>> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new()
         {
             try
             {

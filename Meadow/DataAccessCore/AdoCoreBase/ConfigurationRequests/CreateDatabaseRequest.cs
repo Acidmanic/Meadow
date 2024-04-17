@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
-using Meadow.Requests;
+using Meadow.Requests.Configuration.Abstractions;
 using Meadow.Utility;
 
 namespace Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests
 {
-    class CreateDatabaseRequest : ConfigurationCommandRequest
+    class CreateDatabaseRequest : ConfigurationRequest
     {
         private string _providedDbName = "MeadowDatabase";
         private readonly Func<string, string> _createDatabase;

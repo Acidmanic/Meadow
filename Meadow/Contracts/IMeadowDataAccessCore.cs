@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Acidmanic.Utilities.Filtering;
 using Meadow.Configuration;
 using Meadow.Requests;
 using Microsoft.Extensions.Logging;
@@ -9,11 +8,10 @@ namespace Meadow.Contracts
 {
     public interface IMeadowDataAccessCore
     {
-        MeadowRequest<TOut> PerformRequest<TOut>(MeadowRequest<TOut> request, MeadowConfiguration configuration)
-            where TOut : class;
+        MeadowRequest<TOut> PerformRequest<TOut>(MeadowRequest<TOut> request, MeadowConfiguration configuration);
 
         Task<MeadowRequest<TOut>> PerformRequestAsync<TOut>(MeadowRequest<TOut> request,
-            MeadowConfiguration configuration) where TOut : class;
+            MeadowConfiguration configuration);
 
 
         void CreateDatabase(MeadowConfiguration configuration);
@@ -62,6 +60,6 @@ namespace Meadow.Contracts
 
         IMeadowDataAccessCore Initialize(MeadowConfiguration configuration, ILogger logger);
 
-        ISqlExpressionTranslator ProvideFilterQueryTranslator();
+        ISqlFilteringTranslator ProvideFilterQueryTranslator();
     }
 }

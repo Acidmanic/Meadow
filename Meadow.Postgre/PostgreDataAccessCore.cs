@@ -150,7 +150,7 @@ namespace Meadow.Postgre
         {
             var script = new ReadCodeSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -159,12 +159,12 @@ namespace Meadow.Postgre
         {
             var script = new ReadCodeSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator()
+        public override ISqlFilteringTranslator ProvideFilterQueryTranslator()
         {
             return new PostgreSqlExpressionTranslator();
         }

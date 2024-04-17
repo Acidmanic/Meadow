@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.Requests;
+using Meadow.Requests.Configuration.Abstractions;
 using Meadow.Utility;
 
 namespace Meadow.MySql.ConfigurationRequests

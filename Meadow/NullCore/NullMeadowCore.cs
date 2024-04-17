@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
-using Meadow.DataAccessCore;
 using Meadow.Requests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -22,21 +21,21 @@ namespace Meadow.NullCore
         {
         }
 
-        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(MeadowRequest<TIn, TOut> request,
-            MeadowConfiguration configuration) where TOut : class
+        public MeadowRequest<TOut> PerformRequest<TOut>(MeadowRequest<TOut> request,
+            MeadowConfiguration configuration)
         {
             _logger.LogError("No DataAccessCore has been introduced to meadow engine.");
 
             if (request.ReturnsValue)
             {
-                request.FromStorage = new List<TOut>();
+                request.FromStorage.Clear();
             }
 
             return request;
         }
 
-        public Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(MeadowRequest<TIn, TOut> request,
-            MeadowConfiguration configuration) where TOut : class
+        public Task<MeadowRequest<TOut>> PerformRequestAsync<TOut>(MeadowRequest<TOut> request,
+            MeadowConfiguration configuration) 
         {
             return Task.Run(() => PerformRequest(request, configuration));
         }
@@ -142,9 +141,9 @@ namespace Meadow.NullCore
             return this;
         }
 
-        public ISqlExpressionTranslator ProvideFilterQueryTranslator()
+        public ISqlFilteringTranslator ProvideFilterQueryTranslator()
         {
-            return ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
+            return ISqlFilteringTranslator.Null;
         }
 
 

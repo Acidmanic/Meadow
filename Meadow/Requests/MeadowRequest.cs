@@ -9,31 +9,34 @@ using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Inclusion;
 using Meadow.Inclusion.Fluent;
+using Meadow.Requests.Context;
+using Meadow.Scaffolding.Translators;
 
 namespace Meadow.Requests
 {
     public abstract class MeadowRequest
     {
-        public virtual string RequestText => DefaultRequestName;
+        public virtual string RequestText => GetProcedureNameFromRequestName();
 
-        protected readonly string DefaultRequestName ;
+        protected MeadowExecutionContext? Context { get; private set; }
         
-        protected MeadowConfiguration Configuration { get; private set; }
+        protected MeadowConfiguration Configuration => Context?.Configuration ?? new MeadowConfiguration();
+        
         public bool ReturnsValue { get; }
 
         public RequestExecution Execution { get; protected set; }
 
         public bool Failed { get; private set; } = false;
 
-        public Exception FailureException { get; private set; }
+        public Exception? FailureException { get; private set; }
 
+        
         private readonly FiledManipulationMarker _manipulationMarker;
 
+        
         internal IFieldInclusion InputInclusions => _manipulationMarker;
 
         protected IFieldInclusionMarker InputFields => _manipulationMarker;
-        
-        private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
         
         public List<object> ToStorage { get; set; }
         
@@ -45,10 +48,6 @@ namespace Meadow.Requests
 
             Execution = RequestExecution.RequestTextIsNameOfRoutine;
             
-            _translationTasks = new List<Action<ISqlExpressionTranslator>>();
-            
-            DefaultRequestName = GetProcedureNameFromRequestName();
-
             _manipulationMarker = new FiledManipulationMarker();
 
             ToStorage = new List<object>();
@@ -56,7 +55,7 @@ namespace Meadow.Requests
             ToStorage.AddRange(toStorage);
         }
 
-        protected string GetProcedureNameFromRequestName()
+        private string GetProcedureNameFromRequestName()
         {
             var name = this.GetType().Name;
 
@@ -67,9 +66,9 @@ namespace Meadow.Requests
 
             name = "sp" + name;
 
-            if (QuoteProcedureName())
+            if (Context!=null)
             {
-                name = $"\"{name}\"";
+                name = Context.LanguageTranslator.QuoteProcedureName(name);
             }
 
             return name;
@@ -90,29 +89,19 @@ namespace Meadow.Requests
             FailureException = new Exception(reason);
         }
 
-        internal void SetFilterQueryTranslator(ISqlExpressionTranslator translator)
+        internal void StartExecution(MeadowExecutionContext context)
         {
-            foreach (var translationTask in _translationTasks)
-            {
-                translationTask(translator);
-            }
+            Context = context;
+            
+            OnPreExecution(context);
         }
 
-        protected void RegisterTranslationTask(Action<ISqlExpressionTranslator> task)
-        {
-            _translationTasks.Add(task);
-        }
 
-        internal void SetConfigurations(MeadowConfiguration configuration)
+        internal void EndExecution()
         {
-            Configuration = configuration;
+            OnPostExecution(Context!);
         }
         
-        protected virtual bool QuoteProcedureName()
-        {
-            return false;
-        }
-
         protected NameConvention Convention<TModel>() => Convention(typeof(TModel));
 
         protected NameConvention Convention(Type type)
@@ -126,7 +115,17 @@ namespace Meadow.Requests
             
             ToStorage.AddRange(parameters);
         }
+
+
+        protected virtual void OnPreExecution(MeadowExecutionContext context)
+        {
+            
+        }
         
+        protected virtual void OnPostExecution(MeadowExecutionContext context)
+        {
+            
+        }
     }
 
 

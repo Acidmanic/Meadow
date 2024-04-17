@@ -9,6 +9,8 @@ using Meadow.Contracts;
 using Meadow.Models;
 using Meadow.NullCore;
 using Meadow.Requests;
+using Meadow.Requests.Configuration;
+using Meadow.Requests.Configuration.Abstractions;
 using Meadow.Utility;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -69,7 +71,7 @@ namespace Meadow
 
         private void SetupQueryTranslator<TOut>(MeadowRequest<TOut> request)
         {
-            var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
+            var translator = ISqlFilteringTranslator.NullSqlExpressionTranslator.Instance;
 
             try
             {
@@ -404,7 +406,7 @@ namespace Meadow
 
             foreach (var sql in sqls)
             {
-                var request = new SqlRequest(sql);
+                var request = new SqlCommandRequest(sql);
 
                 var result = await PerformConfigurationRequestAsync(request);
 

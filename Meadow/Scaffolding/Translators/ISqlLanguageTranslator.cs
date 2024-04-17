@@ -1,16 +1,14 @@
-using System;
-using Meadow.Inclusion.Enums;
+using Meadow.Scaffolding.Translators.Contracts;
 
 namespace Meadow.Scaffolding.Translators;
 
-public interface ISqlLanguageTranslator
+public interface ISqlLanguageTranslator:
+    IMeadowConfigurationTranslator,
+    IExpressionTranslator,
+    ISyntaxTranslator,
+    ITableTranslator
 {
-    string ComparisonOperator(Operators opr, Type sourceType, Type targetType);
-    
-    string RelationString(BooleanRelation relation);
-    
-    string TableAliasQuot { get; }
+   
 
-    string QuotNames(string name);
 
 }

@@ -10,6 +10,7 @@ using Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.Requests;
+using Meadow.Requests.Configuration;
 
 namespace Meadow.DataAccessCore.AdoCoreBase
 {
@@ -55,7 +56,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override bool DatabaseExists(MeadowConfiguration configuration)
         {
-            var request = new DatabaseExistsRequest(GetSqlForDatabaseExists);
+            var request = new  AdoDatabaseExistsRequest();
 
             var response = PerformConfigurationRequest(request, configuration);
 
@@ -77,7 +78,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var script = GetSqlForCreatingTable(tableName, parameters, configuration);
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -92,7 +93,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters, configuration);
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -108,7 +109,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters, configuration);
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             PerformRequest(request, configuration);
         }
@@ -259,7 +260,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var script = GetSqlForCreatingTable(tableName, parameters, configuration);
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }
@@ -275,7 +276,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
             var script = GetSqlForCreatingInsertProcedure(procedureName, tableName, parameters, configuration);
 
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }
@@ -290,7 +291,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
             var script = GetSqlForCreatingGetLastInsertedProcedure(procedureName, tableName, parameters, configuration);
 
-            var request = new SqlRequest(script);
+            var request = new SqlCommandRequest(script);
 
             await PerformRequestAsync(request, configuration);
         }

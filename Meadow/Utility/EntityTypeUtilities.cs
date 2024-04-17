@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.DataTypeMapping;
@@ -17,7 +18,6 @@ namespace Meadow.Utility;
 
 public static class EntityTypeUtilities
 {
-
     public static readonly int IndexCorpusSize = 4000;
 
     public static void WalkThroughLeaves<TEntity>(bool fullTree, Action<AccessNode> leafAction)
@@ -70,7 +70,7 @@ public static class EntityTypeUtilities
     }
 
     public static string GetTypeName(
-        AccessNode leaf, 
+        AccessNode leaf,
         MeadowConfiguration configuration,
         IDbTypeNameMapper typeNameMapper)
     {
@@ -80,34 +80,37 @@ public static class EntityTypeUtilities
         var searchIndexCorpusColumnSize = 4000;
 
         var sizesByAddress = new Dictionary<string, int>();
-        
+
         foreach (var item in configuration.ExternallyForcedColumnSizesByNodeAddress)
         {
-            sizesByAddress.Add(item.Key.ToLower(),item.Value);
+            sizesByAddress.Add(item.Key.ToLower(), item.Value);
         }
-        
-        sizesByAddress.Add(searchIndexCorpusAddress.ToLower(),searchIndexCorpusColumnSize);
+
+        sizesByAddress.Add(searchIndexCorpusAddress.ToLower(), searchIndexCorpusColumnSize);
 
         var leafKey = leaf.GetFullName().ToLower();
 
         var propertyAttributes = new List<Attribute>(leaf.PropertyAttributes);
-        
+
         if (sizesByAddress.ContainsKey(leafKey))
         {
             var leafColumnSize = sizesByAddress[leafKey];
-            
+
             propertyAttributes.Add(new ForceColumnSizeAttribute(leafColumnSize));
         }
 
         var typeName = typeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginalType(), propertyAttributes);
 
         return typeName;
-
     }
 
-    public static ProcessedType Process(Type type, MeadowConfiguration configuration, IDbTypeNameMapper typeNameMapper)
+    public static ProcessedType Process(Type type,
+        MeadowConfiguration configuration,
+        IDbTypeNameMapper typeNameMapper,
+        IFieldInclusion? inclusions = null)
     {
-        
+        var inc = inclusions ?? (IFieldInclusion)(new FiledManipulationMarker());
+
         var process = new ProcessedType
         {
             NameConvention = configuration.GetNameConvention(type),
@@ -124,47 +127,52 @@ public static class EntityTypeUtilities
         process.NoneIdUniqueParametersFullTree = new List<Parameter>();
 
         var indexCorpusLeaf = SearchIndexCorpusLeaf();
-        
+
         process.IndexCorpusParameter = new Parameter
         {
             Name = indexCorpusLeaf.Name,
             Type = GetTypeName(indexCorpusLeaf, configuration, typeNameMapper)
         };
-        
+
         var fullTreeMap = new FullTreeMap(type,
             configuration.DatabaseFieldNameDelimiter,
             configuration.TableNameProvider);
 
         WalkThroughLeaves(type, leaf =>
         {
-            var parameter = new Parameter
-            {
-                Name = leaf.Name,
-                Type = GetTypeName(leaf,configuration,typeNameMapper)
-            };
-            var parameterFullTree = new Parameter
-            {
-                Type = parameter.Type,
-                Name = fullTreeMap.GetColumnNameByFullAddress(leaf.GetFullName())
-            };
+            var key = fullTreeMap.Evaluator.Map.FieldKeyByNode(leaf);
 
-            process.Parameters.Add(parameter);
-            process.ParametersFullTree.Add(parameterFullTree);
-
-            if (process.HasId && leaf.Name == process.IdField.Name)
+            if (inc.IsIncluded(key))
             {
-                process.IdParameter = parameter;
-                process.IdParameterFullTree = parameterFullTree;
-            }
-            else
-            {
-                process.NoneIdParameters.Add(parameter);
-                process.NoneIdParametersFullTree.Add(parameterFullTree);
-
-                if (leaf.IsUnique)
+                var parameter = new Parameter
                 {
-                    process.NoneIdUniqueParameters.Add(parameter);
-                    process.NoneIdUniqueParametersFullTree.Add(parameterFullTree);
+                    Name = leaf.Name,
+                    Type = GetTypeName(leaf, configuration, typeNameMapper)
+                };
+                var parameterFullTree = new Parameter
+                {
+                    Type = parameter.Type,
+                    Name = fullTreeMap.GetColumnNameByFullAddress(leaf.GetFullName())
+                };
+
+                process.Parameters.Add(parameter);
+                process.ParametersFullTree.Add(parameterFullTree);
+
+                if (process.HasId && leaf.Name == process.IdField.Name)
+                {
+                    process.IdParameter = parameter;
+                    process.IdParameterFullTree = parameterFullTree;
+                }
+                else
+                {
+                    process.NoneIdParameters.Add(parameter);
+                    process.NoneIdParametersFullTree.Add(parameterFullTree);
+
+                    if (leaf.IsUnique)
+                    {
+                        process.NoneIdUniqueParameters.Add(parameter);
+                        process.NoneIdUniqueParametersFullTree.Add(parameterFullTree);
+                    }
                 }
             }
         });
