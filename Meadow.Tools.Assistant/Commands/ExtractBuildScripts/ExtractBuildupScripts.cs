@@ -46,7 +46,7 @@ namespace Meadow.Tools.Assistant.Commands.ExtractBuildScripts
                     {
                         Logger.LogInformation(h.ScriptName);
 
-                        var script = h.Script.DecompressAsync(Compressions.GZip).Result;
+                        var script = h.Script.DecompressB64Async(Compressions.GZip).Result;
 
                         File.WriteAllText(Path.Combine(scriptDirectory, FileName(h)), script);
                     });

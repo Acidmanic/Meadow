@@ -13,7 +13,7 @@ namespace Meadow.Configuration.Requests
         {
             ToStorage = new MeadowDatabaseHistory
             {
-                Script = script.Script.CompressAsync(Compressions.GZip, CompressionLevel.Optimal).Result,
+                Script = script.Script.CompressB64Async(Compressions.GZip, CompressionLevel.Optimal).Result,
                 ScriptName = script.Name,
                 ScriptOrder = script.OrderIndex
             };
