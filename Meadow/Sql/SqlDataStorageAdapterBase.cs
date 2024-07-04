@@ -38,8 +38,7 @@ namespace Meadow.Sql
 
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion<TModel> fromStorageInclusion,
-            bool fullTreeRead)
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion fromStorageInclusion, bool fullTreeRead)
         {
             var storageData = ReadAllRecords(carrier);
 
@@ -119,7 +118,7 @@ namespace Meadow.Sql
             return data;
         }
 
-        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldInclusion<TModel> toStorageInclusion,
+        public virtual void WriteToStorage<TModel>(IDbCommand command, IFieldInclusion toStorageInclusion,
             ObjectEvaluator evaluator)
         {
             var standardData = evaluator.ToStandardFlatData(o =>
@@ -149,7 +148,7 @@ namespace Meadow.Sql
         protected abstract void WriteIntoCommand(DataPoint dataPoint, IDbCommand command);
 
 
-        private Record Filter<TModel>(Record record, IFieldInclusion<TModel> filter)
+        private Record Filter(Record record, IFieldInclusion filter)
         {
             var filteredRecord =
                 record.Where(dp => filter.IsIncluded(dp.Identifier));
@@ -157,7 +156,7 @@ namespace Meadow.Sql
             return new Record(filteredRecord);
         }
 
-        private List<Record> Filter<TModel>(List<Record> records, IFieldInclusion<TModel> filter)
+        private List<Record> Filter(List<Record> records, IFieldInclusion filter)
         {
             var filteredRecords = records.Select(r => Filter(r, filter));
 

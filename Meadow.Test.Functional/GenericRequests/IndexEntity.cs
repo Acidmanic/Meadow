@@ -17,7 +17,7 @@ namespace Meadow.Test.Functional.GenericRequests
             };
         }
 
-        protected override void OnFieldManipulation(IFieldInclusionMarker<SearchIndex<TId>> toStorage, IFieldInclusionMarker<SearchIndex<TId>> fromStorage)
+        protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
         {
             base.OnFieldManipulation(toStorage, fromStorage);
             

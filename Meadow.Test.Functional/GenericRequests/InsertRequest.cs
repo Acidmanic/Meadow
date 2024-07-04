@@ -13,8 +13,8 @@ namespace Meadow.Test.Functional.GenericRequests
             ToStorage = model;
         }
 
-        protected override void OnFieldManipulation(IFieldInclusionMarker<T> toStorage,
-            IFieldInclusionMarker<T> fromStorage)
+        protected override void OnFieldManipulation(IFieldInclusionMarker toStorage,
+            IFieldInclusionMarker fromStorage)
         {
             base.OnFieldManipulation(toStorage, fromStorage);
 

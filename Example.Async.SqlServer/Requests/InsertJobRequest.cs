@@ -11,12 +11,11 @@ namespace Example.Async.SqlServer.Requests
             ToStorage = job;
         }
 
-        protected override void OnFieldManipulation(IFieldInclusionMarker<Job> toStorage,
-            IFieldInclusionMarker<Job> fromStorage)
+        protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
         {
             base.OnFieldManipulation(toStorage, fromStorage);
 
-            toStorage.Exclude(j => j.Id);
+            toStorage.Exclude((Job j) => j.Id);
         }
     }
 }

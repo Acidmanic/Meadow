@@ -11,11 +11,11 @@ namespace Example.Filtering.Requests
             ToStorage = person;
         }
 
-        protected override void OnFieldManipulation(IFieldInclusionMarker<Person> toStorage, IFieldInclusionMarker<Person> fromStorage)
+        protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
         {
             base.OnFieldManipulation(toStorage, fromStorage);
 
-            toStorage.Exclude(p => p.Id);
+            toStorage.Exclude((Person p) => p.Id);
         }
     }
 }

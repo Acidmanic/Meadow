@@ -28,12 +28,12 @@ namespace Meadow.Test.Functional
 
         public override void Main()
         {
-            var mp = new FiledManipulationMarker<OuterModel>();
+            var mp = new FiledManipulationMarker();
 
-            mp.Exclude(o => o.Inner.MostInner.Id);
+            mp.Exclude((OuterModel o) => o.Inner.MostInner.Id);
 
-            Console.WriteLine("Inner.MostInner.Id is included? " + mp.IsIncluded(o => o.Inner.MostInner.Id));
-            Console.WriteLine("Inner.Id is included? " + mp.IsIncluded(o => o.Inner.Id));
+            Console.WriteLine("Inner.MostInner.Id is included? " + mp.IsIncluded((OuterModel o) => o.Inner.MostInner.Id));
+            Console.WriteLine("Inner.Id is included? " + mp.IsIncluded((OuterModel o) => o.Inner.Id));
         }
     }
 }

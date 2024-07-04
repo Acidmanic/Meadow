@@ -42,7 +42,7 @@ namespace Meadow.Test.Functional
             
             var adapter = new SqlDataStorageAdapter(configuration, new ConsoleLogger());
 
-            var filed = new FiledManipulationMarker<Model>();
+            var filed = new FiledManipulationMarker();
 
 
             var model = new Model
@@ -55,7 +55,7 @@ namespace Meadow.Test.Functional
             
             var command = new SqlCommand("spInsertModel");
             
-            adapter.WriteToStorage(command,filed,evaluator);
+            adapter.WriteToStorage<Model>(command,filed,evaluator);
         }
     }
 }

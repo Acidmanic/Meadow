@@ -32,7 +32,7 @@ namespace Meadow.Test.Functional
             
             var adapter = new SqlDataStorageAdapter(configuration, new ConsoleLogger());
 
-            var manipulator = new FiledManipulationMarker<ProductClassDal>();
+            var manipulator = new FiledManipulationMarker();
 
             var data = adapter.ReadFromStorage<ProductClassDal>(dataReader, manipulator, true);
 

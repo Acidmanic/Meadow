@@ -105,8 +105,8 @@ namespace Meadow.Requests
         public List<TOut> FromStorage { get; set; }
 
 
-        private FiledManipulationMarker<TIn> _toStorageManipulator;
-        private FiledManipulationMarker<TOut> _fromStorageManipulator;
+        private FiledManipulationMarker _toStorageManipulator;
+        private FiledManipulationMarker _fromStorageManipulator;
 
         public MeadowRequest(bool returnsValue) : base(returnsValue)
         {
@@ -118,8 +118,8 @@ namespace Meadow.Requests
             RequestText = GetProcedureNameFromRequestName();
 
 
-            _toStorageManipulator = new FiledManipulationMarker<TIn>();
-            _fromStorageManipulator = new FiledManipulationMarker<TOut>();
+            _toStorageManipulator = new FiledManipulationMarker();
+            _fromStorageManipulator = new FiledManipulationMarker();
 
             _toStorageManipulator.Clear();
 
@@ -150,13 +150,12 @@ namespace Meadow.Requests
             return false;
         }
 
-        protected virtual void OnFieldManipulation(IFieldInclusionMarker<TIn> toStorage,
-            IFieldInclusionMarker<TOut> fromStorage)
+        protected virtual void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
         {
         }
 
 
-        internal IFieldInclusion<TIn> ToStorageInclusion => _toStorageManipulator;
-        internal IFieldInclusion<TOut> FromStorageInclusion => _fromStorageManipulator;
+        internal IFieldInclusion ToStorageInclusion => _toStorageManipulator;
+        internal IFieldInclusion FromStorageInclusion => _fromStorageManipulator;
     }
 }

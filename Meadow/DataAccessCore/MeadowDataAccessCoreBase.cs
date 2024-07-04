@@ -140,7 +140,7 @@ namespace Meadow.DataAccessCore
 
             InterceptToStorage(carrier, evaluator, configuration);
 
-            DataStorageAdapter.WriteToStorage(carrier, request.ToStorageInclusion, evaluator);
+            DataStorageAdapter.WriteToStorage<TIn>(carrier, request.ToStorageInclusion, evaluator);
 
             return carrier;
         }

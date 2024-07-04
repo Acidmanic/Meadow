@@ -14,7 +14,7 @@ namespace Meadow.Requests.Common
         {
         }
 
-        protected override void OnFieldManipulation(IFieldInclusionMarker<TModel> toStorage, IFieldInclusionMarker<TModel> fromStorage)
+        protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
         {
 
             var entityType = typeof(TModel);

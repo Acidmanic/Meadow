@@ -46,13 +46,13 @@ namespace Meadow.Test.Functional
                 return true;
             }
 
-            protected override void OnFieldManipulation(IFieldInclusionMarker<Person> toStorage, IFieldInclusionMarker<MeadowVoid> fromStorage)
+            protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
             {
-                toStorage.Exclude(p => p.Id);
+                toStorage.Exclude((Person p) => p.Id);
 
-                toStorage.Exclude(p => p.Name);
-                toStorage.Exclude(p => p.A.Id);
-                toStorage.Exclude(p => p.A.B.Name);
+                toStorage.Exclude((Person p) => p.Name);
+                toStorage.Exclude((Person p) => p.A.Id);
+                toStorage.Exclude((Person p) => p.A.B.Name);
 
 
                 Manipulator = toStorage;
