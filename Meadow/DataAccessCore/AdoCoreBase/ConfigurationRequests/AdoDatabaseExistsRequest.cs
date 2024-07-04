@@ -5,24 +5,30 @@ using Meadow.Contracts;
 using Meadow.Requests.Configuration.Abstractions;
 using Meadow.Utility;
 
-namespace Meadow.Requests.Configuration
+namespace Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests
 {
-    class AdoDatabaseExistsRequest : ConfigurationRequest
+    record DatabaseExistsResult(bool Value);
+    class AdoDatabaseExistsRequest : ConfigurationRequest<DatabaseExistsResult>
     {
+        private readonly Func<string, string> _databaseExistsQuery;
+        private string _providedDbName="MeadowDatabase";
+
+        public AdoDatabaseExistsRequest(Func<string, string> databaseExistsQuery)
+        {
+            _databaseExistsQuery = databaseExistsQuery;
+        }
 
         public override MeadowConfiguration AlterConfiguration(MeadowConfiguration configuration, Dictionary<string, string> connectionString)
         {
 
-            var dataBaseName = "MeadowDatabase";
+            _providedDbName = "MeadowDatabase";
             
             if (connectionString.ContainsKey("Database"))
             {
-                dataBaseName = connectionString["Database"];
+                _providedDbName = connectionString["Database"];
             
                 connectionString.Remove("Database");
             }
-            
-            SetToStorage(new {DatabaseName=dataBaseName});
             
             return new MeadowConfiguration()
             {
@@ -31,6 +37,6 @@ namespace Meadow.Requests.Configuration
             };
         }
 
-        public override string RequestText => NameConvention.Reserved.DatabaseExists;
+        public override string RequestText => _databaseExistsQuery(_providedDbName);
     }
 }

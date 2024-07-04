@@ -6,7 +6,7 @@ using Meadow.Utility;
 
 namespace Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests
 {
-    class CreateDatabaseRequest : ConfigurationRequest
+    class AdoCreateDatabaseRequest : ConfigurationRequest
     {
         private string _providedDbName = "MeadowDatabase";
         private readonly Func<string, string> _createDatabase;
@@ -15,31 +15,28 @@ namespace Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests
         /// 
         /// </summary>
         /// <param name="createDatabase">Returns the sql needed for creating a database. takes the database name as argument</param>
-        public CreateDatabaseRequest(Func<string, string> createDatabase)
+        public AdoCreateDatabaseRequest(Func<string, string> createDatabase)
         {
             _createDatabase = createDatabase;
         }
 
-        protected override MeadowConfiguration ReConfigure(MeadowConfiguration config,
-            Dictionary<string, string> valuesMap)
-        {
-            if (valuesMap.ContainsKey("Database"))
-            {
-                _providedDbName = valuesMap["Database"];
 
-                valuesMap.Remove("Database");
+        public override MeadowConfiguration AlterConfiguration(MeadowConfiguration configuration,
+            Dictionary<string, string> connectionString)
+        {
+            if (connectionString.ContainsKey("Database"))
+            {
+                _providedDbName = connectionString["Database"];
+
+                connectionString.Remove("Database");
             }
 
             return new MeadowConfiguration()
             {
-                ConnectionString = new ConnectionStringParser().CreateConnectionString(valuesMap),
-                BuildupScriptDirectory = config.BuildupScriptDirectory
+                ConnectionString = new ConnectionStringParser().CreateConnectionString(connectionString),
             };
         }
 
-        protected override string GetRequestText()
-        {
-            return _createDatabase(_providedDbName);
-        }
+        public override string RequestText => _createDatabase(_providedDbName);
     }
 }

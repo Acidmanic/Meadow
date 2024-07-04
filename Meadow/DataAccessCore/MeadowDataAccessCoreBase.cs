@@ -1,12 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Requests;
-using Meadow.Requests.Configuration;
 using Meadow.Requests.Configuration.Abstractions;
+using Meadow.Requests.Context;
+using Meadow.Scaffolding.Translators;
+using Meadow.Sql;
+using Meadow.Utility;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -38,29 +42,42 @@ namespace Meadow.DataAccessCore
         }
 
 
-        public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
-            MeadowRequest<TIn, TOut> request,
+        public MeadowRequest<TOut> PerformRequest<TOut>(
+            MeadowRequest<TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class
+        {
+            return PerformRequestAsync(request, configuration).Result;
+        }
+        
+        public MeadowRequest PerformRequest(
+            MeadowRequest request,
+            MeadowConfiguration configuration)
         {
             return PerformRequestAsync(request, configuration).Result;
         }
 
-        public virtual async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
-            MeadowRequest<TIn, TOut> request, MeadowConfiguration configuration) where TOut : class
+        public virtual async Task<MeadowRequest<TOut>> PerformRequestAsync<TOut>(
+            MeadowRequest<TOut> request, MeadowConfiguration configuration)
         {
-            request.InitializeBeforeExecution();
 
+            var languageTranslator = ProvideSqlLanguageTranslator();
 
+            var context = new MeadowExecutionContext(Logger,
+                languageTranslator,
+                new SqlFilteringTranslator(Logger,configuration,languageTranslator),
+                configuration);
+            
+            request.StartExecution(context);
+            
             var carrier = ProvideCarrier(request, configuration);
-
 
             void OnDataAvailable(TFromStorageCarrier reader)
             {
                 InterceptFromStorage(reader, configuration);
 
-                request.FromStorage =
-                    DataStorageAdapter.ReadFromStorage<TOut>(reader, request.FromStorageInclusion, request.FullTree);
+                request.FromStorage.Clear();
+
+                request.FromStorage.AddRange(DataStorageAdapter.ReadFromStorage<TOut>(reader));
             }
 
             try
@@ -72,6 +89,44 @@ namespace Meadow.DataAccessCore
             {
                 request.SetFailure(e);
             }
+            
+            request.EndExecution();
+
+            return request;
+        }
+        
+        public virtual async Task<MeadowRequest> PerformRequestAsync(
+            MeadowRequest request, MeadowConfiguration configuration)
+        {
+
+            var languageTranslator = ProvideSqlLanguageTranslator();
+
+            var context = new MeadowExecutionContext(Logger,
+                languageTranslator,
+                new SqlFilteringTranslator(Logger,configuration,languageTranslator),
+                configuration);
+            
+            request.StartExecution(context);
+            
+            var carrier = ProvideCarrier(request, configuration);
+
+            void OnDataAvailable(TFromStorageCarrier reader)
+            {
+                InterceptFromStorage(reader, configuration);
+                
+            }
+
+            try
+            {
+                await StorageCommunication.CommunicateAsync(carrier, OnDataAvailable, configuration,
+                    request.ReturnsValue);
+            }
+            catch (Exception e)
+            {
+                request.SetFailure(e);
+            }
+            
+            request.EndExecution();
 
             return request;
         }
@@ -115,34 +170,31 @@ namespace Meadow.DataAccessCore
             return InitializeDerivedClass(configuration);
         }
 
-        public abstract ISqlFilteringTranslator ProvideFilterQueryTranslator();
+        public abstract ISqlLanguageTranslator ProvideSqlLanguageTranslator();
 
         protected virtual IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             return this;
         }
 
-        protected virtual TToStorageCarrier ProvideCarrier<TIn, TOut>(
-            MeadowRequest<TIn, TOut> request,
+        protected virtual TToStorageCarrier ProvideCarrier(
+            MeadowRequest request,
             MeadowConfiguration configuration)
-            where TOut : class
         {
             var carrier = StorageCommunication.CreateToStorageCarrier(request, configuration);
 
             var storage = request.ToStorage;
 
-            if (storage is null)
+            if (storage.Count == 0)
             {
-                InterceptToStorage(carrier, new ObjectEvaluator(typeof(TIn)), configuration);
-
                 return carrier;
             }
 
-            var evaluator = new ObjectEvaluator(storage);
+            var toStorageData = request.ToStorage.Select(d => new ObjectEvaluator(d)).ToList();
 
-            InterceptToStorage(carrier, evaluator, configuration);
+            InterceptToStorage(carrier, toStorageData, configuration);
 
-            DataStorageAdapter.WriteToStorage(carrier, request.ToStorageInclusion, evaluator);
+            DataStorageAdapter.WriteToStorage(carrier, request.InputInclusions, toStorageData);
 
             return carrier;
         }
@@ -153,13 +205,21 @@ namespace Meadow.DataAccessCore
         {
             return PerformConfigurationRequestAsync(request, configuration).Result;
         }
+        
+        protected void PerformConfigurationRequest(ConfigurationRequest request,
+            MeadowConfiguration configuration)
+        {
+            PerformConfigurationRequestAsync(request, configuration).Wait();
+        }
 
         protected async Task<List<TOut>> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
         {
             try
             {
-                var config = request.PreConfigure(configuration);
+                var parsedConnectionString = new ConnectionStringParser().Parse(configuration.ConnectionString);
+
+                var config = request.AlterConfiguration(configuration, parsedConnectionString);
 
                 var response = await PerformRequestAsync(request, config);
 
@@ -178,6 +238,32 @@ namespace Meadow.DataAccessCore
 
             return new List<TOut>();
         }
+        
+        protected async Task PerformConfigurationRequestAsync(ConfigurationRequest request,
+            MeadowConfiguration configuration)
+        {
+            try
+            {
+                var parsedConnectionString = new ConnectionStringParser().Parse(configuration.ConnectionString);
+
+                var config = request.AlterConfiguration(configuration, parsedConnectionString);
+
+                var response = await PerformRequestAsync(request, config);
+
+                if (response.Failed)
+                {
+                    Logger.LogError(response.FailureException,
+                        "Meadow Configuration Exception:\n {Exception}", response.FailureException);
+                }
+
+                return;
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Meadow Configuration Exception:\n {Exception}", e);
+            }
+
+        }
 
 
         protected void AddCarrierInterceptor(
@@ -186,7 +272,7 @@ namespace Meadow.DataAccessCore
             _carrierInterceptors.Add(carrierInterceptor);
         }
 
-        private void InterceptToStorage(TToStorageCarrier carrier, ObjectEvaluator data,
+        private void InterceptToStorage(TToStorageCarrier carrier, List<ObjectEvaluator> data,
             MeadowConfiguration configuration)
         {
             _carrierInterceptors.ForEach(i => i.InterceptBeforeCommunication(carrier, data, configuration));

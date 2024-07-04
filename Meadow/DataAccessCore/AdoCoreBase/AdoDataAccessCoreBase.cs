@@ -10,7 +10,6 @@ using Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.Requests;
-using Meadow.Requests.Configuration;
 
 namespace Meadow.DataAccessCore.AdoCoreBase
 {
@@ -36,7 +35,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override void CreateDatabase(MeadowConfiguration configuration)
         {
-            var request = new CreateDatabaseRequest(GetSqlForCreatingDatabase);
+            var request = new AdoCreateDatabaseRequest(GetSqlForCreatingDatabase);
 
             PerformConfigurationRequest(request, configuration);
         }
@@ -56,7 +55,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override bool DatabaseExists(MeadowConfiguration configuration)
         {
-            var request = new  AdoDatabaseExistsRequest();
+            var request = new AdoDatabaseExistsRequest(GetSqlForDatabaseExists);
 
             var response = PerformConfigurationRequest(request, configuration);
 
@@ -65,7 +64,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override void DropDatabase(MeadowConfiguration configuration)
         {
-            var request = new DropDatabaseRequest(GetSqlForDroppingDatabase);
+            var request = new AdoDropDatabaseRequest(GetSqlForDroppingDatabase);
 
             PerformConfigurationRequest(request, configuration);
         }
@@ -120,12 +119,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
                 ? PerformRequest(new NameResultQuery(GetSqlForListingAllProcedureNames()), configuration)
                 : PerformRequest(new NameResultQuery(GetSqlForListingAllTableNames()), configuration);
 
-            var result = new List<string>();
-
-            if (response.FromStorage != null)
-            {
-                result = response.FromStorage.Select(n => n.Name).ToList();
-            }
+            var result = response.FromStorage.Select(n => n.Name).ToList();
 
             return result;
         }
@@ -137,12 +131,8 @@ namespace Meadow.DataAccessCore.AdoCoreBase
                 ? await PerformRequestAsync(new NameResultQuery(GetSqlForListingAllProcedureNames()), configuration)
                 : await PerformRequestAsync(new NameResultQuery(GetSqlForListingAllTableNames()), configuration);
 
-            var result = new List<string>();
+            var result = response.FromStorage.Select(n => n.Name).ToList();
 
-            if (response.FromStorage != null)
-            {
-                result = response.FromStorage.Select(n => n.Name).ToList();
-            }
 
             return result;
         }
@@ -209,7 +199,7 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override async Task CreateDatabaseAsync(MeadowConfiguration configuration)
         {
-            var request = new CreateDatabaseRequest(GetSqlForCreatingDatabase);
+            var request = new AdoCreateDatabaseRequest(GetSqlForCreatingDatabase);
 
             await PerformConfigurationRequestAsync(request, configuration);
         }
@@ -228,14 +218,14 @@ namespace Meadow.DataAccessCore.AdoCoreBase
 
         public override async Task DropDatabaseAsync(MeadowConfiguration configuration)
         {
-            var request = new DropDatabaseRequest(GetSqlForDroppingDatabase);
+            var request = new AdoDropDatabaseRequest(GetSqlForDroppingDatabase);
 
             await PerformConfigurationRequestAsync(request, configuration);
         }
 
         public override async Task<bool> DatabaseExistsAsync(MeadowConfiguration configuration)
         {
-            var request = new DatabaseExistsRequest(GetSqlForDatabaseExists);
+            var request = new AdoDatabaseExistsRequest(GetSqlForDatabaseExists);
 
             var response = await PerformConfigurationRequestAsync(request, configuration);
 

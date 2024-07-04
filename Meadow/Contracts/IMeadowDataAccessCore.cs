@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Requests;
+using Meadow.Scaffolding.Translators;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Contracts
@@ -11,6 +12,11 @@ namespace Meadow.Contracts
         MeadowRequest<TOut> PerformRequest<TOut>(MeadowRequest<TOut> request, MeadowConfiguration configuration);
 
         Task<MeadowRequest<TOut>> PerformRequestAsync<TOut>(MeadowRequest<TOut> request,
+            MeadowConfiguration configuration);
+        
+        MeadowRequest PerformRequest(MeadowRequest request, MeadowConfiguration configuration);
+
+        Task<MeadowRequest> PerformRequestAsync(MeadowRequest request,
             MeadowConfiguration configuration);
 
 
@@ -60,6 +66,6 @@ namespace Meadow.Contracts
 
         IMeadowDataAccessCore Initialize(MeadowConfiguration configuration, ILogger logger);
 
-        ISqlFilteringTranslator ProvideFilterQueryTranslator();
+        ISqlLanguageTranslator ProvideSqlLanguageTranslator();
     }
 }

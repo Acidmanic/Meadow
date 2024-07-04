@@ -18,12 +18,9 @@ namespace Meadow.Contracts
         ///  This method reads the data from the carrier.
         /// </summary>
         /// <param name="carrier">The object responsible for carrying data/information from the storage.</param>
-        /// <param name="fromStorageInclusion">This object indicates each parts of data must be included/excluded to be read
-        /// from the carrier.
-        /// </param>
         /// <typeparam name="TModel">The Type of data model corresponding to the data being read from storage.</typeparam>
         /// <returns>A List of TModels which are read from carrier.</returns>
-        List<TModel> ReadFromStorage<TModel>(TFromStorageCarrier carrier, IFieldInclusion fromStorageInclusion,bool fullTreeRead);
+        List<TModel> ReadFromStorage<TModel>(TFromStorageCarrier carrier);
 
         /// <summary>
         /// This method writes data into carrier.
@@ -32,9 +29,9 @@ namespace Meadow.Contracts
         /// <param name="toStorageInclusion">This object indicates each parts of data must be included/excluded to be written
         /// from the carrier.
         /// </param>
-        /// <param name="evaluator">An Instance of ObjectEvaluator, initialized with actual object which is going to be
+        /// <param name="dataEvaluators">An Instance of ObjectEvaluator, initialized with actual object which is going to be
         /// written into carrier.
         /// </param>
-        void WriteToStorage(TToStorageCarrier carrier, IFieldInclusion toStorageInclusion, ObjectEvaluator evaluator);
+        void WriteToStorage(TToStorageCarrier carrier, IFieldInclusion toStorageInclusion, List<ObjectEvaluator> dataEvaluators);
     }
 }

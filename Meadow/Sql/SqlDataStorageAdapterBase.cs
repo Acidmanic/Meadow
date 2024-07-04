@@ -39,45 +39,7 @@ namespace Meadow.Sql
 
         public IRelationalIdentifierToStandardFieldMapper RelationalIdentifierToStandardFieldMapper { get; }
 
-        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier, IFieldInclusion fromStorageInclusion, bool fullTreeRead)
-        {
-            var storageData = ReadAllRecords(carrier);
-
-            storageData = Filter(storageData, fromStorageInclusion);
-
-            var unIndexedStandard = storageData.RelationalToStandard<TModel>
-                (RelationalIdentifierToStandardFieldMapper, fullTreeRead);
-
-            unIndexedStandard = CastBackAlteredTypes<TModel>(unIndexedStandard);
-
-            var accumulator = new StandardIndexAccumulator<TModel>(_logger);
-
-            accumulator.PassAll(unIndexedStandard);
-
-            var indexedStandard = accumulator.Records;
-
-            List<TModel> results = new List<TModel>();
-
-            using (var s = CastScope.Create(_castings))
-            {
-                foreach (var record in indexedStandard)
-                {
-                    var evaluator = new ObjectEvaluator(typeof(TModel));
-
-                    evaluator.LoadStandardData(record);
-
-                    var recordObject = evaluator.As<TModel>();
-
-                    if (recordObject != null)
-                    {
-                        results.Add(recordObject);
-                    }
-                }
-            }
-
-            return results;
-        }
-
+  
         private List<Record> CastBackAlteredTypes<TModel>(List<Record> records)
         {
             var data = new List<Record>();
@@ -118,22 +80,7 @@ namespace Meadow.Sql
 
             return data;
         }
-
-        public virtual void WriteToStorage(IDbCommand command, IFieldInclusion toStorageInclusion,
-            ObjectEvaluator evaluator)
-        {
-            var standardData = evaluator.ToStandardFlatData(o =>
-                o.DirectLeavesOnly().UseAlternativeTypes());
-
-            var includedData = standardData.Where(dp => toStorageInclusion.IsIncluded(dp.Identifier));
-
-            var data = includedData.StandardToRelational(
-                RelationalIdentifierToStandardFieldMapper,
-                evaluator.RootNode.Type, false);
-
-
-            WriteAllToCommand(data, command);
-        }
+        
 
         /// <summary>
         /// This method will be called after data being filtered and standardized and ready to be written into command.
@@ -208,6 +155,60 @@ namespace Meadow.Sql
             }
 
             return result;
+        }
+
+        public List<TModel> ReadFromStorage<TModel>(IDataReader carrier)
+        {
+            var storageData = ReadAllRecords(carrier);
+
+            storageData = Filter(storageData, fromStorageInclusion);
+
+            var unIndexedStandard = storageData.RelationalToStandard<TModel>
+                (RelationalIdentifierToStandardFieldMapper, fullTreeRead);
+
+            unIndexedStandard = CastBackAlteredTypes<TModel>(unIndexedStandard);
+
+            var accumulator = new StandardIndexAccumulator<TModel>(_logger);
+
+            accumulator.PassAll(unIndexedStandard);
+
+            var indexedStandard = accumulator.Records;
+
+            List<TModel> results = new List<TModel>();
+
+            using (var s = CastScope.Create(_castings))
+            {
+                foreach (var record in indexedStandard)
+                {
+                    var evaluator = new ObjectEvaluator(typeof(TModel));
+
+                    evaluator.LoadStandardData(record);
+
+                    var recordObject = evaluator.As<TModel>();
+
+                    if (recordObject != null)
+                    {
+                        results.Add(recordObject);
+                    }
+                }
+            }
+
+            return results;
+        }
+
+        public void WriteToStorage(IDbCommand carrier, IFieldInclusion toStorageInclusion, List<ObjectEvaluator> dataEvaluators)
+        {
+            var standardData = evaluator.ToStandardFlatData(o =>
+                o.DirectLeavesOnly().UseAlternativeTypes());
+
+            var includedData = standardData.Where(dp => toStorageInclusion.IsIncluded(dp.Identifier));
+
+            var data = includedData.StandardToRelational(
+                RelationalIdentifierToStandardFieldMapper,
+                evaluator.RootNode.Type, false);
+
+
+            WriteAllToCommand(data, command);
         }
     }
 }

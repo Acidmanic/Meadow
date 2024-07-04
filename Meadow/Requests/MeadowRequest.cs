@@ -22,7 +22,7 @@ namespace Meadow.Requests
         
         protected MeadowConfiguration Configuration => Context?.Configuration ?? new MeadowConfiguration();
         
-        public bool ReturnsValue { get; }
+        public bool ReturnsValue { get; protected init; }
 
         public RequestExecution Execution { get; protected set; }
 
@@ -42,9 +42,9 @@ namespace Meadow.Requests
         
         public Type?[] InTypes => ToStorage.Select(o => o?.GetType()).ToArray();
         
-        public MeadowRequest(bool returnsValue, params object[] toStorage)
+        public MeadowRequest(params object[] toStorage)
         {
-            ReturnsValue = returnsValue;
+            ReturnsValue = false;
 
             Execution = RequestExecution.RequestTextIsNameOfRoutine;
             
@@ -169,8 +169,10 @@ namespace Meadow.Requests
 
         }
 
-        public MeadowRequest(params object[] toStorage) : base(true,toStorage)
+        public MeadowRequest(params object[] toStorage) : base(toStorage)
         {
+            ReturnsValue = true;
+            
             FromStorage = new List<TOut>();
 
             ReadModelConventions = Configuration.GetNameConvention(ReadModelType);

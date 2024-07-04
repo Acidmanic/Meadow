@@ -4,18 +4,13 @@ using Meadow.Requests.Configuration.Abstractions;
 
 namespace Meadow.DataAccessCore.AdoCoreBase.ConfigurationRequests
 {
-    public class NameResultQuery:ConfigurationFunctionRequest<NameResult>
+    public class NameResultQuery:ConfigurationRequest<NameResult>
     {
-        private readonly string _query;
-
         public NameResultQuery(string query)
         {
-            _query = query;
+            RequestText = query;
         }
 
-        protected override string GetRequestText()
-        {
-            return _query;
-        }
+        public override string RequestText { get; }
     }
 }
