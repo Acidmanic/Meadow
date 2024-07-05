@@ -8,7 +8,7 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Acidmanic.Utilities" Version="1.0.22-b03" />
+        <PackageReference Include="Acidmanic.Utilities" Version="1.0.22-b04" />
         <PackageReference Include="CorePluralizer" Version="1.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />

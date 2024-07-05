@@ -116,7 +116,7 @@ public abstract class BuiltinMacroBase : MacroBase
 
         foreach (var codeGenerator in generators)
         {
-            Title(sb, "<" + Name + " Macro >");
+            Title(sb, "<" + Name + " Macro>");
 
             Append(sb, codeGenerator);
 
