@@ -66,7 +66,7 @@ namespace Meadow.SQLite.CarrierInterceptors
             {
                 if (child.IsLeaf || 
                     child.PropertyAttributes.Any(p => p is TreatAsLeafAttribute) || 
-                    child.Type.GetCustomAttributes().Any(a => a is TreatAsLeafAttribute))
+                    child.Type.GetCustomAttributes().Any(a => a is AlteredTypeAttribute))
                 {
                     var address = evaluator.Map.AddressByNode(child);
                     var key = evaluator.Map.FieldKeyByNode(child);
