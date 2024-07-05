@@ -32,14 +32,8 @@ namespace Meadow.SQLite.CarrierInterceptors
 
             if (procedure != null)
             {
-                var standardData = new Record(evaluator.ToStandardFlatData()
-                    // Select Only Direct-Leaves
-                    .Where(dp =>
-                    {
-                        var node = evaluator.Map.NodeByAddress(dp.Identifier);
-
-                        return node.IsLeaf && node.Parent == evaluator.RootNode;
-                    }));
+                var standardData = new Record(evaluator.ToStandardFlatData(o => 
+                    o.FullTree().DirectLeavesOnly().UseAlternativeTypes()));
 
                 var mapper = configuration.GetRelationalStandardMapper();
                 
