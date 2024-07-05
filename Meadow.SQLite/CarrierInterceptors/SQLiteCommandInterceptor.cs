@@ -32,8 +32,7 @@ namespace Meadow.SQLite.CarrierInterceptors
 
             if (procedure != null)
             {
-                var standardData = new Record(evaluator.ToStandardFlatData(o => 
-                    o.FullTree().DirectLeavesOnly().UseAlternativeTypes()));
+                var standardData = ReadParameters(evaluator);
 
                 var mapper = configuration.GetRelationalStandardMapper();
                 
@@ -58,6 +57,26 @@ namespace Meadow.SQLite.CarrierInterceptors
             carrier.CommandText = commandText;
         }
 
+
+        private Record ReadParameters(ObjectEvaluator evaluator)
+        {
+            var record = new Record();
+            
+            foreach (var child in evaluator.RootNode.GetChildren())
+            {
+                if (child.IsLeaf || 
+                    child.PropertyAttributes.Any(p => p is TreatAsLeafAttribute) || 
+                    child.Type.GetCustomAttributes().Any(a => a is TreatAsLeafAttribute))
+                {
+                    var address = evaluator.Map.AddressByNode(child);
+                    var key = evaluator.Map.FieldKeyByNode(child);
+                    var value = evaluator.Read(key, true);
+                    record.Add(address,value);                    
+                }
+            }
+
+            return record;
+        }
 
         private string InjectValuesIntoCode(SqLiteProcedure procedure, List<DataPoint> data)
         {
