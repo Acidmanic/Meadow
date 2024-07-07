@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd49DevelopViews().Main();
+            new Tdd50AlteredTypesInIdShell().Main();
         }
     }
 }

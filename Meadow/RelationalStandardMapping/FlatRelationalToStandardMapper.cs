@@ -43,7 +43,7 @@ public class FlatRelationalToStandardMapper : IRelationalIdentifierToStandardFie
 
         var evaluator = new ObjectEvaluator(type);
 
-        var leaves = evaluator.RootNode.GetDirectLeaves();
+        var leaves = evaluator.RootNode.GetDirectLeaves(true);
 
         foreach (var leaf in leaves)
         {
