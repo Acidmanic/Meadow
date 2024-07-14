@@ -49,6 +49,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keySearchIndexTableName = GenerateKey();
         
         private readonly string _keyCorpusFieldType = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
+        private readonly string _keyEntityFilterSegmentFullTree = GenerateKey();
         
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -83,9 +85,18 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
             
             replacementList.Add(_keyCorpusFieldType,ProcessedType.IndexCorpusParameter.Type);
+
+            var entityFilterExpression = GetFiltersWhereClause(false);
             
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
             
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
             
+            var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
+
+            var entityFilterSegmentFullTree = entityFilterExpressionFullTree.Success ? $" AND ({entityFilterExpressionFullTree.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegmentFullTree,entityFilterSegmentFullTree);
         }
 
         protected override string Template => $@"
@@ -132,7 +143,7 @@ BEGIN
             set @query = CONCAT(
                 'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
                 'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ')',@orderClause,';');
+                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') {_keyEntityFilterSegment} AND (', SearchExpression, ')',@orderClause,';');
         END IF;
         
         PREPARE stmt FROM @query;
@@ -168,7 +179,7 @@ BEGIN
             set @query = CONCAT(
                 'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
                 'select distinct \'',SearchId,'\',ORD.{_keyIdFieldNameFullTree},',ExpirationTimeStamp,
-                ' from (select distinct * from  {_keyFullTreeViewName} inner join {_keySearchIndexTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') AND (', SearchExpression, ')',@orderClause,') ORD;');
+                ' from (select distinct * from  {_keyFullTreeViewName} inner join {_keySearchIndexTableName} on {_keyFullTreeViewName}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') {_keyEntityFilterSegmentFullTree} AND (', SearchExpression, ')',@orderClause,') ORD;');
         END IF;
         PREPARE stmt FROM @query;
         EXECUTE stmt;

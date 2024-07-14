@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Filtering.Utilities;
+using Acidmanic.Utilities.Results;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -72,6 +74,24 @@ namespace Meadow.Scaffolding.CodeGenerators
             }
 
             return new FilterQuery();
+        }
+
+        protected Result<string> GetFiltersWhereClause(bool fullTreeRead )
+        {
+            var queryFilter = GetRegisteredFilter();
+
+            var filterItems = queryFilter.Items();
+
+            var count = filterItems?.Count ?? 0;
+
+            if (count == 0)
+            {
+                return new Result<string>().FailAndDefaultValue();
+            }
+
+            var translatedQuery = SqlExpressionTranslator.TranslateFilterQueryToDbExpression(queryFilter, fullTreeRead);
+
+            return new Result<string>(true, translatedQuery);
         }
 
         protected RepetitionHandling RepetitionHandling => Configurations.RepetitionHandling;

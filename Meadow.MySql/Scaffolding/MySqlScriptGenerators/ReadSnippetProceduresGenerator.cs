@@ -131,6 +131,9 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyFullTreeViewName = GenerateKey();
         private readonly string _keyWhereClauseFullTree = GenerateKey();
         private readonly string _keyOrderClauseFullTree = GenerateKey();
+        
+        private readonly string _keyEntityFilterSegment = GenerateKey();
+        private readonly string _keyEntityFilterSegmentFullTree = GenerateKey();
 
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -166,17 +169,31 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyOrderClauseFullTree, GetOrder(fullTreeOrderParameter.Name));
 
             replacementList.Add(_keyTopClause, GetTop());
+
+            var whereForEntityFilter = ActById ? " AND " : " WHERE ";
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
+            
+            var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
+
+            var entityFilterSegmentFullTree = entityFilterExpressionFullTree.Success ? $"{whereForEntityFilter}({entityFilterExpressionFullTree.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegmentFullTree,entityFilterSegmentFullTree);
         }
 
         protected override string Template =>(ActById && !ProcessedType.HasId)?"": @$"
 {KeyCreationHeader} {KeyProcedureName}({_keyIdParam})
 BEGIN
-    SELECT * FROM {_keyTableName} {_keyWhereClause} {_keyOrderClause} {_keyTopClause};
+    SELECT * FROM {_keyTableName} {_keyWhereClause}{_keyEntityFilterSegment}{_keyOrderClause} {_keyTopClause};
 END;
 -- ---------------------------------------------------------------------------------------------------------------------
 {KeyCreationHeaderFullTree} {KeyProcedureNameFullTree}({_keyIdParam})
 BEGIN
-    SELECT * FROM {_keyFullTreeViewName} {_keyWhereClauseFullTree} {_keyOrderClauseFullTree} {_keyTopClause};
+    SELECT * FROM {_keyFullTreeViewName} {_keyWhereClauseFullTree}{_keyEntityFilterSegmentFullTree}{_keyOrderClauseFullTree} {_keyTopClause};
 END;
 ".Trim();
     }

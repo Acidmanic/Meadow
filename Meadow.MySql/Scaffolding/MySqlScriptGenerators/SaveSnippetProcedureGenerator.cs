@@ -26,6 +26,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyIdColumn = GenerateKey();
         private readonly string _keyDeclareNewId = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override string GetProcedureName(bool fullTree)
@@ -67,6 +68,13 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                 : "SET @nid = " + ProcessedType.IdParameter.Name + ";";
             
             replacementList.Add(_keyDeclareNewId,newId);
+            
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         private bool IsString(Parameter p)
@@ -111,7 +119,7 @@ BEGIN
     ELSE
         INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
         {_keyDeclareNewId}
-        SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @nid;
+        SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @nid {_keyEntityFilterSegment};
     END IF;
 END;
 ".Trim():"";

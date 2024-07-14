@@ -30,6 +30,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keySetClause = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override string GetProcedureName(bool fullTree)
@@ -54,13 +55,19 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keySetClause, setClause);
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected override string Template => ProcessedType.HasId? $@"
 {KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
-    UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
-    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName};
+    UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName}{_keyEntityFilterSegment};
+    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}={_keyIdFieldName}{_keyEntityFilterSegment};
 END;
 ".Trim():"";
     }
