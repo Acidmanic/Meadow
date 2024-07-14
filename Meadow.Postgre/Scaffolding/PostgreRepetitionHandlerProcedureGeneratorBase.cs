@@ -15,9 +15,10 @@ namespace Meadow.Postgre.Scaffolding
 
         protected PostgreRepetitionHandlerProcedureGeneratorBase(
             SnippetConstruction construction, SnippetConfigurations configurations)
-            : base( construction, configurations, new SnippetExecution
+            : base(construction, configurations, new SnippetExecution
             {
-                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator()
+                    { Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new PostgreDbTypeNameMapper()
             })
         {

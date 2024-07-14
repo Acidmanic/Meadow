@@ -149,9 +149,17 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
         protected MeadowConfiguration Configuration { get; private set; }
 
+        
+        protected virtual MeadowConfiguration RegulateConfigurations(MeadowConfiguration configurations)
+        {
+            return configurations;
+        }
+        
         protected MeadowEngine CreateEngine()
         {
-            return new MeadowEngine(Configuration);
+            var configuration = RegulateConfigurations(Configuration);
+            
+            return new MeadowEngine(configuration);
         }
 
         protected void PrintObject(object o)

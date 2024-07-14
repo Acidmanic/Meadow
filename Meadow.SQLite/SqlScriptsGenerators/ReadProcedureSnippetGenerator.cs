@@ -56,6 +56,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyWhereClauseFullTree = GenerateKey();
+        
+        private readonly string _keyEntityFilterSegment = GenerateKey();
+        private readonly string _keyEntityFilterSegmentFullTree = GenerateKey();
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
@@ -76,6 +79,20 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyWhereClause, whereClause);
             replacementList.Add(_keyWhereClauseFullTree, whereClauseFullTree);
+            
+            var whereForEntityFilter = ActById ? " AND " : " WHERE ";
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}{entityFilterExpression.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
+            
+            var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
+
+            var entityFilterSegmentFullTree = entityFilterExpressionFullTree.Success ? $"{whereForEntityFilter}{entityFilterExpressionFullTree.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegmentFullTree,entityFilterSegmentFullTree);
         }
 
 
@@ -96,13 +113,13 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         private string PlainObjectTemplate => $@"
 {KeyHeaderCreation} {_keyProcedureName}{_keyParametersDeclaration} AS
-    SELECT * FROM {_keyTableName}{_keyWhereClause};
+    SELECT * FROM {_keyTableName}{_keyWhereClause}{_keyEntityFilterSegment};
 GO
 ".Trim();
 
         private string FullTreeTemplate => $@"
 {KeyHeaderCreation} {_keyProcedureNameFullTree}{_keyParametersDeclaration} AS
-    SELECT * FROM {_keyFullTreeView}{_keyWhereClauseFullTree};
+    SELECT * FROM {_keyFullTreeView}{_keyWhereClauseFullTree}{_keyEntityFilterSegmentFullTree};
 GO
 ".Trim();
 

@@ -5,7 +5,6 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-
     [CommonSnippet(CommonSnippets.EventSteamScript)]
     public class EventStreamSqlSnippetScriptGenerator : ByTemplateSqlSnippetGeneratorBase
     {
@@ -30,7 +29,8 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             SnippetConstruction construction, SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution
             {
-                SqlExpressionTranslator = new MySqlExpressionTranslator(),
+                SqlExpressionTranslator = new MySqlExpressionTranslator()
+                    { Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new MySqlDbTypeNameMapper()
             })
         {

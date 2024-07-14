@@ -17,7 +17,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 }, SnippetConfigurations.Default(),
                 new SnippetExecution()
                 {
-                    SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                    SqlExpressionTranslator = new SqLiteExpressionTranslator(){Configuration = configuration},
                     TypeNameMapper = new SqLiteTypeNameMapper()
                 })
         {

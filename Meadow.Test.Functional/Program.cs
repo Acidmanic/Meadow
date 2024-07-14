@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd50AlteredTypesInIdShell().Main();
+            new Tdd51EntityFilters().Main();
         }
     }
 }

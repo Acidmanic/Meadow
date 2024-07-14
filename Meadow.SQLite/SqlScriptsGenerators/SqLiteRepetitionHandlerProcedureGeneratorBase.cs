@@ -12,7 +12,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution
             {
-                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(){ Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new SqLiteTypeNameMapper()
             })
         {

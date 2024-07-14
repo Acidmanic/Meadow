@@ -47,7 +47,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             bool appendSplitter)
             : base(construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new SqlServerExpressionTranslator(),
+                SqlExpressionTranslator = new SqlServerExpressionTranslator(){ Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new SqlDbTypeNameMapper()
             })
         {

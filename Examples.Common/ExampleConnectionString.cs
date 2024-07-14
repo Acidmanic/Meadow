@@ -45,7 +45,7 @@ namespace Examples.Common
             var password = ReadMyVerySecurePasswordFromGitIgnoredFileSoNoOneSeesIt();
 
             return
-                $"Allow User Variables=True;Server=192.168.148.1;Database={databaseName};Uid=remote_looser;Pwd='{password.Trim()}';";
+                $"Allow User Variables=True;Server=localhost;Database={databaseName};Uid=root;Pwd='{password.Trim()}';";
         }
 
         public static string GetSqlServerConnectionString(string databaseName = "MeadowScratch")

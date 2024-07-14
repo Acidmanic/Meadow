@@ -9,8 +9,6 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Postgre.Scaffolding
 {
-   
-    
     public class TableCodeGenerator : TableCodeSnippetGenerator
     {
         public TableCodeGenerator(Type type, MeadowConfiguration configuration)
@@ -27,9 +25,10 @@ namespace Meadow.Postgre.Scaffolding
     public class TableCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public TableCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
-            : base( construction, configurations, new SnippetExecution()
+            : base(construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator()
+                    { Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new PostgreDbTypeNameMapper()
             })
         {
@@ -82,7 +81,7 @@ namespace Meadow.Postgre.Scaffolding
 
         private string GetTableName()
         {
-             return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.TableName);
+            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.TableName);
         }
 
         private string GetCreationHeader()

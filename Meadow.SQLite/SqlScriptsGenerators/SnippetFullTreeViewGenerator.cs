@@ -21,7 +21,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         public SnippetFullTreeViewGenerator(SnippetConstruction construction, SnippetConfigurations configurations) 
             : base( construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(){ Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new SqLiteTypeNameMapper()
             })
         {

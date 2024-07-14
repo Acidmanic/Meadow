@@ -12,7 +12,8 @@ namespace Meadow.Postgre.Scaffolding
         public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution
             {
-                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator()
+                    { Configuration = construction.MeadowConfiguration },
                 TypeNameMapper = new PostgreDbTypeNameMapper()
             })
         {
@@ -42,7 +43,9 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.EventStreamTableName.DoubleQuot());
 
             replacementList.Add(_keyEventIdTypeDeclaration,
-                TypeCheck.IsNumerical(ProcessedType.EventStream.EventIdType) ? "SERIAL" : ProcessedType.EventIdTypeName);
+                TypeCheck.IsNumerical(ProcessedType.EventStream.EventIdType)
+                    ? "SERIAL"
+                    : ProcessedType.EventIdTypeName);
 
             replacementList.Add(_keyInsertProcedureName, ProcessedType.NameConvention.InsertEvent.DoubleQuot());
 
