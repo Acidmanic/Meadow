@@ -26,7 +26,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     public class TableScriptSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public TableScriptSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
-            : base(new MySqlDbTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new MySqlExpressionTranslator(),
+                TypeNameMapper = new MySqlDbTypeNameMapper()
+            })
         {
         }
 

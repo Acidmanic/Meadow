@@ -13,12 +13,16 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyTableName = GenerateKey();
 
         public EntityDataBoundProcedureSnippetGenerator(Type entityType,MeadowConfiguration configuration) :
-            base(new MySqlDbTypeNameMapper(), 
-                new SnippetConstruction
+            base(new SnippetConstruction
                 {
                     EntityType = entityType,
                     MeadowConfiguration = configuration
-                },SnippetConfigurations.Default())
+                },SnippetConfigurations.Default(),
+                new SnippetExecution()
+                {
+                    SqlExpressionTranslator = new MySqlExpressionTranslator(),
+                    TypeNameMapper = new MySqlDbTypeNameMapper()
+                })
         {
         }
 

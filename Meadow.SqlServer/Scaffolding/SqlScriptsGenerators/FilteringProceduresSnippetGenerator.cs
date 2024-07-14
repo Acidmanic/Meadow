@@ -11,7 +11,11 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     {
         public FilteringProceduresSnippetGenerator(SnippetConstruction construction,
             SnippetConfigurations configurations)
-            : base(new SqlDbTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new SqlServerExpressionTranslator(),
+                TypeNameMapper = new SqlDbTypeNameMapper()
+            })
         {
         }
 
@@ -45,7 +49,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIndexEntityProcedureName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
         private readonly string _keyIdFieldType = GenerateKey();
-        
+
         private readonly string _keyCorpusFieldType = GenerateKey();
 
 
@@ -80,12 +84,12 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
 
             replacementList.Add(_keyFilterResultsTable, ProcessedType.NameConvention.FilterResultsTableName);
-            
-            replacementList.Add(_keyIndexEntityProcedureName,ProcessedType.NameConvention.IndexEntityProcedureName);
-            replacementList.Add(_keySearchIndexTableName,ProcessedType.NameConvention.SearchIndexTableName);
-            replacementList.Add(_keyIdFieldType,ProcessedType.IdParameter.Type);
-            
-            replacementList.Add(_keyCorpusFieldType,ProcessedType.IndexCorpusParameter.Type);
+
+            replacementList.Add(_keyIndexEntityProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
+            replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
+            replacementList.Add(_keyIdFieldType, ProcessedType.IdParameter.Type);
+
+            replacementList.Add(_keyCorpusFieldType, ProcessedType.IndexCorpusParameter.Type);
         }
 
         protected override string Template => $@"

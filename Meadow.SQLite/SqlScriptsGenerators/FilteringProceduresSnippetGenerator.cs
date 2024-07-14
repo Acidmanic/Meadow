@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Newtonsoft.Json.Serialization;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
@@ -10,7 +11,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     {
         public FilteringProceduresSnippetGenerator(SnippetConstruction construction,
             SnippetConfigurations configurations)
-            : base(new SqLiteTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                TypeNameMapper = new SqLiteTypeNameMapper()
+            })
         {
         }
 
@@ -59,7 +64,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
             replacementList.Add(_keyIdFieldType,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
-            
+
             replacementList.Add(_keyIdFieldNameFullTree,
                 ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
 

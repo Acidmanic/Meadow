@@ -10,7 +10,11 @@ namespace Meadow.Postgre.Scaffolding
     public class EventStreamCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
-            : base(new PostgreDbTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution
+            {
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                TypeNameMapper = new PostgreDbTypeNameMapper()
+            })
         {
         }
 

@@ -25,10 +25,10 @@ namespace Meadow.Sql
         private readonly string _keyCreationHeader = GenerateKey();
 
         public SqlSnippetFullTreeViewGeneratorBase
-            (IDbTypeNameMapper mapper,
-                SnippetConstruction construction,
-                SnippetConfigurations configurations)
-            : base(mapper, construction, configurations)
+            (SnippetConstruction construction,
+                SnippetConfigurations configurations,
+                SnippetExecution execution)
+            : base(construction, configurations,execution)
         {
 
             FullTreeMap = construction.MeadowConfiguration.GetFullTreeMap(EntityTypeOrOverridenEntityType);

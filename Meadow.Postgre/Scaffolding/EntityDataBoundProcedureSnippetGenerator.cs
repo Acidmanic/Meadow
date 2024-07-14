@@ -11,12 +11,15 @@ namespace Meadow.Postgre.Scaffolding
     public class EntityDataBoundProcedureSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public EntityDataBoundProcedureSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new PostgreDbTypeNameMapper(),
-                new SnippetConstruction
+            : base(new SnippetConstruction
                 {
                     EntityType = type,
                     MeadowConfiguration = configuration
-                }, SnippetConfigurations.Default())
+                }, SnippetConfigurations.Default(), new SnippetExecution
+            {
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                TypeNameMapper = new PostgreDbTypeNameMapper()
+            })
         {
         }
 

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Filtering;
+using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -14,16 +16,24 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected SnippetConstruction Construction { get; }
         protected SnippetConfigurations Configurations { get; }
+        
+        protected ISqlExpressionTranslator SqlExpressionTranslator { get; }
+        
+        protected SnippetExecution SnippetExecution { get; }
 
         protected SqlSnippetGeneratorBase(
-            IDbTypeNameMapper typeNameMapper,
             SnippetConstruction construction,
-            SnippetConfigurations configurations)
+            SnippetConfigurations configurations, 
+            SnippetExecution execution)
         {
-            TypeNameMapper = typeNameMapper;
+
             Construction = construction;
             Configurations = configurations;
+            SnippetExecution = execution;
 
+            TypeNameMapper = execution.TypeNameMapper;
+            SqlExpressionTranslator = execution.SqlExpressionTranslator;
+            
             EntityType = Construction.EntityType;
 
             EntityTypeOrOverridenEntityType = Configurations.OverrideEntityType
@@ -31,7 +41,9 @@ namespace Meadow.Scaffolding.CodeGenerators
                 : Construction.EntityType;
 
             ProcessedType = EntityTypeUtilities.Process(EntityTypeOrOverridenEntityType,
-                Construction.MeadowConfiguration, typeNameMapper);
+                Construction.MeadowConfiguration, execution.TypeNameMapper);
+
+            RegisteredFilter = GetRegisteredFilter();
         }
 
         protected ProcessedType ProcessedType { get; }
@@ -39,6 +51,28 @@ namespace Meadow.Scaffolding.CodeGenerators
         protected Type EntityType { get; }
 
         protected Type EntityTypeOrOverridenEntityType { get; }
+
+        protected FilterQuery RegisteredFilter { get; }
+
+        private FilterQuery GetRegisteredFilter()
+        {
+            if (Configurations.OverrideEntityType)
+            {
+                if (Construction.MeadowConfiguration.Filters.ContainsKey(EntityTypeOrOverridenEntityType))
+                {
+                    return Construction.MeadowConfiguration.Filters[EntityTypeOrOverridenEntityType];
+                }
+            }
+            else
+            {
+                if (Construction.MeadowConfiguration.Filters.ContainsKey(EntityType))
+                {
+                    return Construction.MeadowConfiguration.Filters[EntityType];
+                }
+            }
+
+            return new FilterQuery();
+        }
 
         protected RepetitionHandling RepetitionHandling => Configurations.RepetitionHandling;
 

@@ -6,6 +6,7 @@ using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
+using Newtonsoft.Json.Serialization;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
@@ -13,14 +14,18 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     public class EventStreamCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
-            : base(new SqLiteTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                TypeNameMapper = new SqLiteTypeNameMapper()
+            })
         {
         }
 
         protected override void DeclareUnSupportedFeatures(ISupportDeclaration declaration)
         {
             base.DeclareUnSupportedFeatures(declaration);
-            
+
             declaration.NotSupportedRepetitionHandling();
         }
 

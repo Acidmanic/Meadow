@@ -32,7 +32,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         public TableSnippetGenerator(SnippetConstruction construction,
             SnippetConfigurations configurations)
-            : base(new SqLiteTypeNameMapper(), construction, configurations)
+            : base( construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                TypeNameMapper = new SqLiteTypeNameMapper()
+            })
         {
         }
 

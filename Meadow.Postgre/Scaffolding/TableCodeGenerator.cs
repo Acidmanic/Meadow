@@ -27,7 +27,11 @@ namespace Meadow.Postgre.Scaffolding
     public class TableCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public TableCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
-            : base(new PostgreDbTypeNameMapper(), construction, configurations)
+            : base( construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                TypeNameMapper = new PostgreDbTypeNameMapper()
+            })
         {
         }
 

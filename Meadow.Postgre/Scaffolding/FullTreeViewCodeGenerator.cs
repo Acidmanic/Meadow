@@ -8,7 +8,11 @@ namespace Meadow.Postgre.Scaffolding
     public class FullTreeViewCodeGenerator : SqlSnippetFullTreeViewGeneratorBase
     {
         public FullTreeViewCodeGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
-            : base(new PostgreDbTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution
+            {
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                TypeNameMapper = new PostgreDbTypeNameMapper()
+            })
         {
         }
 

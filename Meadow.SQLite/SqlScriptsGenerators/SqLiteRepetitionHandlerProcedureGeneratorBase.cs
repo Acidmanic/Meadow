@@ -6,11 +6,15 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 {
     public abstract class SqLiteRepetitionHandlerProcedureGeneratorBase : ByTemplateSqlSnippetGeneratorBase
     {
-
         protected readonly string KeyHeaderCreation = GenerateKey();
 
-        protected SqLiteRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations) 
-            : base(new SqLiteTypeNameMapper(), construction, configurations)
+        protected SqLiteRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction,
+            SnippetConfigurations configurations)
+            : base(construction, configurations, new SnippetExecution
+            {
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                TypeNameMapper = new SqLiteTypeNameMapper()
+            })
         {
         }
 

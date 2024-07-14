@@ -14,7 +14,11 @@ namespace Meadow.Postgre.Scaffolding
     {
         public FilteringProceduresSnippetGenerator(SnippetConstruction construction,
             SnippetConfigurations configurations)
-            : base(new PostgreDbTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution
+            {
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(),
+                TypeNameMapper = new PostgreDbTypeNameMapper()
+            })
         {
         }
 
@@ -46,7 +50,7 @@ namespace Meadow.Postgre.Scaffolding
 
         private readonly string _keyDbQRemoveExpiredFilterResults = GenerateKey();
         private readonly string _keyDbQFilterResultsTableName = GenerateKey();
-        
+
         private readonly string _keyDbQIndexProcedureName = GenerateKey();
         private readonly string _keyDbQSearchIndexTableName = GenerateKey();
         private readonly string _keyIdTypeName = GenerateKey();
@@ -84,12 +88,14 @@ namespace Meadow.Postgre.Scaffolding
                 ProcessedType.NameConvention.RemoveExpiredFilterResultsProcedureName);
             replacementList.Add(_keyDbQFilterResultsTableName,
                 ProcessedType.NameConvention.FilterResultsTableName.DoubleQuot());
-            
+
             replacementList.Add(_keyIdTypeName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
 
-            replacementList.Add(_keyDbQIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName.DoubleQuot());
-            replacementList.Add(_keyDbQSearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName.DoubleQuot());
+            replacementList.Add(_keyDbQIndexProcedureName,
+                ProcessedType.NameConvention.IndexEntityProcedureName.DoubleQuot());
+            replacementList.Add(_keyDbQSearchIndexTableName,
+                ProcessedType.NameConvention.SearchIndexTableName.DoubleQuot());
         }
 
         protected override string Template => $@"

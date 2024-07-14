@@ -12,7 +12,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected readonly string KeyProcedureNameFullTree = GenerateKey();
         
         protected MySqlRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations) 
-            : base(new MySqlDbTypeNameMapper(), construction, configurations)
+            : base(construction, configurations, new SnippetExecution
+            {
+                SqlExpressionTranslator = new MySqlExpressionTranslator(),
+                TypeNameMapper = new MySqlDbTypeNameMapper()
+            })
         {
         }
 

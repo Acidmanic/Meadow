@@ -10,11 +10,16 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     {
 
         public EntityDataBoundProcedureSnippetGenerator(Type type, MeadowConfiguration configuration)
-            : base(new SqlDbTypeNameMapper(), new SnippetConstruction
+            : base(new SnippetConstruction
             {
                 EntityType = type,
                 MeadowConfiguration = configuration
-            },SnippetConfigurations.Default())
+            },SnippetConfigurations.Default(),
+                new SnippetExecution()
+                {
+                    SqlExpressionTranslator = new SqlServerExpressionTranslator(),
+                    TypeNameMapper = new SqlDbTypeNameMapper()
+                })
         { }
 
         private readonly string _keyTableName = GenerateKey();

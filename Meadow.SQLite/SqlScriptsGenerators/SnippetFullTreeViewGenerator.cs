@@ -11,6 +11,7 @@ using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
+using Newtonsoft.Json.Serialization;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
@@ -18,7 +19,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
     public class SnippetFullTreeViewGenerator : SqlSnippetFullTreeViewGeneratorBase
     {
         public SnippetFullTreeViewGenerator(SnippetConstruction construction, SnippetConfigurations configurations) 
-            : base(new SqLiteTypeNameMapper(), construction, configurations)
+            : base( construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new SqLiteExpressionTranslator(),
+                TypeNameMapper = new SqLiteTypeNameMapper()
+            })
         {
         }
 

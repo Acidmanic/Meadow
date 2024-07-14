@@ -5,6 +5,7 @@ using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -61,10 +62,11 @@ namespace Meadow.Scaffolding.CodeGenerators
 
 
         protected ByTemplateSqlSnippetGeneratorBase
-        (IDbTypeNameMapper typeNameMapper,
+        (
             SnippetConstruction construction,
-            SnippetConfigurations configurations) :
-            base(typeNameMapper, construction, configurations)
+            SnippetConfigurations configurations,
+            SnippetExecution execution) :
+            base(construction, configurations,execution)
         {
             var dec = new SupportList();
             // ReSharper disable once VirtualMemberCallInConstructor
