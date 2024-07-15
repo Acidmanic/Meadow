@@ -20,6 +20,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyInsertColumns = GenerateKey();
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyInsertParameterValues = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -51,7 +52,11 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyWhereClause, whereClause);
 
+            var entityFilterExpression = GetFiltersWhereClause(false);
             
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND {entityFilterExpression.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         private string GetProcedureName()
@@ -61,10 +66,19 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         
         protected override string Template => $@"
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
-    UPDATE {_keyTableName}  SET {_keyNoneIdParametersSet} WHERE {_keyWhereClause};
-    INSERT INTO {_keyTableName} ({_keyInsertColumns}) SELECT {_keyInsertParameterValues}
-        WHERE NOT EXISTS(SELECT * FROM {_keyTableName} WHERE {_keyWhereClause});
-    SELECT * FROM {_keyTableName} WHERE {_keyWhereClause} OR ROWID = LAST_INSERT_ROWID() LIMIT 1;
+
+    BEGIN;
+    PRAGMA temp_store = 2;
+    CREATE TEMP TABLE _alreadyExists(Id INTEGER PRIMARY KEY);
+    INSERT INTO _alreadyExists (Id) SELECT (1) WHERE EXISTS(SELECT * FROM {_keyTableName} WHERE {_keyWhereClause}{_keyEntityFilterSegment});
+
+    UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyWhereClause}{_keyEntityFilterSegment} AND EXISTS (SELECT * FROM _alreadyExists);
+
+    INSERT INTO {_keyTableName} ({_keyInsertColumns}) SELECT {_keyInsertParameterValues} WHERE NOT EXISTS (SELECT * FROM _alreadyExists);
+
+    SELECT * FROM {_keyTableName} WHERE ({_keyWhereClause} OR ROWID = LAST_INSERT_ROWID()) {_keyEntityFilterSegment} LIMIT 1;
+    DROP TABLE _alreadyExists;
+    END;
 GO
 ".Trim();
     }

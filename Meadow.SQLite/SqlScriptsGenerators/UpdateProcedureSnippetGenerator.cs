@@ -17,6 +17,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNoneIdParametersSet = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
@@ -30,6 +31,12 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 ParameterNameValueSetJoint(ProcessedType.NoneIdParameters, ",", "@"));
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND {entityFilterExpression.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         private string GetProcedureName()
@@ -41,7 +48,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
 
     UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName};
-    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName};
+    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName}{_keyEntityFilterSegment};
 GO
 ".Trim();
     }

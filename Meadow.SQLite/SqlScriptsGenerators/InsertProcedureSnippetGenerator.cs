@@ -31,6 +31,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyValues = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
@@ -49,6 +50,12 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyColumns, columns);
             replacementList.Add(_keyValues, values);
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND {entityFilterExpression.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         private string GetProcedureName()
@@ -60,7 +67,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
     INSERT INTO {_keyTableName} ({_keyColumns})
     VALUES ({_keyValues});
-    SELECT * FROM {_keyTableName} WHERE ROWID=LAST_INSERT_ROWID();
+    SELECT * FROM {_keyTableName} WHERE ROWID=LAST_INSERT_ROWID(){_keyEntityFilterSegment};
 GO
 ".Trim();
     }
