@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Acidmanic.Utilities.Filtering.Models;
+using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Test.Functional.GenericRequests;
+using Meadow.Test.Functional.GenericRequests.Models;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic.CompilerServices;
@@ -24,14 +28,38 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
         return configurations;
     }
 
+    private record ReadChunkResult<T>(List<T> Items, int Count, int Offset, int Size);  
+
+    private ReadChunkResult<Deletable> Search(MeadowEngine engine, Action<FilterQueryBuilder<Deletable>> filterBuilder, bool fullTreeRead = false)
+    {
+        var builder = new FilterQueryBuilder<Deletable>();
+
+        filterBuilder(builder);
+
+        var filter = builder.Build();
+
+        var filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Deletable, int>
+            (filter, null, new string[] { }, new OrderTerm[] { }))
+            .FromStorage
+            .FirstOrDefault();
+
+        if (filterResult?.SearchId is null) throw new Exception("Problem Performing Search/Filter");
+
+        var sequence = engine.PerformRequest(new ReadChunkRequest<Deletable>(filterResult.SearchId, 0, int.MaxValue))
+            .FromStorage;
+
+        return new ReadChunkResult<Deletable>(sequence, sequence.Count, 0, int.MaxValue);
+
+    }
+
     protected override void Main(MeadowEngine engine, ILogger logger)
     {
         var data = new Deletable[]
         {
-            new Deletable() { Id = 1 },
-            new Deletable() { Id = 2 },
-            new Deletable() { Id = 3 },
-            new Deletable() { Id = 4 },
+            new Deletable() { Id = 1 , Information = "First"},
+            new Deletable() { Id = 2 , Information = "Second"},
+            new Deletable() { Id = 3 , Information = "Third"},
+            new Deletable() { Id = 4 , Information = "Fourth"},
         };
 
         InsertAll(engine, data);
@@ -165,6 +193,34 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
             throw new Exception("Existing Un-Deleted object must be saved and returned with value.");
  
         logger.LogInformation("[PASS] Save Is Fine");
+
+
+        var foundFirst = Search(engine, b =>
+            b.Where(d => d.Information).IsEqualTo("First"), false);
+
+        if (foundFirst.Count > 0 || foundFirst.Items.Count > 0)
+            throw new Exception("Expected to NOT TO find First item but it was returned.");
         
+        
+        var foundSecondFull = Search(engine, b =>
+            b.Where(d => d.Information).IsEqualTo("Second"), false);
+
+        if (foundSecondFull.Count != 1 || foundSecondFull.Items.Count != 1 || foundSecondFull.Items.First().Information!="Second")
+            throw new Exception("Expected to find Second item but it did not.");
+        
+        var foundFirstFullTree = Search(engine, b =>
+            b.Where(d => d.Information).IsEqualTo("First"), true);
+
+        if (foundFirstFullTree.Count > 0 || foundFirstFullTree.Items.Count > 0)
+            throw new Exception("Expected to NOT TO find First item but it was returned.");
+        
+        
+        var foundSecondFullTree = Search(engine, b =>
+            b.Where(d => d.Information).IsEqualTo("Second"), true);
+
+        if (foundSecondFullTree.Count != 1 || foundSecondFullTree.Items.Count != 1 || foundSecondFullTree.Items.First().Information!="Second")
+            throw new Exception("Expected to find Second item but it did not.");
+
+        logger.LogInformation("[PASS] Search/Filter Is Fine");
     }
 }

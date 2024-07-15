@@ -44,6 +44,9 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         private readonly string _keyIndexProcedureName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
+        
+        private readonly string _keyEntityFilterSegment = GenerateKey();
+        private readonly string _keyEntityFilterSegmentFullTree = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -75,6 +78,18 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
             replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
+            
+            var entityFilterExpression = GetFiltersWhereClause(false);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND {entityFilterExpression.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
+            
+            var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
+
+            var entityFilterSegmentFullTree = entityFilterExpressionFullTree.Success ? $" AND {entityFilterExpressionFullTree.Value} " : "";
+            
+            replacementList.Add(_keyEntityFilterSegmentFullTree,entityFilterSegmentFullTree);
         }
 
         protected override string Template => $@"
@@ -103,7 +118,7 @@ AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyTableName}.{_keyIdFieldName},@ExpirationTimeStamp FROM {_keyTableName}
     LEFT JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
-    WHERE (&@FilterExpression) AND (&@SearchExpression)
+    WHERE (&@FilterExpression) AND (&@SearchExpression){_keyEntityFilterSegment}
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     ORDER BY &@OrderExpression;
 
@@ -119,7 +134,7 @@ AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView}
     LEFT JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
-    WHERE (&@FilterExpression) AND (&@SearchExpression) 
+    WHERE (&@FilterExpression) AND (&@SearchExpression){_keyEntityFilterSegmentFullTree}
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     GROUP BY {_keyFullTreeView}.{_keyIdFieldNameFullTree}
     ORDER BY &@OrderExpression;
