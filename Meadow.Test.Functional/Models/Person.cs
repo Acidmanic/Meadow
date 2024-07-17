@@ -20,5 +20,7 @@ namespace Meadow.Test.Functional.Models
         public Job Job { get; set; }
 
         public List<Address> Addresses { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

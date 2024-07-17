@@ -23,6 +23,9 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
     protected override MeadowConfiguration RegulateConfigurations(MeadowConfiguration configurations)
     {
         configurations.AddFilter<Deletable>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
+        configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
+        configurations.AddFilter<Job>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
+        configurations.AddFilter<Address>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
 
 
         return configurations;

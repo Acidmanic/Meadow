@@ -13,5 +13,7 @@ namespace Meadow.Test.Functional.Models
         public long IncomeInRials { get; set; }
 
         public string JobDescription { get; set; }
+        
+        public bool IsDeleted { get; set; } = false;
     }
 }

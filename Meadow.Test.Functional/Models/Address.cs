@@ -19,5 +19,7 @@ namespace Meadow.Test.Functional.Models
         public long Id { get; set; }
         
         public long PersonId { get; set; }
+        
+        public bool IsDeleted { get; set; } = false;
     }
 }
