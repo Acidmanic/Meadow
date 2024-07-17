@@ -5,14 +5,12 @@ using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Test.Functional.GenericRequests;
-using Meadow.Test.Functional.GenericRequests.Models;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Meadow.Test.Functional;
 
-public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
+public class Tdd51EntityFilters : PersonUseCaseTestBase
 {
     protected override void SelectDatabase()
     {
@@ -31,9 +29,10 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
         return configurations;
     }
 
-    private record ReadChunkResult<T>(List<T> Items, int Count, int Offset, int Size);  
+    private record ReadChunkResult<T>(List<T> Items, int Count, int Offset, int Size);
 
-    private ReadChunkResult<Deletable> Search(MeadowEngine engine, Action<FilterQueryBuilder<Deletable>> filterBuilder, bool fullTreeRead = false)
+    private ReadChunkResult<Deletable> Search(MeadowEngine engine, Action<FilterQueryBuilder<Deletable>> filterBuilder,
+        bool fullTreeRead = false)
     {
         var builder = new FilterQueryBuilder<Deletable>();
 
@@ -42,7 +41,7 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
         var filter = builder.Build();
 
         var filterResult = engine.PerformRequest(new PerformSearchIfNeededRequest<Deletable, int>
-            (filter, null, new string[] { }, new OrderTerm[] { }))
+                (filter, null, new string[] { }, new OrderTerm[] { }))
             .FromStorage
             .FirstOrDefault();
 
@@ -52,17 +51,16 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
             .FromStorage;
 
         return new ReadChunkResult<Deletable>(sequence, sequence.Count, 0, int.MaxValue);
-
     }
 
     protected override void Main(MeadowEngine engine, ILogger logger)
     {
         var data = new Deletable[]
         {
-            new Deletable() { Id = 1 , Information = "First"},
-            new Deletable() { Id = 2 , Information = "Second"},
-            new Deletable() { Id = 3 , Information = "Third"},
-            new Deletable() { Id = 4 , Information = "Fourth"},
+            new Deletable() { Id = 1, Information = "First" },
+            new Deletable() { Id = 2, Information = "Second" },
+            new Deletable() { Id = 3, Information = "Third" },
+            new Deletable() { Id = 4, Information = "Fourth" },
         };
 
         InsertAll(engine, data);
@@ -75,7 +73,7 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
             throw new Exception("Expected to retrieve all seed data, but it did not");
         }
 
-        var sample1 = data.First(d => d.Id==1);
+        var sample1 = data.First(d => d.Id == 1);
 
         sample1.IsDeleted = true;
 
@@ -84,7 +82,7 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
         if (updated is not null) throw new Exception("Expected Update crud code to apply filters but it did not.");
 
         logger.LogInformation("[PASS] Update Is Fine");
-        
+
         var allAfterSoftDelete = engine.PerformRequest(new ReadAllRequest<Deletable>()).FromStorage;
 
         if (allAfterSoftDelete.Count != data.Length - 1)
@@ -157,12 +155,12 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
         if (inserted is null) throw new Exception("Expected to received inserted data but it did not");
 
         var alreadyDeleted = new Deletable() { Id = 6, IsDeleted = true };
-        
+
         inserted = engine.PerformRequest(new InsertRequest<Deletable>(alreadyDeleted))
             .FromStorage.FirstOrDefault();
 
         if (inserted is not null) throw new Exception("Expected Insert method to apply entity filters but it did not");
-        
+
         logger.LogInformation("[PASS] Insert Is Fine");
 
         var sample3 = data.First(d => d.Id == 3);
@@ -175,15 +173,17 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
             throw new Exception("Existing object Soft-deleted and Saved, must be returned null but it was not.");
 
         alreadyDeleted.Id = 7;
-        
-        savedMustBeNull = engine.PerformRequest(new SaveRequest<Deletable>(alreadyDeleted)).FromStorage.FirstOrDefault();
+
+        savedMustBeNull = engine.PerformRequest(new SaveRequest<Deletable>(alreadyDeleted)).FromStorage
+            .FirstOrDefault();
 
         if (savedMustBeNull is not null)
             throw new Exception("New Soft-deleted Saved object must be returned null but it was not.");
 
         normalInsertSample.Id = 8;
-        
-        var mustBeSavedNormally = engine.PerformRequest(new SaveRequest<Deletable>(normalInsertSample)).FromStorage.FirstOrDefault();
+
+        var mustBeSavedNormally = engine.PerformRequest(new SaveRequest<Deletable>(normalInsertSample)).FromStorage
+            .FirstOrDefault();
 
         if (mustBeSavedNormally is null)
             throw new Exception("New Un-Deleted object must be saved and returned with value.");
@@ -194,7 +194,7 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
 
         if (mustBeSavedNormally is null)
             throw new Exception("Existing Un-Deleted object must be saved and returned with value.");
- 
+
         logger.LogInformation("[PASS] Save Is Fine");
 
 
@@ -203,27 +203,73 @@ public class Tdd51EntityFilters : MeadowMultiDatabaseTestBase
 
         if (foundFirst.Count > 0 || foundFirst.Items.Count > 0)
             throw new Exception("Expected to NOT TO find First item but it was returned.");
-        
-        
+
+
         var foundSecondFull = Search(engine, b =>
             b.Where(d => d.Information).IsEqualTo("Second"), false);
 
-        if (foundSecondFull.Count != 1 || foundSecondFull.Items.Count != 1 || foundSecondFull.Items.First().Information!="Second")
+        if (foundSecondFull.Count != 1 || foundSecondFull.Items.Count != 1 ||
+            foundSecondFull.Items.First().Information != "Second")
             throw new Exception("Expected to find Second item but it did not.");
-        
+
         var foundFirstFullTree = Search(engine, b =>
             b.Where(d => d.Information).IsEqualTo("First"), true);
 
         if (foundFirstFullTree.Count > 0 || foundFirstFullTree.Items.Count > 0)
             throw new Exception("Expected to NOT TO find First item but it was returned.");
-        
-        
+
+
         var foundSecondFullTree = Search(engine, b =>
             b.Where(d => d.Information).IsEqualTo("Second"), true);
 
-        if (foundSecondFullTree.Count != 1 || foundSecondFullTree.Items.Count != 1 || foundSecondFullTree.Items.First().Information!="Second")
+        if (foundSecondFullTree.Count != 1 || foundSecondFullTree.Items.Count != 1 ||
+            foundSecondFullTree.Items.First().Information != "Second")
             throw new Exception("Expected to find Second item but it did not.");
 
         logger.LogInformation("[PASS] Search/Filter Is Fine");
+
+        var allSeededPersons = engine.PerformRequest
+                (new ReadAllRequest<Person>(), true)
+            .FromStorage;
+
+        if (allSeededPersons.Count != Persons.Length)
+        {
+            throw new Exception("There was an issue either in seeding or reading persons");
+        }
+
+        var mani = allSeededPersons.First(p => p.Name == "Mani");
+
+        mani.IsDeleted = true;
+        
+        engine.PerformRequest(new UpdateRequest<Person>(mani), true);
+        
+        var personsButMani =engine.PerformRequest
+                (new ReadAllRequest<Person>(), true)
+            .FromStorage;
+
+        if (personsButMani.Count != Persons.Length - 1 || personsButMani.Any(p=> p.Name=="Mani"))
+        {
+            throw new Exception("Delete did not work on top level");
+        }
+
+        var farimehr = personsButMani.First(p => p.Name == "Farimehr");
+
+        var farimehr3RdAddress = farimehr.Addresses.First(a => a.Block == 3);
+
+        farimehr3RdAddress.IsDeleted = true;
+        
+        engine.PerformRequest(new UpdateRequest<Address>(farimehr3RdAddress), true);
+
+        var reReadFarimehr = engine.PerformRequest(new ReadByIdRequest<Person, long>(farimehr.Id),true)
+            .FromStorage.First();
+
+        if (farimehr.Addresses.Count != reReadFarimehr.Addresses.Count + 1 ||
+            reReadFarimehr.Addresses.Any(a => a.Block == 3))
+        {
+            throw new Exception("Entity filter (soft delete case) did not work for sub entities");
+        }
+      
+        logger.LogInformation("[PASS] FullTree Entity Filter Is Fine");
+
     }
 }

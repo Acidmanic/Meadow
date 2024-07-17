@@ -46,8 +46,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keySearchIndexTableName = GenerateKey();
         
         private readonly string _keyEntityFilterSegment = GenerateKey();
-        private readonly string _keyEntityFilterSegmentFullTree = GenerateKey();
-
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -85,11 +83,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
             
-            var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
-
-            var entityFilterSegmentFullTree = entityFilterExpressionFullTree.Success ? $" AND {entityFilterExpressionFullTree.Value} " : "";
-            
-            replacementList.Add(_keyEntityFilterSegmentFullTree,entityFilterSegmentFullTree);
         }
 
         protected override string Template => $@"
@@ -134,7 +127,7 @@ AS
     INSERT INTO {_keyFilterResultsTableName} (SearchId, ResultId, ExpirationTimeStamp) 
     SELECT @SearchId,{_keyFullTreeView}.{_keyIdFieldNameFullTree},@ExpirationTimeStamp FROM {_keyFullTreeView}
     LEFT JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
-    WHERE (&@FilterExpression) AND (&@SearchExpression){_keyEntityFilterSegmentFullTree}
+    WHERE (&@FilterExpression) AND (&@SearchExpression)
     AND IIF((select count(Id) from {_keyFilterResultsTableName} where {_keyFilterResultsTableName}.SearchId=@SearchId)>0,false,true)
     GROUP BY {_keyFullTreeView}.{_keyIdFieldNameFullTree}
     ORDER BY &@OrderExpression;

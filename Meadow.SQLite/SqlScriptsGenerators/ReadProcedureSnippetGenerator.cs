@@ -58,7 +58,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyWhereClauseFullTree = GenerateKey();
         
         private readonly string _keyEntityFilterSegment = GenerateKey();
-        private readonly string _keyEntityFilterSegmentFullTree = GenerateKey();
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
@@ -90,9 +89,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             
             var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
 
-            var entityFilterSegmentFullTree = entityFilterExpressionFullTree.Success ? $"{whereForEntityFilter}{entityFilterExpressionFullTree.Value} " : "";
-            
-            replacementList.Add(_keyEntityFilterSegmentFullTree,entityFilterSegmentFullTree);
         }
 
 
@@ -119,7 +115,7 @@ GO
 
         private string FullTreeTemplate => $@"
 {KeyHeaderCreation} {_keyProcedureNameFullTree}{_keyParametersDeclaration} AS
-    SELECT * FROM {_keyFullTreeView}{_keyWhereClauseFullTree}{_keyEntityFilterSegmentFullTree};
+    SELECT * FROM {_keyFullTreeView}{_keyWhereClauseFullTree};
 GO
 ".Trim();
 
