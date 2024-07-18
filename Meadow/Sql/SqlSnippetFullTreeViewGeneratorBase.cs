@@ -4,6 +4,7 @@ using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Attributes;
@@ -85,16 +86,9 @@ namespace Meadow.Sql
             replacementList.Add(_keyTaleTemplateText, TaleTemplateText());
             replacementList.Add(_keyCreationHeader, GetCreationHeader());
 
-            var whereClause = "";
-
-            var filters = Filters();
-
-            if (filters.Count > 0)
-            {
-                whereClause = " WHERE " + string.Join(" AND ", filters);
-            }
-
-            replacementList.Add(_keyWhereClause, whereClause);
+            var whereClause = GetFiltersWhereClause(true);
+            
+            replacementList.Add(_keyWhereClause, whereClause?$" WHERE {whereClause.Value}":"");
         }
 
         protected abstract string GetCreationHeader();
@@ -109,83 +103,6 @@ namespace Meadow.Sql
                 .Where(n => !n.IsLeaf && !n.IsCollection && n != rootNode);
 
             return joinNodes;
-        }
-
-        protected List<string> Filters()
-        {
-            var checkingNodes = GetJoinNodes().ToList();
-
-            var rootNode = FullTreeMap.Evaluator.RootNode;
-
-            if (checkingNodes.All(cp => cp != rootNode))
-            {
-                checkingNodes.Add(rootNode);
-            }
-
-            var filters = new List<string>();
-
-            foreach (var joinNode in checkingNodes)
-            {
-                var nodeType = joinNode.IsAlteredType ? joinNode.AlteredType : joinNode.Type;
-
-                var query = Construction.MeadowConfiguration.Filters
-                    .Where(f => f.Key == nodeType)
-                    .Select(f => f.Value)
-                    .Select(query => Rebase(joinNode, query))
-                    .FirstOrDefault();
-
-                if (query is { } q)
-                {
-                    var translatedQuery = SqlExpressionTranslator.TranslateFilterQueryToDbExpression(q, true);
-
-                    filters.Add(translatedQuery);
-                }
-            }
-
-            return filters;
-        }
-
-        private FilterQuery Rebase(AccessNode itemNode, FilterQuery filterQuery)
-        {
-            var rootNode = itemNode.GetTopLevelNode();
-
-            var rootType = rootNode.IsAlteredType ? rootNode.AlteredType : rootNode.Type;
-
-            var items = filterQuery.Items().Select(item => Rebase(itemNode, item)).ToList();
-
-            var rebasedQuery = new FilterQuery();
-
-            rebasedQuery.EntityType = rootType;
-
-            items.ForEach(rebasedQuery.Add);
-
-            return rebasedQuery;
-        }
-
-        private FilterItem Rebase(AccessNode itemNode, FilterItem item)
-        {
-            var baseKey = FieldKey.Parse(itemNode.GetFullName()).Headless().ToString();
-
-            if (string.IsNullOrWhiteSpace(baseKey))
-            {
-                baseKey = string.Empty;
-            }
-            else
-            {
-                baseKey += ".";
-            }
-
-            var rebasedKey = baseKey + item.Key;
-
-            return new FilterItem
-            {
-                Key = rebasedKey,
-                Maximum = item.Maximum,
-                Minimum = item.Minimum,
-                EqualityValues = item.EqualityValues,
-                ValueComparison = item.ValueComparison,
-                ValueType = item.ValueType
-            };
         }
 
         private string GetInnerJoins(Func<string, string> q)
@@ -242,9 +159,25 @@ namespace Meadow.Sql
                 ProcessedType.NameConvention.TableNameProvider.GetNameForOwnerType(nodePointedAt.Type);
             var pointedAtIdField = TypeIdentity.FindIdentityLeaf(nodePointedAt.Type).Name;
 
+            //q(joinTableName)
+            var source = GetAlternatedSelectSource(joinNode.Type, joinTableName, q);
+            
             return
-                $"LEFT JOIN {q(joinTableName)} ON {q(pointerTableName)}.{q(pointerIdFieldName)} =" +
+                $"LEFT JOIN {source} ON {q(pointerTableName)}.{q(pointerIdFieldName)} =" +
                 $" {q(pointedAtTableName)}.{q(pointedAtIdField)}";
+        }
+
+
+        private string GetAlternatedSelectSource(Type type, string name, Func<string, string> q)
+        {
+            var whereClause = GetFiltersWhereClause(type.GetAlteredOrOriginal(), true);
+
+            if (whereClause)
+            {
+                return $"(SELECT * FROM {q(name)} WHERE {whereClause.Value}) AS {q(name)}";
+            }
+
+            return q(name);
         }
 
 

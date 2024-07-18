@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Content Include="bin\Debug\net7.0\Tdd51EntityFiltersDb2BeDeleted.db" />
         <Content Include="Scripts\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>

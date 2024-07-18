@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
@@ -18,24 +19,23 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected SnippetConstruction Construction { get; }
         protected SnippetConfigurations Configurations { get; }
-        
+
         protected ISqlExpressionTranslator SqlExpressionTranslator { get; }
-        
+
         protected SnippetExecution SnippetExecution { get; }
 
         protected SqlSnippetGeneratorBase(
             SnippetConstruction construction,
-            SnippetConfigurations configurations, 
+            SnippetConfigurations configurations,
             SnippetExecution execution)
         {
-
             Construction = construction;
             Configurations = configurations;
             SnippetExecution = execution;
 
             TypeNameMapper = execution.TypeNameMapper;
             SqlExpressionTranslator = execution.SqlExpressionTranslator;
-            
+
             EntityType = Construction.EntityType;
 
             EntityTypeOrOverridenEntityType = Configurations.OverrideEntityType
@@ -56,29 +56,31 @@ namespace Meadow.Scaffolding.CodeGenerators
 
         protected FilterQuery RegisteredFilter { get; }
 
-        private FilterQuery GetRegisteredFilter()
+
+        protected Type EffectiveType => EntityTypeOrOverridenEntityType.GetAlteredOrOriginal();
+        
+        
+        private FilterQuery GetRegisteredFilter() => GetRegisteredFilter(EffectiveType);
+        
+        
+        private FilterQuery GetRegisteredFilter(Type type)
         {
-            if (Configurations.OverrideEntityType)
+            
+            if (Construction.MeadowConfiguration.Filters.ContainsKey(type))
             {
-                if (Construction.MeadowConfiguration.Filters.ContainsKey(EntityTypeOrOverridenEntityType))
-                {
-                    return Construction.MeadowConfiguration.Filters[EntityTypeOrOverridenEntityType];
-                }
-            }
-            else
-            {
-                if (Construction.MeadowConfiguration.Filters.ContainsKey(EntityType))
-                {
-                    return Construction.MeadowConfiguration.Filters[EntityType];
-                }
+                return Construction.MeadowConfiguration.Filters[type];
             }
 
             return new FilterQuery();
         }
 
-        protected Result<string> GetFiltersWhereClause(bool fullTreeRead )
+        protected Result<string> GetFiltersWhereClause(bool fullTreeRead) =>
+            GetFiltersWhereClause(EffectiveType, fullTreeRead);
+        
+        
+        protected Result<string> GetFiltersWhereClause(Type type, bool fullTreeRead)
         {
-            var queryFilter = GetRegisteredFilter();
+            var queryFilter = GetRegisteredFilter(type);
 
             var filterItems = queryFilter.Items();
 

@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.Attributes;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Configuration;
 using Meadow.DataTypeMapping;
@@ -19,7 +22,7 @@ public static class EntityTypeUtilities
 {
 
     public static readonly int IndexCorpusSize = 4000;
-
+    
     public static void WalkThroughLeaves<TEntity>(bool fullTree, Action<AccessNode> leafAction)
     {
         WalkThroughLeaves(typeof(TEntity), fullTree, leafAction);
@@ -99,7 +102,7 @@ public static class EntityTypeUtilities
             propertyAttributes.Add(new ForceColumnSizeAttribute(leafColumnSize));
         }
 
-        var typeName = typeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginalType(), propertyAttributes);
+        var typeName = typeNameMapper.GetDatabaseTypeName(leaf.Type.GetAlteredOrOriginal(), propertyAttributes);
 
         return typeName;
 
