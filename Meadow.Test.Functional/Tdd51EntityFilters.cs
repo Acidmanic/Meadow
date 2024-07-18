@@ -268,8 +268,25 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
         {
             throw new Exception("Entity filter (soft delete case) did not work for sub entities");
         }
-      
-        logger.LogInformation("[PASS] FullTree Entity Filter Is Fine");
+        
+        /*  Deleted children causes undeleted parent not be read case:   */
+        
+        reReadFarimehr.Addresses.ForEach( a =>
+        {
+            a.IsDeleted = true;
 
+            engine.PerformRequest(new UpdateRequest<Address>(a));
+        });
+        
+        reReadFarimehr = engine.PerformRequest(new ReadByIdRequest<Person, long>(farimehr.Id),true)
+            .FromStorage.FirstOrDefault();
+
+
+        if (reReadFarimehr == null)
+        {
+            throw new Exception("Top entity was not read when it's sub entities are deleted");
+        }
+        
+        logger.LogInformation("[PASS] FullTree Entity Filter Is Fine");
     }
 }
