@@ -34,7 +34,7 @@ public interface ISqlExpressionTranslator
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public MeadowConfiguration Configuration { get; set; }
         
-        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree)
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
         {
             LogError();
 
@@ -78,7 +78,7 @@ public interface ISqlExpressionTranslator
     MeadowConfiguration Configuration { get; set; }
     
 
-    string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree);
+    string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation);
 
     string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
 

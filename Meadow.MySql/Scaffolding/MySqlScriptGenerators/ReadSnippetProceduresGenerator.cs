@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
@@ -171,7 +172,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             var whereForEntityFilter = ActById ? " AND " : " WHERE ";
             
-            var entityFilterExpression = GetFiltersWhereClause(false);
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
             var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}({entityFilterExpression.Value}) " : "";
             

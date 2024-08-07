@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -81,7 +82,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             
             var whereForEntityFilter = ActById ? " AND " : " WHERE ";
             
-            var entityFilterExpression = GetFiltersWhereClause(false);
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
             var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}{entityFilterExpression.Value} " : "";
             

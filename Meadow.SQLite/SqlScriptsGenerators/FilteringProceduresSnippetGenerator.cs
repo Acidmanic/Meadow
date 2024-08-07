@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -77,7 +78,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
             replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
             
-            var entityFilterExpression = GetFiltersWhereClause(false);
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
             var entityFilterSegment = entityFilterExpression.Success ? $" AND {entityFilterExpression.Value} " : "";
             

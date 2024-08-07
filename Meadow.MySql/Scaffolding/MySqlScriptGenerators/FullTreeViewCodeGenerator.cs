@@ -1,3 +1,4 @@
+using System;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
@@ -9,8 +10,13 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
     {
         public FullTreeViewCodeGenerator(
             SnippetConstruction construction,
-            SnippetConfigurations configurations) 
-            : base(construction, configurations, new SnippetExecution())
+            SnippetConfigurations configurations)
+            : base(construction, configurations, new SnippetExecution()
+            {
+                SqlExpressionTranslator = new MySqlExpressionTranslator()
+                    { Configuration = construction.MeadowConfiguration },
+                TypeNameMapper = new MySqlDbTypeNameMapper()
+            })
         {
         }
 
@@ -21,7 +27,6 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
         protected override string GetCreationHeader()
         {
-
             if (RepetitionHandling == RepetitionHandling.Alter)
             {
                 return "DROP VIEW IF EXISTS " + GetViewName() + ";" +
@@ -30,7 +35,5 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             return "CREATE VIEW";
         }
-
-        
     }
 }

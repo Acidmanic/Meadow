@@ -15,6 +15,7 @@ namespace Meadow.Scaffolding.CodeGenerators
 {
     public abstract class SqlSnippetGeneratorBase : ICodeGenerator
     {
+        
         protected IDbTypeNameMapper TypeNameMapper { get; }
 
         protected SnippetConstruction Construction { get; }
@@ -74,11 +75,11 @@ namespace Meadow.Scaffolding.CodeGenerators
             return new FilterQuery();
         }
 
-        protected Result<string> GetFiltersWhereClause(bool fullTreeRead) =>
-            GetFiltersWhereClause(EffectiveType, fullTreeRead);
+        protected Result<string> GetFiltersWhereClause(ColumnNameTranslation translation) =>
+            GetFiltersWhereClause(EffectiveType, translation);
         
         
-        protected Result<string> GetFiltersWhereClause(Type type, bool fullTreeRead)
+        protected Result<string> GetFiltersWhereClause(Type type, ColumnNameTranslation translation)
         {
             var queryFilter = GetRegisteredFilter(type);
 
@@ -91,10 +92,11 @@ namespace Meadow.Scaffolding.CodeGenerators
                 return new Result<string>().FailAndDefaultValue();
             }
 
-            var translatedQuery = SqlExpressionTranslator.TranslateFilterQueryToDbExpression(queryFilter, fullTreeRead);
+            var translatedQuery = SqlExpressionTranslator.TranslateFilterQueryToDbExpression(queryFilter, translation);
 
             return new Result<string>(true, translatedQuery);
         }
+
 
         protected RepetitionHandling RepetitionHandling => Configurations.RepetitionHandling;
 

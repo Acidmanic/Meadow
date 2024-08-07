@@ -3,6 +3,7 @@ using Acidmanic.Utilities.DataTypes;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
+using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Requests;
 using Meadow.Test.Functional.GenericRequests.Models;
@@ -21,7 +22,8 @@ namespace Meadow.Test.Functional.GenericRequests
             RegisterTranslationTask(t =>
             {
 
-                var filterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()); 
+                var filterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()?
+                    ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly); 
                 
                 searchTerms ??= new string[]{};
 

@@ -8,6 +8,7 @@ using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Attributes;
+using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
@@ -86,7 +87,7 @@ namespace Meadow.Sql
             replacementList.Add(_keyTaleTemplateText, TaleTemplateText());
             replacementList.Add(_keyCreationHeader, GetCreationHeader());
 
-            var whereClause = GetFiltersWhereClause(true);
+            var whereClause = GetFiltersWhereClause(EntityFilterWhereClauseColumnTranslation);
             
             replacementList.Add(_keyWhereClause, whereClause?$" WHERE {whereClause.Value}":"");
         }
@@ -170,7 +171,7 @@ namespace Meadow.Sql
 
         private string GetAlternatedSelectSource(Type type, string name, Func<string, string> q)
         {
-            var whereClause = GetFiltersWhereClause(type.GetAlteredOrOriginal(), true);
+            var whereClause = GetFiltersWhereClause(type.GetAlteredOrOriginal(), ColumnNameTranslation.FullTree);
 
             if (whereClause)
             {
@@ -180,6 +181,7 @@ namespace Meadow.Sql
             return q(name);
         }
 
+        protected virtual ColumnNameTranslation EntityFilterWhereClauseColumnTranslation => ColumnNameTranslation.DataOwnerDotColumnName;
 
         private string GetParametersTable(Func<string, string> q)
         {

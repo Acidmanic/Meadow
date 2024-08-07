@@ -14,7 +14,7 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
 {
     protected override void SelectDatabase()
     {
-        UseSqLite();
+        UseMySql();
     }
 
 

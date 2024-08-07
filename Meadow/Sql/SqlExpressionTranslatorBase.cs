@@ -19,15 +19,20 @@ namespace Meadow.Sql
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
 
-        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, bool fullTree)
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
         {
             Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, item.Key);
 
-            if (fullTree)
+            if (translation==ColumnNameTranslation.FullTree)
             {
                 var columns = Configuration.GetFullTreeMap(filterQuery.EntityType);
 
                 pickColumName = item => columns.GetColumnName(item.Key);
+                
+            }else if (translation == ColumnNameTranslation.DataOwnerDotColumnName)
+            {
+                pickColumName = item => new Result<string>(true,
+                    Configuration.TableNameProvider.GetNameForOwnerType(filterQuery.EntityType) +"."+item.Key);
             }
 
             var sb = new StringBuilder();

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
+using Meadow.Contracts;
 using Meadow.Requests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TDDAbstractions;
@@ -49,7 +50,7 @@ namespace Meadow.Test.Functional
                         FilterHash = filterQuery.Hash(),
                         ExpirationTimeStamp = TimeStamp.Now.TotalMilliSeconds +
                                               typeof(Person).GetFilterResultExpirationDurationMilliseconds(),
-                        WhereClause = tr.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite())
+                        WhereClause = tr.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite()?ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly)
                     };
                 });
             }
