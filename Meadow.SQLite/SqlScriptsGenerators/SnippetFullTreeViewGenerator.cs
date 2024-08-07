@@ -1,17 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Configuration;
-using Meadow.DataTypeMapping;
-using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 using Meadow.Sql;
-using Newtonsoft.Json.Serialization;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {

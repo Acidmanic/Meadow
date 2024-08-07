@@ -47,7 +47,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         protected override string Template => $@"
 {KeyHeaderCreation} {_keyProcedureName} ({_keyParameters}) AS
 
-    UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName};
+    UPDATE {_keyTableName} SET {_keyNoneIdParametersSet} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName}{_keyEntityFilterSegment};
     SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdFieldName}=@{_keyIdFieldName}{_keyEntityFilterSegment};
 GO
 ".Trim();

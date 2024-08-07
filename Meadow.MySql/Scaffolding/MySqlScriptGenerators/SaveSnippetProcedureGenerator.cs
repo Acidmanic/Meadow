@@ -110,16 +110,16 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected override string Template => ProcessedType.HasId? $@"
 {KeyCreationHeader} {KeyProcedureName}({_keyParameters})
 BEGIN
-    IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause}) then
+    IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause}{_keyEntityFilterSegment}) then
         
-        UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyWhereClause};
+        UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyWhereClause}{_keyEntityFilterSegment};
         
         SELECT * FROM {_keyTableName} WHERE {_keyWhereClause} ORDER BY {_keyIdColumn} ASC LIMIT 1;
         
     ELSE
         INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
         {_keyDeclareNewId}
-        SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @nid {_keyEntityFilterSegment};
+        SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @nid{_keyEntityFilterSegment};
     END IF;
 END;
 ".Trim():"";

@@ -86,8 +86,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}{entityFilterExpression.Value} " : "";
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
-            
-            var entityFilterExpressionFullTree = GetFiltersWhereClause(true);
 
         }
 
