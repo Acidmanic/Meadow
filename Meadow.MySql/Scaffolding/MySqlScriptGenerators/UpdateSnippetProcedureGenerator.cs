@@ -57,7 +57,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
             
-            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
             
             var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
             

@@ -71,7 +71,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             replacementList.Add(_keyDeclareNewId,newId);
             
             
-            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
             
             var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
             
@@ -115,7 +115,7 @@ BEGIN
         
         UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyWhereClause}{_keyEntityFilterSegment};
         
-        SELECT * FROM {_keyTableName} WHERE {_keyWhereClause} ORDER BY {_keyIdColumn} ASC LIMIT 1;
+        SELECT * FROM {_keyTableName} WHERE {_keyWhereClause}{_keyEntityFilterSegment} ORDER BY {_keyIdColumn} ASC LIMIT 1;
         
     ELSE
         INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});

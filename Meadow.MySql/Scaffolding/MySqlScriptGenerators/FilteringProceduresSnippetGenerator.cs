@@ -1,12 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
-using Acidmanic.Utilities.Filtering.Models;
-using Acidmanic.Utilities.Reflection;
 using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Utility;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
@@ -88,7 +84,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
-            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            var entityFilterSegment = entityFilterExpression.Success ? $" ({entityFilterExpression.Value}) AND " : "";
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
             
@@ -133,12 +129,12 @@ BEGIN
             set @query = CONCAT(
             'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
             'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-            ' from {_keyTableName}  WHERE ' , FilterExpression,@orderClause, ';');
+            ' from {_keyTableName}  WHERE{_keyEntityFilterSegment}' , FilterExpression, @orderClause, ';');
         ELSE
             set @query = CONCAT(
                 'insert into {_keyFilterResultsTableName} (SearchId,ResultId,ExpirationTimeStamp)',
                 'select \'',SearchId,'\',{_keyTableName}.{_keyIdFieldName},',ExpirationTimeStamp,
-                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE (' , FilterExpression, ') {_keyEntityFilterSegment} AND (', SearchExpression, ')',@orderClause,';');
+                ' from {_keyTableName} inner join {_keySearchIndexTableName} on {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE {_keyEntityFilterSegment}(' , FilterExpression, ') AND (', SearchExpression, ')',@orderClause,';');
         END IF;
         
         PREPARE stmt FROM @query;

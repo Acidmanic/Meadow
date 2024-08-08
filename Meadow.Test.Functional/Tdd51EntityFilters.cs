@@ -31,7 +31,7 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
 
     private record ReadChunkResult<T>(List<T> Items, int Count, int Offset, int Size);
 
-    private ReadChunkResult<Deletable> Search(MeadowEngine engine, Action<FilterQueryBuilder<Deletable>> filterBuilder,
+    private ReadChunkResult<Deletable> Filter(MeadowEngine engine, Action<FilterQueryBuilder<Deletable>> filterBuilder,
         bool fullTreeRead = false)
     {
         var builder = new FilterQueryBuilder<Deletable>();
@@ -198,28 +198,28 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
         logger.LogInformation("[PASS] Save Is Fine");
 
 
-        var foundFirst = Search(engine, b =>
+        var foundFirst = Filter(engine, b =>
             b.Where(d => d.Information).IsEqualTo("First"), false);
 
         if (foundFirst.Count > 0 || foundFirst.Items.Count > 0)
             throw new Exception("Expected to NOT TO find First item but it was returned.");
 
 
-        var foundSecondFull = Search(engine, b =>
+        var foundSecondFull = Filter(engine, b =>
             b.Where(d => d.Information).IsEqualTo("Second"), false);
 
         if (foundSecondFull.Count != 1 || foundSecondFull.Items.Count != 1 ||
             foundSecondFull.Items.First().Information != "Second")
             throw new Exception("Expected to find Second item but it did not.");
 
-        var foundFirstFullTree = Search(engine, b =>
+        var foundFirstFullTree = Filter(engine, b =>
             b.Where(d => d.Information).IsEqualTo("First"), true);
 
         if (foundFirstFullTree.Count > 0 || foundFirstFullTree.Items.Count > 0)
             throw new Exception("Expected to NOT TO find First item but it was returned.");
 
 
-        var foundSecondFullTree = Search(engine, b =>
+        var foundSecondFullTree = Filter(engine, b =>
             b.Where(d => d.Information).IsEqualTo("Second"), true);
 
         if (foundSecondFullTree.Count != 1 || foundSecondFullTree.Items.Count != 1 ||
