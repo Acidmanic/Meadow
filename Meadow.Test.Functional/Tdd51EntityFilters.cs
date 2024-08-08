@@ -81,6 +81,17 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
 
         if (updated is not null) throw new Exception("Expected Update crud code to apply filters but it did not.");
 
+        sample1.IsDeleted = false;
+        
+        updated = engine.PerformRequest(new UpdateRequest<Deletable>(sample1)).FromStorage.FirstOrDefault();
+        
+        if (updated is not null) throw new Exception("Expected Update crud code to apply filters but it did not.");
+
+        var reReadDeletedSample1 = engine.PerformRequest(new ReadByIdRequest<Deletable, int>(1), false)
+            .FromStorage.FirstOrDefault();
+        
+        if (reReadDeletedSample1 is not null) throw new Exception("Records not matching with EntityFilters, should not be updated, But it did");
+        
         logger.LogInformation("[PASS] Update Is Fine");
 
         var allAfterSoftDelete = engine.PerformRequest(new ReadAllRequest<Deletable>()).FromStorage;
@@ -194,6 +205,18 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
 
         if (mustBeSavedNormally is null)
             throw new Exception("Existing Un-Deleted object must be saved and returned with value.");
+
+        
+        sample1.IsDeleted = true;
+        
+        engine.PerformRequest(new UpdateRequest<Deletable>(sample1));
+        
+        sample1.IsDeleted = false;
+        
+        var saveRepeatedSample1Response = engine.PerformRequest(new SaveRequest<Deletable>(sample1));
+        
+        if (!saveRepeatedSample1Response.Failed || saveRepeatedSample1Response.FailureException == null) throw new Exception("RepeatedId Should not be able to be inserted");
+
 
         logger.LogInformation("[PASS] Save Is Fine");
 
