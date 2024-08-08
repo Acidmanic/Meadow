@@ -21,7 +21,7 @@
         <!-- NuGet -->
         <Id>Meadow.Framework</Id>
         <PackageId>Meadow.Framework</PackageId>
-        <Version>1.2.4-b52</Version>
+        <Version>1.2.4-b53</Version>
         <Authors>Mani Moayedi</Authors>
         <Company>Acidmanic</Company>
         <PackageIcon>Graphics/MeadowIcon.png</PackageIcon>
