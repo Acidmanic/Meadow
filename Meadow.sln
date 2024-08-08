@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# 
+#
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow", "Meadow\Meadow.csproj", "{85B53D4D-A410-4573-A49D-23EF1BD3E167}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{4EC7AF28-92F5-47AB-BE1D-6C660D5C0466}"
@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		.publishes = .publishes
 		global.json = global.json
 		beta-semantic.json = beta-semantic.json
-		bump.sh = bump.sh
+		bump-publish.sh = bump-publish.sh
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Test.Functional", "Meadow.Test.Functional\Meadow.Test.Functional.csproj", "{91318B80-E58A-4191-946E-E17B3C364DAF}"
