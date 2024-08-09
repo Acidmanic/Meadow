@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -19,6 +20,8 @@ namespace Meadow.Postgre.Scaffolding
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNameValuesSet = GenerateKey();
         private readonly string _keyWhereExpression = GenerateKey();
+        private readonly string _keyEntityFilterSegmentAnd = GenerateKey();
+        private readonly string _keyEntityFilterSegmentWhere = GenerateKey();
 
         protected override string GetProcedureName()
         {
@@ -43,17 +46,28 @@ namespace Meadow.Postgre.Scaffolding
             var id = ProcessedType.IdParameter.Name;
 
             replacementList.Add(_keyWhereExpression, $"\"{id}\" = \"par_{id}\"");
+
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
+
+            var entityFilterSegmentAnd =
+                entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            var entityFilterSegmentWhere =
+                entityFilterExpression.Success ? $" WHERE {entityFilterExpression.Value}" : "";
+
+            replacementList.Add(_keyEntityFilterSegmentAnd, entityFilterSegmentAnd);
+            replacementList.Add(_keyEntityFilterSegmentWhere, entityFilterSegmentWhere);
         }
 
         protected override string Template => $@"
 {KeyCreationHeader} function {KeyProcedureName}(
     {_keyParameters}) returns setof {_keyTableName} as $$
         begin
-            return query
-                update {_keyTableName} set 
+            update {_keyTableName} set 
                 {_keyNameValuesSet}
-            where {_keyWhereExpression}
-            returning*;
+            where {_keyWhereExpression}{_keyEntityFilterSegmentAnd};
+
+            return query
+                 select * from {_keyTableName}where{_keyWhereExpression}{_keyEntityFilterSegmentAnd};
         end;
 $$ language plpgsql;
             ".Trim();

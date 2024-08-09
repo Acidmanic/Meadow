@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
@@ -60,6 +61,7 @@ namespace Meadow.Postgre.Scaffolding
         private readonly string _keyIdFieldValue = GenerateKey();
 
         private readonly string _keyProcedureNameFullTree = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override string GetProcedureName()
@@ -95,6 +97,14 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyIdFieldValue, ("par_" + ProcessedType.IdParameter.Name).DoubleQuot());
 
             replacementList.Add(_keyProcedureNameFullTree, GetProcedureNameFullTree());
+            
+            var whereForEntityFilter = ActById ? " AND " : " WHERE ";
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected override string Template => ActById ? ByIdTemplate : AllTemplate;
@@ -104,7 +114,7 @@ namespace Meadow.Postgre.Scaffolding
             $@"{KeyCreationHeader} function {KeyProcedureName}({_keyParameters}) returns setof {_keyTableName} as $$ 
 begin
 return query
-    select * from {_keyTableName} where {_keyIdFieldName} = {_keyIdFieldValue};
+    select * from {_keyTableName} where {_keyIdFieldName} = {_keyIdFieldValue}{_keyEntityFilterSegment};
 end;
 $$ language plpgsql ;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -134,7 +144,7 @@ $$ language plpgsql ;
 {KeyCreationHeader} function {KeyProcedureName}() returns setof {_keyTableName} as $$ 
 begin
 return query
-    select * from {_keyTableName};
+    select * from {_keyTableName}{_keyEntityFilterSegment};
 end;
 $$ language plpgsql ;
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -146,7 +156,7 @@ $$ language plpgsql ;
 {KeyCreationHeader} function {_keyProcedureNameFullTree}() returns setof {_keyFullTreeViewName} as $$ 
 begin
 return query
-    select * from {_keyFullTreeViewName};
+    select * from {_keyFullTreeViewName}{_keyEntityFilterSegment};
 end;
 $$ language plpgsql ;
 -- ---------------------------------------------------------------------------------------------------------------------
