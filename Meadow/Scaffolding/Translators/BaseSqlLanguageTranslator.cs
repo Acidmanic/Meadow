@@ -3,6 +3,7 @@ using Meadow.Inclusion.Enums;
 
 namespace Meadow.Scaffolding.Translators;
 
+//WIP: Not used
 public abstract class BaseSqlLanguageTranslator:ISqlLanguageTranslator
 {
     public virtual string ComparisonOperator(Operators opr, Type sourceType, Type targetType)

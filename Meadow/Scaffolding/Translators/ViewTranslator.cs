@@ -15,7 +15,7 @@ using Meadow.Inclusion.Fluent;
 using Meadow.RelationalStandardMapping;
 
 namespace Meadow.Scaffolding.Translators;
-
+//WIP: Not used
 public class ViewTranslator
 {
     private class Context
