@@ -31,6 +31,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         private readonly string _keyDeclareNewId = GenerateKey();
         private readonly string _keySelectNoIdParameters = GenerateKey();
         private readonly string _keyEntityFilterSegment = GenerateKey();
+        private readonly string _keyEntityFilterSegmentNoAnd = GenerateKey();
 
         public InsertSnippetProcedureGenerator(SnippetConstruction construction, SnippetConfigurations configurations) :
             base(construction, configurations)
@@ -79,8 +80,10 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
             var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            var entityFilterSegmentNoAnd = entityFilterExpression.Success ? $" WHERE ({entityFilterExpression.Value}) " : "";
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
+            replacementList.Add(_keyEntityFilterSegmentNoAnd,entityFilterSegmentNoAnd);
         }
 
         protected override string Template => ProcessedType.HasId ? IdTemplate : NoIdTemplate;
@@ -91,7 +94,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 BEGIN
     INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
     {_keyDeclareNewId}
-    SELECT {_keySelectNoIdParameters};
+    SELECT {_keySelectNoIdParameters}{_keyEntityFilterSegmentNoAnd};
 END;
 ".Trim();
 
@@ -100,7 +103,7 @@ END;
 BEGIN
     INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
     {_keyDeclareNewId}
-    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=@nid {_keyEntityFilterSegment};
+    SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn}=@nid{_keyEntityFilterSegment};
 END;
 ".Trim();
     }

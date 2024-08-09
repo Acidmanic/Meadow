@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -27,6 +28,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyColumns = GenerateKey();
         private readonly string _keyIdColumn = GenerateKey();
         private readonly string _keyDeclareNewId = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override string GetProcedureName(bool fullTree)
@@ -71,6 +73,12 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                   "SET @newId =@" + ProcessedType.IdParameter.Name + ";";
 
             replacementList.Add(_keyDeclareNewId, newId);
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         private bool IsString(Parameter p)
@@ -105,11 +113,11 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string Template => $@"
 {KeyCreationHeader} {KeyProcedureName}({_keyParameters}) AS
-    IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause})
+    IF EXISTS(SELECT 1 FROM {_keyTableName} WHERE {_keyWhereClause}{_keyEntityFilterSegment})
         BEGIN
-            UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyWhereClause};
+            UPDATE {_keyTableName} SET {_keySetClause} WHERE {_keyWhereClause}{_keyEntityFilterSegment};
         
-            SELECT TOP 1 * FROM {_keyTableName} WHERE {_keyWhereClause} ORDER BY {_keyIdColumn} ASC;
+            SELECT TOP 1 * FROM {_keyTableName} WHERE {_keyWhereClause}{_keyEntityFilterSegment} ORDER BY {_keyIdColumn} ASC;
         END
     ELSE
         BEGIN
@@ -117,7 +125,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
             {_keyDeclareNewId}
 
-            SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @newId;
+            SELECT * FROM {_keyTableName} WHERE {_keyTableName}.{_keyIdColumn} = @newId{_keyEntityFilterSegment};
         END
 GO
 ".Trim();

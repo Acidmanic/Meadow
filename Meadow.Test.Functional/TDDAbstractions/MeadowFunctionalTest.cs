@@ -63,7 +63,7 @@ namespace Meadow.Test.Functional.TDDAbstractions
         }
         
 
-        protected void UseMySql(string scriptsDirectory="MySqlScripts")
+        protected void UseMySql(string scriptsDirectory="MacroScripts")
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
@@ -81,14 +81,14 @@ namespace Meadow.Test.Functional.TDDAbstractions
             UpdateConfigurations();
         }
 
-        protected void UseSqlServer()
+        protected void UseSqlServer(string scriptsDirectory="MacroScripts")
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqlServerMeadowAssembly());
 
-            ScriptsDirectory = "SqlServerScripts";
+            ScriptsDirectory = scriptsDirectory;
 
             ConnectionString = ExampleConnectionString.GetSqlServerConnectionString(DbName);
 
@@ -99,14 +99,14 @@ namespace Meadow.Test.Functional.TDDAbstractions
             UpdateConfigurations();
         }
 
-        protected void UsePostgre()
+        protected void UsePostgre(string scriptsDirectory="MacroScripts")
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetPostgreMeadowAssembly());
 
-            ScriptsDirectory = "PostgreScripts";
+            ScriptsDirectory = scriptsDirectory;
 
             ConnectionString = ExampleConnectionString.GetPostgresConnectionString(DbName);
 
@@ -117,14 +117,14 @@ namespace Meadow.Test.Functional.TDDAbstractions
             UpdateConfigurations();
         }
 
-        protected void UseSqLite()
+        protected void UseSqLite(string scriptsDirectory="MacroScripts")
         {
             MeadowConfigurationAssemblies.Clear();
             MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqLiteMeadowAssembly());
 
-            ScriptsDirectory = "SqLiteScripts";
+            ScriptsDirectory = scriptsDirectory;
 
             ConnectionString = ExampleConnectionString.GetSqLiteConnectionString(DbName);
 

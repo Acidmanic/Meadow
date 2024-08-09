@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -35,6 +36,8 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIdFieldType = GenerateKey();
         private readonly string _keyRecordPhrase = GenerateKey();
         private readonly string _keyDeclareNewId = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
+        private readonly string _keyEntityFilterSegmentNoAnd = GenerateKey();
 
 
         protected override string GetProcedureName(bool fullTree)
@@ -79,6 +82,14 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
             replacementList.Add(_keyDeclareNewId, newId);
             
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
+            var entityFilterSegmentNoAnd = entityFilterExpression.Success ? $" WHERE ({entityFilterExpression.Value})" : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
+            replacementList.Add(_keyEntityFilterSegmentNoAnd,entityFilterSegmentNoAnd);
+            
         }
 
         protected override string Template => ProcessedType.HasId ? ByIdTemplate : NoIdTemplate;
@@ -89,7 +100,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
     INSERT INTO {_keyTableName} ({_keyColumns}) 
                    VALUES ({_keyValues})
     {_keyDeclareNewId}
-    SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@newId;
+    SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@newId{_keyEntityFilterSegment};
 GO
 ";
 
@@ -98,7 +109,7 @@ GO
     
     INSERT INTO {_keyTableName} ({_keyColumns}) 
            VALUES ({_keyValues})
-    SELECT {_keyRecordPhrase};
+    SELECT {_keyRecordPhrase}{_keyEntityFilterSegmentNoAnd};
 GO
 ";
     }

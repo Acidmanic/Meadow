@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
@@ -17,6 +18,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keySetValues = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
         protected override string GetProcedureName(bool fullTree)
         {
@@ -36,15 +38,20 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 .Select(p => p.Name + " = @" + p.Name)));
 
             replacementList.Add(_keyIdFieldName, ProcessedType.IdParameter.Name);
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value})" : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected override string Template => $@"
 {KeyCreationHeader} {KeyProcedureName}({_keyParameters}) AS
     UPDATE {_keyTableName}
     SET {_keySetValues}
-    WHERE {_keyIdFieldName}=@{_keyIdFieldName};
-    
-    SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@{_keyIdFieldName};
+    WHERE {_keyIdFieldName}=@{_keyIdFieldName}{_keyEntityFilterSegment};
+    SELECT * FROM {_keyTableName} WHERE {_keyIdFieldName}=@{_keyIdFieldName}{_keyEntityFilterSegment};
 GO
 ".Trim();
     }

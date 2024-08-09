@@ -41,6 +41,9 @@
         <Content Include="PostgreScripts\**">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
+        <None Update="MacroScripts\**">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
@@ -25,6 +26,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyIdFieldName = GenerateKey();
         private readonly string _keyOrder = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override string GetProcedureName(bool fullTree)
@@ -41,12 +43,18 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
 
             replacementList.Add(_keyOrder, OrderAscending ? "ASC" : "DESC");
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $"WHERE ({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected override string Template => $@"
 {KeyCreationHeader} {KeyProcedureName} AS
 
-	SELECT TOP {Count} * FROM {_keyTableName} ORDER BY {_keyIdFieldName} {_keyOrder};
+	SELECT TOP {Count} * FROM {_keyEntityFilterSegment}{_keyTableName} ORDER BY {_keyIdFieldName} {_keyOrder};
 
 GO
 ";

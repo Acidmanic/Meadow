@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -51,6 +52,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIdFieldType = GenerateKey();
 
         private readonly string _keyCorpusFieldType = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
@@ -90,6 +92,13 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             replacementList.Add(_keyIdFieldType, ProcessedType.IdParameter.Type);
 
             replacementList.Add(_keyCorpusFieldType, ProcessedType.IndexCorpusParameter.Type);
+            
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" ({entityFilterExpression.Value}) AND " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected override string Template => $@"
@@ -133,12 +142,12 @@ CREATE PROCEDURE {_keyFilterIfNeededProcedureName}(@SearchId NVARCHAR(32),
         IF ISNULL(@SearchExpression,'') = ''
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
-            'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName} WHERE ' , @FilterExpression,@orderClause);
+            'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,' FROM {_keyTableName}  WHERE {_keyEntityFilterSegment} ' , @FilterExpression,@orderClause);
         ELSE
             SET @query = CONCAT(
             'INSERT INTO {_keyFilterResultsTable} (SearchId,ResultId,ExpirationTimeStamp) ',
             'SELECT ''',@SearchId,''',{_keyTableName}.{_keyIdFieldName}, ',@ExpirationTimeStamp,
-            ' FROM {_keyTableName} INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId  WHERE (' ,
+            ' FROM {_keyTableName} INNER JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId WHERE {_keyEntityFilterSegment}(' ,
              @FilterExpression, ') AND (', @SearchExpression,')',@orderClause);
 
         execute sp_executesql @query

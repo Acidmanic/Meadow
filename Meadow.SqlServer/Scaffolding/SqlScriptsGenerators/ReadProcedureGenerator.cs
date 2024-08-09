@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets.Contracts;
@@ -68,6 +69,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         private readonly string _keyWhereClause = GenerateKey();
         private readonly string _keyWhereClauseFullTree = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
@@ -91,11 +93,20 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
             replacementList.Add(_keyWhereClause, whereClause);
             replacementList.Add(_keyWhereClauseFullTree, whereClauseFullTree);
+            
+            
+            var whereForEntityFilter = ActById ? " AND " : " WHERE ";
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $"{whereForEntityFilter}({entityFilterExpression.Value}) " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected string PlainObjectTemplate => $@"
 {KeyCreationHeader} {KeyProcedureName}{_keyIdParameterDeclaration} AS
-    SELECT * FROM {_keyTableName}{_keyWhereClause};
+    SELECT * FROM {_keyTableName}{_keyWhereClause}{_keyEntityFilterSegment};
 GO".Trim();
 
         protected string FullTreeTemplate => $@"
