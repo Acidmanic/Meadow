@@ -16,23 +16,33 @@ namespace Meadow.Sql
 {
     public abstract class SqlExpressionTranslatorBase : ISqlExpressionTranslator
     {
+        protected record QuoterSet(Func<string, string> QuoteTableName, Func<string, string> QuoteColumnName);
+
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
 
+        protected QuoterSet GetQuoters() => new QuoterSet(
+            DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s,
+            DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s);
+
+
         public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
         {
-            Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, item.Key);
+            var q = GetQuoters();
+            
+            Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, q.QuoteColumnName(item.Key));
 
-            if (translation==ColumnNameTranslation.FullTree)
+            if (translation == ColumnNameTranslation.FullTree)
             {
                 var columns = Configuration.GetFullTreeMap(filterQuery.EntityType);
 
-                pickColumName = item => columns.GetColumnName(item.Key);
-                
-            }else if (translation == ColumnNameTranslation.DataOwnerDotColumnName)
+                pickColumName = item => new Result<string>(true,q.QuoteColumnName(columns.GetColumnName(item.Key)));
+            }
+            else if (translation == ColumnNameTranslation.DataOwnerDotColumnName)
             {
                 pickColumName = item => new Result<string>(true,
-                    Configuration.TableNameProvider.GetNameForOwnerType(filterQuery.EntityType) +"."+item.Key);
+                    q.QuoteTableName(Configuration.TableNameProvider.GetNameForOwnerType(filterQuery.EntityType))
+                    + "." + q.QuoteColumnName(item.Key));
             }
 
             var sb = new StringBuilder();
@@ -72,12 +82,11 @@ namespace Meadow.Sql
 
             var nc = Configuration.GetNameConvention(entityType);
 
-            Func<string, string> tq = DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s;
-            Func<string, string> cq = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s;
+            var q = GetQuoters();
 
             var searchIndexTable = nc.SearchIndexTableName;
 
-            var columnFullName = tq(searchIndexTable) + "." + cq("IndexCorpus");
+            var columnFullName = q.QuoteTableName(searchIndexTable) + "." + q.QuoteColumnName("IndexCorpus");
 
             return string.Join(" OR ", searchTerms.Select(
                 s => $"{columnFullName} like '%{s}%'"));
@@ -90,7 +99,8 @@ namespace Meadow.Sql
                 return EmptyOrderExpression(entityType, fullTree);
             }
 
-            Func<string, string> q = DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s;
+            var q = GetQuoters().QuoteColumnName;
+            
             var map = Configuration.GetFullTreeMap(entityType);
             Func<OrderTerm, string> sort = o => o.Sort == OrderSort.Descending ? "DESC" : "ASC";
             Func<OrderTerm, string> column = o => q(TranslateFieldName(map, o.Key, fullTree));
@@ -139,8 +149,9 @@ namespace Meadow.Sql
 
             if (foundKey)
             {
-                var columnName = DoubleQuotesColumnNames ? $"\"{foundKey.Value}\"" : foundKey.Value;
-
+                
+                var columnName = foundKey.Value;
+                
                 var sep = "";
                 switch (filter.ValueComparison)
                 {
@@ -166,7 +177,7 @@ namespace Meadow.Sql
                         break;
                     case ValueComparison.NotEqual:
                         sep = "";
-                        
+
                         foreach (var equalValue in equalities)
                         {
                             sb.Append(sep).Append(columnName).Append(NotEqualOperator).Append(equalValue);
@@ -186,7 +197,7 @@ namespace Meadow.Sql
         protected abstract bool DoubleQuotesTableNames { get; }
 
         protected virtual string EmptyConditionExpression => "";
-        
+
         protected virtual string NotEqualOperator => "!=";
 
         protected virtual string EmptyOrderExpression(Type entityType, bool fullTree)
