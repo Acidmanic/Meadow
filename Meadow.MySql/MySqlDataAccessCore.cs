@@ -18,10 +18,8 @@ namespace Meadow.MySql
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator()
-        {
-            return new MySqlExpressionTranslator();
-        }
+        public override ISqlExpressionTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
+            => new  MySqlExpressionTranslator(configuration);
 
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {

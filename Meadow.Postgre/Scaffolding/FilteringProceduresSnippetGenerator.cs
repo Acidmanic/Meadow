@@ -16,7 +16,7 @@ namespace Meadow.Postgre.Scaffolding
             SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution
             {
-                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(){ Configuration = construction.MeadowConfiguration },
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(construction.MeadowConfiguration),
                 TypeNameMapper = new PostgreDbTypeNameMapper()
             })
         {
@@ -54,6 +54,7 @@ namespace Meadow.Postgre.Scaffolding
         private readonly string _keyDbQIndexProcedureName = GenerateKey();
         private readonly string _keyDbQSearchIndexTableName = GenerateKey();
         private readonly string _keyIdTypeName = GenerateKey();
+        private readonly string _keyFilterResponseTypeNameDblQuoted = GenerateKey();
 
         protected static readonly string ll = "\"";
 
@@ -96,6 +97,10 @@ namespace Meadow.Postgre.Scaffolding
                 ProcessedType.NameConvention.IndexEntityProcedureName.DoubleQuot());
             replacementList.Add(_keyDbQSearchIndexTableName,
                 ProcessedType.NameConvention.SearchIndexTableName.DoubleQuot());
+
+            var filterResponseTypeNameDblQuoted = ProcessedType.NameConvention.TableName + "FilterResponse";
+
+            replacementList.Add(_keyFilterResponseTypeNameDblQuoted, filterResponseTypeNameDblQuoted);
         }
 
         protected override string Template => $@"
@@ -128,7 +133,7 @@ $$ language plpgsql;
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
-create type {"FilterResponse".DoubleQuot()} AS ({"Count".DoubleQuot()} BIGINT, {"SearchId".DoubleQuot()} TEXT);
+create type {_keyFilterResponseTypeNameDblQuoted} AS ({"Count".DoubleQuot()} BIGINT, {"SearchId".DoubleQuot()} TEXT);
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -138,7 +143,7 @@ create function {_keyDbQFilterProcedureName}
                 {"par_FilterExpression".DoubleQuot()} TEXT,
                 {"par_SearchExpression".DoubleQuot()} TEXT, 
                 {"par_OrderExpression".DoubleQuot()} TEXT) 
-    returns setof {"FilterResponse".DoubleQuot()} as $$
+    returns setof {_keyFilterResponseTypeNameDblQuoted} as $$
     declare sql text = '';
     declare orderClause text = '';
     declare resultCount bigint = 0;
@@ -175,7 +180,7 @@ create function {_keyDbQFilterProcedureNameFullTree}
                 {"par_FilterExpression".DoubleQuot()} TEXT,
                 {"par_SearchExpression".DoubleQuot()} TEXT, 
                 {"par_OrderExpression".DoubleQuot()} TEXT)  
-    returns setof {"FilterResponse".DoubleQuot()} as $$
+    returns setof {_keyFilterResponseTypeNameDblQuoted} as $$
     declare sql text = '';
     declare orderClause text = '';
     declare groupByExpression text = '';

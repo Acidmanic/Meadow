@@ -20,10 +20,10 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
 
     protected override MeadowConfiguration RegulateConfigurations(MeadowConfiguration configurations)
     {
-        configurations.AddFilter<Deletable>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
-        configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
-        configurations.AddFilter<Job>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
-        configurations.AddFilter<Address>(builder => builder.Where(d => d.IsDeleted).IsEqualTo("0"));
+        configurations.AddFilter<Deletable>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
+        configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
+        configurations.AddFilter<Job>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
+        configurations.AddFilter<Address>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
 
 
         return configurations;

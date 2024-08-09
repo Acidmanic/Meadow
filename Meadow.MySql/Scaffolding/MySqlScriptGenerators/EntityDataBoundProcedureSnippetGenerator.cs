@@ -20,7 +20,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                 },SnippetConfigurations.Default(),
                 new SnippetExecution()
                 {
-                    SqlExpressionTranslator = new MySqlExpressionTranslator(){Configuration = configuration},
+                    SqlExpressionTranslator = new MySqlExpressionTranslator(configuration),
                     TypeNameMapper = new MySqlDbTypeNameMapper()
                 })
         {

@@ -95,7 +95,7 @@ namespace Meadow.Test.Functional
             filter.Add(new FilterItem
             {
                 Key = "Name",
-                EqualityValues = new List<string> { "Mani", "Mona" },
+                EqualityValues = new List<object> { "Mani", "Mona" },
                 ValueType = typeof(string),
                 ValueComparison = ValueComparison.Equal
             });

@@ -1,5 +1,6 @@
 using System;
 using Acidmanic.Utilities.Reflection;
+using Meadow.Configuration;
 using Meadow.Extensions;
 using Meadow.Sql;
 
@@ -7,7 +8,6 @@ namespace Meadow.SQLite
 {
     public class SqLiteExpressionTranslator : SqlExpressionTranslatorBase
     {
-        protected override string EscapedSingleQuote => "\\'";
 
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
@@ -16,6 +16,13 @@ namespace Meadow.SQLite
         protected override string EmptyConditionExpression => "TRUE";
 
 
+        public SqLiteExpressionTranslator(MeadowConfiguration configuration)
+            : base(new SqLiteValueTranslator(configuration.ExternalTypeCasts))
+        {
+            Configuration = configuration;
+        }
+        
+        
         protected override string EmptyOrderExpression(Type entityType, bool fullTree)
         {
             var nc = Configuration.GetNameConvention(entityType);

@@ -17,7 +17,7 @@ namespace Meadow.Postgre.Scaffolding
                     MeadowConfiguration = configuration
                 }, SnippetConfigurations.Default(), new SnippetExecution
             {
-                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(){ Configuration = configuration },
+                SqlExpressionTranslator = new PostgreSqlExpressionTranslator(configuration),
                 TypeNameMapper = new PostgreDbTypeNameMapper()
             })
         {

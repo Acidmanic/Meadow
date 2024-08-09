@@ -109,7 +109,7 @@ namespace Meadow.Test.Functional.FakeEngine
             return Task.CompletedTask;
         }
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator()
+        public override ISqlExpressionTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
         {
             return ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
         }

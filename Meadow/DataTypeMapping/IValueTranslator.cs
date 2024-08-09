@@ -5,9 +5,9 @@ namespace Meadow.DataTypeMapping;
 /// various database systems.It would not be needed for normal Ado usage because Ado does that automatically
 /// using <dbName>Command objects. But to create dynamic script portions like macros end etc.. it will be needed
 /// </summary>
-public interface IValueScriptor
+public interface IValueTranslator
 {
 
 
-    string Translate(object value);
+    string Translate(object? value);
 }

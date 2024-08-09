@@ -76,7 +76,7 @@ namespace Meadow
             {
                 var core = _coreProvider.CreateDataAccessCore();
 
-                var t = core.ProvideFilterQueryTranslator();
+                var t = core.ProvideFilterQueryTranslator(_configuration);
 
                 if (t != null)
                 {

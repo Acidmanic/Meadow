@@ -157,7 +157,7 @@ namespace Example.Filtering
             {
                 Key = "Name",
                 ValueComparison = ValueComparison.Equal,
-                EqualityValues = new List<string> { "Mani", "Mona", "Farshid" },
+                EqualityValues = new List<object> { "Mani", "Mona", "Farshid" },
                 ValueType = typeof(string)
             });
             // filter.Add(new FilterItem

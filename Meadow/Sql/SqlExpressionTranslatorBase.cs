@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
-using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Microsoft.Extensions.Logging;
@@ -16,10 +16,17 @@ namespace Meadow.Sql
 {
     public abstract class SqlExpressionTranslatorBase : ISqlExpressionTranslator
     {
-        protected record QuoterSet(Func<string, string> QuoteTableName, Func<string, string> QuoteColumnName);
 
+        private readonly IValueTranslator _valueTranslator;
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
+        
+        protected record QuoterSet(Func<string, string> QuoteTableName, Func<string, string> QuoteColumnName);
+
+        protected SqlExpressionTranslatorBase(IValueTranslator valueTranslator)
+        {
+            _valueTranslator = valueTranslator;
+        }
 
         protected QuoterSet GetQuoters() => new QuoterSet(
             DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s,
@@ -141,9 +148,9 @@ namespace Meadow.Sql
 
         private void Append(StringBuilder sb, FilterItem filter, Func<FilterItem, Result<string>> pickKey)
         {
-            var max = HandleQuotingAndEscaping(filter.Maximum, filter.ValueType);
-            var min = HandleQuotingAndEscaping(filter.Minimum, filter.ValueType);
-            var equalities = HandleQuotingAndEscaping(filter.EqualityValues, filter.ValueType);
+            var max = _valueTranslator.Translate(filter.Maximum);
+            var min = _valueTranslator.Translate(filter.Minimum);
+            var equalities = _valueTranslator.TranslateList(filter.EqualityValues);
 
             var foundKey = pickKey(filter);
 
@@ -190,7 +197,7 @@ namespace Meadow.Sql
         }
 
 
-        protected abstract string EscapedSingleQuote { get; }
+        
 
         protected abstract bool DoubleQuotesColumnNames { get; }
 
@@ -205,48 +212,46 @@ namespace Meadow.Sql
             return "";
         }
 
-        protected virtual string HandleQuotingAndEscaping(string value, Type type)
-        {
-            if (value == null)
-            {
-                return DefaultValue(type);
-            }
+        // protected virtual string HandleQuotingAndEscaping(object valueObject, Type type)
+        // {
+        //     var stringValue = _valueTranslator.Translate(valueObject);
+        //     
+        //     
+        //     if (type == typeof(string))
+        //     {
+        //         var escaped = stringValue.Replace("'", EscapedSingleQuote);
+        //
+        //         return $"'{escaped}'";
+        //     }
+        //
+        //     return stringValue;
+        // }
 
-            if (type == typeof(string))
-            {
-                var escaped = value.Replace("'", EscapedSingleQuote);
+        // protected string DefaultValue(Type type)
+        // {
+        //     if (TypeCheck.IsNumerical(type))
+        //     {
+        //         return "0";
+        //     }
+        //
+        //     if (type == typeof(string))
+        //     {
+        //         return "''";
+        //     }
+        //
+        //     return "";
+        // }
 
-                return $"'{escaped}'";
-            }
-
-            return value;
-        }
-
-        protected string DefaultValue(Type type)
-        {
-            if (TypeCheck.IsNumerical(type))
-            {
-                return "0";
-            }
-
-            if (type == typeof(string))
-            {
-                return "''";
-            }
-
-            return "";
-        }
-
-        private List<string> HandleQuotingAndEscaping(IEnumerable<string> values, Type type)
-        {
-            var items = new List<string>();
-
-            foreach (var value in values)
-            {
-                items.Add(HandleQuotingAndEscaping(value, type));
-            }
-
-            return items;
-        }
+        // private List<string> HandleQuotingAndEscaping(IEnumerable<string> values, Type type)
+        // {
+        //     var items = new List<string>();
+        //
+        //     foreach (var value in values)
+        //     {
+        //         items.Add(HandleQuotingAndEscaping(value, type));
+        //     }
+        //
+        //     return items;
+        // }
     }
 }

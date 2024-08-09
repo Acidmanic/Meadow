@@ -6,12 +6,12 @@ using Acidmanic.Utilities.Reflection.Extensions;
 
 namespace Meadow.DataTypeMapping;
 
-public class ValueScriptorBase : IValueScriptor
+public abstract class ValueTranslatorBase : IValueTranslator
 {
     private readonly List<ICast> _externalCasts;
 
 
-    public ValueScriptorBase(List<ICast> externalCasts)
+    public ValueTranslatorBase(List<ICast> externalCasts)
     {
         _externalCasts = externalCasts;
     }
@@ -42,7 +42,14 @@ public class ValueScriptorBase : IValueScriptor
 
     private string Translate(Type type, object v)
     {
-        if (type == typeof(string)) return $"{StringQuote}{v}{StringQuote}";
+        if (type == typeof(string))
+        {
+            var stringValue = (v as string)!;
+            
+            var escaped = stringValue.Replace($"{StringQuote}", EscapedStringValueQuote);
+
+            return $"{StringQuote}{escaped}{StringQuote}";
+        }
 
         if (type == typeof(bool)) return TranslateBoolean((bool)v);
 
@@ -64,5 +71,7 @@ public class ValueScriptorBase : IValueScriptor
 
     protected virtual string TranslateNull() => "null";
 
-    protected virtual char StringQuote => '"';
+    protected virtual char StringQuote => '\'';
+    
+    protected abstract string EscapedStringValueQuote { get; }
 }
