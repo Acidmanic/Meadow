@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Meadow.Configuration;
+using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
@@ -55,6 +56,7 @@ namespace Meadow.Postgre.Scaffolding
         private readonly string _keyDbQSearchIndexTableName = GenerateKey();
         private readonly string _keyIdTypeName = GenerateKey();
         private readonly string _keyFilterResponseTypeNameDblQuoted = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
 
         protected static readonly string ll = "\"";
 
@@ -101,6 +103,12 @@ namespace Meadow.Postgre.Scaffolding
             var filterResponseTypeNameDblQuoted = ProcessedType.NameConvention.TableName + "FilterResponse";
 
             replacementList.Add(_keyFilterResponseTypeNameDblQuoted, filterResponseTypeNameDblQuoted);
+            
+            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
+            
+            var entityFilterSegment = entityFilterExpression.Success ? $" ({entityFilterExpression.Value}) AND " : "";
+            
+            replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
         }
 
         protected override string Template => $@"
@@ -157,12 +165,12 @@ begin
     if {"par_SearchExpression".DoubleQuot()} is null or {"par_SearchExpression".DoubleQuot()} ='' then
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
             select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
-            where ',{"par_FilterExpression".DoubleQuot()}, orderClause,';');
+            where{_keyEntityFilterSegment} ',{"par_FilterExpression".DoubleQuot()}, orderClause,';');
     else
         sql = CONCAT('insert into {_keyDbQFilterResultsTableName} ({"SearchId".DoubleQuot()}, {"ResultId".DoubleQuot()}, {"ExpirationTimeStamp".DoubleQuot()}) 
             select ''', {"par_SearchId".DoubleQuot()},''',{_keyDbQTableName}.{_keyDbQIdFieldName}, ', {"par_ExpirationTimeStamp".DoubleQuot()},' from {_keyDbQTableName}
             inner join {_keyDbQSearchIndexTableName} on {_keyDbQTableName}.{_keyDbQIdFieldName}={_keyDbQSearchIndexTableName}.{"ResultId".DoubleQuot()}
-            where (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},')',orderClause,';');
+            where{_keyEntityFilterSegment} (',{"par_FilterExpression".DoubleQuot()},') AND (',{"par_SearchExpression".DoubleQuot()},')',orderClause,';');
     end if;
     if not exists(select 1 from {_keyDbQFilterResultsTableName} where {"SearchId".DoubleQuot()} = {"par_SearchId".DoubleQuot()}) then
         execute sql; 

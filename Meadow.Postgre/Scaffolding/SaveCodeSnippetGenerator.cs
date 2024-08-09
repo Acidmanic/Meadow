@@ -70,10 +70,11 @@ namespace Meadow.Postgre.Scaffolding
             replacementList.Add(_keyColumns, columns);
             replacementList.Add(_keyValues, values);
             
-            var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
+            var entityFilterExpressionOwnerDotMember = GetFiltersWhereClause(ColumnNameTranslation.DataOwnerDotColumnName);
+            var entityFilterExpressionColumnName = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
-            var entityFilterSegmentAnd = entityFilterExpression.Success ? $" AND ({entityFilterExpression.Value}) " : "";
-            var entityFilterSegmentWhere = entityFilterExpression.Success ? $" WHERE ({entityFilterExpression.Value}) " : "";
+            var entityFilterSegmentAnd = entityFilterExpressionOwnerDotMember.Success ? $" AND ({entityFilterExpressionOwnerDotMember.Value}) " : "";
+            var entityFilterSegmentWhere = entityFilterExpressionColumnName.Success ? $" WHERE ({entityFilterExpressionColumnName.Value}) " : "";
             
             replacementList.Add(_keyEntityFilterSegmentAnd,entityFilterSegmentAnd);
             replacementList.Add(_keyEntityFilterSegmentWhere,entityFilterSegmentWhere);
@@ -87,18 +88,21 @@ namespace Meadow.Postgre.Scaffolding
             updateCount := (select count(*) from {_keyTableName} where {_keyWhereExpression}{_keyEntityFilterSegmentAnd});
         if(updateCount>0) then
             return query
+            with UpdatedRows as (
                 update {_keyTableName} set 
                 {_keyNameValuesSet}
                 where {_keyWhereExpression}{_keyEntityFilterSegmentAnd}
-                returning *;
+                returning *
+            )
+            select * from UpdatedRows{_keyEntityFilterSegmentWhere};
         else
             return query
-            with {"InsertedRows".DoubleQuot()} as(
+            with InsertedRows as(
                 insert into {_keyTableName} ({_keyColumns}) 
                 values ({_keyValues})
                 returning *
             ) 
-            select * from {"InsertedRows".DoubleQuot()}{_keyEntityFilterSegmentWhere};
+            select * from InsertedRows{_keyEntityFilterSegmentWhere};
         end if;
         end;
         $$ language plpgsql; ".Trim();

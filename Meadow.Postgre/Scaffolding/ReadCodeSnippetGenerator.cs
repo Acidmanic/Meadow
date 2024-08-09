@@ -156,7 +156,7 @@ $$ language plpgsql ;
 {KeyCreationHeader} function {_keyProcedureNameFullTree}() returns setof {_keyFullTreeViewName} as $$ 
 begin
 return query
-    select * from {_keyFullTreeViewName}{_keyEntityFilterSegment};
+    select * from {_keyFullTreeViewName};
 end;
 $$ language plpgsql ;
 -- ---------------------------------------------------------------------------------------------------------------------
