@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
@@ -8,6 +10,7 @@ namespace Meadow.Test.Functional
     public abstract class PersonUseCaseTestBase : MeadowMultiDatabaseTestBase
     {
 
+        
         protected static Job J(string personName, long income)
         {
             return new Job
@@ -67,6 +70,7 @@ namespace Meadow.Test.Functional
             InsertAll(engine, Addresses);
         }
 
+        protected Person[] GetPerson(Func<Person, bool> predicate) => Persons.Where(predicate).ToArray();
 
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
