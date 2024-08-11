@@ -4,7 +4,7 @@
     {
         static void Main(string[] args)
         {
-            new Tdd51EntityFilters().Main();
+            new Tdd52FindPagedMacro().Main();
         }
     }
 }

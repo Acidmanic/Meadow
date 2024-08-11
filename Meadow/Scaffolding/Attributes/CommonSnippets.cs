@@ -13,6 +13,7 @@ public enum CommonSnippets
     SaveProcedure,
     EventSteamScript,
     FilteringProcedures,
+    FindPaged,
     FullTreeView,
     DataBound,
 }
