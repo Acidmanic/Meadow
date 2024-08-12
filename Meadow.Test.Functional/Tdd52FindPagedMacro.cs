@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Composition.Convention;
 using System.Linq;
 using System.Linq.Expressions;
 using Acidmanic.Utilities.Filtering;
@@ -65,12 +66,75 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
         FindPagedMustFindRecords(engine, b =>
                 b.Where(p => p.Name).IsEqualTo("Mina", "Farshid"),
             GetPerson(p => p.Name == "Mina" || p.Name == "Farshid"));
-        
+
         FindPagedMustFindRecords(engine, b =>
                 b.Where(p => p.Name).IsNotEqualTo("Mina", "Farshid"),
             GetPerson(p => p.Name != "Mina" && p.Name != "Farshid"));
 
         logger.LogInformation("[PASS] Filter Is Ok");
+
+        FindPagedMustPerformCorrectSorting(engine, Sort(Persons, (p1, p2) => p1.Age - p2.Age),
+            o => o.OrderAscendingBy(p => p.Age));
+
+        FindPagedMustPerformCorrectSorting(engine, Sort(Persons, (p1, p2) => p2.Age - p1.Age),
+            o => o.OrderDescendingBy(p => p.Age));
+
+        FindPagedMustPerformCorrectSorting(engine, Sort(Persons, (p1, p2) => string.Compare(p1.Name, p2.Name, StringComparison.Ordinal)),
+            o => o.OrderAscendingBy(p => p.Name));
+
+        FindPagedMustPerformCorrectSorting(engine, Sort(Persons, (p1, p2) => string.Compare(p2.Name, p1.Name, StringComparison.Ordinal)),
+            o => o.OrderDescendingBy(p => p.Name));
+
+        logger.LogInformation("[PASS] Ordering Is Ok");
+
+        Index<Person, long>(engine, Persons);
+
+        FindPagedMustFindExpectedItemsForGivenSearchTerms(engine,
+            Choose(Persons.FirstOrDefault(p => p.Name=="Farshid")),"farshid");
+        
+        FindPagedMustFindExpectedItemsForGivenSearchTerms(engine,
+            Choose(Persons.Where(p => 
+                p.Name=="Mani" ||
+                p.Name=="Mona" ||
+                p.Name=="Farshid"
+                )),"Moai");
+        
+        FindPagedMustFindExpectedItemsForGivenSearchTerms(engine,
+            Choose(Persons.Where(p => 
+                p.Name=="Farshid" ||
+                p.Name=="Farimehr"
+            )),"Far");
+        
+        logger.LogInformation("[PASS] Searching Is Ok");
+    }
+
+    private List<T> Choose<T>(params T[] items) => new List<T>(items);
+    
+    private List<T> Choose<T>(IEnumerable<T> items) => new List<T>(items);
+    
+    private void FindPagedMustFindExpectedItemsForGivenSearchTerms(MeadowEngine engine, List<Person> expectedResult, params string[] searchTerms )
+    {
+        var terms = Transliterate(searchTerms);
+
+        var found = engine
+            .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery(),0,1000,terms))
+            .FromStorage;
+
+        foreach (var person in expectedResult)
+        {
+            AssertContainShallow(found, person, $"Person: {person.Name} was not found in the result");
+        }
+
+        AssertSameSize(expectedResult, found, "Extra Items has been read from database");
+    }
+
+    private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
+    {
+        var list = new List<TModel>(items);
+
+        list.Sort(compare);
+
+        return list;
     }
 
     private void FindPagedMustFindRecords(MeadowEngine engine, Action<FilterQueryBuilder<Person>> select,
@@ -92,6 +156,35 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
         }
 
         AssertSameSize(items, found, "Extra Items has been read from database");
+    }
+
+
+    private void FindPagedMustPerformCorrectSorting(MeadowEngine engine, List<Person> expected, Action<OrderSetBuilder<Person>> buildOrders)
+    {
+        var orderBuilder = new OrderSetBuilder<Person>();
+
+        buildOrders(orderBuilder);
+
+        var orders = orderBuilder.Build();
+
+        var found = engine
+            .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery(), 0, 1000, null, orders))
+            .FromStorage;
+
+        AssertSameSize(expected, found, "Read items does not match with expectations");
+
+        AssertSameOrder(expected, found);
+    }
+
+    private void AssertSameOrder(List<Person> expected, List<Person> actual)
+    {
+        for (int i = 0; i < expected.Count; i++)
+        {
+            if (!AreEqualShallow(expected[i], actual[i]))
+            {
+                throw new Exception($"Expected to find {expected[i].Name}:{expected[i].Id} at {i}'th place, but found {actual[i].Name}:{actual[i].Id}");
+            }
+        }
     }
 
     private void AssertSameSize(IEnumerable<Person> s1, IEnumerable<Person> s2, string message)

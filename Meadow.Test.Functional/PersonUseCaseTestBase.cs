@@ -1,7 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
+using System.Dynamic;
 using System.Linq;
+using Acidmanic.Utilities.Filtering.Models;
+using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Extensions;
+using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.Search.Contracts;
+using Meadow.Test.Functional.Search.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
 
@@ -9,7 +18,7 @@ namespace Meadow.Test.Functional
 {
     public abstract class PersonUseCaseTestBase : MeadowMultiDatabaseTestBase
     {
-
+        protected IndexingService<TModel> GetIndexingService<TModel>() => new IndexingService<TModel>(new EnglishTransliterationsService());
         
         protected static Job J(string personName, long income)
         {
@@ -94,6 +103,67 @@ namespace Meadow.Test.Functional
             logger.LogInformation($"{p.Name} {p.Surname} : {p.Age} years old. JI-{p.JobId} {ft}");
         }
 
+
+        protected void Index<TModel, TId>(MeadowEngine engine, IEnumerable<TModel> modelItems)
+        {
+            var models = new List<TModel>(modelItems);
+
+            var idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
+
+            Func<TModel, TId> readId = m =>
+            {
+                TId i = default;
+
+                if (idLeaf is { } leaf)
+                {
+                    var ev = new ObjectEvaluator(m);
+
+                    i = (TId)ev.Read(leaf.GetFullName(), true);
+                }
+
+                return i;
+            };
+
+            var indexingService = GetIndexingService<TModel>();
+
+            foreach (var model in models)
+            {
+                var corpus = indexingService.GetIndexCorpus(model, true);
+
+                var id = readId(model);
+
+                engine.PerformRequest(new IndexEntity<TModel, TId>(corpus, id));
+            }
+        }
+
+        protected void Index<TModel, TId>(MeadowEngine engine, TModel model)
+        {
+            var indexingService = GetIndexingService<TModel>();
+            
+            var corpus = indexingService.GetIndexCorpus(model, true);
+
+            var idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
+
+            TId id = default;
+
+            if (idLeaf is { } leaf)
+            {
+                var ev = new ObjectEvaluator(model);
+
+                id = (TId)ev.Read(idLeaf.GetFullName(), true);
+            }
+
+            var res = engine.PerformRequest(new IndexEntity<TModel, TId>(corpus, id))
+                .FromStorage;
+        }
+
+
+        protected string[] Transliterate(string[] searchTerms)
+        {
+            var tr = new EnglishTransliterationsService();
+
+            return searchTerms.Select(s => tr.Transliterate(s)).ToArray();
+        }
         public override void Main()
         {
             SelectDatabase();
