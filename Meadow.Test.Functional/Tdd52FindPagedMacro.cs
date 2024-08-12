@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Composition.Convention;
 using System.Linq;
-using System.Linq.Expressions;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
@@ -16,7 +14,7 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
 {
     protected override void SelectDatabase()
     {
-        UseSqLite();
+        UseSqlServer();
     }
 
 
