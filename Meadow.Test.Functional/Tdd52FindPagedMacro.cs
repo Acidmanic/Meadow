@@ -14,7 +14,7 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
 {
     protected override void SelectDatabase()
     {
-        UseSqlServer();
+        UseMySql();
     }
 
 
