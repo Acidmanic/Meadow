@@ -40,16 +40,17 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         private readonly string _keyIdFieldType = GenerateKey();
         private readonly string _keyIdFieldNameFullTree = GenerateKey();
 
-        private readonly string _keyRemoveExpiredFilterProcedure = GenerateKey();
-        private readonly string _keyFilterResultsTableName = GenerateKey();
-
         private readonly string _keyIndexProcedureName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
         
         private readonly string _keyEntityFilterSegment = GenerateKey();
         
         private readonly string _keyColumns = GenerateKey();
+        private readonly string _keyTableDotColumns = GenerateKey();
+        private readonly string _keyCteDotColumns = GenerateKey();
         private readonly string _keyCorpusFieldType = GenerateKey();
+        
+        
 
         protected override void AddReplacements(Dictionary<string, string> replacementList)
         {
@@ -86,8 +87,13 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             var insertParameters = ProcessedType.GetInsertParameters();
             
             var columns = string.Join(',', insertParameters.Select(p => p.Name));
+            
+            var tableDotColumns = string.Join(',', insertParameters.Select(p => ProcessedType.NameConvention.TableName+"."+p.Name));
+            var cteDotColumns = string.Join(',', insertParameters.Select(p => "Results_CTE."+p.Name));
 
             replacementList.Add(_keyColumns, columns);
+            replacementList.Add(_keyTableDotColumns, tableDotColumns);
+            replacementList.Add(_keyCteDotColumns, cteDotColumns);
         }
 
         protected override string Template => $@"
@@ -126,7 +132,7 @@ AS
     SET @where = @FilterExpression;
 
     IF NOT ISNULL(@SearchExpression,'')=''
-            SET @searchJoin = ' JOIN SearchIndex ON {_keyTableName}.{_keyIdFieldName} = {_keySearchIndexTableName}.ResultId';
+            SET @searchJoin = ' JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName} = {_keySearchIndexTableName}.ResultId';
 
     IF NOT ISNULL(@SearchExpression,'')=''
         IF NOT ISNULL(@where,'')=''
@@ -137,9 +143,9 @@ AS
     IF NOT ISNULL(@where,'')=''
         SET @where = CONCAT(' WHERE ', @where);
         
-    SET @query = CONCAT(';WITH Results_CTE AS ( SELECT *,',' ROW_NUMBER() OVER (',@over,') AS RowNum FROM {_keyTableName} ',
+    SET @query = CONCAT(';WITH Results_CTE AS ( SELECT {_keyTableDotColumns},',' ROW_NUMBER() OVER (',@over,') AS RowNum FROM {_keyTableName} ',
                         @searchJoin,
-                        @where,') SELECT * FROM Results_CTE WHERE RowNum >=', @Offset+1,' AND RowNum <= ',@Offset+@Size);
+                        @where,') SELECT {_keyCteDotColumns} FROM Results_CTE WHERE RowNum >=', @Offset+1,' AND RowNum <= ',@Offset+@Size);
 
     execute sp_executesql @query
 GO
