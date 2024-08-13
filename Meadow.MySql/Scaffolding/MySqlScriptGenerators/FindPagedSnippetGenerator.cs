@@ -31,24 +31,11 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         
         private readonly string _keyDefaultOrderColumnName = GenerateKey();
         private readonly string _keyFindPagedProcedureName = GenerateKey();
-        
-
         private readonly string _keyTableName = GenerateKey();
-        private readonly string _keyFullTreeView = GenerateKey();
-
         private readonly string _keyIdFieldName = GenerateKey();
-        private readonly string _keyIdFieldType = GenerateKey();
-        private readonly string _keyIdFieldNameFullTree = GenerateKey();
-
-        private readonly string _keyIndexProcedureName = GenerateKey();
         private readonly string _keySearchIndexTableName = GenerateKey();
-        
-        private readonly string _keyEntityFilterSegment = GenerateKey();
-        
-        private readonly string _keyColumns = GenerateKey();
         private readonly string _keyTableDotColumns = GenerateKey();
-        private readonly string _keyCteDotColumns = GenerateKey();
-        private readonly string _keyCorpusFieldType = GenerateKey();
+        private readonly string _keyEntityFilterSegment = GenerateKey();
         
         
 
@@ -62,38 +49,23 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                 ProcessedType.Parameters.First().Name);
            
            replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
-            replacementList.Add(_keyFullTreeView, ProcessedType.NameConvention.FullTreeViewName);
-
+           
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
-            replacementList.Add(_keyIdFieldType,
-                ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
-
-            replacementList.Add(_keyIdFieldNameFullTree,
-                ProcessedType.HasId ? ProcessedType.IdParameterFullTree.Name : "[NO-ID-FIELD]");
-            
-            replacementList.Add(_keyIndexProcedureName, ProcessedType.NameConvention.IndexEntityProcedureName);
             
             replacementList.Add(_keySearchIndexTableName, ProcessedType.NameConvention.SearchIndexTableName);
-            
-            replacementList.Add(_keyCorpusFieldType, ProcessedType.IndexCorpusParameter.Type);
             
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
             var entityFilterSegment = entityFilterExpression.Success ? $" {entityFilterExpression.Value} " : " (1=1) ";
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
-
+           
             var insertParameters = ProcessedType.GetInsertParameters();
             
-            var columns = string.Join(',', insertParameters.Select(p => p.Name));
-            
             var tableDotColumns = string.Join(',', insertParameters.Select(p => ProcessedType.NameConvention.TableName+"."+p.Name));
-            var cteDotColumns = string.Join(',', insertParameters.Select(p => "Results_CTE."+p.Name));
-
-            replacementList.Add(_keyColumns, columns);
+           
             replacementList.Add(_keyTableDotColumns, tableDotColumns);
-            replacementList.Add(_keyCteDotColumns, cteDotColumns);
         }
         
         protected override string Template => $@"
