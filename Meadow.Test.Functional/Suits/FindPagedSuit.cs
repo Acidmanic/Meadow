@@ -113,6 +113,12 @@ public class FindPagedSuit
     {
         var env = new PersonsEnvironment();
 
+        env.RegulateMeadowConfigurations(configurations =>
+        {
+            configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
+        });
+        
+        
         env.Perform(databases, e =>
         {
             e.Update<Person>(p => p.Name == deleteeName, p => p.IsDeleted = true);

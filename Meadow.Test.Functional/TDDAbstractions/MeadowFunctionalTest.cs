@@ -162,11 +162,13 @@ namespace Meadow.Test.Functional.TDDAbstractions
             return configurations;
         }
         
-        protected MeadowEngine CreateEngine()
+        protected MeadowEngine CreateEngine(Action<MeadowConfiguration> configure = null)
         {
-            var configuration = RegulateConfigurations(Configuration);
+            configure ??= c => RegulateConfigurations(c);
+
+            configure(Configuration);
             
-            return new MeadowEngine(configuration);
+            return new MeadowEngine(Configuration);
         }
 
         protected void PrintObject(object o)

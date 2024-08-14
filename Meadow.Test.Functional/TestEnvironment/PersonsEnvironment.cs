@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Utilities;
+using Meadow.Configuration;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
@@ -36,23 +37,28 @@ public class PersonsEnvironment : PersonUseCaseTestBase
         }
     }
 
+    private Action<MeadowConfiguration> updateConfigurations = c => { };
+
+    
+    public void RegulateMeadowConfigurations(Action<MeadowConfiguration> configure)
+    {
+        updateConfigurations = configure;
+    }
 
     private class Environment : IPersonsEnvironment
     {
         private PersonsEnvironment parent;
         private Person[] persons;
+        public MeadowEngine Engine { get; private set; }
 
         public Environment(MeadowEngine engine, Person[] persons, PersonsEnvironment parent)
         {
-            Engine = engine;
+            this.Engine = engine;
             this.persons = persons;
             this.parent = parent;
         }
 
         public string[] Transliterate(params string[] searchTerms) => parent.Transliterate(searchTerms);
-
-        public MeadowEngine Engine { get; }
-
 
         public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null, int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null, params string[] searchTerms) where TModel : class
         {
@@ -99,6 +105,7 @@ public class PersonsEnvironment : PersonUseCaseTestBase
             return updatedObjects;
         }
 
+       
         private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
         {
             var list = new List<TModel>(items);
@@ -119,7 +126,7 @@ public class PersonsEnvironment : PersonUseCaseTestBase
 
         MeadowEngine.UseLogger(logger);
 
-        var engine = CreateEngine();
+        var engine = CreateEngine(updateConfigurations);
 
         if (engine.DatabaseExists())
         {
