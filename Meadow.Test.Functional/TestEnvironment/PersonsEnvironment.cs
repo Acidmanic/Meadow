@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.GenericRequests;
@@ -38,18 +39,16 @@ public class PersonsEnvironment : PersonUseCaseTestBase
 
     private class Environment : IPersonsEnvironment
     {
+        private PersonsEnvironment parent;
         private Person[] persons;
-
-        public Environment(MeadowEngine engine, Person[] persons)
+        public Environment(MeadowEngine engine, Person[] persons, PersonsEnvironment parent)
         {
             Engine = engine;
             this.persons = persons;
+            this.parent = parent;
         }
 
-        public string[] Transliterate(object searchTerms)
-        {
-            throw new NotImplementedException();
-        }
+        public string[] Transliterate(params string[] searchTerms) => parent.Transliterate(searchTerms);
 
         public MeadowEngine Engine { get; }
 
@@ -73,6 +72,17 @@ public class PersonsEnvironment : PersonUseCaseTestBase
         }
 
         public Person[] GetPersons(Func<Person, bool> predicate) => persons.Where(predicate).ToArray();
+        public List<Person> GetSorted(Comparison<Person> compare) => Sort(persons, compare);
+        public void Index<TModel>(IEnumerable<TModel> items) => MeadowMultiDatabaseTestBase.Index(Engine, items);
+        
+        private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
+        {
+            var list = new List<TModel>(items);
+
+            list.Sort(compare);
+
+            return list;
+        }
     }
 
 
@@ -98,6 +108,6 @@ public class PersonsEnvironment : PersonUseCaseTestBase
 
         Seed(engine);
 
-        env(new Environment(engine,Persons));
+        env(new Environment(engine,Persons,this));
     }
 }
