@@ -75,6 +75,11 @@ public class PersonsEnvironment : PersonUseCaseTestBase
         public List<Person> GetSorted(Comparison<Person> compare) => Sort(persons, compare);
         public void Index<TModel>(IEnumerable<TModel> items) => MeadowMultiDatabaseTestBase.Index(Engine, items);
         
+        public TModel Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update)
+        {
+            throw new NotImplementedException();
+        }
+
         private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
         {
             var list = new List<TModel>(items);

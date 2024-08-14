@@ -105,6 +105,28 @@ public class FindPagedSuit
             p.Name=="Farshid", "farshid");
 
 
+    [Theory]
+    [InlineData("Mina")]
+    [InlineData("Mani")]
+    [InlineData("Mona")]
+    public void Must_Find_Only_UnDeletedResults(string deleteeName)
+    {
+        var env = new PersonsEnvironment();
+
+        env.Perform(databases, e =>
+        {
+
+            e.Update();
+            
+            var expectedResult = e.GetPersons(p => p.Name != deleteeName).ToList();
+
+            var found = e.FindPaged<Person>(searchTerms: terms).FromStorage;
+
+            AssertX.ContainSameItems(expectedResult, found, personIdentifier);
+        });
+    }
+    
+    
     private void FindPagedMustFindExpectedItemsForGivenSearchTerms(Func<Person, bool> predicate, params string[] searchTerms)
     {
         var env = new PersonsEnvironment();

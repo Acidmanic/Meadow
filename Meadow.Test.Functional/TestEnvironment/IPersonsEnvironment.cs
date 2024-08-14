@@ -19,4 +19,7 @@ public interface IPersonsEnvironment
 
     void Index<TModel>(IEnumerable<TModel> items);
 
+
+    TModel Update<TModel>(Func<TModel,bool> predicate, Action<TModel> update);
+
 }
