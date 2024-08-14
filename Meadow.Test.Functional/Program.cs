@@ -2,9 +2,9 @@
 {
     class Program
     {
-        static void Main(string[] args)
-        {
-            new Tdd52FindPagedMacro().Main();
-        }
+        // static void Main(string[] args)
+        // {
+        //     new Tdd52FindPagedMacro().Main();
+        // }
     }
 }

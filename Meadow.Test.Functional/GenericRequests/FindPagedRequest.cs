@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional.GenericRequests
     public record FindPagedShell(long Offset, long Size, string FilterExpression, string SearchExpression,
         string OrderExpression);
 
-    public sealed class FindPagedRequest<TStorage, TId> : MeadowRequest<FindPagedShell,TStorage > where TStorage : class
+    public sealed class FindPagedRequest<TStorage> : MeadowRequest<FindPagedShell,TStorage > where TStorage : class
     {
         public FindPagedRequest(
             FilterQuery filter,

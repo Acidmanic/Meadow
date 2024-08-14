@@ -6,6 +6,7 @@ using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.TestEnvironment;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Test.Functional;
@@ -33,7 +34,7 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
     protected override void Main(MeadowEngine engine, ILogger logger)
     {
         var allPersonResponse = engine
-            .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery()));
+            .PerformRequest(new FindPagedRequest<Person>(new FilterQuery()));
 
         if (allPersonResponse.Failed)
         {
@@ -106,26 +107,15 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
         logger.LogInformation("[PASS] Searching Is Ok");
     }
 
+    private void FindPagedMustFindExpectedItemsForGivenSearchTerms(MeadowEngine engine, List<Person> choose, string farshid)
+    {
+        throw new NotImplementedException();
+    }
+
     private List<T> Choose<T>(params T[] items) => new List<T>(items);
     
     private List<T> Choose<T>(IEnumerable<T> items) => new List<T>(items);
     
-    private void FindPagedMustFindExpectedItemsForGivenSearchTerms(MeadowEngine engine, List<Person> expectedResult, params string[] searchTerms )
-    {
-        var terms = Transliterate(searchTerms);
-
-        var found = engine
-            .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery(),0,1000,terms))
-            .FromStorage;
-
-        foreach (var person in expectedResult)
-        {
-            AssertContainShallow(found, person, $"Person: {person.Name} was not found in the result");
-        }
-
-        AssertSameSize(expectedResult, found, "Extra Items has been read from database");
-    }
-
     private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
     {
         var list = new List<TModel>(items);
@@ -145,15 +135,15 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
         var query = queryBuilder.Build();
 
         var found = engine
-            .PerformRequest(new FindPagedRequest<Person, long>(query))
+            .PerformRequest(new FindPagedRequest<Person>(query))
             .FromStorage;
 
         foreach (var person in items)
         {
-            AssertContainShallow(found, person, $"Person: {person.Name} was not found in the result");
+            AssertX.ContainShallow(found, person, $"Person: {person.Name} was not found in the result");
         }
 
-        AssertSameSize(items, found, "Extra Items has been read from database");
+        AssertX.AreSameSize(items, found, "Extra Items has been read from database");
     }
 
 
@@ -166,54 +156,20 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
         var orders = orderBuilder.Build();
 
         var found = engine
-            .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery(), 0, 1000, null, orders))
+            .PerformRequest(new FindPagedRequest<Person>(new FilterQuery(), 0, 1000, null, orders))
             .FromStorage;
 
-        AssertSameSize(expected, found, "Read items does not match with expectations");
+        AssertX.AreSameSize(expected, found, "Read items does not match with expectations");
 
-        AssertSameOrder(expected, found);
+        AssertX.InSameOrder(expected, found);
     }
 
-    private void AssertSameOrder(List<Person> expected, List<Person> actual)
-    {
-        for (int i = 0; i < expected.Count; i++)
-        {
-            if (!AreEqualShallow(expected[i], actual[i]))
-            {
-                throw new Exception($"Expected to find {expected[i].Name}:{expected[i].Id} at {i}'th place, but found {actual[i].Name}:{actual[i].Id}");
-            }
-        }
-    }
-
-    private void AssertSameSize(IEnumerable<Person> s1, IEnumerable<Person> s2, string message)
-    {
-        if (s1.Count() != s2.Count())
-        {
-            throw new Exception(message);
-        }
-    }
-
-    private void AssertContainShallow(List<Person> found, Person person, string message)
-    {
-        if (found.All(f => !AreEqualShallow(f, person)))
-        {
-            throw new Exception(message);
-        }
-    }
-
-    private bool AreEqualShallow(Person p1, Person p2)
-    {
-        return p1.Name == p2.Name &&
-               p1.IsDeleted == p2.IsDeleted &&
-               p1.Age == p2.Age &&
-               p1.Surname == p2.Surname &&
-               p1.JobId == p2.JobId;
-    }
+    
 
     private void FindPagedMustBeAbleToPerformCorrectPagination(MeadowEngine engine, ILogger logger)
     {
         var all = engine
-            .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery(), 0, 2))
+            .PerformRequest(new FindPagedRequest<Person>(new FilterQuery(), 0, 2))
             .FromStorage;
 
 
@@ -222,7 +178,7 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
         for (int offset = 0; offset < all.Count; offset += size)
         {
             var read = engine
-                .PerformRequest(new FindPagedRequest<Person, long>(new FilterQuery(), 0, 2))
+                .PerformRequest(new FindPagedRequest<Person>(new FilterQuery(), 0, 2))
                 .FromStorage;
 
             if (read.Count != size)

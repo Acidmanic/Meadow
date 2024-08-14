@@ -5,6 +5,11 @@
   &lt;Assembly Path="/home/diego/.nuget/packages/acidmanic.utilities/1.0.0/lib/netstandard2.1/Acidmanic.Utilities.dll" /&gt;
   &lt;Assembly Path="/home/diego/.nuget/packages/acidmanic.utilities.reflections/1.0.2/lib/netstandard2.1/Acidmanic.Utilities.Reflection.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3121c626_002Da467_002D4b2d_002D9e10_002Db09b41fecc1d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="FindPagedSuit" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+  &lt;TestAncestor&gt;
+    &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.FindPagedSuit&lt;/TestId&gt;
+  &lt;/TestAncestor&gt;
+&lt;/SessionState&gt;</s:String>
 	
 	
 	<s:Boolean x:Key="/Default/ResxEditorPersonal/Initialized/@EntryValue">True</s:Boolean>

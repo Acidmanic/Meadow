@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using Acidmanic.Utilities.Reflection;
 using Examples.Common;
 using Meadow.Configuration;
@@ -102,7 +104,6 @@ namespace Meadow.Test.Functional.TDDAbstractions
         protected void UsePostgre(string scriptsDirectory="MacroScripts")
         {
             MeadowConfigurationAssemblies.Clear();
-            MeadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetPostgreMeadowAssembly());
 
@@ -124,8 +125,6 @@ namespace Meadow.Test.Functional.TDDAbstractions
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
             MeadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqLiteMeadowAssembly());
 
-            ScriptsDirectory = scriptsDirectory;
-
             ConnectionString = ExampleConnectionString.GetSqLiteConnectionString(DbName);
 
             MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
@@ -137,10 +136,18 @@ namespace Meadow.Test.Functional.TDDAbstractions
 
         private void UpdateConfigurations()
         {
+            
+            var executablePath = new FileInfo(typeof(MeadowFunctionalTest).Assembly.Location).Directory?.FullName
+                                 ?? Environment.CurrentDirectory;
+            
+            var sd = ScriptsDirectory = Path.Combine(executablePath, ScriptsDirectory);
+            
+            MeadowConfigurationAssemblies.Add(typeof(MeadowFunctionalTest).Assembly);
+            
             Configuration = new MeadowConfiguration
             {
                 ConnectionString = ConnectionString,
-                BuildupScriptDirectory = ScriptsDirectory,
+                BuildupScriptDirectory = sd,
                 MacroPolicy = MacroPolicies.UpdateScripts,
                 MacroContainingAssemblies = new List<Assembly>(MeadowConfigurationAssemblies)
             };
