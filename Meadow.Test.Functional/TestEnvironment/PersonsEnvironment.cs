@@ -72,7 +72,7 @@ public class PersonsEnvironment : PersonUseCaseTestBase
             return response as FindPagedRequest<TModel>;
         }
 
-        public Person[] GetPerson(Func<Person, bool> predicate) => persons.Where(predicate).ToArray();
+        public Person[] GetPersons(Func<Person, bool> predicate) => persons.Where(predicate).ToArray();
     }
 
 

@@ -53,25 +53,6 @@ public class Tdd52FindPagedMacro : PersonUseCaseTestBase
 
         logger.LogInformation("[PASS] Pagination Is Ok");
 
-        FindPagedMustFindRecords(engine, b =>
-            b.Where(p => p.Age).IsLargerThan(50), GetPerson(p => p.Age > 50));
-
-        FindPagedMustFindRecords(engine, b =>
-            b.Where(p => p.Age).IsSmallerThan(50), GetPerson(p => p.Age < 50));
-
-        FindPagedMustFindRecords(engine, b =>
-            b.Where(p => p.Name).IsEqualTo("Mani"), GetPerson(p => p.Name == "Mani"));
-
-        FindPagedMustFindRecords(engine, b =>
-                b.Where(p => p.Name).IsEqualTo("Mina", "Farshid"),
-            GetPerson(p => p.Name == "Mina" || p.Name == "Farshid"));
-
-        FindPagedMustFindRecords(engine, b =>
-                b.Where(p => p.Name).IsNotEqualTo("Mina", "Farshid"),
-            GetPerson(p => p.Name != "Mina" && p.Name != "Farshid"));
-
-        logger.LogInformation("[PASS] Filter Is Ok");
-
         FindPagedMustPerformCorrectSorting(engine, Sort(Persons, (p1, p2) => p1.Age - p2.Age),
             o => o.OrderAscendingBy(p => p.Age));
 

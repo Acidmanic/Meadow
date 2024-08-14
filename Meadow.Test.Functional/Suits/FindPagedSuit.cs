@@ -42,7 +42,32 @@ public class FindPagedSuit
             p => p.Name != "Mina" && p.Name != "Farshid");
 
     
-    
+    [Fact]
+    public void Must_Paginate_Any_Combination_AsExpected()
+    {
+        var env = new PersonsEnvironment();
+        
+        env.Perform(databases, e =>
+        {
+            var all = e.FindPaged<Person>().FromStorage;
+
+            AssertX.ContainSameItems(e.GetPersons(p=>true).ToList(), all);
+            
+            for (int size = 1; size < all.Count; size++)
+            {
+                for (int offset = 0; offset < all.Count-1; offset++)
+                {
+
+                    var expected = all.Skip(offset).Take(size).ToList();
+
+                    var actual = e.FindPaged<Person>(offset: offset, size: size).FromStorage;
+                    
+                    AssertX.ContainSameItems(expected,actual);
+                }
+            }
+
+        });
+    }
     
     
     
@@ -74,7 +99,7 @@ public class FindPagedSuit
         {
             var found = e.FindPaged(qb).FromStorage;
             
-            AssertX.ContainSameItems(e.GetPerson(predicate).ToList(), found, personIdentifier);
+            AssertX.ContainSameItems(e.GetPersons(predicate).ToList(), found, personIdentifier);
         });
         
     }

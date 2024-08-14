@@ -13,5 +13,5 @@ public interface IPersonsEnvironment
 
     FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null, int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null, params string[] searchTerms) where TModel : class;
 
-    Person[] GetPerson(Func<Person, bool> predicate);
+    Person[] GetPersons(Func<Person, bool> predicate);
 }
