@@ -41,6 +41,7 @@ public class PersonsEnvironment : PersonUseCaseTestBase
     {
         private PersonsEnvironment parent;
         private Person[] persons;
+
         public Environment(MeadowEngine engine, Person[] persons, PersonsEnvironment parent)
         {
             Engine = engine;
@@ -74,10 +75,28 @@ public class PersonsEnvironment : PersonUseCaseTestBase
         public Person[] GetPersons(Func<Person, bool> predicate) => persons.Where(predicate).ToArray();
         public List<Person> GetSorted(Comparison<Person> compare) => Sort(persons, compare);
         public void Index<TModel>(IEnumerable<TModel> items) => MeadowMultiDatabaseTestBase.Index(Engine, items);
-        
-        public TModel Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update)
+
+        public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update) where TModel : class, new()
         {
-            throw new NotImplementedException();
+            var items = parent.GetSeededObjects<TModel>();
+
+            var itemsToUpdate = items.Where(predicate).ToList();
+
+            var updatedObjects = new List<TModel>();
+
+            foreach (var model in itemsToUpdate)
+            {
+                update(model);
+
+                var updated = Engine.PerformRequest(new UpdateRequest<TModel>(model)).FromStorage.FirstOrDefault();
+
+                if (updated is { } u)
+                {
+                    updatedObjects.Add(u);
+                }
+            }
+
+            return updatedObjects;
         }
 
         private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
@@ -113,6 +132,6 @@ public class PersonsEnvironment : PersonUseCaseTestBase
 
         Seed(engine);
 
-        env(new Environment(engine,Persons,this));
+        env(new Environment(engine, Persons, this));
     }
 }

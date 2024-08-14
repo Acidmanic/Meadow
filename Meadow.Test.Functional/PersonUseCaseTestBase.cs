@@ -18,6 +18,8 @@ namespace Meadow.Test.Functional
 {
     public abstract class PersonUseCaseTestBase : MeadowMultiDatabaseTestBase
     {
+        
+        
         protected IndexingService<TModel> GetIndexingService<TModel>() => new IndexingService<TModel>(new EnglishTransliterationsService());
         
         protected static Job J(string personName, long income)
@@ -63,7 +65,7 @@ namespace Meadow.Test.Functional
             P("Farimehr", "Ayerian", 21, 5),
         };
 
-        protected static readonly Address[] Addresses =
+        protected readonly Address[] Addresses =
         {
             A(1, 1),
             A(1, 2), A(2, 2),
@@ -72,11 +74,11 @@ namespace Meadow.Test.Functional
             A(1, 5), A(2, 5), A(3, 5), A(4, 5), A(5, 5),
         };
 
-        protected static void Seed(MeadowEngine engine)
+        protected void Seed(MeadowEngine engine)
         {
-            InsertAll(engine, Jobs);
-            InsertAll(engine, Persons);
-            InsertAll(engine, Addresses);
+            Seed(engine, Jobs);
+            Seed(engine, Persons);
+            Seed(engine, Addresses);
         }
 
         protected Person[] GetPerson(Func<Person, bool> predicate) => Persons.Where(predicate).ToArray();

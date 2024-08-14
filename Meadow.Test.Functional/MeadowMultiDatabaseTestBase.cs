@@ -3,23 +3,40 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Configuration;
-using Meadow.Requests;
 using Meadow.Test.Functional.GenericRequests;
-using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Search.Services;
 using Meadow.Test.Functional.TDDAbstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
-using Org.BouncyCastle.Security;
 
 namespace Meadow.Test.Functional
 {
     public abstract class MeadowMultiDatabaseTestBase : MeadowFunctionalTest
     {
-        protected static void InsertAll<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class, new()
+        
+        protected Dictionary<Type,List<object>> _seedData = new Dictionary<Type, List<object>>();
+
+        private void RegisterSeededData(object data)
+        {
+            if (data is {}  d)
+            {
+                var type = d.GetType();
+
+                if (!_seedData.ContainsKey(type))
+                {
+                    _seedData.Add(type, new List<object>());
+                }
+                _seedData[type].Add(d);
+            }
+        }
+
+        public List<T> GetSeededObjects<T>() => GetSeededObjects(typeof(T)).Select(i => (T)i).ToList();
+        
+        public List<object> GetSeededObjects(Type type) => _seedData.ContainsKey(type) ? _seedData[type]: new List<object>();
+        
+        
+        protected void Seed<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class, new()
         {
             var idLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
             
@@ -41,6 +58,8 @@ namespace Meadow.Test.Functional
                 else
                 {
                     setId(inserted,item);
+                    
+                    RegisterSeededData(item);
                 }
             }
         }

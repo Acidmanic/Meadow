@@ -63,7 +63,7 @@ public class Tdd51EntityFilters : PersonUseCaseTestBase
             new Deletable() { Id = 4, Information = "Fourth" },
         };
 
-        InsertAll(engine, data);
+        Seed(engine, data);
 
 
         var all = engine.PerformRequest(new ReadAllRequest<Deletable>()).FromStorage;

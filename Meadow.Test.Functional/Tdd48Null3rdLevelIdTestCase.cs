@@ -76,13 +76,13 @@ namespace Meadow.Test.Functional
                 IsSubmitted = false,
             };
 
-            InsertAll(engine, new ExamStorage[] { exam });
+            Seed(engine, new ExamStorage[] { exam });
 
-            InsertAll(engine, new UserStorage[] { user });
+            Seed(engine, new UserStorage[] { user });
 
-            InsertAll(engine, questions);
+            Seed(engine, questions);
 
-            InsertAll(engine, new EvaluationSessionStorage[] { evaluation });
+            Seed(engine, new EvaluationSessionStorage[] { evaluation });
 
             var request = new ReadByIdRequest<EvaluationSessionStorage, string>(evaluation.Id);
 

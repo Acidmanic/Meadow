@@ -92,17 +92,17 @@ public class FindPagedSuit
             p.Name == "Mani" ||
             p.Name == "Mona" ||
             p.Name == "Farshid", "Moai");
-    
+
     [Fact]
     public void Must_Find_ByPortionOf_Name()
-        => FindPagedMustFindExpectedItemsForGivenSearchTerms(p => 
-            p.Name=="Farshid" ||
-            p.Name=="Farimehr", "far");
-    
+        => FindPagedMustFindExpectedItemsForGivenSearchTerms(p =>
+            p.Name == "Farshid" ||
+            p.Name == "Farimehr", "far");
+
     [Fact]
     public void Must_Find_Name_IgnoreCase()
-        => FindPagedMustFindExpectedItemsForGivenSearchTerms(p => 
-            p.Name=="Farshid", "farshid");
+        => FindPagedMustFindExpectedItemsForGivenSearchTerms(p =>
+            p.Name == "Farshid", "farshid");
 
 
     [Theory]
@@ -115,18 +115,17 @@ public class FindPagedSuit
 
         env.Perform(databases, e =>
         {
+            e.Update<Person>(p => p.Name == deleteeName, p => p.IsDeleted = true);
 
-            e.Update();
-            
             var expectedResult = e.GetPersons(p => p.Name != deleteeName).ToList();
 
-            var found = e.FindPaged<Person>(searchTerms: terms).FromStorage;
+            var found = e.FindPaged<Person>().FromStorage;
 
             AssertX.ContainSameItems(expectedResult, found, personIdentifier);
         });
     }
-    
-    
+
+
     private void FindPagedMustFindExpectedItemsForGivenSearchTerms(Func<Person, bool> predicate, params string[] searchTerms)
     {
         var env = new PersonsEnvironment();
