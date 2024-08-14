@@ -57,7 +57,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
-            var entityFilterSegment = entityFilterExpression.Success ? $" {entityFilterExpression.Value} " : " (1=1) ";
+            var entityFilterSegment = entityFilterExpression.Success ? $" {entityFilterExpression.Value} " : "";
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
            
@@ -83,6 +83,7 @@ BEGIN
     SET @where  = '';
     SET @searchJoin  = '';
     SET @hasWhere = 0;
+    SET @entityFilter = '{_keyEntityFilterSegment}';
     
     IF OrderExpression IS NOT NULL AND LENGTH(TRIM(OrderExpression))>0 THEN
         SET @over = CONCAT(' ORDER BY ',OrderExpression);
@@ -91,6 +92,15 @@ BEGIN
     IF FilterExpression IS NOT NULL AND LENGTH(TRIM(FilterExpression))>0 THEN
         SET @where = FilterExpression;
         SET @hasWhere = 1;
+    END IF;
+    
+    IF @entityFilter IS NOT NULL AND LENGTH(TRIM(@entityFilter))>0 THEN
+        IF @hasWhere=1 THEN
+            SET @where = CONCAT(@where,' AND ', @entityFilter);
+        ELSE
+            SET @where = @entityFilter;
+            SET @hasWhere = 1;
+        END IF;
     END IF;
 
     IF SearchExpression IS NOT NULL AND LENGTH(TRIM(SearchExpression))>0 THEN
