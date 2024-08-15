@@ -80,7 +80,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
             
-            var entityFilterSegment = entityFilterExpression.Success ? $" {entityFilterExpression.Value} " : " (1=1) ";
+            var entityFilterSegment = entityFilterExpression.Success ? $" {entityFilterExpression.Value} " : "";
             
             replacementList.Add(_keyEntityFilterSegment,entityFilterSegment);
 
@@ -98,22 +98,6 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyIndexProcedureName}2(@ResultId {_keyIdFieldType},@IndexCorpus {_keyCorpusFieldType}) AS
-    
-    IF EXISTS(SELECT 1 FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId)
-        BEGIN
-            UPDATE {_keySearchIndexTableName} SET IndexCorpus=@IndexCorpus WHERE {_keySearchIndexTableName}.ResultId=@ResultId;
-            
-            SELECT TOP 1 * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId; 
-        END
-    ELSE
-        BEGIN
-            INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus) VALUES (@ResultId,@IndexCorpus)
-            DECLARE @newId {_keyIdFieldType}=(IDENT_CURRENT('{_keySearchIndexTableName}'));
-            SELECT * FROM {_keySearchIndexTableName} WHERE Id=@newId;
-        END
-GO
--- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFindPagedProcedureName}(
                                             @Offset BIGINT,
                                             @Size BIGINT,
@@ -125,6 +109,7 @@ AS
     declare @over nvarchar(1024) = 'ORDER BY {_keyTableName}.{_keyDefaultOrderColumnName} ASC';
     declare @where nvarchar(1024) = '';
     declare @searchJoin nvarchar(1024) = '';
+    declare @entityFilter nvarchar(1024) = '{_keyEntityFilterSegment}';
 
     IF NOT ISNULL(@OrderExpression,'')=''
         SET @over = CONCAT('ORDER BY ',@OrderExpression);
@@ -139,6 +124,12 @@ AS
             SET @where = CONCAT(@where,' AND ', @SearchExpression);
         ELSE
             SET @where = @SearchExpression;
+
+    IF NOT ISNULL(@entityFilter,'')=''
+        IF NOT ISNULL(@where,'')=''
+            SET @where = CONCAT(@where,' AND ', @entityFilter);
+        ELSE
+            SET @where = @entityFilter;
 
     IF NOT ISNULL(@where,'')=''
         SET @where = CONCAT(' WHERE ', @where);

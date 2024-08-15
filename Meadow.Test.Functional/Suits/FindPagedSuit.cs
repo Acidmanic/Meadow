@@ -10,7 +10,7 @@ namespace Meadow.Test.Functional.Suits;
 
 public class FindPagedSuit
 {
-    private const Databases databases = Databases.MySql;
+    private const Databases databases = Databases.SqlServer;
 
     private readonly Func<Person, string> personIdentifier = p => $"{p.Name}:{p.Id}";
 

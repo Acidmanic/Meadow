@@ -75,6 +75,8 @@ public class PersonsEnvironment : PersonUseCaseTestBase
             var response = Engine
                 .PerformRequest(request);
 
+            if (response.Failed) throw response.FailureException;
+            
             return response as FindPagedRequest<TModel>;
         }
 
@@ -94,7 +96,11 @@ public class PersonsEnvironment : PersonUseCaseTestBase
             {
                 update(model);
 
-                var updated = Engine.PerformRequest(new UpdateRequest<TModel>(model)).FromStorage.FirstOrDefault();
+                var response = Engine.PerformRequest(new UpdateRequest<TModel>(model));
+                
+                if (response.Failed) throw response.FailureException;
+                
+                var updated = response.FromStorage.FirstOrDefault();
 
                 if (updated is { } u)
                 {
