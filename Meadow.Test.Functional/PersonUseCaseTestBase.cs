@@ -53,10 +53,10 @@ namespace Meadow.Test.Functional
             };
         }
 
-        protected static readonly Job[] Jobs =
+        protected readonly Job[] Jobs =
             { J("Mani", 100), J("Mona", 200), J("Mina", 300), J("Farshid", 400), J("Farimehr", 500) };
 
-        protected static readonly Person[] Persons =
+        protected  readonly Person[] Persons =
         {
             P("Mani", "Moayedi", 37, 1),
             P("Mona", "Moayedi", 42, 2),
