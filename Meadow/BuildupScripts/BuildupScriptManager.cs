@@ -95,7 +95,13 @@ namespace Meadow.BuildupScripts
 
                             _scripts.Add(scriptInfo);
 
+                            if (hadMacro && configuration.MacroPolicy == MacroPolicies.InterpretAtRuntimeWriteDebugFiles)
+                            {
+                                WriteDebugFile(file,content);
+                            }
+
                             return hadMacro && configuration.MacroPolicy == MacroPolicies.UpdateScripts;
+                            
                         }, ExternalToolCallMode.ForceFul);
                     }
                     finally
@@ -105,6 +111,31 @@ namespace Meadow.BuildupScripts
             }
 
             _scripts.Sort(new ScriptInfoAscendingComparer());
+        }
+
+        private void WriteDebugFile(FileInfo file,string macroReplacedContent)
+        {
+
+            var macrosDirectoryPath = new DirectoryInfo(file.Directory?.FullName ?? "").FullName;
+            
+            var macrosDirectoryName = new DirectoryInfo(macrosDirectoryPath).Name;
+            
+            var parentDirectoryPath = new DirectoryInfo(macrosDirectoryPath).Parent?.FullName??"";
+            
+            var debugDirectory = Path.Combine(parentDirectoryPath, macrosDirectoryName + ".Debug");
+
+            if (!Directory.Exists(debugDirectory))
+            {
+                Directory.CreateDirectory(debugDirectory);
+            }
+            
+            var debugFilePath = new FileInfo(Path.Combine(debugDirectory, file.Name)).FullName;
+
+            if (File.Exists(debugFilePath))
+            {
+                File.Delete(debugFilePath);
+            }
+            File.WriteAllText(debugFilePath,macroReplacedContent);
         }
 
         private string Normalize(string content)

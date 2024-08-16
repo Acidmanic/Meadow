@@ -4,5 +4,6 @@ public enum MacroPolicies
 {
     Ignore,
     InterpretAtRuntime,
+    InterpretAtRuntimeWriteDebugFiles,
     UpdateScripts
 }

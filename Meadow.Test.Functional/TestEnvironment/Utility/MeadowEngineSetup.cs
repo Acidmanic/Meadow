@@ -135,7 +135,7 @@ public class MeadowEngineSetup
             {
                 ConnectionString = _connectionString,
                 BuildupScriptDirectory = sd,
-                MacroPolicy = MacroPolicies.UpdateScripts,
+                MacroPolicy = MacroPolicies.InterpretAtRuntimeWriteDebugFiles,
                 MacroContainingAssemblies = new List<Assembly>(_meadowConfigurationAssemblies)
             };
             
