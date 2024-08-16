@@ -25,7 +25,7 @@ public static class SeedingUtilities
         var modelType = seedList.First().GetType();
 
         var seedMethod = typeof(SeedingUtilities)
-            .GetMethods(BindingFlags.IgnoreReturn|BindingFlags.InvokeMethod | BindingFlags.NonPublic | BindingFlags.Static)
+            .GetMethods()
             .Where(m => m.Name == nameof(Seed))
             .Where(m => m.IsGenericMethod)
             .FirstOrDefault(m => m.GetGenericArguments().Length == 1)!;
