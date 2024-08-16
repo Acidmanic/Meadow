@@ -12,36 +12,12 @@ using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
-public class Environment<TCaseProvider> : PersonUseCaseTestBase where TCaseProvider : ICaseDataProvider, new()
+public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new()
 {
-    protected override void SelectDatabase()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void SelectDatabase(Databases database)
-    {
-        if (database == Databases.SqLite)
-        {
-            UseSqLite();
-        }
-        else if (database == Databases.MySql)
-        {
-            UseMySql();
-        }
-        else if (database == Databases.SqlServer)
-        {
-            UseSqlServer();
-        }
-        else if (database == Databases.Postgre)
-        {
-            UsePostgre();
-        }
-    }
 
     public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
     
-    private Action<MeadowConfiguration> _updateConfigurations = c => { };
+    private Action<MeadowConfiguration> _updateConfigurations = _ => { };
 
 
     public void RegulateMeadowConfigurations(Action<MeadowConfiguration> configure)
@@ -127,11 +103,14 @@ public class Environment<TCaseProvider> : PersonUseCaseTestBase where TCaseProvi
 
     public void Perform(Databases database, ILogger logger, Action<ISuitContext> env)
     {
-        SelectDatabase(database);
+
+        var engineSetup = new MeadowEngineSetup();
+
+        engineSetup.SelectDatabase(database);
 
         MeadowEngine.UseLogger(logger);
 
-        var engine = CreateEngine(_updateConfigurations);
+        var engine = engineSetup.CreateEngine(_updateConfigurations);
 
         if (engine.DatabaseExists())
         {
