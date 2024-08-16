@@ -100,10 +100,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
     public void Perform(Databases database, Action<ISuitContext> env)
         => Perform(database, new ConsoleLogger().Shorten().EnableAll(), env);
-
-
-    private static readonly object PerformLock = new();
-
+    
 
     public void Perform(Databases database, ILogger logger, Action<ISuitContext> env)
     {
