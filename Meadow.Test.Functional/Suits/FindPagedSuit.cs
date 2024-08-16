@@ -42,7 +42,7 @@ public class FindPagedSuit
     [Fact]
     public void Must_Paginate_Any_Combination_AsExpected()
     {
-        var env = new PersonsEnvironment<PersonsDataProvider>();
+        var env = new Environment<PersonsDataProvider>();
 
         env.Perform(Databases, e =>
         {
@@ -111,7 +111,7 @@ public class FindPagedSuit
     [InlineData("Mona")]
     public void Must_Find_Only_UnDeletedResults(string deleteeName)
     {
-        var env = new PersonsEnvironment<PersonsDataProvider>();
+        var env = new Environment<PersonsDataProvider>();
 
         env.RegulateMeadowConfigurations(configurations =>
         {
@@ -134,7 +134,7 @@ public class FindPagedSuit
 
     private void FindPagedMustFindExpectedItemsForGivenSearchTerms(Func<Person, bool> predicate, params string[] searchTerms)
     {
-        var env = new PersonsEnvironment<PersonsDataProvider>();
+        var env = new Environment<PersonsDataProvider>();
 
         env.Perform(Databases, e =>
         {
@@ -153,7 +153,7 @@ public class FindPagedSuit
 
     private void FindPagedMustFilterRecords(Action<FilterQueryBuilder<Person>> qb, Func<Person, bool> predicate)
     {
-        var env = new PersonsEnvironment<PersonsDataProvider>();
+        var env = new Environment<PersonsDataProvider>();
 
         env.Perform(Databases, e =>
         {
@@ -165,7 +165,7 @@ public class FindPagedSuit
 
     private void FindPagedMustPerformCorrectSorting(Comparison<Person> expectedComparer, Action<OrderSetBuilder<Person>> buildActualOrders)
     {
-        var env = new PersonsEnvironment<PersonsDataProvider>();
+        var env = new Environment<PersonsDataProvider>();
 
         env.Perform(Databases, e =>
         {

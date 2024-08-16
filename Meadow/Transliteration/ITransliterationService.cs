@@ -1,4 +1,4 @@
-namespace Meadow.Test.Functional.Search.Contracts
+namespace Meadow.Transliteration
 {
     public interface ITransliterationService
     {

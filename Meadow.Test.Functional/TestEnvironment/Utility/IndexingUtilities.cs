@@ -1,0 +1,42 @@
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Acidmanic.Utilities.Filtering.Models;
+using Acidmanic.Utilities.Reflection;
+using Meadow.Test.Functional.GenericRequests;
+using Meadow.Transliteration;
+using Meadow.Transliteration.Builtin;
+
+namespace Meadow.Test.Functional.TestEnvironment.Utility;
+
+public static class IndexingUtilities
+{
+    public static void Index<T>(MeadowEngine engine, IEnumerable<T> seed,ITransliterationService? transliterationService = null)
+    {
+        transliterationService ??= new EnglishTransliterationsService();
+        
+        var idLeaf = TypeIdentity.FindIdentityLeaf<T>();
+        var idType = idLeaf.Type;
+        var requestGeneric = typeof(IndexEntity<,>);
+        var requestType = requestGeneric.MakeGenericType(typeof(T), idType);
+        var constructor = requestType.GetConstructor(new Type[] { typeof(string), idType });
+        var indexing = new IndexCorpusService<T>(transliterationService!);
+        var genericSearchIndex = typeof(SearchIndex<>);
+        var searchIndexType = genericSearchIndex.MakeGenericType(idType);
+        var methodName = nameof(MeadowEngine.PerformRequest);
+        var genericPerformMethod = typeof(MeadowEngine)
+            .GetMethods()
+            .FirstOrDefault(m => m.Name == methodName &&
+                                 m.GetGenericArguments().Length == 2);
+        var performMethod = genericPerformMethod!.MakeGenericMethod(searchIndexType, searchIndexType);
+        foreach (var item in seed)
+        {
+            var corpus = indexing.GetIndexCorpus(item, false);
+            var id = idLeaf.Evaluator.Read(item);
+            var request = constructor!.Invoke(new object[] { corpus, id });
+
+            performMethod!.Invoke(engine, new object[] { request, false });
+        }
+    }
+}

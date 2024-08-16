@@ -4,14 +4,15 @@ using System.Linq;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Test.Functional.GenericRequests;
-using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.TestEnvironment.Utility;
+using Meadow.Transliteration;
+using Meadow.Transliteration.Builtin;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
-using Org.BouncyCastle.Crypto.Prng;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
-public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCaseProvider:ICaseDataProvider , new()
+public class Environment<TCaseProvider> : PersonUseCaseTestBase where TCaseProvider : ICaseDataProvider, new()
 {
     protected override void SelectDatabase()
     {
@@ -38,30 +39,38 @@ public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCa
         }
     }
 
-    private Action<MeadowConfiguration> updateConfigurations = c => { };
-
+    public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
     
+    private Action<MeadowConfiguration> _updateConfigurations = c => { };
+
+
     public void RegulateMeadowConfigurations(Action<MeadowConfiguration> configure)
     {
-        updateConfigurations = configure;
+        _updateConfigurations = configure;
     }
 
-    private class Environment : IPersonsEnvironment
+    private class Context : ISuitContext
     {
-        private PersonsEnvironment<TCaseProvider> parent;
-        public MeadowEngine Engine { get; private set; }
+        private readonly ITransliterationService _transliterationService;
+
+        public MeadowEngine Engine { get; }
         public CaseData Data { get; }
 
-        public Environment(MeadowEngine engine, PersonsEnvironment<TCaseProvider> parent, CaseData data)
+        public Context(MeadowEngine engine, CaseData data, ITransliterationService transliterationService)
         {
             this.Engine = engine;
-            this.parent = parent;
             Data = data;
+            _transliterationService = transliterationService;
         }
 
-        public string[] Transliterate(params string[] searchTerms) => parent.Transliterate(searchTerms);
+        public string[] Transliterate(params string[] searchTerms)
+        {
+            return searchTerms.Select(s => _transliterationService.Transliterate(s)).ToArray();
+        }
 
-        public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null, int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null, params string[] searchTerms) where TModel : class
+        public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null,
+            int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null, params string[] searchTerms)
+            where TModel : class
         {
             var filterQueryBuilder = new FilterQueryBuilder<TModel>();
 
@@ -71,23 +80,24 @@ public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCa
 
             if (order != null) order(ordersBuilder);
 
-            var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms, ordersBuilder.Build());
+            var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms,
+                ordersBuilder.Build());
 
             var response = Engine
                 .PerformRequest(request);
 
             if (response.Failed) throw response.FailureException;
-            
+
             return response as FindPagedRequest<TModel>;
         }
 
-        public void Index<TModel>(IEnumerable<TModel> items) => MeadowMultiDatabaseTestBase.Index(Engine, items);
+        public void Index<TModel>(IEnumerable<TModel> items) =>
+            IndexingUtilities.Index(Engine, items, _transliterationService);
 
-        public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update) where TModel : class, new()
+        public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update)
+            where TModel : class, new()
         {
-            var items = parent.GetSeededObjects<TModel>();
-
-            var itemsToUpdate = items.Where(predicate).ToList();
+            var itemsToUpdate = Data.Get(predicate).ToList();
 
             var updatedObjects = new List<TModel>();
 
@@ -96,9 +106,9 @@ public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCa
                 update(model);
 
                 var response = Engine.PerformRequest(new UpdateRequest<TModel>(model));
-                
+
                 if (response.Failed) throw response.FailureException;
-                
+
                 var updated = response.FromStorage.FirstOrDefault();
 
                 if (updated is { } u)
@@ -109,29 +119,19 @@ public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCa
 
             return updatedObjects;
         }
-
-       
-        private List<TModel> Sort<TModel>(IEnumerable<TModel> items, Comparison<TModel> compare)
-        {
-            var list = new List<TModel>(items);
-
-            list.Sort(compare);
-
-            return list;
-        }
     }
 
 
-    public void Perform(Databases database, Action<IPersonsEnvironment> env)
+    public void Perform(Databases database, Action<ISuitContext> env)
         => Perform(database, new ConsoleLogger().Shorten().EnableAll(), env);
 
-    public void Perform(Databases database, ILogger logger, Action<IPersonsEnvironment> env)
+    public void Perform(Databases database, ILogger logger, Action<ISuitContext> env)
     {
         SelectDatabase(database);
 
         MeadowEngine.UseLogger(logger);
 
-        var engine = CreateEngine(updateConfigurations);
+        var engine = CreateEngine(_updateConfigurations);
 
         if (engine.DatabaseExists())
         {
@@ -145,13 +145,13 @@ public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCa
         var dataProvider = new TCaseProvider();
 
         dataProvider.Initialize();
-        
+
         var rawDataSets = dataProvider.SeedSet;
-        
-        SeedDataSets(engine,rawDataSets);
-        
+
+        SeedDataSets(engine, rawDataSets);
+
         var data = CaseData.Create(rawDataSets);
-        
-        env(new Environment(engine, this,data));
+
+        env(new Context(engine, data,TransliterationService));
     }
 }

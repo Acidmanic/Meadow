@@ -7,7 +7,8 @@ using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
-using Meadow.Test.Functional.Search.Services;
+using Meadow.Transliteration;
+using Meadow.Transliteration.Builtin;
 using Microsoft.Extensions.Logging;
 using SQLitePCL;
 
@@ -44,7 +45,7 @@ namespace Meadow.Test.Functional
 
             var transliterationService = new EnglishTransliterationsService();
 
-            var indexingService = new IndexingService<Person>(transliterationService);
+            var indexingService = new IndexCorpusService<Person>(transliterationService);
 
             var allPersons = engine
                 .PerformRequest(new ReadAllRequest<Person>(), true)

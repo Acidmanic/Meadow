@@ -1,6 +1,4 @@
-using Meadow.Test.Functional.Search.Contracts;
-
-namespace Meadow.Test.Functional.Search.Services
+namespace Meadow.Transliteration.Builtin
 {
     public class DefaultTransliterationService:ITransliterationService
     {

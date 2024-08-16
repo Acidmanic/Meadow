@@ -9,9 +9,9 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Extensions;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
-using Meadow.Test.Functional.Search.Contracts;
-using Meadow.Test.Functional.Search.Services;
 using Meadow.Test.Functional.TestEnvironment;
+using Meadow.Transliteration;
+using Meadow.Transliteration.Builtin;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
 
@@ -21,7 +21,7 @@ namespace Meadow.Test.Functional
     {
         
         
-        protected IndexingService<TModel> GetIndexingService<TModel>() => new IndexingService<TModel>(new EnglishTransliterationsService());
+        protected IndexCorpusService<TModel> GetIndexingService<TModel>() => new IndexCorpusService<TModel>(new EnglishTransliterationsService());
         
         protected static Job J(string personName, long income)
         {
@@ -168,13 +168,6 @@ namespace Meadow.Test.Functional
                 .FromStorage;
         }
 
-
-        protected string[] Transliterate(string[] searchTerms)
-        {
-            var tr = new EnglishTransliterationsService();
-
-            return searchTerms.Select(s => tr.Transliterate(s)).ToArray();
-        }
         public override void Main()
         {
             SelectDatabase();

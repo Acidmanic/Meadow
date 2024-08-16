@@ -8,8 +8,9 @@ using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Google.Protobuf.Reflection;
 using Meadow.Test.Functional.GenericRequests;
-using Meadow.Test.Functional.Search.Services;
 using Meadow.Test.Functional.TDDAbstractions;
+using Meadow.Transliteration;
+using Meadow.Transliteration.Builtin;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
 
@@ -144,7 +145,7 @@ namespace Meadow.Test.Functional
             var requestGeneric = typeof(IndexEntity<,>);
             var requestType = requestGeneric.MakeGenericType(typeof(T), idType);
             var constructor = requestType.GetConstructor(new Type[] { typeof(string), idType });
-            var indexing = new IndexingService<T>(new EnglishTransliterationsService());
+            var indexing = new IndexCorpusService<T>(new EnglishTransliterationsService());
             var genericSearchIndex = typeof(SearchIndex<>);
             var searchIndexType = genericSearchIndex.MakeGenericType(idType);
             var methodName = nameof(MeadowEngine.PerformRequest);

@@ -62,4 +62,10 @@
       </None>
     </ItemGroup>
 
+
+    <ItemGroup>
+      <Folder Include="Search\Contracts" />
+      <Folder Include="Search\Services" />
+    </ItemGroup>
+
 </Project>

@@ -2,17 +2,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Reflection.ObjectTree;
-using Meadow.Test.Functional.Search.Contracts;
 
-namespace Meadow.Test.Functional.Search.Services
+namespace Meadow.Transliteration
 {
-    public class IndexingService<TStorage>
+    public class IndexCorpusService<TStorage>
     {
 
 
         private readonly ITransliterationService _transliterationService;
 
-        public IndexingService(ITransliterationService transliterationService)
+        public IndexCorpusService(ITransliterationService transliterationService)
         {
             _transliterationService = transliterationService;
         }

@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Meadow.Test.Functional.Search.Contracts;
 
-namespace Meadow.Test.Functional.Search.Services
+namespace Meadow.Transliteration.Builtin
 {
     public class EnglishTransliterationsService : ITransliterationService
     {
