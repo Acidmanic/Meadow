@@ -148,7 +148,7 @@ public class Environment<TCaseProvider> : PersonUseCaseTestBase where TCaseProvi
 
         var rawDataSets = dataProvider.SeedSet;
 
-        SeedDataSets(engine, rawDataSets);
+        SeedingUtilities.SeedDataSets(engine, rawDataSets);
 
         var data = CaseData.Create(rawDataSets);
 

@@ -82,13 +82,7 @@ namespace Meadow.Test.Functional
             Seed(engine, Addresses);
         }
         
-        protected void SeedDataSets(MeadowEngine engine, List<List<object>> data)
-        {
-            foreach (var items in data)
-            {
-                SeedByType(engine, items);
-            }
-        }
+        
 
         protected Person[] GetPerson(Func<Person, bool> predicate) => Persons.Where(predicate).ToArray();
 
