@@ -111,11 +111,19 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         MeadowEngine.UseLogger(logger);
 
         var engine = engineSetup.CreateEngine(_updateConfigurations);
-
+        
         if (engine.DatabaseExists())
         {
+            logger.LogInformation("Dropping Existing Database...");
+            
             engine.DropDatabase();
         }
+        else
+        {
+            logger.LogInformation("No Database Has been found");
+        }
+        
+        logger.LogInformation("Creating New Database Instance");
 
         engine.CreateDatabase();
 
