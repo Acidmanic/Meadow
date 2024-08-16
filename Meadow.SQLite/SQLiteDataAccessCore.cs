@@ -201,7 +201,10 @@ namespace Meadow.SQLite
         {
             var exists = false;
 
-            TryDbFile(configuration, file => { exists = File.Exists(file); });
+            TryDbFile(configuration, file =>
+            {
+                exists = File.Exists(file);
+            });
 
             return exists;
         }
@@ -210,7 +213,10 @@ namespace Meadow.SQLite
         {
             var exists = false;
 
-            await TryDbFileAsync(configuration, async file => { exists = File.Exists(file); });
+            await TryDbFileAsync(configuration, async file =>
+            {
+                exists = File.Exists(file);
+            });
 
             return exists;
         }

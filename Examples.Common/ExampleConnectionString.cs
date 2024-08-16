@@ -67,9 +67,15 @@ namespace Examples.Common
                    $"Database={databaseName};";
         }
 
-        public static string GetSqLiteConnectionString(string databaseName = "meadow-scratch")
+        public static string GetSqLiteConnectionString(string databaseName = "meadow-scratch", string? databaseDirectory=null)
         {
-            return $"Data Source={databaseName}.db";
+            var preExtension = databaseName;
+
+            if (databaseDirectory is { } dd)
+            {
+                preExtension = Path.Combine(dd, databaseName);
+            }
+            return $"Data Source={preExtension}.db";
         }
     }
 }

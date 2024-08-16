@@ -18,9 +18,10 @@ namespace Meadow.Test.Functional.TestEnvironment.Utility;
 public class MeadowEngineSetup
 {
     private string _connectionString;
-    private string _scriptsDirectory;
+
+    // private string _scriptsDirectory;
     private readonly List<Assembly> _meadowConfigurationAssemblies = new List<Assembly>();
-    
+
     public string DatabaseName { get; private set; }
     public MeadowConfiguration Configuration { get; private set; }
 
@@ -28,8 +29,8 @@ public class MeadowEngineSetup
     {
         DatabaseName = ProvideDataBaseName();
     }
-    
-    
+
+
     private Type GetTestSuitType()
     {
         var stack = new StackTrace();
@@ -41,9 +42,9 @@ public class MeadowEngineSetup
                 if (m.GetCustomAttribute<FactAttribute>() is { }
                     || m.GetCustomAttribute<TheoryAttribute>() is { })
                 {
-                    if (m.DeclaringType is {} t) return t; 
+                    if (m.DeclaringType is { } t) return t;
                 }
-            }                
+            }
         }
 
         return GetType();
@@ -51,121 +52,116 @@ public class MeadowEngineSetup
 
     private string ProvideDataBaseName() => GetTestSuitType().Name + "Db2BeDeleted";
 
-    
-    protected void UseSqLite(string scriptsDirectory="MacroScripts")
+
+    private void UseSqLite(string scriptsDirectory = "MacroScripts")
     {
         _meadowConfigurationAssemblies.Clear();
         _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqLiteMeadowAssembly());
 
-        _connectionString = ExampleConnectionString.GetSqLiteConnectionString(DatabaseName);
+        var executablePath = new FileInfo(typeof(MeadowFunctionalTest).Assembly.Location).Directory?.FullName
+                             ?? Environment.CurrentDirectory;
+        
+        _connectionString = ExampleConnectionString.GetSqLiteConnectionString(DatabaseName,executablePath);
 
         MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
-            
+
         DatabaseName = "SqLite";
 
-        UpdateConfigurations();
+        UpdateConfigurations(scriptsDirectory);
     }
-    
-    protected void UseMySql(string scriptsDirectory="MacroScripts")
+
+    private void UseMySql(string scriptsDirectory = "MacroScripts")
+    {
+        _meadowConfigurationAssemblies.Clear();
+        _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMySqlMeadowAssembly());
+
+        _connectionString = ExampleConnectionString.GetMySqlConnectionString(DatabaseName);
+
+        MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
+
+        DatabaseName = "My Sql";
+
+        UpdateConfigurations(scriptsDirectory);
+    }
+
+    public void UseSqlServer(string scriptsDirectory = "MacroScripts")
+    {
+        _meadowConfigurationAssemblies.Clear();
+        _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqlServerMeadowAssembly());
+
+        _connectionString = ExampleConnectionString.GetSqlServerConnectionString(DatabaseName);
+
+        MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
+
+        DatabaseName = "Sql Server";
+
+        UpdateConfigurations(scriptsDirectory);
+    }
+
+    private void UsePostgre(string scriptsDirectory = "MacroScripts")
+    {
+        _meadowConfigurationAssemblies.Clear();
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetPostgreMeadowAssembly());
+
+        _connectionString = ExampleConnectionString.GetPostgresConnectionString(DatabaseName);
+
+        MeadowEngine.UseDataAccess(new CoreProvider<PostgreDataAccessCore>());
+
+        DatabaseName = "Postgre";
+
+        UpdateConfigurations(scriptsDirectory);
+    }
+
+    private void UpdateConfigurations(string scriptsDirectory)
+    {
+        var executablePath = new FileInfo(typeof(MeadowFunctionalTest).Assembly.Location).Directory?.FullName
+                             ?? Environment.CurrentDirectory;
+
+        var sd = Path.Combine(executablePath, scriptsDirectory);
+
+        _meadowConfigurationAssemblies.Add(typeof(MeadowFunctionalTest).Assembly);
+
+        Configuration = new MeadowConfiguration
         {
-            _meadowConfigurationAssemblies.Clear();
-            _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
-            _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMySqlMeadowAssembly());
+            ConnectionString = _connectionString,
+            BuildupScriptDirectory = sd,
+            MacroPolicy = MacroPolicies.InterpretAtRuntimeWriteDebugFiles,
+            MacroContainingAssemblies = new List<Assembly>(_meadowConfigurationAssemblies)
+        };
+    }
 
-            _scriptsDirectory = scriptsDirectory;
-
-            _connectionString = ExampleConnectionString.GetMySqlConnectionString(DatabaseName);
-
-            MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
-
-            DatabaseName = "My Sql";
-            
-            UpdateConfigurations();
-        }
-
-        protected void UseSqlServer(string scriptsDirectory="MacroScripts")
+    public void SelectDatabase(Databases database, string scriptsDirectory = "MacroScripts")
+    {
+        if (database == Databases.SqLite)
         {
-            _meadowConfigurationAssemblies.Clear();
-            _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-            _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
-            _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqlServerMeadowAssembly());
-
-            _scriptsDirectory = scriptsDirectory;
-
-            _connectionString = ExampleConnectionString.GetSqlServerConnectionString(DatabaseName);
-
-            MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
-            
-            DatabaseName = "Sql Server";
-            
-            UpdateConfigurations();
+            UseSqLite(scriptsDirectory);
         }
-
-        protected void UsePostgre(string scriptsDirectory="MacroScripts")
+        else if (database == Databases.MySql)
         {
-            _meadowConfigurationAssemblies.Clear();
-            _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
-            _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetPostgreMeadowAssembly());
-
-            _scriptsDirectory = scriptsDirectory;
-
-            _connectionString = ExampleConnectionString.GetPostgresConnectionString(DatabaseName);
-
-            MeadowEngine.UseDataAccess(new CoreProvider<PostgreDataAccessCore>());
-            
-            DatabaseName = "Postgre";
-            
-            UpdateConfigurations();
+            UseMySql(scriptsDirectory);
         }
-        
-        private void UpdateConfigurations()
+        else if (database == Databases.SqlServer)
         {
-            
-            var executablePath = new FileInfo(typeof(MeadowFunctionalTest).Assembly.Location).Directory?.FullName
-                                 ?? Environment.CurrentDirectory;
-            
-            var sd = _scriptsDirectory = Path.Combine(executablePath, _scriptsDirectory);
-            
-            _meadowConfigurationAssemblies.Add(typeof(MeadowFunctionalTest).Assembly);
-            
-            Configuration = new MeadowConfiguration
-            {
-                ConnectionString = _connectionString,
-                BuildupScriptDirectory = sd,
-                MacroPolicy = MacroPolicies.InterpretAtRuntimeWriteDebugFiles,
-                MacroContainingAssemblies = new List<Assembly>(_meadowConfigurationAssemblies)
-            };
-            
+            UseSqlServer(scriptsDirectory);
         }
-        
-        public void SelectDatabase(Databases database, string scriptsDirectory="MacroScripts")
+        else if (database == Databases.Postgre)
         {
-            if (database == Databases.SqLite)
-            {
-                UseSqLite(scriptsDirectory);
-            }
-            else if (database == Databases.MySql)
-            {
-                UseMySql(scriptsDirectory);
-            }
-            else if (database == Databases.SqlServer)
-            {
-                UseSqlServer(scriptsDirectory);
-            }
-            else if (database == Databases.Postgre)
-            {
-                UsePostgre(scriptsDirectory);
-            }
+            UsePostgre(scriptsDirectory);
         }
+    }
 
-        
-        public MeadowEngine CreateEngine(Action<MeadowConfiguration> configure = null)
-        {
-            if (configure is { } c) c(Configuration);
 
-            return new MeadowEngine(Configuration);
-        }
+    public MeadowEngine CreateEngine(Action<MeadowConfiguration> configure = null)
+    {
+        if (configure is { } c) c(Configuration);
+
+        return new MeadowEngine(Configuration);
+    }
 }
