@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -121,8 +122,13 @@ namespace Meadow.SQLite
             });
         }
 
+
+        private static readonly SemaphoreSlim DatabaseAccessLock = new SemaphoreSlim(1, 1);
+
         private bool TryDbFile(MeadowConfiguration configuration, Func<string, bool> code)
         {
+            DatabaseAccessLock.Wait();
+
             var conInfo = new ConnectionStringParser().Parse(configuration.ConnectionString);
 
             if (conInfo.ContainsKey("Data Source"))
@@ -131,7 +137,11 @@ namespace Meadow.SQLite
 
                 try
                 {
-                    return code(filename);
+                    var result = code(filename);
+
+                    DatabaseAccessLock.Release();
+
+                    return result;
                 }
                 catch (Exception e)
                 {
@@ -139,11 +149,14 @@ namespace Meadow.SQLite
                 }
             }
 
+            DatabaseAccessLock.Release();
             return false;
         }
 
         private async Task<bool> TryDbFileAsync(MeadowConfiguration configuration, Func<string, Task<bool>> code)
         {
+            await DatabaseAccessLock.WaitAsync();
+
             var conInfo = new ConnectionStringParser().Parse(configuration.ConnectionString);
 
             if (conInfo.ContainsKey("Data Source"))
@@ -152,13 +165,19 @@ namespace Meadow.SQLite
 
                 try
                 {
-                    return await code(filename);
+                    var result = await code(filename);
+
+                    DatabaseAccessLock.Release();
+
+                    return result;
                 }
                 catch (Exception e)
                 {
                     Logger.LogError(e, "{Exception}", e);
                 }
             }
+
+            DatabaseAccessLock.Release();
 
             return false;
         }
@@ -201,10 +220,7 @@ namespace Meadow.SQLite
         {
             var exists = false;
 
-            TryDbFile(configuration, file =>
-            {
-                exists = File.Exists(file);
-            });
+            TryDbFile(configuration, file => { exists = File.Exists(file); });
 
             return exists;
         }
@@ -213,10 +229,7 @@ namespace Meadow.SQLite
         {
             var exists = false;
 
-            await TryDbFileAsync(configuration, async file =>
-            {
-                exists = File.Exists(file);
-            });
+            await TryDbFileAsync(configuration, async file => { exists = File.Exists(file); });
 
             return exists;
         }
@@ -303,7 +316,8 @@ namespace Meadow.SQLite
         {
             var type = typeof(TModel);
 
-            var script = new ReadSequenceProcedureSnippetGenerator(type, configuration, false, 1, false).Generate().Text;
+            var script = new ReadSequenceProcedureSnippetGenerator(type, configuration, false, 1, false).Generate()
+                .Text;
 
             script = ClearGo(script);
 
@@ -321,7 +335,8 @@ namespace Meadow.SQLite
 
         public override void CreateReadAllProcedure<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
+            var script = new ReadProcedureSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate()
+                .Text;
 
             var request = new SqlRequest(script);
 
@@ -330,7 +345,8 @@ namespace Meadow.SQLite
 
         public override async Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration)
         {
-            var script = new ReadProcedureSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate().Text;
+            var script = new ReadProcedureSnippetGeneratorPlainOnly(typeof(TModel), configuration, false).Generate()
+                .Text;
 
             var request = new SqlRequest(script);
 
