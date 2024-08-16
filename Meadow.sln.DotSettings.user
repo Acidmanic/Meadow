@@ -13,6 +13,8 @@
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=da5273dc_002D1b23_002D4db0_002Da425_002D6db394d9533d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="FindPagedSuit" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.FindPagedSuit&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit.SqLite_ShouldBeAbleTo_Create_Successively&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	

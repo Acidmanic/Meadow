@@ -88,7 +88,7 @@ public class MeadowEngineSetup
         UpdateConfigurations(scriptsDirectory);
     }
 
-    public void UseSqlServer(string scriptsDirectory = "MacroScripts")
+    private void UseSqlServer(string scriptsDirectory = "MacroScripts")
     {
         _meadowConfigurationAssemblies.Clear();
         _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());

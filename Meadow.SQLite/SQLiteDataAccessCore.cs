@@ -22,6 +22,8 @@ namespace Meadow.SQLite
 {
     public class SqLiteDataAccessCore : MeadowDataAccessCoreBase<IDbCommand, IDataReader>
     {
+        private static readonly SemaphoreSlim DatabaseAccessLock = new SemaphoreSlim(1, 1);
+
         protected override IStandardDataStorageAdapter<IDbCommand, IDataReader> DataStorageAdapter { get; set; }
 
         protected override IStorageCommunication<IDbCommand, IDataReader> StorageCommunication { get; set; }
@@ -55,6 +57,8 @@ namespace Meadow.SQLite
                     throw new Exception("The Database already exists");
                 }
 
+                configuration.GetSqLiteProcedureManager().DropStoredRoutines();
+                
                 PerformRequest(new CreateDatabaseRequest(), configuration);
             });
         }
@@ -67,6 +71,7 @@ namespace Meadow.SQLite
                 {
                     throw new Exception("The Database already exists");
                 }
+                configuration.GetSqLiteProcedureManager().DropStoredRoutines();
 
                 await PerformRequestAsync(new CreateDatabaseRequest(), configuration);
             });
@@ -78,6 +83,8 @@ namespace Meadow.SQLite
             {
                 if (!File.Exists(file))
                 {
+                    configuration.GetSqLiteProcedureManager().DropStoredRoutines();
+                    
                     PerformRequest(new CreateDatabaseRequest(), configuration);
 
                     return true;
@@ -93,6 +100,8 @@ namespace Meadow.SQLite
             {
                 if (!File.Exists(file))
                 {
+                    configuration.GetSqLiteProcedureManager().DropStoredRoutines();
+                    
                     await PerformRequestAsync(new CreateDatabaseRequest(), configuration);
 
                     return true;
@@ -122,8 +131,6 @@ namespace Meadow.SQLite
             });
         }
 
-
-        private static readonly SemaphoreSlim DatabaseAccessLock = new SemaphoreSlim(1, 1);
 
         private bool TryDbFile(MeadowConfiguration configuration, Func<string, bool> code)
         {

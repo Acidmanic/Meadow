@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Test.Functional.GenericRequests;
@@ -14,9 +15,8 @@ namespace Meadow.Test.Functional.TestEnvironment;
 
 public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new()
 {
-
     public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
-    
+
     private Action<MeadowConfiguration> _updateConfigurations = _ => { };
 
 
@@ -101,9 +101,12 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
     public void Perform(Databases database, Action<ISuitContext> env)
         => Perform(database, new ConsoleLogger().Shorten().EnableAll(), env);
 
+
+    private static readonly object PerformLock = new();
+
+
     public void Perform(Databases database, ILogger logger, Action<ISuitContext> env)
     {
-
         var engineSetup = new MeadowEngineSetup();
 
         engineSetup.SelectDatabase(database);
@@ -131,6 +134,6 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var data = CaseData.Create(rawDataSets);
 
-        env(new Context(engine, data,TransliterationService));
+        env(new Context(engine, data, TransliterationService));
     }
 }
