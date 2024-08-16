@@ -11,6 +11,7 @@ using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Search.Contracts;
 using Meadow.Test.Functional.Search.Services;
+using Meadow.Test.Functional.TestEnvironment;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
 
@@ -79,6 +80,14 @@ namespace Meadow.Test.Functional
             Seed(engine, Jobs);
             Seed(engine, Persons);
             Seed(engine, Addresses);
+        }
+        
+        protected void SeedDataSets(MeadowEngine engine, List<List<object>> data)
+        {
+            foreach (var items in data)
+            {
+                SeedByType(engine, items);
+            }
         }
 
         protected Person[] GetPerson(Func<Person, bool> predicate) => Persons.Where(predicate).ToArray();

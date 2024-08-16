@@ -1,8 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
 using Xunit;
 
@@ -10,9 +10,9 @@ namespace Meadow.Test.Functional.Suits;
 
 public class FindPagedSuit
 {
-    private const Databases databases = Databases.SqlServer;
+    private const Databases Databases = TestEnvironment.Databases.SqlServer;
 
-    private readonly Func<Person, string> personIdentifier = p => $"{p.Name}:{p.Id}";
+    private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
 
 
     [Fact]
@@ -42,13 +42,13 @@ public class FindPagedSuit
     [Fact]
     public void Must_Paginate_Any_Combination_AsExpected()
     {
-        var env = new PersonsEnvironment();
+        var env = new PersonsEnvironment<PersonsDataProvider>();
 
-        env.Perform(databases, e =>
+        env.Perform(Databases, e =>
         {
             var all = e.FindPaged<Person>().FromStorage;
 
-            AssertX.ContainSameItems(e.GetPersons(p => true).ToList(), all);
+            AssertX.ContainSameItems(e.Data.Get<Person>(p => true).ToList(), all);
 
             for (int size = 1; size < all.Count; size++)
             {
@@ -111,7 +111,7 @@ public class FindPagedSuit
     [InlineData("Mona")]
     public void Must_Find_Only_UnDeletedResults(string deleteeName)
     {
-        var env = new PersonsEnvironment();
+        var env = new PersonsEnvironment<PersonsDataProvider>();
 
         env.RegulateMeadowConfigurations(configurations =>
         {
@@ -119,59 +119,59 @@ public class FindPagedSuit
         });
         
         
-        env.Perform(databases, e =>
+        env.Perform(Databases, e =>
         {
             e.Update<Person>(p => p.Name == deleteeName, p => p.IsDeleted = true);
 
-            var expectedResult = e.GetPersons(p => p.Name != deleteeName).ToList();
+            var expectedResult = e.Data.Get<Person>(p => p.Name != deleteeName).ToList();
 
             var found = e.FindPaged<Person>().FromStorage;
 
-            AssertX.ContainSameItems(expectedResult, found, personIdentifier);
+            AssertX.ContainSameItems(expectedResult, found, _personIdentifier);
         });
     }
 
 
     private void FindPagedMustFindExpectedItemsForGivenSearchTerms(Func<Person, bool> predicate, params string[] searchTerms)
     {
-        var env = new PersonsEnvironment();
+        var env = new PersonsEnvironment<PersonsDataProvider>();
 
-        env.Perform(databases, e =>
+        env.Perform(Databases, e =>
         {
-            e.Index(e.GetPersons(p => true));
+            e.Index(e.Data.Get<Person>(p => true));
 
             var terms = e.Transliterate(searchTerms);
 
-            var expectedResult = e.GetPersons(predicate).ToList();
+            var expectedResult = e.Data.Get(predicate).ToList();
 
             var found = e.FindPaged<Person>(searchTerms: terms).FromStorage;
 
-            AssertX.ContainSameItems(expectedResult, found, personIdentifier);
+            AssertX.ContainSameItems(expectedResult, found, _personIdentifier);
         });
     }
 
 
     private void FindPagedMustFilterRecords(Action<FilterQueryBuilder<Person>> qb, Func<Person, bool> predicate)
     {
-        var env = new PersonsEnvironment();
+        var env = new PersonsEnvironment<PersonsDataProvider>();
 
-        env.Perform(databases, e =>
+        env.Perform(Databases, e =>
         {
             var found = e.FindPaged(qb).FromStorage;
 
-            AssertX.ContainSameItems(e.GetPersons(predicate).ToList(), found, personIdentifier);
+            AssertX.ContainSameItems(e.Data.Get(predicate).ToList(), found, _personIdentifier);
         });
     }
 
     private void FindPagedMustPerformCorrectSorting(Comparison<Person> expectedComparer, Action<OrderSetBuilder<Person>> buildActualOrders)
     {
-        var env = new PersonsEnvironment();
+        var env = new PersonsEnvironment<PersonsDataProvider>();
 
-        env.Perform(databases, e =>
+        env.Perform(Databases, e =>
         {
             var found = e.FindPaged(order: buildActualOrders).FromStorage;
 
-            var expected = e.GetSorted(expectedComparer);
+            var expected = e.Data.Get(expectedComparer);
 
             AssertX.AreSameSize(expected, found, "Read items does not match with expectations");
 

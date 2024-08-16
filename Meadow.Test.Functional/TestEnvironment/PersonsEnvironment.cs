@@ -7,10 +7,11 @@ using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
+using Org.BouncyCastle.Crypto.Prng;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
-public class PersonsEnvironment : PersonUseCaseTestBase
+public class PersonsEnvironment<TCaseProvider> : PersonUseCaseTestBase where TCaseProvider:ICaseDataProvider , new()
 {
     protected override void SelectDatabase()
     {
@@ -47,15 +48,15 @@ public class PersonsEnvironment : PersonUseCaseTestBase
 
     private class Environment : IPersonsEnvironment
     {
-        private PersonsEnvironment parent;
-        private Person[] persons;
+        private PersonsEnvironment<TCaseProvider> parent;
         public MeadowEngine Engine { get; private set; }
+        public CaseData Data { get; }
 
-        public Environment(MeadowEngine engine, Person[] persons, PersonsEnvironment parent)
+        public Environment(MeadowEngine engine, PersonsEnvironment<TCaseProvider> parent, CaseData data)
         {
             this.Engine = engine;
-            this.persons = persons;
             this.parent = parent;
+            Data = data;
         }
 
         public string[] Transliterate(params string[] searchTerms) => parent.Transliterate(searchTerms);
@@ -80,8 +81,6 @@ public class PersonsEnvironment : PersonUseCaseTestBase
             return response as FindPagedRequest<TModel>;
         }
 
-        public Person[] GetPersons(Func<Person, bool> predicate) => persons.Where(predicate).ToArray();
-        public List<Person> GetSorted(Comparison<Person> compare) => Sort(persons, compare);
         public void Index<TModel>(IEnumerable<TModel> items) => MeadowMultiDatabaseTestBase.Index(Engine, items);
 
         public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update) where TModel : class, new()
@@ -143,8 +142,16 @@ public class PersonsEnvironment : PersonUseCaseTestBase
 
         engine.BuildUpDatabase();
 
-        Seed(engine);
+        var dataProvider = new TCaseProvider();
 
-        env(new Environment(engine, Persons, this));
+        dataProvider.Initialize();
+        
+        var rawDataSets = dataProvider.SeedSet;
+        
+        SeedDataSets(engine,rawDataSets);
+        
+        var data = CaseData.Create(rawDataSets);
+        
+        env(new Environment(engine, this,data));
     }
 }

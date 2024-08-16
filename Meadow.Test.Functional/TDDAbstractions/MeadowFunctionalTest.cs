@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -16,6 +17,7 @@ using Meadow.SqlServer;
 using Meadow.Test.Functional.Models;
 using Meadow.Utility;
 using Microsoft.Extensions.Logging;
+using Xunit;
 
 namespace Meadow.Test.Functional.TDDAbstractions
 {
@@ -55,11 +57,34 @@ namespace Meadow.Test.Functional.TDDAbstractions
             DbName = dbName;
         }
 
+
+        private Type GetTestSuitType()
+        {
+            var stack = new StackTrace();
+
+            foreach (var stackFrame in stack.GetFrames())
+            {
+                if (stackFrame.GetMethod() is { } m)
+                {
+                    if (m.GetCustomAttribute<FactAttribute>() is { }
+                        || m.GetCustomAttribute<TheoryAttribute>() is { })
+                    {
+                        if (m.DeclaringType is {} t) return t; 
+                    }
+                }                
+            }
+
+            return GetType();
+        }
+        
+        
         protected MeadowFunctionalTest()
         {
             new TestLogger().UseForMeadow();
 
-            DbName = GetType().Name + "Db2BeDeleted";
+            var type = GetTestSuitType();
+            
+            DbName = type.Name + "Db2BeDeleted";
 
             Console.WriteLine($@"****Database: '{DbName}' is being used for this test.*****");
         }
