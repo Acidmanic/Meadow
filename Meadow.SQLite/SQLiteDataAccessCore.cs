@@ -52,11 +52,17 @@ namespace Meadow.SQLite
         {
             TryDbFile(configuration, file =>
             {
-                if (File.Exists(file))
+                if (string.IsNullOrWhiteSpace(file)) throw new Exception("Could not find data source file");
+
+                var dbFile = file!;
+                
+                if (File.Exists(dbFile))
                 {
                     throw new Exception("The Database already exists");
                 }
 
+                File.Create(dbFile);
+                
                 configuration.GetSqLiteProcedureManager().DropStoredRoutines();
                 
                 PerformRequest(new CreateDatabaseRequest(), configuration);

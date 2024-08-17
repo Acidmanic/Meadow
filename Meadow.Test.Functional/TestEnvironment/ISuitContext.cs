@@ -11,6 +11,8 @@ public interface ISuitContext
     MeadowEngine Engine { get; }
     
     CaseData Data { get; }
+    
+    public string DatabaseName { get; }
 
     FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null, int offset = 0,
         int size = 1000, Action<OrderSetBuilder<TModel>> order = null, params string[] searchTerms)

@@ -18,28 +18,29 @@ namespace Meadow.SQLite
         public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable,
             MeadowConfiguration configuration, bool returnsValue)
         {
-            using (var connection = new SqliteConnection(configuration.ConnectionString))
+            using var connection = new SqliteConnection(configuration.ConnectionString);
+            
+            carrier.Connection = connection;
+
+            connection.Open();
+
+            if (returnsValue)
             {
-                carrier.Connection = connection;
+                var reader = carrier.ExecuteReader();
 
-                connection.Open();
-
-                if (returnsValue)
-                {
-                    var reader = carrier.ExecuteReader();
-
-                    onDataAvailable(reader);
-                }
-                else
-                {
-                    carrier.ExecuteNonQuery();
-                }
+                onDataAvailable(reader);
             }
+            else
+            {
+                carrier.ExecuteNonQuery();
+            }
+            
         }
 
         public Task CommunicateAsync(IDbCommand carrier, Action<IDataReader> onDataAvailable,
             MeadowConfiguration configuration, bool returnsValue)
         {
+            
             return Task.Run(() => Communicate(carrier, onDataAvailable, configuration, returnsValue));
         }
     }

@@ -32,11 +32,14 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public MeadowEngine Engine { get; }
         public CaseData Data { get; }
 
-        public Context(MeadowEngine engine, CaseData data, ITransliterationService transliterationService)
+        public string DatabaseName { get; }
+        
+        public Context(MeadowEngine engine, CaseData data, ITransliterationService transliterationService, string databaseName)
         {
             this.Engine = engine;
             Data = data;
             _transliterationService = transliterationService;
+            DatabaseName = databaseName;
         }
 
         public string[] Transliterate(params string[] searchTerms)
@@ -139,6 +142,6 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var data = CaseData.Create(rawDataSets);
 
-        env(new Context(engine, data, TransliterationService));
+        env(new Context(engine, data, TransliterationService,engineSetup.DatabaseName));
     }
 }

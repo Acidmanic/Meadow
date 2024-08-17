@@ -22,7 +22,10 @@ public class MeadowEngineSetup
     // private string _scriptsDirectory;
     private readonly List<Assembly> _meadowConfigurationAssemblies = new List<Assembly>();
 
-    public string DatabaseName { get; private set; }
+    public string DatabaseName { get; }
+    
+    public string DatabaseDisplayName { get; private set; }
+    
     public MeadowConfiguration Configuration { get; private set; }
 
     public MeadowEngineSetup()
@@ -67,7 +70,7 @@ public class MeadowEngineSetup
 
         MeadowEngine.UseDataAccess(new CoreProvider<SqLiteDataAccessCore>());
 
-        DatabaseName = "SqLite";
+        DatabaseDisplayName = "SqLite";
 
         UpdateConfigurations(scriptsDirectory);
     }
@@ -83,7 +86,7 @@ public class MeadowEngineSetup
 
         MeadowEngine.UseDataAccess(new CoreProvider<MySqlDataAccessCore>());
 
-        DatabaseName = "My Sql";
+        DatabaseDisplayName = "My Sql";
 
         UpdateConfigurations(scriptsDirectory);
     }
@@ -99,7 +102,7 @@ public class MeadowEngineSetup
 
         MeadowEngine.UseDataAccess(new CoreProvider<SqlServerDataAccessCore>());
 
-        DatabaseName = "Sql Server";
+        DatabaseDisplayName = "Sql Server";
 
         UpdateConfigurations(scriptsDirectory);
     }
@@ -114,7 +117,7 @@ public class MeadowEngineSetup
 
         MeadowEngine.UseDataAccess(new CoreProvider<PostgreDataAccessCore>());
 
-        DatabaseName = "Postgre";
+        DatabaseDisplayName = "Postgre";
 
         UpdateConfigurations(scriptsDirectory);
     }
