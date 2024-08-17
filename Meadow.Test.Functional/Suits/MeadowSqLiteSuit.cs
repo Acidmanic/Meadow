@@ -92,13 +92,15 @@ public class MeadowSqLiteSuit
     {
         for (int i = 0; i < 5; i++)
         {
+            _helper.WriteLine("Starting Round: {0}...", i);
+            
             var environment = new Environment<PersonsDataProvider>();
             
             environment.Perform(Databases.SqLite,new LoggerAdapter(_helper.WriteLine), e =>
             {
                 var persons = e.FindPaged<Person>();
                 
-                _helper.WriteLine("Read {0} Persons",persons.FromStorage.Count);
+                _helper.WriteLine("Round: {0} Read {1} Persons",i,persons.FromStorage.Count);
             });
 
             _helper.WriteLine("Round: {0} Performed Successfully", i);
