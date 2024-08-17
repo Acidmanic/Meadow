@@ -16,6 +16,7 @@ using Meadow.SQLite.ProcedureProcessing;
 using Meadow.SQLite.Requests;
 using Meadow.SQLite.SqlScriptsGenerators;
 using Meadow.Utility;
+using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.SQLite
@@ -30,6 +31,8 @@ namespace Meadow.SQLite
 
         public SqLiteDataAccessCore()
         {
+            SqliteConnection.ClearAllPools();
+            
             AddCarrierInterceptor(new SqLiteCommandInterceptor());
         }
 

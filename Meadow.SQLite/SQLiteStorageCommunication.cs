@@ -18,6 +18,7 @@ namespace Meadow.SQLite
         public void Communicate(IDbCommand carrier, Action<IDataReader> onDataAvailable,
             MeadowConfiguration configuration, bool returnsValue)
         {
+            
             using var connection = new SqliteConnection(configuration.ConnectionString);
             
             carrier.Connection = connection;
@@ -29,6 +30,8 @@ namespace Meadow.SQLite
                 var reader = carrier.ExecuteReader();
 
                 onDataAvailable(reader);
+                
+                reader.Close();
             }
             else
             {
@@ -44,6 +47,7 @@ namespace Meadow.SQLite
         {
             await using var connection = new SqliteConnection(configuration.ConnectionString);
             
+            
             carrier.Connection = connection;
 
             await connection.OpenAsync();
@@ -53,6 +57,8 @@ namespace Meadow.SQLite
                 var reader = carrier.ExecuteReader();
 
                 onDataAvailable(reader);
+                
+                reader.Close();
             }
             else
             {

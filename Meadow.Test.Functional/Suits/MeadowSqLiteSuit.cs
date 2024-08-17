@@ -1,7 +1,7 @@
+using System;
 using System.IO;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
-using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Test.Functional.TestEnvironment;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Microsoft.Extensions.Logging.LightWeight;
@@ -104,7 +104,16 @@ public class MeadowSqLiteSuit
             });
 
             _helper.WriteLine("Round: {0} Performed Successfully", i);
+            
+            GC.Collect();
         }
+    }
+    
+    
+    [Fact]
+    public void SqLite_ShouldNOTBeAbleTo_CallProcedures_AfterDrop()
+    {
+       
     }
 
 
