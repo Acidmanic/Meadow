@@ -117,7 +117,7 @@ AS
     SELECT {_keyColumns} FROM {_keyTableName}
     LEFT JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression){_keyEntityFilterSegment}
-    ORDER BY (&@OrderExpression) LIMIT @Offset,@Size;
+    ORDER BY &@OrderExpression LIMIT @Offset,@Size;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();

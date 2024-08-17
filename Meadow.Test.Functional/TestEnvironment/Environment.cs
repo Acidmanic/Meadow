@@ -62,8 +62,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms,
                 ordersBuilder.Build());
 
-            var response = Engine
-                .PerformRequest(request);
+            var response = Engine.PerformRequest(request);
 
             if (response.Failed) throw response.FailureException;
 
