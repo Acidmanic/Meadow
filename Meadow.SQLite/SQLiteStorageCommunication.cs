@@ -35,13 +35,31 @@ namespace Meadow.SQLite
                 carrier.ExecuteNonQuery();
             }
             
+            connection.Close();
+            
         }
 
-        public Task CommunicateAsync(IDbCommand carrier, Action<IDataReader> onDataAvailable,
+        public async Task CommunicateAsync(IDbCommand carrier, Action<IDataReader> onDataAvailable,
             MeadowConfiguration configuration, bool returnsValue)
         {
+            await using var connection = new SqliteConnection(configuration.ConnectionString);
             
-            return Task.Run(() => Communicate(carrier, onDataAvailable, configuration, returnsValue));
+            carrier.Connection = connection;
+
+            await connection.OpenAsync();
+
+            if (returnsValue)
+            {
+                var reader = carrier.ExecuteReader();
+
+                onDataAvailable(reader);
+            }
+            else
+            {
+                carrier.ExecuteNonQuery();
+            }
+            
+            await connection.CloseAsync();
         }
     }
 }
