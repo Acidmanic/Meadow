@@ -11,6 +11,7 @@ using Xunit.Sdk;
 
 namespace Meadow.Test.Functional.Suits;
 
+[Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class MeadowSqLiteSuit
 {
     private readonly ITestOutputHelper _helper;

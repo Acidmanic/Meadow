@@ -8,6 +8,7 @@ using Xunit;
 
 namespace Meadow.Test.Functional.Suits;
 
+[Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class FindPagedSuit
 {
     private const Databases Databases = TestEnvironment.Databases.SqLite;
