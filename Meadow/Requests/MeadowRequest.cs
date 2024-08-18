@@ -4,6 +4,7 @@ using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.Transliteration;
 using Meadow.Utility;
 
 namespace Meadow.Requests
@@ -93,6 +94,11 @@ namespace Meadow.Requests
         internal void SetConfigurations(MeadowConfiguration configuration)
         {
             Configuration = configuration;
+        }
+
+        protected IndexCorpusService<T> GetIndexingCorpusService<T>()
+        {
+            return new IndexCorpusService<T>(Configuration.TransliterationService);
         }
     }
 
