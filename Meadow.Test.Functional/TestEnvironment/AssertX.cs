@@ -4,12 +4,13 @@ using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
 public static class AssertX
 {
-    public static void ContainSameItems<T>(List<T> expectedItems, List<T> actualItems, Func<T, string> toString = null)
+    public static void ContainSameItemsShallow<T>(List<T> expectedItems, List<T> actualItems, Func<T, string> toString = null)
     {
         toString ??= (T t) => t.ToString();
 
@@ -20,15 +21,40 @@ public static class AssertX
 
         AreSameSize(expectedItems, actualItems, "UnExpected extra Items has been found In Actual items list.");
     }
+    
+    public static void ContainSameItemsDeep<T>(List<T> expectedItems, List<T> actualItems, Func<T, string> toString = null)
+    {
+        toString ??= (T t) => t.ToString();
+
+        foreach (var item in expectedItems)
+        {
+            ContainDeep(actualItems, item, $"Item: {toString(item)} was not found in the result");
+        }
+
+        AreSameSize(expectedItems, actualItems, "UnExpected extra Items has been found In Actual items list.");
+    }
 
 
-    public static void InSameOrder<T>(List<T> expected, List<T> actual, Func<T, string> toString = null)
+    public static void InSameOrderShallow<T>(List<T> expected, List<T> actual, Func<T, string> toString = null)
     {
         toString ??= (T t) => t.ToString();
 
         for (int i = 0; i < expected.Count; i++)
         {
             if (!AreEqualShallow(expected[i], actual[i]))
+            {
+                throw new Exception($"Expected to find {toString(expected[i])} at {i}'th place, but found {toString(actual[i])}");
+            }
+        }
+    }
+    
+    public static void InSameOrderDeep<T>(List<T> expected, List<T> actual, Func<T, string> toString = null)
+    {
+        toString ??= (T t) => t.ToString();
+
+        for (int i = 0; i < expected.Count; i++)
+        {
+            if (!AreEqualDeep(expected[i], actual[i]))
             {
                 throw new Exception($"Expected to find {toString(expected[i])} at {i}'th place, but found {toString(actual[i])}");
             }
@@ -50,16 +76,38 @@ public static class AssertX
             throw new Exception(message);
         }
     }
+    public static void ContainDeep<T>(List<T> found, T person, string message)
+    {
+        if (found.All(f => !AreEqualDeep(f, person)))
+        {
+            throw new Exception(message);
+        }
+    }
 
     public static bool AreEqualShallow<T>(T p1, T p2, bool ignoreId = true)
+        => AreEqual(p1, p2, o => o.DirectLeavesOnly().UseOriginalTypes().ExcludeNulls(), ignoreId);
+
+    public static bool AreEqualDeep<T>(T p1, T p2, bool ignoreId = true)
+        => AreEqual(p1, p2, o => o.FullTree().UseOriginalTypes().ExcludeNulls(), ignoreId);
+
+    private static bool AreEqual<T>(T p1, T p2, Action<IStandardConversionOptionsBuilder> o, bool ignoreId = true)
     {
-        var idLeaf = TypeIdentity.FindIdentityLeaf<T>();
+        var tev = new ObjectEvaluator(typeof(T));
+
+        var idLeaves = tev.Map.Nodes.Select(n => n.Type)
+            .Where(t => TypeCheck.IsModel(t))
+            .Select(TypeIdentity.FindIdentityLeaf)
+            .Where(n => n is { })
+            .Select(n => n.GetFullName())
+            .ToList();
+
+        bool IsId(string n) => idLeaves.Any(i => string.CompareOrdinal(i, n) == 0);
 
         var e1 = new ObjectEvaluator(p1);
         var e2 = new ObjectEvaluator(p2);
 
-        var s1 = e1.ToStandardFlatData(o => o.DirectLeavesOnly().UseOriginalTypes().ExcludeNulls());
-        var s2 = e2.ToStandardFlatData(o => o.DirectLeavesOnly().UseOriginalTypes().ExcludeNulls());
+        var s1 = e1.ToStandardFlatData(o);
+        var s2 = e2.ToStandardFlatData(o);
 
         if (s1.Count != s2.Count) return false;
 
@@ -69,9 +117,9 @@ public static class AssertX
 
             var identifier = s1[i].Identifier;
 
-            if (!(ignoreId && idLeaf is { } idl &&  identifier == idl.GetFullName()))
+            if (!(ignoreId && IsId(identifier)))
             {
-                if (!AreEqualObjects(s1[i].Value,s2[i].Value)) return false;
+                if (!AreEqualObjects(s1[i].Value, s2[i].Value)) return false;
             }
         }
 
@@ -96,9 +144,9 @@ public static class AssertX
 
         if (equalCheck is { } check)
         {
-            return (bool) (check.Invoke(o1, new[] { o2 }) ?? false);
+            return (bool)(check.Invoke(o1, new[] { o2 }) ?? false);
         }
-        
+
         return o1 == o2;
     }
 }

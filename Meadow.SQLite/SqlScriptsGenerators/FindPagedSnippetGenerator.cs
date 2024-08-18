@@ -31,9 +31,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         }
 
         private readonly string _keyFindPagedProcedureName = GenerateKey();
-        private readonly string _keyFilterProcedureNameFullTree = GenerateKey();
-        private readonly string _keyReadChunkProcedureName = GenerateKey();
-        private readonly string _keyReadChunkProcedureNameFullTree = GenerateKey();
+        private readonly string _keyFindPagedProcedureNameFullTree = GenerateKey();
 
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyFullTreeView = GenerateKey();
@@ -56,18 +54,17 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         {
             replacementList.Add(_keyFindPagedProcedureName,
                 ProcessedType.NameConvention.FindPagedProcedureName);
-            replacementList.Add(_keyFilterProcedureNameFullTree,
-                ProcessedType.NameConvention.PerformFilterIfNeededProcedureNameFullTree);
-
-            replacementList.Add(_keyReadChunkProcedureName, ProcessedType.NameConvention.ReadChunkProcedureName);
-            replacementList.Add(_keyReadChunkProcedureNameFullTree,
-                ProcessedType.NameConvention.ReadChunkProcedureNameFullTree);
-
+            
+            replacementList.Add(_keyFindPagedProcedureNameFullTree,
+                ProcessedType.NameConvention.FindPagedProcedureNameFullTree);
+            
             replacementList.Add(_keyTableName, ProcessedType.NameConvention.TableName);
+            
             replacementList.Add(_keyFullTreeView, ProcessedType.NameConvention.FullTreeViewName);
 
             replacementList.Add(_keyIdFieldName,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Name : "[NO-ID-FIELD]");
+            
             replacementList.Add(_keyIdFieldType,
                 ProcessedType.HasId ? ProcessedType.IdParameter.Type : "[NO-ID-FIELD]");
 
@@ -97,15 +94,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE PROCEDURE {_keyIndexProcedureName}2 (@ResultId {_keyIdFieldType},@IndexCorpus TEXT) AS
-    UPDATE {_keySearchIndexTableName}  SET IndexCorpus=@IndexCorpus
-        WHERE {_keySearchIndexTableName}.ResultId=@ResultId;
-    INSERT INTO {_keySearchIndexTableName} (ResultId,IndexCorpus)
-            SELECT @ResultId,@IndexCorpus WHERE NOT EXISTS(SELECT * FROM {_keySearchIndexTableName}
-            WHERE {_keySearchIndexTableName}.ResultId=@ResultId);
-    SELECT * FROM {_keySearchIndexTableName} WHERE ROWID=LAST_INSERT_ROWID();
-    SELECT * FROM {_keySearchIndexTableName} WHERE {_keySearchIndexTableName}.ResultId=@ResultId OR ROWID = LAST_INSERT_ROWID() LIMIT 1;
-GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {_keyFindPagedProcedureName}(
                                             @Offset INTEGER,
@@ -117,6 +105,19 @@ AS
     SELECT {_keyColumns} FROM {_keyTableName}
     LEFT JOIN {_keySearchIndexTableName} ON {_keyTableName}.{_keyIdFieldName}={_keySearchIndexTableName}.ResultId
     WHERE (&@FilterExpression) AND (&@SearchExpression){_keyEntityFilterSegment}
+    ORDER BY &@OrderExpression LIMIT @Offset,@Size;
+GO
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {_keyFindPagedProcedureNameFullTree}(
+                                            @Offset INTEGER,
+                                            @Size INTEGER,
+                                            @FilterExpression TEXT,
+                                            @SearchExpression TEXT,
+                                            @OrderExpression TEXT)
+AS
+    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView}
+    LEFT JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
+    WHERE (&@FilterExpression) AND (&@SearchExpression)
     ORDER BY &@OrderExpression LIMIT @Offset,@Size;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------

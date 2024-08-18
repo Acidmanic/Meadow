@@ -49,7 +49,7 @@ public class FindPagedSuit
         {
             var all = e.FindPaged<Person>().FromStorage;
 
-            AssertX.ContainSameItems(e.Data.Get<Person>(p => true).ToList(), all);
+            AssertX.ContainSameItemsShallow(e.Data.Get<Person>(p => true).ToList(), all);
 
             for (int size = 1; size < all.Count; size++)
             {
@@ -59,7 +59,7 @@ public class FindPagedSuit
 
                     var actual = e.FindPaged<Person>(offset: offset, size: size).FromStorage;
 
-                    AssertX.ContainSameItems(expected, actual);
+                    AssertX.ContainSameItemsShallow(expected, actual);
                 }
             }
         });
@@ -128,7 +128,7 @@ public class FindPagedSuit
 
             var found = e.FindPaged<Person>().FromStorage;
 
-            AssertX.ContainSameItems(expectedResult, found, _personIdentifier);
+            AssertX.ContainSameItemsShallow(expectedResult, found, _personIdentifier);
         });
     }
 
@@ -147,7 +147,7 @@ public class FindPagedSuit
 
             var found = e.FindPaged<Person>(searchTerms: terms).FromStorage;
 
-            AssertX.ContainSameItems(expectedResult, found, _personIdentifier);
+            AssertX.ContainSameItemsShallow(expectedResult, found, _personIdentifier);
         });
     }
 
@@ -160,7 +160,7 @@ public class FindPagedSuit
         {
             var found = e.FindPaged(qb).FromStorage;
 
-            AssertX.ContainSameItems(e.Data.Get(predicate).ToList(), found, _personIdentifier);
+            AssertX.ContainSameItemsShallow(e.Data.Get(predicate).ToList(), found, _personIdentifier);
         });
     }
 
@@ -176,7 +176,7 @@ public class FindPagedSuit
 
             AssertX.AreSameSize(expected, found, "Read items does not match with expectations");
 
-            AssertX.InSameOrder(expected, found);
+            AssertX.InSameOrderShallow(expected, found);
         });
     }
 }
