@@ -123,7 +123,7 @@
 //
 //         AssertX.AreSameSize(expected, found, "Read items does not match with expectations");
 //
-//         AssertX.InSameOrderShallow(expected, found);
+//         AssertX.AreInSameOrderShallow(expected, found);
 //     }
 //     
 // }

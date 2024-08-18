@@ -16,32 +16,44 @@ public class FindPagedSuit
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
 
 
-    [Fact]
-    public void Must_Filter_Persons_OlderThan50() =>
-        FindPagedMustFilterRecords(qb => qb.Where(p => p.Age).IsLargerThan(50), p => p.Age > 50);
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Must_Filter_Persons_OlderThan50(bool fullTree) =>
+        FindPagedMustFilterRecords(qb => qb.Where(p => p.Age).IsLargerThan(50), p => p.Age > 50,fullTree);
 
-    [Fact]
-    public void Must_Filter_Persons_YoungerThan50() =>
-        FindPagedMustFilterRecords(qb => qb.Where(p => p.Age).IsSmallerThan(50), p => p.Age < 50);
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Must_Filter_Persons_YoungerThan50(bool fullTree) =>
+        FindPagedMustFilterRecords(qb => qb.Where(p => p.Age).IsSmallerThan(50), p => p.Age < 50,fullTree);
 
-    [Fact]
-    public void Must_Filter_Persons_Named_Mani() =>
-        FindPagedMustFilterRecords(qb => qb.Where(p => p.Name).IsEqualTo("Mani"), p => p.Name == "Mani");
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Must_Filter_Persons_Named_Mani(bool fullTree) =>
+        FindPagedMustFilterRecords(qb => qb.Where(p => p.Name).IsEqualTo("Mani"), p => p.Name == "Mani",fullTree);
 
-    [Fact]
-    public void Must_Filter_Persons_Named_Mina_OR_Farshid() =>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Must_Filter_Persons_Named_Mina_OR_Farshid(bool fullTree) =>
         FindPagedMustFilterRecords(qb => qb.Where(p => p.Name).IsEqualTo("Mina", "Farshid"),
-            p => p.Name == "Mina" || p.Name == "Farshid");
+            p => p.Name == "Mina" || p.Name == "Farshid",fullTree);
 
 
-    [Fact]
-    public void Must_Filter_Persons_NOT_Named_Mina_NOR_Farshid() =>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Must_Filter_Persons_NOT_Named_Mina_NOR_Farshid(bool fullTree) =>
         FindPagedMustFilterRecords(qb => qb.Where(p => p.Name).IsNotEqualTo("Mina", "Farshid"),
-            p => p.Name != "Mina" && p.Name != "Farshid");
+            p => p.Name != "Mina" && p.Name != "Farshid",fullTree);
 
 
-    [Fact]
-    public void Must_Paginate_Any_Combination_AsExpected()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void Must_Paginate_Any_Combination_AsExpected(bool fullTree)
     {
         var env = new Environment<PersonsDataProvider>();
 
@@ -49,7 +61,8 @@ public class FindPagedSuit
         {
             var all = e.FindPaged<Person>().FromStorage;
 
-            AssertX.ContainSameItemsShallow(e.Data.Get<Person>(p => true).ToList(), all);
+            AssertX.ContainSameItems(e.Data.Get<Person>(p => true).ToList(), 
+                all,_personIdentifier, true,fullTree);
 
             for (int size = 1; size < all.Count; size++)
             {
@@ -59,7 +72,7 @@ public class FindPagedSuit
 
                     var actual = e.FindPaged<Person>(offset: offset, size: size).FromStorage;
 
-                    AssertX.ContainSameItemsShallow(expected, actual);
+                    AssertX.ContainSameItems(expected, actual,_personIdentifier,true,fullTree);
                 }
             }
         });
@@ -114,12 +127,9 @@ public class FindPagedSuit
     {
         var env = new Environment<PersonsDataProvider>();
 
-        env.RegulateMeadowConfigurations(configurations =>
-        {
-            configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
-        });
-        
-        
+        env.RegulateMeadowConfigurations(configurations => { configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false)); });
+
+
         env.Perform(Databases, e =>
         {
             e.Update<Person>(p => p.Name == deleteeName, p => p.IsDeleted = true);
@@ -152,15 +162,19 @@ public class FindPagedSuit
     }
 
 
-    private void FindPagedMustFilterRecords(Action<FilterQueryBuilder<Person>> qb, Func<Person, bool> predicate)
+    private void FindPagedMustFilterRecords(Action<FilterQueryBuilder<Person>> qb, Func<Person, bool> predicate, bool fullTree)
     {
         var env = new Environment<PersonsDataProvider>();
 
         env.Perform(Databases, e =>
         {
-            var found = e.FindPaged(qb).FromStorage;
+            var found = e.FindPaged(qb, fullTree: fullTree).FromStorage;
 
-            AssertX.ContainSameItemsShallow(e.Data.Get(predicate).ToList(), found, _personIdentifier);
+            AssertX.ContainSameItems(expectedItems: e.Data.Get(predicate).ToList(),
+                actualItems:found, 
+                toString: _personIdentifier,
+                ignoreId:true,
+                deepCompare:fullTree);
         });
     }
 
@@ -176,7 +190,7 @@ public class FindPagedSuit
 
             AssertX.AreSameSize(expected, found, "Read items does not match with expectations");
 
-            AssertX.InSameOrderShallow(expected, found);
+            AssertX.AreInSameOrderShallow(expected, found);
         });
     }
 }

@@ -48,7 +48,9 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         }
 
         public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null,
-            int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null, params string[] searchTerms)
+            int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null,
+            bool fullTree = false,
+            params string[] searchTerms)
             where TModel : class
         {
             var filterQueryBuilder = new FilterQueryBuilder<TModel>();
@@ -62,7 +64,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms,
                 ordersBuilder.Build());
 
-            var response = Engine.PerformRequest(request);
+            var response = Engine.PerformRequest(request,fullTree);
 
             if (response.Failed) throw response.FailureException;
 
@@ -138,6 +140,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         var rawDataSets = dataProvider.SeedSet;
 
         SeedingUtilities.SeedDataSets(engine, rawDataSets);
+        
+        dataProvider.PostSeeding();
 
         var data = CaseData.Create(rawDataSets);
 

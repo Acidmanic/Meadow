@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.TestEnvironment;
 
@@ -9,11 +10,13 @@ public class PersonsDataProvider : ICaseDataProvider
     public void Initialize()
     {
         SeedSet.Clear();
-        
-        SeedSet.Add(new List<object>(Jobs));
-        SeedSet.Add(new List<object>(Persons));
-        SeedSet.Add(new List<object>(Addresses));
+
+        SeedSet.Add(new List<object>(jobs));
+        SeedSet.Add(new List<object>(persons));
+        SeedSet.Add(new List<object>(addresses));
     }
+
+    public void PostSeeding() => PlugDataRelations();
 
     public List<List<object>> SeedSet { get; } = new();
 
@@ -48,10 +51,10 @@ public class PersonsDataProvider : ICaseDataProvider
         };
     }
 
-    protected readonly Job[] Jobs =
+    private readonly Job[] jobs =
         { J("Mani", 100), J("Mona", 200), J("Mina", 300), J("Farshid", 400), J("Farimehr", 500) };
 
-    protected readonly Person[] Persons =
+    private readonly Person[] persons =
     {
         P("Mani", "Moayedi", 37, 1),
         P("Mona", "Moayedi", 42, 2),
@@ -60,7 +63,7 @@ public class PersonsDataProvider : ICaseDataProvider
         P("Farimehr", "Ayerian", 21, 5),
     };
 
-    protected readonly Address[] Addresses =
+    private readonly Address[] addresses =
     {
         A(1, 1),
         A(1, 2), A(2, 2),
@@ -68,4 +71,15 @@ public class PersonsDataProvider : ICaseDataProvider
         A(1, 4), A(2, 4), A(3, 4), A(4, 4),
         A(1, 5), A(2, 5), A(3, 5), A(4, 5), A(5, 5),
     };
+
+
+    private void PlugDataRelations()
+    {
+        foreach (var person in persons)
+        {
+            person.Addresses = addresses.Where(a => a.PersonId == person.Id).ToList();
+
+            person.Job = jobs.FirstOrDefault(j => person.JobId == j.Id);
+        }
+    }
 }

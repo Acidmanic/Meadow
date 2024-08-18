@@ -43,7 +43,7 @@ namespace Meadow.Test.Functional.GenericRequests
         public override string RequestText
         {
             get => FullTreeReadWrite()
-                ? Configuration.GetNameConvention<TStorage>().FindPagedProcedureName
+                ? Configuration.GetNameConvention<TStorage>().FindPagedProcedureNameFullTree
                 : Configuration.GetNameConvention<TStorage>().FindPagedProcedureName;
             protected set { }
         }
