@@ -4,6 +4,7 @@ using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
 using Meadow.Test.Functional.TestEnvironment.Utility;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.LightWeight;
 using Xunit;
 using Xunit.Abstractions;
@@ -85,6 +86,8 @@ public class MeadowSqLiteSuit
             AssertDatabaseFileExistence(true,setup.DatabaseName,true);
 
             _helper.WriteLine("Round: {0} Performed Successfully", i);
+            
+            MeadowEngine.UseLogger(NullLogger.Instance);
         }
     }
     
@@ -105,19 +108,10 @@ public class MeadowSqLiteSuit
             });
 
             _helper.WriteLine("Round: {0} Performed Successfully", i);
-            
-            GC.Collect();
         }
     }
     
     
-    [Fact]
-    public void SqLite_ShouldNOTBeAbleTo_CallProcedures_AfterDrop()
-    {
-       
-    }
-
-
     private void AssertDatabaseFileExistence(bool exists, string databaseName, bool json = false)
     {
         var directory = new FileInfo(typeof(MeadowSqLiteSuit).Assembly.Location).Directory?.FullName ?? 

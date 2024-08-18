@@ -5,7 +5,7 @@
   &lt;Assembly Path="/home/diego/.nuget/packages/acidmanic.utilities/1.0.0/lib/netstandard2.1/Acidmanic.Utilities.dll" /&gt;
   &lt;Assembly Path="/home/diego/.nuget/packages/acidmanic.utilities.reflections/1.0.2/lib/netstandard2.1/Acidmanic.Utilities.Reflection.dll" /&gt;
 &lt;/AssemblyExplorer&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3121c626_002Da467_002D4b2d_002D9e10_002Db09b41fecc1d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="FindPagedSuit" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=3121c626_002Da467_002D4b2d_002D9e10_002Db09b41fecc1d/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="FindPagedSuit" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.FindPagedSuit&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
@@ -18,26 +18,7 @@
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=fd341ca5_002D9491_002D4635_002Da84e_002D1098123aa896/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Or&gt;
-    &lt;And&gt;
-      &lt;TestAncestor&gt;
-        &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.FindPagedSuit&lt;/TestId&gt;
-      &lt;/TestAncestor&gt;
-      &lt;Project Location="/home/diego/Projects/Meadow/Meadow.Test.Functional" Presentation="&amp;lt;Meadow.Test.Functional&amp;gt;" /&gt;
-      &lt;Namespace&gt;Meadow.Test.Functional.Suits&lt;/Namespace&gt;
-      &lt;TestAncestor&gt;
-        &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.FindPagedSuit&lt;/TestId&gt;
-        &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit.SqLite_ShouldBeAbleTo_Create_Successively&lt;/TestId&gt;
-        &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit&lt;/TestId&gt;
-      &lt;/TestAncestor&gt;
-    &lt;/And&gt;
-    &lt;TestAncestor&gt;
-      &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit&lt;/TestId&gt;
-      &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.MeadowSqLiteSuit.SqLite_ShouldBeAbleTo_Create_Successively&lt;/TestId&gt;
-      &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.MeadowSqLiteSuit.SqLite_ShouldBeAbleTo_CallProcedures_Successively&lt;/TestId&gt;
-      &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.MeadowSqLiteSuit.DropDatabase_ShouldLeaveNoFile&lt;/TestId&gt;
-    &lt;/TestAncestor&gt;
-  &lt;/Or&gt;
+  &lt;Project Location="/home/diego/Documents/Meadow/Meadow.Test.Functional" Presentation="&amp;lt;Meadow.Test.Functional&amp;gt;" /&gt;
 &lt;/SessionState&gt;</s:String>
 	
 	
