@@ -59,7 +59,7 @@ public class FindPagedSuit
 
         env.Perform(Databases, e =>
         {
-            var all = e.FindPaged<Person>().FromStorage;
+            var all = e.FindPaged<Person>(fullTree:fullTree).FromStorage;
 
             AssertX.ContainSameItems(e.Data.Get<Person>(p => true).ToList(), 
                 all,_personIdentifier, true,fullTree);
@@ -70,7 +70,7 @@ public class FindPagedSuit
                 {
                     var expected = all.Skip(offset).Take(size).ToList();
 
-                    var actual = e.FindPaged<Person>(offset: offset, size: size).FromStorage;
+                    var actual = e.FindPaged<Person>(offset: offset, size: size,fullTree:fullTree).FromStorage;
 
                     AssertX.ContainSameItems(expected, actual,_personIdentifier,true,fullTree);
                 }

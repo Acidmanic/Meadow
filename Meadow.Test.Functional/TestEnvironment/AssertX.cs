@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
@@ -7,7 +6,6 @@ using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
-using Acidmanic.Utilities.Reflection.Sets;
 using Meadow.Extensions;
 
 namespace Meadow.Test.Functional.TestEnvironment;
@@ -140,91 +138,6 @@ public static class AssertX
 
         return result;
     }
-
-    private static bool ContainSameItems(object o1, object o2, Type type, bool ignoreId = true, bool fullTree = false)
-    {
-        if (o1 is IEnumerable { } col1 && o2 is IEnumerable { } col2)
-        {
-            var list1 = new List<object>();
-            var list2 = new List<object>();
-
-            foreach (var i in col1) list1.Add(i);
-            foreach (var i in col2) list1.Add(i);
-
-            foreach (var ci in list1)
-            {
-                if (list2.All(li => !AreEqual2(ci, li, type, ignoreId, fullTree)))
-                {
-                    return false;
-                }
-            }
-
-            return list1.Count == list2.Count;
-        }
-
-        return o1 is null == o2 is null;
-    }
-
-    private static bool AreEqual2(object p1, object p2, Type type, bool ignoreId = true, bool fullTree = false)
-    {
-        Action<IStandardConversionOptionsBuilder> options = b =>
-        {
-            if (fullTree)
-            {
-                b.FullTree();
-            }
-            else
-            {
-                b.DirectLeavesOnly();
-            }
-
-            b.UseOriginalTypes().ExcludeNulls();
-        };
-
-        var tev = new ObjectEvaluator(type);
-        var idLeaves = tev.Map.Nodes
-            .Where(n => TypeCheck.IsModel(n.Type))
-            .Select(n => new { Node = n, Id = TypeIdentity.FindIdentityLeaf(n.Type) })
-            .Where(n => n is { Node: { }, Id: { } })
-            .Select(n => n.Node.GetFullName() + "." + n.Id.Name)
-            .ToList();
-
-        bool IsId(string n) => idLeaves.Any(i => string.CompareOrdinal(i, n) == 0);
-
-        var whereEqual = true;
-
-        var inCollectionDepth = 0;
-
-        var e1 = new ObjectEvaluator(p1);
-        var e2 = new ObjectEvaluator(p2);
-
-        e1.ScanNodes((n, k, v, t) =>
-        {
-            if (n.IsCollection)
-            {
-                whereEqual &= ContainSameItems(v, e2.Read(k), n.ElementType, ignoreId, fullTree);
-
-                inCollectionDepth++;
-            }
-            else if (inCollectionDepth == 0 && n.IsLeaf)
-            {
-                if (!ignoreId || !IsId(k.ToString()))
-                {
-                    whereEqual &= AreEqualObjects(v, e2.Read(k));
-                }
-            }
-        }, (n, k, v, t) =>
-        {
-            if (n.IsCollection)
-            {
-                inCollectionDepth--;
-            }
-        }, false);
-
-
-        return whereEqual;
-    }
-
     private static bool ContainSameObjects(List<object> l1, List<object> l2)
     {
         if (l1.Count != l2.Count) return false;
