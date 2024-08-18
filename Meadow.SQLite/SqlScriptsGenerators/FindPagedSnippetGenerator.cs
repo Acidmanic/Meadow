@@ -115,10 +115,11 @@ CREATE PROCEDURE {_keyFindPagedProcedureNameFullTree}(
                                             @SearchExpression TEXT,
                                             @OrderExpression TEXT)
 AS
-    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView}
+    SELECT {_keyFullTreeView}.* FROM {_keyFullTreeView} INNER JOIN 
+    (SELECT DISTINCT {_keyIdFieldNameFullTree} 'Id' FROM {_keyFullTreeView}
     LEFT JOIN {_keySearchIndexTableName} ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}={_keySearchIndexTableName}.ResultId
-    WHERE (&@FilterExpression) AND (&@SearchExpression)
-    ORDER BY &@OrderExpression LIMIT @Offset,@Size;
+    WHERE (&@FilterExpression) AND (&@SearchExpression) ORDER BY &@OrderExpression LIMIT @Offset,@Size) Prx
+    ON {_keyFullTreeView}.{_keyIdFieldNameFullTree}=Prx.Id;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
