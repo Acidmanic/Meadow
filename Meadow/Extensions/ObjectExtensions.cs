@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Newtonsoft.Json;
 
 namespace Meadow.Extensions
@@ -36,6 +38,21 @@ namespace Meadow.Extensions
 
             return JsonConvert.DeserializeObject<T>(json);
 
+        }
+
+        public static TId? ReadIdOrDefault<TModel, TId>(this TModel value)
+        {
+            var idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
+
+            if (idLeaf is { } idL)
+            {
+                // var readId = new ObjectEvaluator(value).Read(idL.GetFullName(), true);
+                var readId = idL.Evaluator.Read(value);
+
+                if (readId is TId id) return id;
+            }
+
+            return default;
         }
         
         

@@ -1,10 +1,10 @@
+using System.Runtime.InteropServices;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Meadow.Extensions;
-using Meadow.Requests;
 
-namespace Meadow.Test.Functional.GenericRequests
+namespace Meadow.Requests.BuiltIn
 {
     public sealed class IndexEntity<TEntity,TId> : MeadowRequest<SearchIndex<TId>, SearchIndex<TId>> 
     {
@@ -15,6 +15,20 @@ namespace Meadow.Test.Functional.GenericRequests
                 IndexCorpus = corpus,
                 ResultId = id
             };
+        }
+
+        public IndexEntity(TEntity model, bool fullTree = true) : base(true)
+        {
+            var indexing = GetIndexingCorpusService<TEntity>();
+
+            var corpus = indexing.GetIndexCorpus(model, fullTree);
+            
+            ToStorage = new SearchIndex<TId>()
+            {
+                IndexCorpus = corpus,
+                ResultId = model.ReadIdOrDefault<TEntity,TId>()! 
+            };
+            
         }
 
         protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)

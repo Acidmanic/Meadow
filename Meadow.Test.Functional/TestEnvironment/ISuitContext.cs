@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Filtering.Utilities;
-using Meadow.Test.Functional.GenericRequests;
+using Meadow.Requests.BuiltIn;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
 public interface ISuitContext
 {
-    string[] Transliterate(params string[] searchTerms);
     MeadowEngine Engine { get; }
     
     CaseData Data { get; }

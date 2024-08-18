@@ -35,7 +35,7 @@ namespace Meadow.Transliteration
             
                 var text = evaluator.Read(key,true) as string ?? "";
 
-                sb.Append(text).Append(" ");
+                sb.Append(text).Append(' ');
             }
 
             var rawCorpus = sb.ToString();

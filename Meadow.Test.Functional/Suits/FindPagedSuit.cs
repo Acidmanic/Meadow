@@ -167,12 +167,10 @@ public class FindPagedSuit
         env.Perform(Databases, e =>
         {
             e.Index(e.Data.Get<Person>(p => true));
-
-            var terms = e.Transliterate(searchTerms);
-
+            
             var expectedResult = e.Data.Get(predicate).ToList();
 
-            var found = e.FindPaged<Person>(searchTerms: terms, fullTree: fullTree).FromStorage;
+            var found = e.FindPaged<Person>(searchTerms: searchTerms, fullTree: fullTree).FromStorage;
 
             AssertX.ContainSameItems(expectedResult, found, _personIdentifier, true, fullTree);
         });

@@ -7,6 +7,7 @@ using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Google.Protobuf.Reflection;
+using Meadow.Requests.BuiltIn;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Transliteration;

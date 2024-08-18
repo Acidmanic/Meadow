@@ -1,15 +1,11 @@
 using System;
-using Acidmanic.Utilities.DataTypes;
+using System.Linq;
 using Acidmanic.Utilities.Filtering;
-using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Contracts;
 using Meadow.Extensions;
-using Meadow.Requests;
-using Meadow.Test.Functional.GenericRequests.Models;
-using Meadow.Test.Functional.Models;
 
-namespace Meadow.Test.Functional.GenericRequests
+namespace Meadow.Requests.BuiltIn
 {
     public record FindPagedShell(long Offset, long Size, string FilterExpression, string SearchExpression,
         string OrderExpression);
@@ -20,8 +16,8 @@ namespace Meadow.Test.Functional.GenericRequests
             FilterQuery filter,
             long offset = 0,
             long size = 100,
-            string[] searchTerms = null,
-            OrderTerm[] orders = null) : base(true)
+            string[]? searchTerms = null,
+            OrderTerm[]? orders = null) : base(true)
         {
             RegisterTranslationTask(t =>
             {
@@ -29,6 +25,8 @@ namespace Meadow.Test.Functional.GenericRequests
                     FullTreeReadWrite() ? ColumnNameTranslation.FullTree : ColumnNameTranslation.ColumnNameOnly);
 
                 searchTerms ??= new string[] { };
+
+                searchTerms = searchTerms.Select(Configuration.TransliterationService.Transliterate).ToArray();
 
                 var searchExpression = t.TranslateSearchTerm(typeof(TStorage), searchTerms);
 

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
+using Meadow.Requests.BuiltIn;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Meadow.Transliteration;
@@ -27,25 +27,19 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
     private class Context : ISuitContext
     {
-        private readonly ITransliterationService _transliterationService;
 
         public MeadowEngine Engine { get; }
         public CaseData Data { get; }
 
         public string DatabaseName { get; }
         
-        public Context(MeadowEngine engine, CaseData data, ITransliterationService transliterationService, string databaseName)
+        public Context(MeadowEngine engine, CaseData data,  string databaseName)
         {
-            this.Engine = engine;
+            Engine = engine;
             Data = data;
-            _transliterationService = transliterationService;
             DatabaseName = databaseName;
         }
 
-        public string[] Transliterate(params string[] searchTerms)
-        {
-            return searchTerms.Select(s => _transliterationService.Transliterate(s)).ToArray();
-        }
 
         public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null,
             int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null,
@@ -72,7 +66,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         }
 
         public void Index<TModel>(IEnumerable<TModel> items) =>
-            IndexingUtilities.Index(Engine, items, _transliterationService);
+            IndexingUtilities.Index(Engine, items);
 
         public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update)
             where TModel : class, new()
@@ -114,7 +108,12 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         MeadowEngine.UseLogger(logger);
 
-        var engine = engineSetup.CreateEngine(_updateConfigurations);
+        var engine = engineSetup.CreateEngine(c =>
+        {
+            c.SetTransliterationService(TransliterationService);
+            
+            _updateConfigurations(c);
+        });
         
         if (engine.DatabaseExists())
         {
@@ -145,6 +144,6 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var data = CaseData.Create(rawDataSets);
 
-        env(new Context(engine, data, TransliterationService,engineSetup.DatabaseName));
+        env(new Context(engine, data, engineSetup.DatabaseName));
     }
 }
