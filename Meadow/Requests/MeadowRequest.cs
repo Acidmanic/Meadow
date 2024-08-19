@@ -13,7 +13,7 @@ namespace Meadow.Requests
     {
         public virtual string RequestText { get; protected set; }
 
-        protected MeadowConfiguration Configuration => _context.Configuration;
+        protected MeadowConfiguration Configuration { get; private set; }
         
         public bool ReturnsValue { get; }
 
@@ -50,9 +50,6 @@ namespace Meadow.Requests
 
 
         //private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
-
-        private RequestContext _context;
-        
         private Action<RequestContext> _setupActions = c => { };
 
         public MeadowRequest(bool returnsValue)
@@ -84,7 +81,12 @@ namespace Meadow.Requests
             FailureException = new Exception(reason);
         }
 
-        internal void SetContext(RequestContext context) => _context = context;
+        internal void SetContext(RequestContext context)
+        {
+            _setupActions(context);
+
+            Configuration = context.Configuration;
+        }
         
         protected void Setup(Action<RequestContext> setup) => _setupActions = setup;
     }

@@ -55,8 +55,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
             if (order != null) order(ordersBuilder);
 
-            var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms,
-                ordersBuilder.Build());
+            var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms, ordersBuilder.Build());
 
             var response = Engine.PerformRequest(request,fullTree);
 
@@ -110,6 +109,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var engine = engineSetup.CreateEngine(c =>
         {
+            c.SetTransliterationService(TransliterationService);
             
             _updateConfigurations(c);
         });
