@@ -1,17 +1,13 @@
 using Meadow.Extensions;
-using Meadow.Requests;
-using Meadow.Test.Functional.GenericRequests.Models;
+using Meadow.Requests.BuiltIn.Dtos;
 
-namespace Meadow.Test.Functional.GenericRequests
+namespace Meadow.Requests.BuiltIn
 {
-    public sealed class DeleteById<TEntity,TId>:MeadowRequest<IdShell<TId>,SuccessResult>
+    public sealed class DeleteById<TEntity,TId>:MeadowRequest<IdDto<TId>,SuccessDto>
     {
         public DeleteById(TId id) : base(true)
         {
-            ToStorage = new IdShell<TId>
-            {
-                Id = id
-            };
+            ToStorage = id;
         }
 
         public override string RequestText { 

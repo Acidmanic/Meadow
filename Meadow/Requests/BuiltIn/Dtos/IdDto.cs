@@ -10,5 +10,5 @@ public struct IdDto<TId>
     }
     public static implicit operator TId(IdDto<TId> value) => value.Id;
     
-    public static implicit operator IdDto<TId>(TId value) => new IdDto<TId>();
+    public static implicit operator IdDto<TId>(TId value) => new IdDto<TId>(value);
 }

@@ -27,13 +27,12 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
     private class Context : ISuitContext
     {
-
         public MeadowEngine Engine { get; }
         public CaseData Data { get; }
 
         public string DatabaseName { get; }
-        
-        public Context(MeadowEngine engine, CaseData data,  string databaseName)
+
+        public Context(MeadowEngine engine, CaseData data, string databaseName)
         {
             Engine = engine;
             Data = data;
@@ -41,8 +40,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         }
 
 
-        public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null,
-            int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>> order = null,
+        public FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>>? filter = null,
+            int offset = 0, int size = 1000, Action<OrderSetBuilder<TModel>>? order = null,
             bool fullTree = false,
             params string[] searchTerms)
             where TModel : class
@@ -57,15 +56,14 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
             var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms, ordersBuilder.Build());
 
-            var response = Engine.PerformRequest(request,fullTree);
+            var response = Engine.PerformRequest(request, fullTree);
 
             if (response.Failed) throw response.FailureException;
 
-            return response as FindPagedRequest<TModel>;
+            return (response as FindPagedRequest<TModel>)!;
         }
 
-        public void Index<TModel>(IEnumerable<TModel> items) =>
-            IndexingUtilities.Index(Engine, items);
+        public void Index<TModel>(IEnumerable<TModel> items) => IndexingUtilities.Index(Engine, items);
 
         public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update)
             where TModel : class, new()
@@ -92,12 +90,21 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
             return updatedObjects;
         }
+
+        public ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false) where TModel : class, new()
+            => (ReadByIdRequest<TModel, TId>)Engine.PerformRequest(new ReadByIdRequest<TModel, TId>(id), fullTree);
+
+        public ReadAllRequest<TModel> ReadAll<TModel>(bool fullTree = false) where TModel : class, new()
+            => (ReadAllRequest<TModel>)Engine.PerformRequest(new ReadAllRequest<TModel>(), fullTree);
+
+        public DeleteById<TEntity, TId> DeleteById<TEntity, TId>(TId id)
+            => (DeleteById<TEntity, TId>)Engine.PerformRequest(new DeleteById<TEntity, TId>(id));
     }
 
 
     public void Perform(Databases database, Action<ISuitContext> env)
         => Perform(database, new ConsoleLogger().Shorten().EnableAll(), env);
-    
+
 
     public void Perform(Databases database, ILogger logger, Action<ISuitContext> env)
     {
@@ -110,21 +117,21 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         var engine = engineSetup.CreateEngine(c =>
         {
             c.SetTransliterationService(TransliterationService);
-            
+
             _updateConfigurations(c);
         });
-        
+
         if (engine.DatabaseExists())
         {
             logger.LogInformation("Dropping Existing Database...");
-            
+
             engine.DropDatabase();
         }
         else
         {
             logger.LogInformation("No Database Has been found");
         }
-        
+
         logger.LogInformation("Creating New Database Instance");
 
         engine.CreateDatabase();
@@ -138,7 +145,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         var rawDataSets = dataProvider.SeedSet;
 
         SeedingUtilities.SeedDataSets(engine, rawDataSets);
-        
+
         dataProvider.PostSeeding();
 
         var data = CaseData.Create(rawDataSets);

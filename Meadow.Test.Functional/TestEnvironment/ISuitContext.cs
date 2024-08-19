@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Requests.BuiltIn;
+using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
@@ -13,12 +14,17 @@ public interface ISuitContext
     
     public string DatabaseName { get; }
 
-    FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>> filter = null, int offset = 0,
-        int size = 1000, Action<OrderSetBuilder<TModel>> order = null,bool fullTree = false, params string[] searchTerms)
+    FindPagedRequest<TModel> FindPaged<TModel>(Action<FilterQueryBuilder<TModel>>? filter = null, int offset = 0,
+        int size = 1000, Action<OrderSetBuilder<TModel>>? order = null,bool fullTree = false, params string[] searchTerms)
         where TModel : class;
     
     void Index<TModel>(IEnumerable<TModel> items);
 
 
     List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update) where TModel : class, new();
+    ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false) where TModel : class, new();
+    
+    ReadAllRequest<TModel> ReadAll<TModel>(bool fullTree = false) where TModel : class, new();
+    
+    DeleteById<TEntity,TId> DeleteById<TEntity,TId>(TId id);
 }
