@@ -1,7 +1,6 @@
 using Meadow.Extensions;
-using Meadow.Requests;
 
-namespace Meadow.Test.Functional.GenericRequests
+namespace Meadow.Requests.BuiltIn
 {
     public sealed class UpdateRequest<T> : MeadowRequest<T, T> where T : class, new()
     {

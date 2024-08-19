@@ -23,39 +23,33 @@ public class CrudSuit
     }
 
     [Theory]
-    [InlineData(false,false)]
-    [InlineData(false,true)]
-    [InlineData(true,false)]
-    [InlineData(true,true)]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
     public void ShouldBeAble_ToRead_All(bool fullTree, bool considerEntityFilters)
     {
         var environment = new Environment<PersonsDataProvider>();
 
         if (considerEntityFilters)
         {
-            environment.RegulateMeadowConfigurations(c =>
-            {
-                c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false));
-            });
+            environment.RegulateMeadowConfigurations(c => { c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false)); });
         }
 
         var actual = new List<Person>();
-        
+
         var expected = new List<Person>();
-        
-        environment.Perform(Databases,new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+
+        environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             expected = c.Data.Get<Person>(p => (!considerEntityFilters) || p.IsDeleted == false);
 
             actual = c.ReadAll<Person>(fullTree).FromStorage;
         });
-        
-        AssertX.ContainSameItems(expected,actual, _personIdentifier,true,fullTree);
+
+        AssertX.ContainSameItems(expected, actual, _personIdentifier, true, fullTree);
     }
-    
-    
-    
-    
+
 
     [Theory]
     [InlineData(false)]
@@ -100,9 +94,8 @@ public class CrudSuit
 
         environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-
             expectedUndeleted = c.Data.Get<Person>(p => p.Name != deletee);
-            
+
             var deleteId = c.Data.Get<Person>(p => p.Name == deletee).Single().Id;
 
             c.DeleteById<Person, long>(deleteId);
@@ -114,6 +107,35 @@ public class CrudSuit
 
         Assert.Null(actualDeleted);
 
-        AssertX.ContainSameItems(expectedUndeleted, actualUnDeleted,_personIdentifier,true,false);
+        AssertX.ContainSameItems(expectedUndeleted, actualUnDeleted, _personIdentifier, true, false);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ShouldBeAble_ToUpdateModel(bool considerEntityFilters)
+    {
+        var environment = new Environment<PersonsDataProvider>();
+        
+        if (considerEntityFilters)
+        {
+            environment.RegulateMeadowConfigurations(c => { c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false)); });
+        }
+
+        var expected = new List<Person>();
+        var actual = new List<Person>();
+
+        environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        {
+            expected = c.Data.Get<Person>(p => !considerEntityFilters || p.IsDeleted==false);
+
+            actual = c.Update<Person>(p => !considerEntityFilters || p.IsDeleted==false, p =>
+            {
+                p.Name += "-Updated";
+                p.Surname += "-Updated";
+            });
+        });
+
+        AssertX.ContainSameItems(expected, actual, _personIdentifier);
     }
 }
