@@ -22,6 +22,40 @@ public class CrudSuit
         _testOutputHelper = testOutputHelper;
     }
 
+    [Theory]
+    [InlineData(false,false)]
+    [InlineData(false,true)]
+    [InlineData(true,false)]
+    [InlineData(true,true)]
+    public void ShouldBeAble_ToRead_All(bool fullTree, bool considerEntityFilters)
+    {
+        var environment = new Environment<PersonsDataProvider>();
+
+        if (considerEntityFilters)
+        {
+            environment.RegulateMeadowConfigurations(c =>
+            {
+                c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false));
+            });
+        }
+
+        var actual = new List<Person>();
+        
+        var expected = new List<Person>();
+        
+        environment.Perform(Databases,new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        {
+            expected = c.Data.Get<Person>(p => (!considerEntityFilters) || p.IsDeleted == false);
+
+            actual = c.ReadAll<Person>(fullTree).FromStorage;
+        });
+        
+        AssertX.ContainSameItems(expected,actual, _personIdentifier,true,fullTree);
+    }
+    
+    
+    
+    
 
     [Theory]
     [InlineData(false)]
@@ -76,8 +110,6 @@ public class CrudSuit
             actualDeleted = c.ReadById<Person, long>(deleteId).FromStorage.FirstOrDefault();
 
             actualUnDeleted = c.ReadAll<Person>().FromStorage;
-            
-            
         });
 
         Assert.Null(actualDeleted);
