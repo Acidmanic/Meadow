@@ -11,11 +11,14 @@ namespace Meadow.Scaffolding.Models
     /// </summary>
     public class ProcessedType
     {
-        public List<Parameter> Parameters { get; set; } = new List<Parameter>();
 
-        public List<Parameter> NoneIdParameters { get; set; } = new List<Parameter>();
+        public CollectiveIdentificationProfile CollectiveIdentificationProfile { get; set; } = new();
+        
+        public List<Parameter> Parameters { get; set; } = new();
 
-        public List<Parameter> NoneIdUniqueParameters { get; set; } = new List<Parameter>();
+        public List<Parameter> NoneIdParameters { get; set; } = new();
+
+        public List<Parameter> NoneIdUniqueParameters { get; set; } = new();
 
         public Parameter IdParameter { get; set; }
 

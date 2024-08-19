@@ -8,4 +8,12 @@ namespace Meadow.Attributes;
 /// to create where expression 
 /// </summary>
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
-public class CollectiveIdentifierAttribute : Attribute;
+public class CollectiveIdentifierAttribute : Attribute
+{
+    public CollectiveIdentifierAttribute(string collectionName)
+    {
+        CollectionName = collectionName;
+    }
+
+    public string CollectionName { get;  }
+}
