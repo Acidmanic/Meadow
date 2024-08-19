@@ -19,16 +19,20 @@ namespace Meadow.Requests.BuiltIn
 
         public IndexEntity(TEntity model, bool fullTree = true) : base(true)
         {
-            var indexing = GetIndexingCorpusService<TEntity>();
-
-            var corpus = indexing.GetIndexCorpus(model, fullTree);
             
-            ToStorage = new SearchIndex<TId>()
+            Setup(c =>
             {
-                IndexCorpus = corpus,
-                ResultId = model.ReadIdOrDefault<TEntity,TId>()! 
-            };
+                var indexing = c.GetCorpusService<TEntity>();
+
+                var corpus = indexing.GetIndexCorpus(model, fullTree);
             
+                ToStorage = new SearchIndex<TId>()
+                {
+                    IndexCorpus = corpus,
+                    ResultId = model.ReadIdOrDefault<TEntity,TId>()! 
+                };    
+                
+            });
         }
 
         protected override void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)

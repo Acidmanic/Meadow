@@ -19,19 +19,18 @@ namespace Meadow.Test.Functional.GenericRequests
             string[] searchTerms = null,
             OrderTerm[] orders = null) : base(true)
         {
-            RegisterTranslationTask(t =>
+            Setup(context =>
             {
-
-                var filterExpression = t.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()?
+                var filterExpression = context.Translator.TranslateFilterQueryToDbExpression(filter, FullTreeReadWrite()?
                     ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly); 
                 
                 searchTerms ??= new string[]{};
 
-                var searchExpression = t.TranslateSearchTerm(typeof(TStorage), searchTerms);
+                var searchExpression = context.Translator.TranslateSearchTerm(typeof(TStorage), searchTerms);
 
                 orders ??= new OrderTerm[] { };
                 
-                var ordersExpression = t.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
+                var ordersExpression = context.Translator.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
                 
                 ToStorage = new FilterShell
                 {
@@ -42,6 +41,7 @@ namespace Meadow.Test.Functional.GenericRequests
                     ExpirationTimeStamp = typeof(TStorage).GetFilterResultExpirationPointMilliseconds()
                 };
             });
+
         }
 
         public override string RequestText

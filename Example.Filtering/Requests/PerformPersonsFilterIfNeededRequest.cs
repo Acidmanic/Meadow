@@ -17,11 +17,11 @@ namespace Example.Filtering.Requests
 
             searchId ??= Guid.NewGuid().SearchId();
             
-            RegisterTranslationTask(t =>
+            Setup(context =>
             {
                 ToStorage = new FilterShell
                 {
-                    FilterExpression = t.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite()?ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly),
+                    FilterExpression = context.Translator.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite()?ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly),
                     ExpirationTimeStamp = typeof(TEntity).GetFilterResultExpirationPointMilliseconds(),
                     SearchId = searchId
                 };

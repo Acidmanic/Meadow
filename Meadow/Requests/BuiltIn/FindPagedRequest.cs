@@ -19,23 +19,26 @@ namespace Meadow.Requests.BuiltIn
             string[]? searchTerms = null,
             OrderTerm[]? orders = null) : base(true)
         {
-            RegisterTranslationTask(t =>
+            
+            Setup(context =>
             {
-                var filterExpression = t.TranslateFilterQueryToDbExpression(filter,
+                var filterExpression = context.Translator.TranslateFilterQueryToDbExpression(filter,
                     FullTreeReadWrite() ? ColumnNameTranslation.FullTree : ColumnNameTranslation.ColumnNameOnly);
 
                 searchTerms ??= new string[] { };
 
-                searchTerms = searchTerms.Select(Configuration.TransliterationService.Transliterate).ToArray();
+                searchTerms = searchTerms.Select(context.Transliterator.Transliterate).ToArray();
 
-                var searchExpression = t.TranslateSearchTerm(typeof(TStorage), searchTerms);
+                var searchExpression = context.Translator.TranslateSearchTerm(typeof(TStorage), searchTerms);
 
                 orders ??= new OrderTerm[] { };
 
-                var ordersExpression = t.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
+                var ordersExpression = context.Translator.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
 
                 ToStorage = new FindPagedShell(offset,size,filterExpression,searchExpression,ordersExpression);
+                
             });
+            
         }
 
         public override string RequestText

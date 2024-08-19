@@ -8,11 +8,11 @@ namespace Meadow.Test.Functional.GenericRequests
     {
         public ExistingValuesRequest(string fieldName) : base(true)
         {
-            RegisterTranslationTask(t =>
+            Setup(context =>
             {
                 ToStorage = new FieldNameShell
                 {
-                    FieldName = t.TranslateFieldName(typeof(TEntity),fieldName,FullTreeReadWrite())
+                    FieldName = context.Translator.TranslateFieldName(typeof(TEntity),fieldName,FullTreeReadWrite())
                 };
             });
         }

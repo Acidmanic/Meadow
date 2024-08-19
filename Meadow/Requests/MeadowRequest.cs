@@ -13,8 +13,8 @@ namespace Meadow.Requests
     {
         public virtual string RequestText { get; protected set; }
 
+        protected MeadowConfiguration Configuration => _context.Configuration;
         
-        protected MeadowConfiguration Configuration { get; private set; }
         public bool ReturnsValue { get; }
 
         /// <summary>
@@ -25,6 +25,8 @@ namespace Meadow.Requests
         /// a full-tree request.  
         /// </summary>
         private bool _suggestedFullTreeAccess = false;
+        
+        
         internal void SuggestFullTreeReadWrite(bool fullTree)
         {
             _suggestedFullTreeAccess = fullTree;
@@ -47,14 +49,18 @@ namespace Meadow.Requests
         internal bool FullTree => FullTreeReadWrite();
 
 
-        private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
+        //private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
+
+        private RequestContext _context;
+        
+        private Action<RequestContext> _setupActions = c => { };
 
         public MeadowRequest(bool returnsValue)
         {
             ReturnsValue = returnsValue;
 
             Execution = RequestExecution.RequestTextIsNameOfRoutine;
-            _translationTasks = new List<Action<ISqlExpressionTranslator>>();
+            // _translationTasks = new List<Action<ISqlExpressionTranslator>>();
         }
 
 
@@ -78,28 +84,9 @@ namespace Meadow.Requests
             FailureException = new Exception(reason);
         }
 
-        internal void SetFilterQueryTranslator(ISqlExpressionTranslator translator)
-        {
-            foreach (var translationTask in _translationTasks)
-            {
-                translationTask(translator);
-            }
-        }
-
-        protected void RegisterTranslationTask(Action<ISqlExpressionTranslator> task)
-        {
-            _translationTasks.Add(task);
-        }
-
-        internal void SetConfigurations(MeadowConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        protected IndexCorpusService<T> GetIndexingCorpusService<T>()
-        {
-            return new IndexCorpusService<T>(Configuration.TransliterationService);
-        }
+        internal void SetContext(RequestContext context) => _context = context;
+        
+        protected void Setup(Action<RequestContext> setup) => _setupActions = setup;
     }
 
 

@@ -110,7 +110,6 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var engine = engineSetup.CreateEngine(c =>
         {
-            c.SetTransliterationService(TransliterationService);
             
             _updateConfigurations(c);
         });
