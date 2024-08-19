@@ -4,13 +4,11 @@ using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.Requests.BuiltIn.Dtos;
 
 namespace Meadow.Requests.BuiltIn
 {
-    public record FindPagedShell(long Offset, long Size, string FilterExpression, string SearchExpression,
-        string OrderExpression);
-
-    public sealed class FindPagedRequest<TStorage> : MeadowRequest<FindPagedShell,TStorage > where TStorage : class
+    public sealed class FindPagedRequest<TStorage> : MeadowRequest<FindPagedDto, TStorage> where TStorage : class
     {
         public FindPagedRequest(
             FilterQuery filter,
@@ -19,7 +17,6 @@ namespace Meadow.Requests.BuiltIn
             string[]? searchTerms = null,
             OrderTerm[]? orders = null) : base(true)
         {
-            
             Setup(context =>
             {
                 var filterExpression = context.Translator.TranslateFilterQueryToDbExpression(filter,
@@ -35,10 +32,8 @@ namespace Meadow.Requests.BuiltIn
 
                 var ordersExpression = context.Translator.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
 
-                ToStorage = new FindPagedShell(offset,size,filterExpression,searchExpression,ordersExpression);
-                
+                ToStorage = new FindPagedDto(offset, size, filterExpression, searchExpression, ordersExpression);
             });
-            
         }
 
         public override string RequestText

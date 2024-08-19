@@ -4,6 +4,7 @@ using System.Linq;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
+using Meadow.Requests.BuiltIn;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.Models;
 using Microsoft.Extensions.Logging;
