@@ -151,7 +151,7 @@ public class FindPagedSuit
         {
             e.Update<Person>(p => p.Name == deleteeName, p => p.IsDeleted = true);
 
-            var expectedResult = e.Data.Get<Person>(p => p.Name != deleteeName).ToList();
+            var expectedResult = e.Data.Get<Person>(p => !p.IsDeleted).ToList();
 
             var found = e.FindPaged<Person>(fullTree:fullTree).FromStorage;
 

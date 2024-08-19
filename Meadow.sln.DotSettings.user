@@ -15,6 +15,7 @@
     &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.FindPagedSuit&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit.SqLite_ShouldBeAbleTo_Create_Successively&lt;/TestId&gt;
     &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SqLiteCreationSuit&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.CrudSuit.ShouldBeAble_ToRead_ById&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=fd341ca5_002D9491_002D4635_002Da84e_002D1098123aa896/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
