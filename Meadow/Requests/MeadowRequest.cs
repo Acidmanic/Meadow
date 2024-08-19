@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
-using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
-using Meadow.Contracts;
-using Meadow.Transliteration;
-using Meadow.Utility;
 
 namespace Meadow.Requests
 {
@@ -48,16 +44,22 @@ namespace Meadow.Requests
         /// </summary>
         internal bool FullTree => FullTreeReadWrite();
 
-
-        //private readonly List<Action<ISqlExpressionTranslator>> _translationTasks;
+        private FiledManipulationMarker _toStorageManipulator = new FiledManipulationMarker();
+        
+        private FiledManipulationMarker _fromStorageManipulator = new FiledManipulationMarker();
+        
         private Action<RequestContext> _setupActions = c => { };
 
+        internal IFieldInclusion ToStorageInclusion => _toStorageManipulator;
+        
+        internal IFieldInclusion FromStorageInclusion => _fromStorageManipulator;
+        
+        
         public MeadowRequest(bool returnsValue)
         {
             ReturnsValue = returnsValue;
 
             Execution = RequestExecution.RequestTextIsNameOfRoutine;
-            // _translationTasks = new List<Action<ISqlExpressionTranslator>>();
         }
 
 
@@ -88,39 +90,15 @@ namespace Meadow.Requests
             Configuration = context.Configuration;
         }
         
-        protected void Setup(Action<RequestContext> setup) => _setupActions = setup;
-    }
-
-
-    public class MeadowRequest<TIn, TOut> : MeadowRequest
-        where TOut : class
-    {
-        public virtual TIn ToStorage { get; set; }
-
-        public List<TOut> FromStorage { get; set; }
-
-
-        private FiledManipulationMarker _toStorageManipulator;
-        private FiledManipulationMarker _fromStorageManipulator;
-
-        public MeadowRequest(bool returnsValue) : base(returnsValue)
+        protected virtual bool QuoteProcedureName()
         {
-            FromStorage = new List<TOut>();
+            return false;
         }
 
-        internal void InitializeBeforeExecution()
+        protected virtual void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
         {
-            RequestText = GetProcedureNameFromRequestName();
-
-
-            _toStorageManipulator = new FiledManipulationMarker();
-            _fromStorageManipulator = new FiledManipulationMarker();
-
-            _toStorageManipulator.Clear();
-
-            OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
         }
-
+        
         protected string GetProcedureNameFromRequestName()
         {
             var name = this.GetType().Name;
@@ -139,18 +117,30 @@ namespace Meadow.Requests
 
             return name;
         }
-
-        protected virtual bool QuoteProcedureName()
+        
+        protected void Setup(Action<RequestContext> setup) => _setupActions = setup;
+        
+        internal void InitializeBeforeExecution()
         {
-            return false;
-        }
+            RequestText = GetProcedureNameFromRequestName();
 
-        protected virtual void OnFieldManipulation(IFieldInclusionMarker toStorage, IFieldInclusionMarker fromStorage)
+            _toStorageManipulator.Clear();
+
+            OnFieldManipulation(_toStorageManipulator, _fromStorageManipulator);
+        }
+    }
+
+
+    public class MeadowRequest<TIn, TOut> : MeadowRequest where TOut : class
+    {
+        public virtual TIn ToStorage { get; set; }
+
+        public List<TOut> FromStorage { get; set; }
+
+        public MeadowRequest(bool returnsValue) : base(returnsValue)
         {
+            FromStorage = new List<TOut>();
         }
-
-
-        internal IFieldInclusion ToStorageInclusion => _toStorageManipulator;
-        internal IFieldInclusion FromStorageInclusion => _fromStorageManipulator;
+        
     }
 }
