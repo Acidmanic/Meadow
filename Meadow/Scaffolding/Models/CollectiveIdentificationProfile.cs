@@ -7,7 +7,7 @@ namespace Meadow.Scaffolding.Models;
 
 public class CollectiveIdentificationProfile
 {
-    public Dictionary<string, List<FieldKey>> IdentifiersByCollectionName { get; } = new Dictionary<string, List<FieldKey>>();
+    public Dictionary<string, List<FieldKey>> IdentifiersByCollectionName { get; } = new();
 
     public Result<FieldKey> AutoValuedIdentifier { get; set; } = new Result<FieldKey>().FailAndDefaultValue();
 

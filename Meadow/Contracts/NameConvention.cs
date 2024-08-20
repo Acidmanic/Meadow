@@ -1,13 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using CorePluralizer.Extensions;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.Contracts
 {
     public class NameConvention
     {
+        public static readonly string DefaultSaveCollectionName = "Id";
         public string EntityName { get; private set; }
 
         public string TableName { get; private set; }
@@ -198,6 +201,29 @@ namespace Meadow.Contracts
         public string ReadChunkProcedureName { get; }
 
         public string ReadChunkProcedureNameFullTree { get; }
+
+        public Dictionary<string, string> GetSaveProcedureNames(CollectiveIdentificationProfile profile)
+        {
+            var names = new Dictionary<string, string>();
+            
+            if (profile.AutoValuedIdentifier)
+            {
+                names.Add(DefaultSaveCollectionName,GetSaveProcedureName(DefaultSaveCollectionName));
+            }
+
+            foreach (var key in profile.IdentifiersByCollectionName.Keys)
+            {
+                names.Add(key,GetSaveProcedureName(key));
+            }
+
+            return names;
+        }
+
+        private string GetSaveProcedureName(string collectionName)
+        {
+            return $"spSave{EntityName}By{collectionName}";
+        }
+        
     }
 
     public class NameConvention<TEntity> : NameConvention

@@ -54,5 +54,7 @@ namespace Meadow.Scaffolding.Models
         
         
         public Parameter IndexCorpusParameter { get; set; }
+
+        public Dictionary<string, string> SaveProcedureNames { get; set; }
     }
 }

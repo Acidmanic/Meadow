@@ -190,6 +190,8 @@ public static class EntityTypeUtilities
 
         process.CollectiveIdentificationProfile = GetCollectiveIdentificationProfile(type);
 
+        process.SaveProcedureNames = process.NameConvention.GetSaveProcedureNames(process.CollectiveIdentificationProfile);
+
         return process;
     }
 
