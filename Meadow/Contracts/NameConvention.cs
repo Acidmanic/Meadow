@@ -205,16 +205,16 @@ namespace Meadow.Contracts
         {
             var names = new Dictionary<string, string>();
 
-            if (profile.AutoValuedIdentifier)
+            foreach (var key in profile.SingularIdentifiersByName.Keys)
             {
-                names.Add(RecordIdentificationProfile.IdCollectionName, GetSaveProcedureName(RecordIdentificationProfile.IdCollectionName));
+                names.Add(key, GetSaveProcedureName(key));
             }
-
+            
             foreach (var key in profile.CollectiveIdentifiersByName.Keys)
             {
                 names.Add(key, GetSaveProcedureName(key));
             }
-
+            
             return names;
         }
 
