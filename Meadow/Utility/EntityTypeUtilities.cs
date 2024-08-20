@@ -201,27 +201,16 @@ public static class EntityTypeUtilities
         var ev = new ObjectEvaluator(type);
 
         var leaves = ev.RootNode.GetDirectLeaves(true);
-
-        var idAddress = TypeIdentity.FindIdentityLeaf(type)?.GetFullName() ?? "-";
-
-        bool IsId(AccessNode node) => string.CompareOrdinal(node.GetFullName(), idAddress) == 0;
-
+        
         foreach (var leaf in leaves)
         {
             var fieldKey = ev.Map.FieldKeyByNode(leaf);
 
-            if (IsId(leaf))
+            if (leaf.IsUnique || leaf.IsAutoValued)
             {
-                if (leaf.IsAutoValued)
-                {
-                    profile.AutoValuedIdentifier = new Result<FieldKey>(true, fieldKey);
-                }
-                else
-                {
-                    profile.AddCollectiveIdentifierItem(RecordIdentificationProfile.IdCollectionName, fieldKey);
-                }
-            }
-            else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is CollectiveIdentifierAttribute collectiveIdentifier)
+                profile.AddSingularIdentifierItem(leaf.Name,fieldKey);
+            }else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is
+                      CollectiveIdentifierAttribute collectiveIdentifier)
             {
                 foreach (var collectionName in collectiveIdentifier.CollectionNames)
                 {
