@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
-using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
@@ -222,8 +219,6 @@ public static class EntityTypeUtilities
                 else
                 {
                     profile.AddPartialIdentifier(CollectiveIdentificationProfile.IdCollectionName, fieldKey);
-                    
-                    profile.AddPartialIdentifier(CollectiveIdentificationProfile.DefaultCollection,fieldKey);
                 }
             }
             else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is CollectiveIdentifierAttribute collectiveIdentifier)
@@ -231,10 +226,10 @@ public static class EntityTypeUtilities
                 foreach (var collectionName in collectiveIdentifier.CollectionNames)
                 {
                     profile.AddPartialIdentifier(collectionName, fieldKey);
-                    
-                    profile.AddPartialIdentifier(CollectiveIdentificationProfile.DefaultCollection,fieldKey);
                 }
             }
+
+            profile.AddPartialIdentifier(CollectiveIdentificationProfile.DefaultCollection, fieldKey);
         }
 
         return profile;

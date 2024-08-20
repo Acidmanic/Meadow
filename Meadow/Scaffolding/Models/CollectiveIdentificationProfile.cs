@@ -8,7 +8,7 @@ namespace Meadow.Scaffolding.Models;
 public class CollectiveIdentificationProfile
 {
     
-    public static readonly string DefaultCollection = string.Empty;
+    public static readonly string DefaultCollection = "Values";
     
     public static readonly string IdCollectionName = "Id";
     

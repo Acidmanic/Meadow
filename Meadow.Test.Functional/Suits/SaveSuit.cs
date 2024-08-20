@@ -129,7 +129,7 @@ public class SaveSuit
     }
     
     [Fact]
-    public void Should_Update_Existing_Found_By_Default_Collection()
+    public void Should_Update_Existing_Found_By_Values()
     {
         var environment = new Environment<PersonsDataProvider>();
 
@@ -146,10 +146,7 @@ public class SaveSuit
             expectedResult = c.Data.Get<Person>(p => true).First();
             
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m =>
-            {
-                m.Age = 1234;
-                
-            });
+            { });
             
             afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
         });
@@ -177,8 +174,6 @@ public class SaveSuit
             existingItemsCount = c.Data.Get<Person>().Count;
             
             expectedResult = c.Data.Get<Person>(p => true).First();
-
-            expectedResult.JobId = 10000;
             
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m =>
             {
