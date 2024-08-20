@@ -99,7 +99,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             if (ProcessedType.CollectiveIdentificationProfile.AutoValuedIdentifier)
             {
                 var r = CreateProcedureReplacements(
-                    NameConvention.DefaultSaveCollectionName,
+                    CollectiveIdentificationProfile.IdCollectionName,
                     ProcessedType.CollectiveIdentificationProfile.AutoValuedIdentifier.Value);
                 replacements.Add(r);
             }

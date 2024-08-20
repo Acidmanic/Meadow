@@ -7,6 +7,7 @@ using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Reflection.ObjectTree.StandardData;
 using Meadow.Extensions;
+using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
@@ -31,19 +32,19 @@ public static class AssertX
     }
 
 
-    public static void AreInSameOrderShallow<T>(List<T> expected, List<T> actual, Func<T, string> toString = null, bool ignoreId = true)
+    public static void AreInSameOrderShallow<T>(List<T> expected, List<T> actual, Func<T, string>? toString = null, bool ignoreId = true)
         => AreInSameOrder(expected, actual, toString, ignoreId, false);
 
-    public static void AreInSameOrderDeep<T>(List<T> expected, List<T> actual, Func<T, string> toString = null, bool ignoreId = true)
+    public static void AreInSameOrderDeep<T>(List<T> expected, List<T> actual, Func<T, string>? toString = null, bool ignoreId = true)
         => AreInSameOrder(expected, actual, toString, ignoreId, true);
 
-    public static void AreInSameOrder<T>(List<T> expected, List<T> actual, Func<T, string> toString = null, bool ignoreId = true, bool deepCompare = false)
+    public static void AreInSameOrder<T>(List<T> expected, List<T> actual, Func<T, string>? toString = null, bool ignoreId = true, bool deepCompare = false)
     {
-        toString ??= (T t) => t.ToString();
+        toString ??= (T t) => t?.ToString() ??"null";
 
         for (int i = 0; i < expected.Count; i++)
         {
-            if (!AreEqual(expected[i], actual[i], ignoreId, deepCompare))
+            if (!AreEqualReferenceTypes(expected[i], actual[i], ignoreId, deepCompare))
             {
                 throw new Exception($"Expected to find {toString(expected[i])} at {i}'th place, but found {toString(actual[i])}");
             }
@@ -64,17 +65,26 @@ public static class AssertX
 
     public static void Contains<T>(List<T> found, T person, string message, bool ignoreId = true, bool deepCompare = false)
     {
-        if (found.All(f => !AreEqual(f, person, ignoreId, deepCompare)))
+        if (found.All(f => !AreEqualReferenceTypes(f, person, ignoreId, deepCompare)))
         {
             throw new Exception(message);
         }
     }
 
-    public static bool AreEqualShallow<T>(T p1, T p2, bool ignoreId = true, bool fullTree = false) => AreEqual(p1, p2, ignoreId, false);
+    public static void AreEqual<T>(T p1, T p2,Func<T, string>? toString = null, bool ignoreId = true, bool fullTree = false)
+    {
+        toString ??= (T t) => t?.ToString() ??"null";
+        
+        if (!AreEqualReferenceTypes(p1, p2, ignoreId, fullTree))
+        {
+            throw new Exception($"expected {toString(p1)} to be equal to {toString(p2)}, But they differ in some values.");
+        }
+    }
+    
+    private static bool AreEqualShallow<T>(T p1, T p2, bool ignoreId = true, bool fullTree = false) => AreEqualReferenceTypes(p1, p2, ignoreId, false);
+    private static bool AreEqualDeep<T>(T p1, T p2, bool ignoreId = true, bool fullTree = false) => AreEqualReferenceTypes(p1, p2, ignoreId, fullTree);
 
-    public static bool AreEqualDeep<T>(T p1, T p2, bool ignoreId = true, bool fullTree = false) => AreEqual(p1, p2, ignoreId, fullTree);
-
-    private static bool AreEqual<T>(T p1, T p2, bool ignoreId = true, bool fullTree = false)
+    private static bool AreEqualReferenceTypes<T>(T p1, T p2,  bool ignoreId = true, bool fullTree = false)
     {
         Action<IStandardConversionOptionsBuilder> options = b =>
         {
@@ -173,4 +183,5 @@ public static class AssertX
 
         return o1 == o2;
     }
+    
 }

@@ -1,5 +1,6 @@
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.Requests.BuiltIn
 {
@@ -8,7 +9,7 @@ namespace Meadow.Requests.BuiltIn
         private readonly string _identifierCollectionName;
         public SaveRequest(T model, string? identifierCollectionName = null) : base(true)
         {
-            _identifierCollectionName = identifierCollectionName ?? NameConvention.DefaultSaveCollectionName;
+            _identifierCollectionName = identifierCollectionName ?? CollectiveIdentificationProfile.DefaultCollection;
             
             ToStorage = model;
         }

@@ -10,7 +10,6 @@ namespace Meadow.Contracts
 {
     public class NameConvention
     {
-        public static readonly string DefaultSaveCollectionName = "Id";
         public string EntityName { get; private set; }
 
         public string TableName { get; private set; }
@@ -137,7 +136,7 @@ namespace Meadow.Contracts
             PerformFilterIfNeededProcedureName = "spPerform" + TableName + "FilterIfNeeded";
 
             FindPagedProcedureName = $"spFind{TableName}Paged";
-            
+
             FindPagedProcedureNameFullTree = $"spFind{TableName}PagedFullTree";
 
             PerformFilterIfNeededProcedureNameFullTree = "spPerform" + TableName + "FilterIfNeededFullTree";
@@ -192,9 +191,9 @@ namespace Meadow.Contracts
         public string RemoveExpiredFilterResultsProcedureName { get; }
 
         public string PerformFilterIfNeededProcedureName { get; }
-        
+
         public string FindPagedProcedureName { get; }
-        
+
         public string FindPagedProcedureNameFullTree { get; }
         public string PerformFilterIfNeededProcedureNameFullTree { get; }
 
@@ -205,15 +204,15 @@ namespace Meadow.Contracts
         public Dictionary<string, string> GetSaveProcedureNames(CollectiveIdentificationProfile profile)
         {
             var names = new Dictionary<string, string>();
-            
+
             if (profile.AutoValuedIdentifier)
             {
-                names.Add(DefaultSaveCollectionName,GetSaveProcedureName(DefaultSaveCollectionName));
+                names.Add(CollectiveIdentificationProfile.IdCollectionName, GetSaveProcedureName(CollectiveIdentificationProfile.IdCollectionName));
             }
 
             foreach (var key in profile.IdentifiersByCollectionName.Keys)
             {
-                names.Add(key,GetSaveProcedureName(key));
+                names.Add(key, GetSaveProcedureName(key));
             }
 
             return names;
@@ -221,9 +220,13 @@ namespace Meadow.Contracts
 
         public string GetSaveProcedureName(string collectionName)
         {
+            if (string.IsNullOrWhiteSpace(collectionName))
+            {
+                return $"spSave{EntityName}";
+            }
+
             return $"spSave{EntityName}By{collectionName}";
         }
-        
     }
 
     public class NameConvention<TEntity> : NameConvention

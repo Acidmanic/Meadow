@@ -7,6 +7,11 @@ namespace Meadow.Scaffolding.Models;
 
 public class CollectiveIdentificationProfile
 {
+    
+    public static readonly string DefaultCollection = string.Empty;
+    
+    public static readonly string IdCollectionName = "Id";
+    
     public Dictionary<string, List<FieldKey>> IdentifiersByCollectionName { get; } = new();
 
     public Result<FieldKey> AutoValuedIdentifier { get; set; } = new Result<FieldKey>().FailAndDefaultValue();

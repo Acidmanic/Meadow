@@ -11,6 +11,9 @@ namespace Meadow.Attributes;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
 public class CollectiveIdentifierAttribute : Attribute
 {
+
+    
+    
     public CollectiveIdentifierAttribute(params string[] collectionNames)
     {
         if (collectionNames.Length == 0)

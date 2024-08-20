@@ -221,7 +221,9 @@ public static class EntityTypeUtilities
                 }
                 else
                 {
-                    profile.AddPartialIdentifier("Id", fieldKey);
+                    profile.AddPartialIdentifier(CollectiveIdentificationProfile.IdCollectionName, fieldKey);
+                    
+                    profile.AddPartialIdentifier(CollectiveIdentificationProfile.DefaultCollection,fieldKey);
                 }
             }
             else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is CollectiveIdentifierAttribute collectiveIdentifier)
@@ -229,6 +231,8 @@ public static class EntityTypeUtilities
                 foreach (var collectionName in collectiveIdentifier.CollectionNames)
                 {
                     profile.AddPartialIdentifier(collectionName, fieldKey);
+                    
+                    profile.AddPartialIdentifier(CollectiveIdentificationProfile.DefaultCollection,fieldKey);
                 }
             }
         }
