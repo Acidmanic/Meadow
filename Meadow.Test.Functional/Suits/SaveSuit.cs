@@ -115,7 +115,7 @@ public class SaveSuit
             {
                 m.Age = 1234;
                 
-            },RecordIdentificationProfile.IdCollectionName);
+            },nameof(Person.Id));
             
             afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
         });
