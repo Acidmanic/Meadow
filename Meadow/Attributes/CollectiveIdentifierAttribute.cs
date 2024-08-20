@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Meadow.Attributes;
 
@@ -10,10 +11,15 @@ namespace Meadow.Attributes;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Parameter)]
 public class CollectiveIdentifierAttribute : Attribute
 {
-    public CollectiveIdentifierAttribute(string collectionName)
+    public CollectiveIdentifierAttribute(params string[] collectionNames)
     {
-        CollectionName = collectionName;
+        if (collectionNames.Length == 0)
+        {
+            collectionNames = new string[] { "Identifiers" };
+        }
+
+        CollectionNames = collectionNames;
     }
 
-    public string CollectionName { get;  }
+    public string[] CollectionNames { get; }
 }

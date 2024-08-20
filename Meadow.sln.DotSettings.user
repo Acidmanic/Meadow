@@ -18,13 +18,16 @@
     &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.CrudSuit.ShouldBeAble_ToRead_ById&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f9fe5756_002D53f4_002D4b76_002Db388_002D29424124478f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldBeAble_ToRead_ById" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=f9fe5756_002D53f4_002D4b76_002Db388_002D29424124478f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="ShouldBeAble_ToRead_ById" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Or&gt;
     &lt;ProjectFile&gt;91318B80-E58A-4191-946E-E17B3C364DAF/d:Suits/f:CrudSuit.cs&lt;/ProjectFile&gt;
     &lt;ProjectFile&gt;91318B80-E58A-4191-946E-E17B3C364DAF/d:Suits/f:FindPagedSuit.cs&lt;/ProjectFile&gt;
+    &lt;TestAncestor&gt;
+      &lt;TestId&gt;xUnit::91318B80-E58A-4191-946E-E17B3C364DAF::net7.0::Meadow.Test.Functional.Suits.SaveSuit.Should_Run_NoException&lt;/TestId&gt;
+    &lt;/TestAncestor&gt;
   &lt;/Or&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=fd341ca5_002D9491_002D4635_002Da84e_002D1098123aa896/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=fd341ca5_002D9491_002D4635_002Da84e_002D1098123aa896/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="Session" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;ProjectFolder&gt;91318B80-E58A-4191-946E-E17B3C364DAF/d:Suits&lt;/ProjectFolder&gt;
 &lt;/SessionState&gt;</s:String>
 	

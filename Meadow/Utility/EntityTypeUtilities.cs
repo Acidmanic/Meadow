@@ -226,7 +226,10 @@ public static class EntityTypeUtilities
             }
             else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is CollectiveIdentifierAttribute collectiveIdentifier)
             {
-                profile.AddPartialIdentifier(collectiveIdentifier.CollectionName,fieldKey);
+                foreach (var collectionName in collectiveIdentifier.CollectionNames)
+                {
+                    profile.AddPartialIdentifier(collectionName, fieldKey);
+                }
             }
         }
 
