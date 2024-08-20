@@ -143,11 +143,13 @@ public static class EntityTypeUtilities
             var parameter = new Parameter
             {
                 Name = leaf.Name,
+                StandardAddress = leaf.GetFullName(),
                 Type = GetTypeName(leaf, configuration, typeNameMapper)
             };
             var parameterFullTree = new Parameter
             {
                 Type = parameter.Type,
+                StandardAddress = parameter.StandardAddress,
                 Name = fullTreeMap.GetColumnNameByFullAddress(leaf.GetFullName())
             };
 
