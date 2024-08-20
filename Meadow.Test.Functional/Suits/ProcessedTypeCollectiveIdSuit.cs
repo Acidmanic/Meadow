@@ -79,7 +79,7 @@ public class ProcessedTypeCollectiveIdSuit
         
         AssertIsValueProfileOnly(processedType.RecordIdentificationProfile);
 
-        AssertIsValidValuesProfile<PoorModel>(processedType.RecordIdentificationProfile.IdentifiersByCollectionName
+        AssertIsValidValuesProfile<PoorModel>(processedType.RecordIdentificationProfile.CollectiveIdentifiersByName
             .First().Value);
     }
 
@@ -119,26 +119,26 @@ public class ProcessedTypeCollectiveIdSuit
 
         var profile = processedType.RecordIdentificationProfile;
 
-        if (!profile.IdentifiersByCollectionName.ContainsKey(RecordIdentificationProfile.IdCollectionName))
+        if (!profile.CollectiveIdentifiersByName.ContainsKey(RecordIdentificationProfile.IdCollectionName))
         {
             throw new XunitException(
                 $"Expected to find a profile item named: {RecordIdentificationProfile.IdCollectionName}," +
                 $"but found none.");
         }
 
-        AssertIsValidIdentifierProfile<T>(profile.IdentifiersByCollectionName
+        AssertIsValidIdentifierProfile<T>(profile.CollectiveIdentifiersByName
             [RecordIdentificationProfile.IdCollectionName]);
     }
     
     public void AssertHasOneValueProfile<T>(RecordIdentificationProfile profile)
     {
 
-        if (!profile.IdentifiersByCollectionName.ContainsKey(RecordIdentificationProfile.DefaultCollection))
+        if (!profile.CollectiveIdentifiersByName.ContainsKey(RecordIdentificationProfile.DefaultCollection))
         {
             throw new XunitException("No ValuesOnly Profile Has been found.");
         }
 
-        var p = profile.IdentifiersByCollectionName[RecordIdentificationProfile.DefaultCollection];
+        var p = profile.CollectiveIdentifiersByName[RecordIdentificationProfile.DefaultCollection];
         
         AssertIsValidValuesProfile<T>(p);
     }
@@ -207,16 +207,16 @@ public class ProcessedTypeCollectiveIdSuit
             throw new XunitException("Value Only Profile Should not have Auto-valued Identifier Fields");
         }
 
-        if (profile.IdentifiersByCollectionName.Count != 1)
+        if (profile.CollectiveIdentifiersByName.Count != 1)
         {
             throw new XunitException("Value Only Profile Should Have exactly one collection.");
         }
 
-        if (string.CompareOrdinal(profile.IdentifiersByCollectionName.First().Key ,
+        if (string.CompareOrdinal(profile.CollectiveIdentifiersByName.First().Key ,
                 RecordIdentificationProfile.DefaultCollection)!=0)
         {
             throw new XunitException($"ValueOnly profile's name must be {RecordIdentificationProfile.DefaultCollection}, " +
-                                     $"But Created Profile is named: {profile.IdentifiersByCollectionName.First().Key}");
+                                     $"But Created Profile is named: {profile.CollectiveIdentifiersByName.First().Key}");
         }
     }
 }

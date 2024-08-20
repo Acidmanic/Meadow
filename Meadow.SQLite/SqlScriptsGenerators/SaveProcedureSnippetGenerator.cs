@@ -104,7 +104,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
                 replacements.Add(r);
             }
 
-            var fields = ProcessedType.RecordIdentificationProfile.IdentifiersByCollectionName;
+            var fields = ProcessedType.RecordIdentificationProfile.CollectiveIdentifiersByName;
 
             foreach (var collectionName in names.Keys)
             {

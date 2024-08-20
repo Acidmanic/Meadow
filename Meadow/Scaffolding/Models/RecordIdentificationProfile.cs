@@ -1,31 +1,39 @@
 using System.Collections.Generic;
-using System.Linq;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
-using Acidmanic.Utilities.Results;
 
 namespace Meadow.Scaffolding.Models;
 
+/// <summary>
+/// Each Unique Field (Unique Members and AutoValued Members) is a singular record identifier,
+/// and each collection of fields marked with CollectiveIdentifier attribute, form a CollectiveIdentification set
+/// </summary>
 public class RecordIdentificationProfile
 {
-    
     public static readonly string DefaultCollection = "Values";
-    
-    public static readonly string IdCollectionName = "Id";
-    
-    public Dictionary<string, List<FieldKey>> IdentifiersByCollectionName { get; } = new();
 
-    public Result<FieldKey> AutoValuedIdentifier { get; set; } = new Result<FieldKey>().FailAndDefaultValue();
+    public Dictionary<string, List<FieldKey>> CollectiveIdentifiersByName { get; } = new();
 
+    public Dictionary<string, FieldKey> SingularIdentifiersByName { get; } = new();
 
-    internal void AddPartialIdentifier(string collectionName, FieldKey value)
+    internal void AddCollectiveIdentifierItem(string name, FieldKey value)
     {
-        if (!IdentifiersByCollectionName.ContainsKey(collectionName))
+        if (!CollectiveIdentifiersByName.ContainsKey(name))
         {
-            IdentifiersByCollectionName.Add(collectionName, new List<FieldKey>());
+            CollectiveIdentifiersByName.Add(name, new List<FieldKey>());
         }
 
-        IdentifiersByCollectionName[collectionName].RemoveAll(k => k.Equals(value));
-        
-        IdentifiersByCollectionName[collectionName].Add(value);
+        CollectiveIdentifiersByName[name].RemoveAll(k => k.Equals(value));
+
+        CollectiveIdentifiersByName[name].Add(value);
+    }
+
+    internal void AddSingularIdentifierItem(string name, FieldKey value)
+    {
+        if (SingularIdentifiersByName.ContainsKey(name))
+        {
+            SingularIdentifiersByName.Remove(name);
+        }
+
+        SingularIdentifiersByName.Add(name, value);
     }
 }

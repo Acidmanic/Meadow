@@ -210,7 +210,7 @@ namespace Meadow.Contracts
                 names.Add(RecordIdentificationProfile.IdCollectionName, GetSaveProcedureName(RecordIdentificationProfile.IdCollectionName));
             }
 
-            foreach (var key in profile.IdentifiersByCollectionName.Keys)
+            foreach (var key in profile.CollectiveIdentifiersByName.Keys)
             {
                 names.Add(key, GetSaveProcedureName(key));
             }

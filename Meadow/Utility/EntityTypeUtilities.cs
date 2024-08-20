@@ -218,18 +218,18 @@ public static class EntityTypeUtilities
                 }
                 else
                 {
-                    profile.AddPartialIdentifier(RecordIdentificationProfile.IdCollectionName, fieldKey);
+                    profile.AddCollectiveIdentifierItem(RecordIdentificationProfile.IdCollectionName, fieldKey);
                 }
             }
             else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is CollectiveIdentifierAttribute collectiveIdentifier)
             {
                 foreach (var collectionName in collectiveIdentifier.CollectionNames)
                 {
-                    profile.AddPartialIdentifier(collectionName, fieldKey);
+                    profile.AddCollectiveIdentifierItem(collectionName, fieldKey);
                 }
             }
 
-            profile.AddPartialIdentifier(RecordIdentificationProfile.DefaultCollection, fieldKey);
+            profile.AddCollectiveIdentifierItem(RecordIdentificationProfile.DefaultCollection, fieldKey);
         }
 
         return profile;
