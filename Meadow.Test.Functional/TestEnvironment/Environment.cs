@@ -91,6 +91,31 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             return updatedObjects;
         }
 
+        public List<TModel> Save<TModel>(Func<TModel, bool> predicate, Action<TModel> update, string? collectionName = null) where TModel : class, new()
+        {
+            var itemsToSaved = Data.Get(predicate).ToList();
+
+            var savedObjects = new List<TModel>();
+
+            foreach (var model in itemsToSaved)
+            {
+                update(model);
+
+                var response = Engine.PerformRequest(new SaveRequest<TModel>(model,collectionName));
+
+                if (response.Failed) throw response.FailureException;
+
+                var saved = response.FromStorage.FirstOrDefault();
+
+                if (saved is { } s)
+                {
+                    savedObjects.Add(s);
+                }
+            }
+
+            return savedObjects;
+        }
+
         public ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false) where TModel : class, new()
             => (ReadByIdRequest<TModel, TId>)Engine.PerformRequest(new ReadByIdRequest<TModel, TId>(id), fullTree);
 

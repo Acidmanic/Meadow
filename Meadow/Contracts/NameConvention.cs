@@ -219,7 +219,7 @@ namespace Meadow.Contracts
             return names;
         }
 
-        private string GetSaveProcedureName(string collectionName)
+        public string GetSaveProcedureName(string collectionName)
         {
             return $"spSave{EntityName}By{collectionName}";
         }

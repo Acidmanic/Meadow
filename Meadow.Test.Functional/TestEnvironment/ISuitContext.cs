@@ -22,6 +22,9 @@ public interface ISuitContext
 
 
     List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update) where TModel : class, new();
+    
+    List<TModel> Save<TModel>(Func<TModel, bool> predicate, Action<TModel> update, string? collectionName=null) where TModel : class, new();
+    
     ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false) where TModel : class, new();
     
     ReadAllRequest<TModel> ReadAll<TModel>(bool fullTree = false) where TModel : class, new();

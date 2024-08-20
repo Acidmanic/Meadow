@@ -168,7 +168,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
     INSERT INTO {_keyTableName} ({_preKeyInsertColumns}) SELECT {_preKeyInsertValues} WHERE NOT EXISTS (SELECT * FROM _alreadyExists);
 
-    SELECT * FROM {_keyTableName} WHERE ({_preKeyWhereClause} OR ROWID = LAST_INSERT_ROWID()) {_keyEntityFilterSegment} LIMIT 1;
+    SELECT * FROM {_keyTableName} WHERE (({_preKeyWhereClause}) OR ROWID = LAST_INSERT_ROWID()) {_keyEntityFilterSegment} LIMIT 1;
     DROP TABLE _alreadyExists;
     END;
 GO
