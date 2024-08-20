@@ -116,6 +116,15 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             return savedObjects;
         }
 
+        public TModel? Save<TModel>(TModel model, string? collectionName = null) where TModel : class, new()
+        {
+            var response = Engine.PerformRequest(new SaveRequest<TModel>(model,collectionName));
+
+            if (response.Failed) throw response.FailureException;
+
+            return  response.FromStorage.FirstOrDefault();
+        }
+
         public ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false) where TModel : class, new()
             => (ReadByIdRequest<TModel, TId>)Engine.PerformRequest(new ReadByIdRequest<TModel, TId>(id), fullTree);
 

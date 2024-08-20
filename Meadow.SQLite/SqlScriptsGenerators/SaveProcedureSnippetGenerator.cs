@@ -53,14 +53,14 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             replacementList.Add(_preKeyInsertValues,
                 string.Join(',', insertParameters.Select(p => "@" + p.Name)));
 
-            var whereClause = ParameterNameValueSetJoint(ProcessedType.NoneIdUniqueParameters, " AND ", "@");
-
-            if (ProcessedType.NoneIdUniqueParameters.Count == 0)
-            {
-                whereClause = ParameterNameValueSetJoint(ProcessedType.IdParameter, "@");
-            }
-
-            replacementList.Add(_preKeyWhereClause, whereClause);
+            // var whereClause = ParameterNameValueSetJoint(ProcessedType.NoneIdUniqueParameters, " AND ", "@");
+            //
+            // if (ProcessedType.NoneIdUniqueParameters.Count == 0)
+            // {
+            //     whereClause = ParameterNameValueSetJoint(ProcessedType.IdParameter, "@");
+            // }
+            //
+            // replacementList.Add(_preKeyWhereClause, whereClause);
 
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
 

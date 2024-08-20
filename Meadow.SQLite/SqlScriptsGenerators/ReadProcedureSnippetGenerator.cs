@@ -62,6 +62,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
+            if(ActById && !ProcessedType.HasId) return;
+            
             replacementList.Add(_keyProcedureName, GetProcedureName());
             replacementList.Add(_keyProcedureNameFullTree, GetProcedureNameFullTree());
 
@@ -120,6 +122,8 @@ GO
 
 
         protected override string Template =>
-            DisableFullTree ? PlainObjectTemplate : PlainObjectTemplate + "\n" + FullTreeTemplate;
+            (ActById && !ProcessedType.HasId)?"":
+                (DisableFullTree ? PlainObjectTemplate : PlainObjectTemplate + "\n" + FullTreeTemplate);
+        
     }
 }

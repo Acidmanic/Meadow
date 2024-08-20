@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using Meadow.Scaffolding.Models;
 using Meadow.Test.Functional.Models;
@@ -187,6 +186,67 @@ public class SaveSuit
         Assert.Single(savedPersons);
 
         AssertX.AreEqual(expectedResult, savedPersons.First(),toString:_toString);
+        
+        Assert.Equal(existingItemsCount+1,afterSaveItemsCount);
+    }
+    
+    [Fact]
+    public void Should_CreateNew_When_Removed_By_EntityFilters()
+    {
+        var environment = new Environment<PersonsDataProvider>();
+
+        var savedPersons = new List<Person>();
+        var itemOfInterest = new Person();
+
+        int existingItemsCount = 0;
+        int afterSaveItemsCount = 0;
+        
+        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        {
+            existingItemsCount = c.Data.Get<Person>().Count;
+            
+            itemOfInterest = c.Data.Get<Person>(p => p.IsDeleted).First();
+            
+            savedPersons = c.Save<Person>(p => p.Id == itemOfInterest.Id, m =>
+            {
+                m.Age = 1234;
+                
+            });
+
+            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+        });
+
+        Assert.Single(savedPersons);
+
+        AssertX.AreEqual(itemOfInterest, savedPersons.First(),toString:_toString);
+        
+        Assert.Equal(existingItemsCount+1,afterSaveItemsCount);
+    }
+
+
+    [Fact]
+    public void Should_CreateNewItem_WhenNewValueIntroduces()
+    {
+        var environment = new Environment<PersonsDataProvider>();
+
+        var savedItem = new Tag();
+        var item = new Tag() { PropertyId = 100, ProductClassId = 200 };
+
+        int existingItemsCount = 0;
+        int afterSaveItemsCount = 0;
+        
+        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        {
+            existingItemsCount = c.Data.Get<Tag>().Count;
+            
+            savedItem = c.Save(item);
+
+            afterSaveItemsCount = c.ReadAll<Tag>().FromStorage.Count;
+        });
+
+        Assert.NotNull(savedItem);
+
+        AssertX.AreEqual(item, savedItem,t => $"{t.ProductClassId}:{t.PropertyId}");
         
         Assert.Equal(existingItemsCount+1,afterSaveItemsCount);
     }

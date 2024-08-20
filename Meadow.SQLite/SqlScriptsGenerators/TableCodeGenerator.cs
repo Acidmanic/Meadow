@@ -64,7 +64,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
             if (ProcessedType.NoneIdParameters.Count > 0)
             {
-                idParameters += ",\n";
+                idParameters += ProcessedType.HasId?",\n":"\n";
             }
 
             replacementList.Add(_keyIdParameters, idParameters);

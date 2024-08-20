@@ -14,6 +14,7 @@ public class PersonsDataProvider : ICaseDataProvider
         SeedSet.Add(new List<object>(jobs));
         SeedSet.Add(new List<object>(persons));
         SeedSet.Add(new List<object>(addresses));
+        SeedSet.Add(new List<object>(tags));
     }
 
     public void PostSeeding() => PlugDataRelations();
@@ -33,7 +34,7 @@ public class PersonsDataProvider : ICaseDataProvider
     protected static Person P(string name, string surname, int age, long jobId, bool isDeleted = false)
     {
         return new Person
-            { Age = age, Name = name, Surname = surname, JobId = jobId ,IsDeleted = isDeleted};
+            { Age = age, Name = name, Surname = surname, JobId = jobId, IsDeleted = isDeleted };
     }
 
     protected static Address A(int addressNumber, long personId)
@@ -52,8 +53,10 @@ public class PersonsDataProvider : ICaseDataProvider
     }
 
     private readonly Job[] jobs =
-        { J("Mani", 100), J("Mona", 200), J("Mina", 300),
-            J("Farshid", 400), J("Farimehr", 500) , J("Deleted",-100)};
+    {
+        J("Mani", 100), J("Mona", 200), J("Mina", 300),
+        J("Farshid", 400), J("Farimehr", 500), J("Deleted", -100)
+    };
 
     private readonly Person[] persons =
     {
@@ -62,7 +65,7 @@ public class PersonsDataProvider : ICaseDataProvider
         P("Mina", "Haddadi", 56, 3),
         P("Farshid", "Moayedi", 63, 4),
         P("Farimehr", "Ayerian", 21, 5),
-        P("Deleted", "Deletian", 128, 6,true),
+        P("Deleted", "Deletian", 128, 6, true),
     };
 
     private readonly Address[] addresses =
@@ -73,6 +76,13 @@ public class PersonsDataProvider : ICaseDataProvider
         A(1, 4), A(2, 4), A(3, 4), A(4, 4),
         A(1, 5), A(2, 5), A(3, 5), A(4, 5), A(5, 5),
         A(1, 6)
+    };
+
+    private readonly Tag[] tags =
+    {
+        new Tag() { PropertyId = 10, ProductClassId = 100 },
+        new Tag() { PropertyId = 20, ProductClassId = 200 },
+        new Tag() { PropertyId = 30, ProductClassId = 300 },
     };
 
 

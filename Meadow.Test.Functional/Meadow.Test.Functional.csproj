@@ -47,6 +47,9 @@
         <None Update="MacroScripts\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
+        <None Update="MacroScripts\0005-Tags.sql">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
 
