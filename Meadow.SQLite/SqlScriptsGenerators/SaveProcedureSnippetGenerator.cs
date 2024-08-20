@@ -23,15 +23,15 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNoneIdParametersSet = GenerateKey();
-        
+
         private readonly string _preKeyInsertColumns = GenerateKey();
         private readonly string _preKeyWhereClause = GenerateKey();
         private readonly string _preKeyInsertValues = GenerateKey();
         private readonly string _keyEntityFilterSegment = GenerateKey();
 
-        
+
         private readonly string _preKeyUpdates = GenerateKey();
-        
+
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
@@ -83,7 +83,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             p = p.Replace(_preKeyWhereClause, replacements.Where);
             p = p.Replace(_preKeyInsertColumns, replacements.InsertColumns);
             p = p.Replace(_preKeyInsertValues, replacements.InsertValues);
-            
+
             p = p.Replace(_preKeyProcedureName, replacements.ProcedureName);
 
             return p + lineTemplate;
@@ -92,7 +92,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private List<ProcedureReplacements> CreateProcedureReplacements()
         {
             var names = ProcessedType.SaveProcedureNames;
-            
+
             var replacements = new List<ProcedureReplacements>();
 
 
@@ -105,22 +105,25 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             }
 
             var fields = ProcessedType.CollectiveIdentificationProfile.IdentifiersByCollectionName;
-            
+
             foreach (var collectionName in names.Keys)
             {
-                var r = CreateProcedureReplacements(collectionName, fields[collectionName].ToArray());
-                
-                replacements.Add(r);
+                if (fields.TryGetValue(collectionName, out var collectionFields))
+                {
+                    var r = CreateProcedureReplacements(collectionName, collectionFields.ToArray());
+
+                    replacements.Add(r);
+                }
             }
-            
+
             return replacements;
         }
 
 
-        private ProcedureReplacements CreateProcedureReplacements(string collectionName,params FieldKey[] identifierFields)
+        private ProcedureReplacements CreateProcedureReplacements(string collectionName, params FieldKey[] identifierFields)
         {
             var allParameters = ProcessedType.Parameters;
-            
+
             var identifierParameters = allParameters.Where(p => identifierFields.Any(i => string.CompareOrdinal(i.ToString(), p.StandardAddress) == 0)).ToList();
 
             var nonIdentifierParameters = allParameters.Where(p => identifierFields.All(i => string.CompareOrdinal(i.ToString(), p.StandardAddress) != 0)).ToList();
