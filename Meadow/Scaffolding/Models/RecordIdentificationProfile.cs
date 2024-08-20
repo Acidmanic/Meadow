@@ -5,7 +5,7 @@ using Acidmanic.Utilities.Results;
 
 namespace Meadow.Scaffolding.Models;
 
-public class CollectiveIdentificationProfile
+public class RecordIdentificationProfile
 {
     
     public static readonly string DefaultCollection = "Values";

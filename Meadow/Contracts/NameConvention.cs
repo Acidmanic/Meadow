@@ -201,13 +201,13 @@ namespace Meadow.Contracts
 
         public string ReadChunkProcedureNameFullTree { get; }
 
-        public Dictionary<string, string> GetSaveProcedureNames(CollectiveIdentificationProfile profile)
+        public Dictionary<string, string> GetSaveProcedureNames(RecordIdentificationProfile profile)
         {
             var names = new Dictionary<string, string>();
 
             if (profile.AutoValuedIdentifier)
             {
-                names.Add(CollectiveIdentificationProfile.IdCollectionName, GetSaveProcedureName(CollectiveIdentificationProfile.IdCollectionName));
+                names.Add(RecordIdentificationProfile.IdCollectionName, GetSaveProcedureName(RecordIdentificationProfile.IdCollectionName));
             }
 
             foreach (var key in profile.IdentifiersByCollectionName.Keys)

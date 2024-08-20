@@ -12,7 +12,7 @@ namespace Meadow.Scaffolding.Models
     public class ProcessedType
     {
 
-        public CollectiveIdentificationProfile CollectiveIdentificationProfile { get; set; } = new();
+        public RecordIdentificationProfile RecordIdentificationProfile { get; set; } = new();
         
         public List<Parameter> Parameters { get; set; } = new();
 

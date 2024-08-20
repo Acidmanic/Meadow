@@ -9,7 +9,7 @@ namespace Meadow.Requests.BuiltIn
         private readonly string _identifierCollectionName;
         public SaveRequest(T model, string? identifierCollectionName = null) : base(true)
         {
-            _identifierCollectionName = identifierCollectionName ?? CollectiveIdentificationProfile.DefaultCollection;
+            _identifierCollectionName = identifierCollectionName ?? RecordIdentificationProfile.DefaultCollection;
             
             ToStorage = model;
         }

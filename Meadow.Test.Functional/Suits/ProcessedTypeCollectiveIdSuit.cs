@@ -77,9 +77,9 @@ public class ProcessedTypeCollectiveIdSuit
         var processedType = EntityTypeUtilities.Process<PoorModel>(new MeadowConfiguration(),new SqLiteTypeNameMapper());
 
         
-        AssertIsValueProfileOnly(processedType.CollectiveIdentificationProfile);
+        AssertIsValueProfileOnly(processedType.RecordIdentificationProfile);
 
-        AssertIsValidValuesProfile<PoorModel>(processedType.CollectiveIdentificationProfile.IdentifiersByCollectionName
+        AssertIsValidValuesProfile<PoorModel>(processedType.RecordIdentificationProfile.IdentifiersByCollectionName
             .First().Value);
     }
 
@@ -109,7 +109,7 @@ public class ProcessedTypeCollectiveIdSuit
         var processedType = EntityTypeUtilities.Process<T>(new MeadowConfiguration(),new SqLiteTypeNameMapper());
 
 
-        AssertHasOneValueProfile<T>(processedType.CollectiveIdentificationProfile);
+        AssertHasOneValueProfile<T>(processedType.RecordIdentificationProfile);
     }
     
     public void Should_Create_An_IdentifierProfile_For_Model<T>()
@@ -117,28 +117,28 @@ public class ProcessedTypeCollectiveIdSuit
 
         var processedType = EntityTypeUtilities.Process<T>(new MeadowConfiguration(),new SqLiteTypeNameMapper());
 
-        var profile = processedType.CollectiveIdentificationProfile;
+        var profile = processedType.RecordIdentificationProfile;
 
-        if (!profile.IdentifiersByCollectionName.ContainsKey(CollectiveIdentificationProfile.IdCollectionName))
+        if (!profile.IdentifiersByCollectionName.ContainsKey(RecordIdentificationProfile.IdCollectionName))
         {
             throw new XunitException(
-                $"Expected to find a profile item named: {CollectiveIdentificationProfile.IdCollectionName}," +
+                $"Expected to find a profile item named: {RecordIdentificationProfile.IdCollectionName}," +
                 $"but found none.");
         }
 
         AssertIsValidIdentifierProfile<T>(profile.IdentifiersByCollectionName
-            [CollectiveIdentificationProfile.IdCollectionName]);
+            [RecordIdentificationProfile.IdCollectionName]);
     }
     
-    public void AssertHasOneValueProfile<T>(CollectiveIdentificationProfile profile)
+    public void AssertHasOneValueProfile<T>(RecordIdentificationProfile profile)
     {
 
-        if (!profile.IdentifiersByCollectionName.ContainsKey(CollectiveIdentificationProfile.DefaultCollection))
+        if (!profile.IdentifiersByCollectionName.ContainsKey(RecordIdentificationProfile.DefaultCollection))
         {
             throw new XunitException("No ValuesOnly Profile Has been found.");
         }
 
-        var p = profile.IdentifiersByCollectionName[CollectiveIdentificationProfile.DefaultCollection];
+        var p = profile.IdentifiersByCollectionName[RecordIdentificationProfile.DefaultCollection];
         
         AssertIsValidValuesProfile<T>(p);
     }
@@ -200,7 +200,7 @@ public class ProcessedTypeCollectiveIdSuit
     }
 
 
-    private void AssertIsValueProfileOnly(CollectiveIdentificationProfile profile)
+    private void AssertIsValueProfileOnly(RecordIdentificationProfile profile)
     {
         if (profile.AutoValuedIdentifier)
         {
@@ -213,9 +213,9 @@ public class ProcessedTypeCollectiveIdSuit
         }
 
         if (string.CompareOrdinal(profile.IdentifiersByCollectionName.First().Key ,
-                CollectiveIdentificationProfile.DefaultCollection)!=0)
+                RecordIdentificationProfile.DefaultCollection)!=0)
         {
-            throw new XunitException($"ValueOnly profile's name must be {CollectiveIdentificationProfile.DefaultCollection}, " +
+            throw new XunitException($"ValueOnly profile's name must be {RecordIdentificationProfile.DefaultCollection}, " +
                                      $"But Created Profile is named: {profile.IdentifiersByCollectionName.First().Key}");
         }
     }
