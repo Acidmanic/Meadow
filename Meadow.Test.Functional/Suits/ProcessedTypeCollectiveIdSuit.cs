@@ -112,7 +112,7 @@ public class ProcessedTypeCollectiveIdSuit
     [Fact]
     public void Should_Create_A_CollectiveSet_Named_Group1_For_CollectionRitchRecord()
     {
-        Should_Create_IdentifierSet<CollectionRitchRecord>(false,"Group1", m =>
+        Should_Create_IdentifierSet<CollectionRitchRecord>(true,"Group1", m =>
         {
             m.Mark((CollectionRitchRecord r)=> r.Prop1);
             m.Mark((CollectionRitchRecord r)=> r.Prop2);
