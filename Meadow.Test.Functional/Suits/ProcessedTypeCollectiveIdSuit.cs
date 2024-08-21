@@ -73,6 +73,8 @@ public class ProcessedTypeCollectiveIdSuit
         public int Prop4 { get; set; }
         
     }
+
+    private record CollectionRitchRecord([AutoValuedMember] int Id, [UniqueMember] int SystemId, [CollectiveIdentifier("Group1")] int Prop1, [CollectiveIdentifier("Group1")] int Prop2);
     
 
 
@@ -89,6 +91,33 @@ public class ProcessedTypeCollectiveIdSuit
             .First().Value);
     }
 
+    [Fact]
+    public void Should_Create_A_SingularSet_Named_Id_For_CollectionRitchRecord()
+    {
+        Should_Create_IdentifierSet<CollectionRitchRecord>(false,"Id", m =>
+        {
+            m.Mark((CollectionRitchRecord r)=> r.Id);
+        });
+    }
+    
+    [Fact]
+    public void Should_Create_A_SingularSet_Named_SystemId_For_CollectionRitchRecord()
+    {
+        Should_Create_IdentifierSet<CollectionRitchRecord>(false,"SystemId", m =>
+        {
+            m.Mark((CollectionRitchRecord r)=> r.SystemId);
+        });
+    }
+    
+    [Fact]
+    public void Should_Create_A_CollectiveSet_Named_Group1_For_CollectionRitchRecord()
+    {
+        Should_Create_IdentifierSet<CollectionRitchRecord>(false,"Group1", m =>
+        {
+            m.Mark((CollectionRitchRecord r)=> r.Prop1);
+            m.Mark((CollectionRitchRecord r)=> r.Prop2);
+        });
+    }
 
 
     [Fact]
