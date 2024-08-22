@@ -7,6 +7,7 @@ using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Utility;
@@ -46,10 +47,14 @@ namespace Meadow.Scaffolding.CodeGenerators
             ProcessedType = EntityTypeUtilities.Process(EntityTypeOrOverridenEntityType,
                 Construction.MeadowConfiguration, execution.TypeNameMapper);
 
+            ComponentsProcessor = new ComponentsProcessor(ProcessedType);
+            
             RegisteredFilter = GetRegisteredFilter();
         }
 
         protected ProcessedType ProcessedType { get; }
+        
+        protected ComponentsProcessor ComponentsProcessor { get; }
 
         protected Type EntityType { get; }
 
