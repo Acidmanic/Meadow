@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Results;
 
 namespace Meadow.Scaffolding.Snippets;
 
@@ -15,11 +17,11 @@ public class SnippetTranslator
 
         var replacements = new Dictionary<string, string>();
 
-        Func<AccessNode, bool> isSnippetLeaf = n => n.IsLeaf || TypeCheck.Implements<ISnippet>(n.Type);
+        bool IsSnippetLeaf(AccessNode n) => n.IsLeaf || TypeCheck.Implements<ISnippet>(n.Type);
 
         foreach (var child in children)
         {
-            if (isSnippetLeaf(child))
+            if (IsSnippetLeaf(child))
             {
                 var value = ev.Read(child.GetFullName());
 
@@ -36,21 +38,28 @@ public class SnippetTranslator
             {
                 var collectables = child.GetChildren();
 
+                var sb = new StringBuilder();
+                
                 foreach (var collectable in collectables)
                 {
-                    if (isSnippetLeaf(collectable))
+                    if (IsSnippetLeaf(collectable))
                     {
                         var collectableValue = ev.Read(collectable.GetFullName());
 
                         if (collectableValue as ISnippet is { } collectableSubSnippet)
                         {
-                            replacements.Add("{" + collectable.Name + "}", $"{Translate(collectableSubSnippet)}");
+                            sb.AppendLine(Translate(collectableSubSnippet));
                         }
                         else if (collectableValue is { } cv)
                         {
-                            replacements.Add("{" + collectable.Name + "}", $"{cv}");
+                            sb.AppendLine($"{cv}");
                         }
                     }
+                }
+
+                if (sb.Length > 0)
+                {
+                    replacements.Add("{" + child.Name + "}", $"{sb}");
                 }
             }
         }
@@ -64,4 +73,6 @@ public class SnippetTranslator
 
         return translated;
     }
+    
+    
 }
