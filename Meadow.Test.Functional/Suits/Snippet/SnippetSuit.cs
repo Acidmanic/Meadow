@@ -15,10 +15,7 @@ public class SnippetSuit
 
         var actual = sut.Translate(snippet);
 
-        var expected = @"TEST_PROPERTY1:12
-TEST_PROPERTY2:My Name Is Mani";
-
-        Assert.Equal(expected, actual);
+        Assert.Equal(SimpleSnippet.Expected, actual);
     }
 
     [Fact]
@@ -30,12 +27,7 @@ TEST_PROPERTY2:My Name Is Mani";
 
         var actual = sut.Translate(snippet);
 
-        var expected = @"This Is My Own Code
-------------------------------------------
-TEST_PROPERTY1:12
-TEST_PROPERTY2:My Name Is Mani";
-
-        Assert.Equal(expected, actual);
+        Assert.Equal(NestedSnippet.Expected, actual);
     }
 
     [Fact]

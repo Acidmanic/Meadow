@@ -15,4 +15,10 @@ public class SimpleSnippet : ISnippet
 TEST_PROPERTY1:{Property1}
 TEST_PROPERTY2:{Property2}
 ".Trim();
+
+
+    public static readonly string Expected = $@"
+TEST_PROPERTY1:12
+TEST_PROPERTY2:My Name Is Mani
+".Trim();
 }

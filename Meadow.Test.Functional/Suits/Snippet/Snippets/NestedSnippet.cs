@@ -14,4 +14,11 @@ This Is My Own Code
 {{{nameof(NextLine)}}}
 
 ".Trim();
+    
+    public static readonly string Expected = @$"
+This Is My Own Code
+------------------------------------------
+{SimpleSnippet.Expected}
+
+".Trim();
 }
