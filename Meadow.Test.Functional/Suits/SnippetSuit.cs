@@ -12,7 +12,7 @@ public class SnippetSuit
 
         public string Property2 => "My Name Is Mani";
 
-        [IgnoreNoneDataNode] public SnippetToolbox? Toolbox { get; set; }
+        public SnippetToolbox? Toolbox { get; set; }
 
 
         public string Template => @"
