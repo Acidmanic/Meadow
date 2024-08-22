@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using Acidmanic.Utilities.Reflection;
@@ -36,30 +37,30 @@ public class SnippetTranslator
             }
             else if (child.IsCollection)
             {
-                var collectables = child.GetChildren();
+                var objectCollection = ev.Read(child.GetFullName());
 
                 var sb = new StringBuilder();
                 
-                foreach (var collectable in collectables)
+                if (objectCollection is IEnumerable enumerable)
                 {
-                    if (IsSnippetLeaf(collectable))
+                    foreach (var collectable in enumerable)
                     {
-                        var collectableValue = ev.Read(collectable.GetFullName());
-
-                        if (collectableValue as ISnippet is { } collectableSubSnippet)
+                        if (collectable is { } collectableValue)
                         {
-                            sb.AppendLine(Translate(collectableSubSnippet));
-                        }
-                        else if (collectableValue is { } cv)
-                        {
-                            sb.AppendLine($"{cv}");
+                            if (collectableValue is ISnippet subSnippet)
+                            {
+                                sb.AppendLine(Translate(subSnippet));
+                            }
+                            else
+                            {
+                                sb.AppendLine($"{collectableValue}");
+                            }
                         }
                     }
-                }
-
-                if (sb.Length > 0)
-                {
-                    replacements.Add("{" + child.Name + "}", $"{sb}");
+                    if (sb.Length > 0)
+                    {
+                        replacements.Add("{" + child.Name + "}", $"{sb}");
+                    }
                 }
             }
         }

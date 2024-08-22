@@ -6,9 +6,6 @@ namespace Meadow.Test.Functional.Suits.Snippet;
 
 public class SnippetSuit
 {
-    
-
-
     [Fact]
     public void Should_Translate_SimpleSnippet()
     {
@@ -23,7 +20,7 @@ TEST_PROPERTY2:My Name Is Mani";
 
         Assert.Equal(expected, actual);
     }
-    
+
     [Fact]
     public void Should_Translate_NestedSnippet()
     {
@@ -39,5 +36,17 @@ TEST_PROPERTY1:12
 TEST_PROPERTY2:My Name Is Mani";
 
         Assert.Equal(expected, actual);
+    }
+
+    [Fact]
+    public void Should_Translate_SimpleCollection()
+    {
+        var snippet = new SimpleCollectionSnippet();
+
+        var sut = new SnippetTranslator();
+
+        var actual = sut.Translate(snippet);
+
+        Assert.Equal(SimpleCollectionSnippet.Expected, actual);
     }
 }
