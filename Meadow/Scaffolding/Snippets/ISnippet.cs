@@ -1,12 +1,12 @@
-using Meadow.Configuration;
-using Meadow.Scaffolding.Models;
+using Acidmanic.Utilities.Reflection.Attributes;
 
 namespace Meadow.Scaffolding.Snippets;
 
 public interface ISnippet
 {
 
-    void Initialize(MeadowConfiguration configuration, ProcessedType processedType);
+    [IgnoreNoneDataNode]
+    SnippetToolbox? Toolbox { get; set; }
     
     
     string Template { get; }

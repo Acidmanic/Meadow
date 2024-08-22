@@ -13,7 +13,7 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="System.Data.SqlClient" Version="4.8.3" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b21" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b23" />
     </ItemGroup>
 
 

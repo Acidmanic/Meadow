@@ -7,7 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="Acidmanic.MSLogging.LightWeight" Version="1.0.1" />
-        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b21" />
+        <PackageReference Include="Acidmanic.Utilities.Reflections" Version="1.0.6-b23" />
         <PackageReference Include="CoreCommandLine" Version="1.0.11" />
         <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.3.0-1.final" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0-1.final" />

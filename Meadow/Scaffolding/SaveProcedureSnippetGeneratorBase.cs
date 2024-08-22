@@ -16,8 +16,6 @@ namespace Meadow.Scaffolding
         {
         }
         
-
-
         private readonly string _preKeyProcedureName = GenerateKey();
         private readonly string _keyParameters = GenerateKey();
         private readonly string _keyTableName = GenerateKey();

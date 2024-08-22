@@ -36,7 +36,7 @@ public class SnippetToolbox
     
     public  DataAccessServiceResolver DataAccessServiceResolver { get; }
     
-    protected SnippetToolbox(SnippetConstruction construction, SnippetConfigurations configurations)
+    public SnippetToolbox(SnippetConstruction construction, SnippetConfigurations configurations)
     {
         Construction = construction;
         

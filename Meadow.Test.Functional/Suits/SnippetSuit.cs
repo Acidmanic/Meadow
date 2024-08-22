@@ -1,5 +1,4 @@
-using Meadow.Configuration;
-using Meadow.Scaffolding.Models;
+using Acidmanic.Utilities.Reflection.Attributes;
 using Meadow.Scaffolding.Snippets;
 using Xunit;
 
@@ -9,14 +8,12 @@ public class SnippetSuit
 {
     public class SimpleSnippet : ISnippet
     {
-        public void Initialize(MeadowConfiguration configuration, ProcessedType processedType)
-        {
-        }
-
-
         public int Property1 => 12;
 
         public string Property2 => "My Name Is Mani";
+
+        [IgnoreNoneDataNode] public SnippetToolbox? Toolbox { get; set; }
+
 
         public string Template => @"
 TEST_PROPERTY1:{Property1}
