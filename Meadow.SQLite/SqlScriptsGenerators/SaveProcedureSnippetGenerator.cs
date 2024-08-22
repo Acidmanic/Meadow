@@ -30,8 +30,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private readonly string _keyTableName = GenerateKey();
         private readonly string _keyNoneIdParametersSet = GenerateKey();
 
-        private readonly string _preKeyInsertColumns = GenerateKey();
         private readonly string _preKeyWhereClause = GenerateKey();
+        private readonly string _preKeyInsertColumns = GenerateKey();
         private readonly string _preKeyInsertValues = GenerateKey();
         private readonly string _keyEntityFilterSegment = GenerateKey();
 
@@ -41,7 +41,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)
         {
-            replacementList.Add(_preKeyProcedureName, GetProcedureName());
 
             replacementList.Add(_keyParameters,
                 ParameterNameTypeJoint(ProcessedType.Parameters, ",", "@"));
@@ -51,14 +50,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             replacementList.Add(_keyNoneIdParametersSet,
                 ParameterNameValueSetJoint(ProcessedType.NoneIdParameters, ",", "@"));
 
-            var insertParameters = ProcessedType.GetInsertParameters();
-
-            replacementList.Add(_preKeyInsertColumns,
-                string.Join(',', insertParameters.Select(p => p.Name)));
-
-            replacementList.Add(_preKeyInsertValues,
-                string.Join(',', insertParameters.Select(p => "@" + p.Name)));
-            
             var entityFilterExpression = GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly);
 
             var entityFilterSegment = entityFilterExpression.Success ? $" AND {entityFilterExpression.Value} " : "";
@@ -66,10 +57,6 @@ namespace Meadow.SQLite.SqlScriptsGenerators
             replacementList.Add(_keyEntityFilterSegment, entityFilterSegment);
         }
 
-        private string GetProcedureName()
-        {
-            return ProvideDbObjectNameSupportingOverriding(() => ProcessedType.NameConvention.SaveProcedureName);
-        }
 
         private string CreatePreReplacedTemplate(ProcedureReplacements replacements)
         {
