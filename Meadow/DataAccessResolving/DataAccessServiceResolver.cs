@@ -9,12 +9,12 @@ using Meadow.DataTypeMapping;
 
 namespace Meadow.DataAccessResolving;
 
-public class DataAccessResolver
+public class DataAccessServiceResolver
 {
     private readonly MeadowConfiguration _configuration;
 
 
-    public DataAccessResolver(MeadowConfiguration configuration)
+    public DataAccessServiceResolver(MeadowConfiguration configuration)
     {
         _configuration = configuration;
     }

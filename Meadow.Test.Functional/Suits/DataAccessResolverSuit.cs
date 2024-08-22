@@ -54,7 +54,7 @@ public class DataAccessResolverSuit
         
         context.UseDataAccess(dataAccessName);
 
-        var resolver = new DataAccessResolver(context.Configuration);
+        var resolver = new DataAccessServiceResolver(context.Configuration);
 
         var mapper = resolver.DbTypeNameMapper;
 

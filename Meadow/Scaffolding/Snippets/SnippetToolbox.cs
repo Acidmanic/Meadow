@@ -2,6 +2,7 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Meadow.Contracts;
+using Meadow.DataAccessResolving;
 using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
@@ -12,46 +13,66 @@ namespace Meadow.Scaffolding.Snippets;
 
 public class SnippetToolbox
 {
-    protected ProcessedType ProcessedType { get; }
+    public ProcessedType ProcessedType { get; }
         
-    protected ComponentsProcessor ComponentsProcessor { get; }
+    public  ComponentsProcessor ComponentsProcessor { get; }
 
-    protected Type EntityType { get; }
+    public  Type EntityType { get; }
 
-    protected Type EntityTypeOrOverridenEntityType { get; }
+    public  Type EntityTypeOrOverridenEntityType { get; }
 
-    protected FilterQuery RegisteredFilter { get; }
+    public  FilterQuery RegisteredFilter { get; }
     
 
-    protected Type EffectiveType => EntityTypeOrOverridenEntityType.GetAlteredOrOriginal();
+    public  Type EffectiveType => EntityTypeOrOverridenEntityType.GetAlteredOrOriginal();
     
-    protected SnippetConstruction Construction { get; }
+    public  SnippetConstruction Construction { get; }
     
-    protected SnippetConfigurations Configurations { get; }
+    public  SnippetConfigurations Configurations { get; }
     
-    protected IDbTypeNameMapper TypeNameMapper { get; }
+    public  IDbTypeNameMapper TypeNameMapper { get; }
         
-    protected ISqlExpressionTranslator SqlExpressionTranslator { get; }
+    public  ISqlExpressionTranslator SqlExpressionTranslator { get; }
     
-    protected SnippetToolbox(
-        SnippetConstruction construction,
-        SnippetConfigurations configurations)
+    public  DataAccessServiceResolver DataAccessServiceResolver { get; }
+    
+    protected SnippetToolbox(SnippetConstruction construction, SnippetConfigurations configurations)
     {
         Construction = construction;
         
         Configurations = configurations;
 
+        DataAccessServiceResolver = new DataAccessServiceResolver(construction.MeadowConfiguration);
+
+        TypeNameMapper = DataAccessServiceResolver.DbTypeNameMapper;
+        
+        SqlExpressionTranslator = DataAccessServiceResolver.SqlExpressionTranslator;
+        
         EntityType = Construction.EntityType;
 
         EntityTypeOrOverridenEntityType = Configurations.OverrideEntityType
             ? Configurations.OverrideEntityType.Value(Construction)
             : Construction.EntityType;
 
-        // ProcessedType = EntityTypeUtilities.Process(EntityTypeOrOverridenEntityType,
-        //     Construction.MeadowConfiguration, execution.TypeNameMapper);
+        ProcessedType = EntityTypeUtilities.Process(EntityTypeOrOverridenEntityType,
+            Construction.MeadowConfiguration, TypeNameMapper);
 
         ComponentsProcessor = new ComponentsProcessor(ProcessedType);
             
-        //RegisteredFilter = GetRegisteredFilter();
+        RegisteredFilter = GetRegisteredFilter();
+    }
+    
+    private FilterQuery GetRegisteredFilter() => GetRegisteredFilter(EffectiveType);
+        
+        
+    private FilterQuery GetRegisteredFilter(Type type)
+    {
+            
+        if (Construction.MeadowConfiguration.Filters.ContainsKey(type))
+        {
+            return Construction.MeadowConfiguration.Filters[type];
+        }
+
+        return new FilterQuery();
     }
 }
