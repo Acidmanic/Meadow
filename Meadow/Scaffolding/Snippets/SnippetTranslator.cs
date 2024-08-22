@@ -58,6 +58,6 @@ public class SnippetTranslator
             translated = translated.Replace(replacement.Key, replacement.Value);
         }
         
-        return string.Empty;
+        return translated;
     }
 }
