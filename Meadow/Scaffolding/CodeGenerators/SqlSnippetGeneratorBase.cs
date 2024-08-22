@@ -18,13 +18,15 @@ namespace Meadow.Scaffolding.CodeGenerators
     {
         
         protected IDbTypeNameMapper TypeNameMapper { get; }
+        
+        protected ISqlExpressionTranslator SqlExpressionTranslator { get; }
+        protected SnippetExecution SnippetExecution { get; }
+        
 
         protected SnippetConstruction Construction { get; }
         protected SnippetConfigurations Configurations { get; }
 
-        protected ISqlExpressionTranslator SqlExpressionTranslator { get; }
 
-        protected SnippetExecution SnippetExecution { get; }
 
         protected SqlSnippetGeneratorBase(
             SnippetConstruction construction,

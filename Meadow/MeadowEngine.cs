@@ -68,6 +68,26 @@ namespace Meadow
         }
 
 
+        static internal Assembly? DataAccessAssembly()
+        {
+            if (_coreProvider is { } provider)
+            {
+                try
+                {
+                    if (provider.CreateDataAccessCore() is { } core)
+                    {
+                        return core.GetType().Assembly;
+                    }
+                }
+                catch 
+                {
+                    /* ignore */
+                }
+            }
+
+            return null;
+        }
+        
         private ISqlExpressionTranslator SetupQueryTranslator() 
         {
             var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
