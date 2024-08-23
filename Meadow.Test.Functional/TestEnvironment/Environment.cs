@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
+using Meadow.Requests;
 using Meadow.Requests.BuiltIn;
 using Meadow.Test.Functional.GenericRequests;
 using Meadow.Test.Functional.TestEnvironment.Utility;
@@ -54,7 +55,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
             if (order != null) order(ordersBuilder);
 
-            var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms, ordersBuilder.Build());
+            var request = new FindPagedRequest<TModel>(filterQueryBuilder.Build(), offset, size, searchTerms,
+                ordersBuilder.Build());
 
             var response = Engine.PerformRequest(request, fullTree);
 
@@ -91,7 +93,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             return updatedObjects;
         }
 
-        public List<TModel> Save<TModel>(Func<TModel, bool> predicate, Action<TModel> update, string? collectionName = null) where TModel : class, new()
+        public List<TModel> Save<TModel>(Func<TModel, bool> predicate, Action<TModel> update,
+            string? collectionName = null) where TModel : class, new()
         {
             var itemsToSaved = Data.Get(predicate).ToList();
 
@@ -101,7 +104,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             {
                 update(model);
 
-                var response = Engine.PerformRequest(new SaveRequest<TModel>(model,collectionName));
+                var response = Engine.PerformRequest(new SaveRequest<TModel>(model, collectionName));
 
                 if (response.Failed) throw response.FailureException;
 
@@ -118,21 +121,35 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         public TModel? Save<TModel>(TModel model, string? collectionName = null) where TModel : class, new()
         {
-            var response = Engine.PerformRequest(new SaveRequest<TModel>(model,collectionName));
+            var response = Engine.PerformRequest(new SaveRequest<TModel>(model, collectionName));
 
             if (response.Failed) throw response.FailureException;
 
-            return  response.FromStorage.FirstOrDefault();
+            return response.FromStorage.FirstOrDefault();
         }
 
-        public ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false) where TModel : class, new()
-            => (ReadByIdRequest<TModel, TId>)Engine.PerformRequest(new ReadByIdRequest<TModel, TId>(id), fullTree);
+        public ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false)
+            where TModel : class, new()
+            => (ReadByIdRequest<TModel, TId>)PerformRequest(new ReadByIdRequest<TModel, TId>(id), fullTree);
 
         public ReadAllRequest<TModel> ReadAll<TModel>(bool fullTree = false) where TModel : class, new()
-            => (ReadAllRequest<TModel>)Engine.PerformRequest(new ReadAllRequest<TModel>(), fullTree);
+            => (ReadAllRequest<TModel>)PerformRequest(new ReadAllRequest<TModel>(), fullTree);
 
         public DeleteById<TEntity, TId> DeleteById<TEntity, TId>(TId id)
-            => (DeleteById<TEntity, TId>)Engine.PerformRequest(new DeleteById<TEntity, TId>(id));
+            => (DeleteById<TEntity, TId>)PerformRequest(new DeleteById<TEntity, TId>(id));
+
+        private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>
+            (MeadowRequest<TIn, TOut> request, bool fullTree = false) where TOut : class
+        {
+            var response = Engine.PerformRequest(request, fullTree);
+
+            if (response.Failed)
+            {
+                throw response.FailureException;
+            }
+
+            return response;
+        }
     }
 
 

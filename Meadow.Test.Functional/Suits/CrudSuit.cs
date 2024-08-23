@@ -98,7 +98,12 @@ public class CrudSuit
 
             var deleteId = c.Data.Get<Person>(p => p.Name == deletee).Single().Id;
 
-            c.DeleteById<Person, long>(deleteId);
+            var response = c.DeleteById<Person, long>(deleteId);
+
+            if (response.Failed)
+            {
+                throw response.FailureException;
+            }
 
             actualDeleted = c.ReadById<Person, long>(deleteId).FromStorage.FirstOrDefault();
 
