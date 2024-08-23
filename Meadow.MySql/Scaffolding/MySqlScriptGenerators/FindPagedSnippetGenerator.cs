@@ -15,7 +15,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
             SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new MySqlExpressionTranslator(construction.MeadowConfiguration),
+                SqlTranslator = new MySqlTranslator(construction.MeadowConfiguration),
                 TypeNameMapper = new MySqlDbTypeNameMapper()
             })
         {

@@ -14,7 +14,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
         protected MySqlRepetitionHandlerProcedureGeneratorBase(SnippetConstruction construction, SnippetConfigurations configurations) 
             : base(construction, configurations, new SnippetExecution
             {
-                SqlExpressionTranslator = new MySqlExpressionTranslator(construction.MeadowConfiguration),
+                SqlTranslator = new MySqlTranslator(construction.MeadowConfiguration),
                 TypeNameMapper = new MySqlDbTypeNameMapper()
             })
         {

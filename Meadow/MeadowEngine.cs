@@ -88,9 +88,9 @@ namespace Meadow
             return null;
         }
         
-        private ISqlExpressionTranslator SetupQueryTranslator() 
+        private ISqlTranslator SetupQueryTranslator() 
         {
-            var translator = ISqlExpressionTranslator.NullSqlExpressionTranslator.Instance;
+            var translator = ISqlTranslator.NullSqlTranslator.Instance;
 
             try
             {

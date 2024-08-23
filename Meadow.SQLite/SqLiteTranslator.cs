@@ -6,7 +6,7 @@ using Meadow.Sql;
 
 namespace Meadow.SQLite
 {
-    public class SqLiteExpressionTranslator : SqlExpressionTranslatorBase
+    public class SqLiteTranslator : SqlTranslatorBase
     {
 
         protected override bool DoubleQuotesColumnNames => false;
@@ -16,7 +16,7 @@ namespace Meadow.SQLite
         protected override string EmptyConditionExpression => "TRUE";
 
 
-        public SqLiteExpressionTranslator(MeadowConfiguration configuration)
+        public SqLiteTranslator(MeadowConfiguration configuration)
             : base(new SqLiteValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;

@@ -3,13 +3,13 @@ using Meadow.Sql;
 
 namespace Meadow.SqlServer
 {
-    public class SqlServerExpressionTranslator : SqlExpressionTranslatorBase
+    public class SqlServerTranslator : SqlTranslatorBase
     {
         
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 
-        public SqlServerExpressionTranslator(MeadowConfiguration configuration)
+        public SqlServerTranslator(MeadowConfiguration configuration)
         :base(new SqlServerValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;

@@ -164,9 +164,9 @@ namespace Meadow.Postgre
             await PerformRequestAsync(request, configuration);
         }
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
+        public override ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
         {
-            return new PostgreSqlExpressionTranslator(configuration);
+            return new PostgreSqlTranslator(configuration);
         }
     }
 }

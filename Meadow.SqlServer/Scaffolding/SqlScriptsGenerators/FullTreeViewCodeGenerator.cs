@@ -13,7 +13,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
         public FullTreeViewCodeGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new SqlServerExpressionTranslator(construction.MeadowConfiguration),
+                SqlTranslator = new SqlServerTranslator(construction.MeadowConfiguration),
                 TypeNameMapper = new SqlDbTypeNameMapper()
             })
         {

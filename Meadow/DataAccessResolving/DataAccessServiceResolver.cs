@@ -20,7 +20,7 @@ public class DataAccessServiceResolver
     }
 
 
-    public ISqlExpressionTranslator SqlExpressionTranslator => Produce<ISqlExpressionTranslator>();
+    public ISqlTranslator SqlTranslator => Produce<ISqlTranslator>();
     
     public IDbTypeNameMapper DbTypeNameMapper => Produce<IDbTypeNameMapper>();
     

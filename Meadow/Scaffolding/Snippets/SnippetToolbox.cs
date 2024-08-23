@@ -35,7 +35,7 @@ public class SnippetToolbox
     
     public  IDbTypeNameMapper TypeNameMapper { get; }
         
-    public  ISqlExpressionTranslator SqlExpressionTranslator { get; }
+    public  ISqlTranslator SqlTranslator { get; }
     
     public  DataAccessServiceResolver DataAccessServiceResolver { get; }
     
@@ -49,7 +49,7 @@ public class SnippetToolbox
 
         TypeNameMapper = DataAccessServiceResolver.DbTypeNameMapper;
         
-        SqlExpressionTranslator = DataAccessServiceResolver.SqlExpressionTranslator;
+        SqlTranslator = DataAccessServiceResolver.SqlTranslator;
         
         EntityType = Construction.EntityType;
 
@@ -106,7 +106,7 @@ public class SnippetToolbox
             return new Result<string>().FailAndDefaultValue();
         }
 
-        var translatedQuery = SqlExpressionTranslator.TranslateFilterQueryToDbExpression(queryFilter, translation);
+        var translatedQuery = SqlTranslator.TranslateFilterQueryToDbExpression(queryFilter, translation);
 
         return new Result<string>(true, translatedQuery);
     }

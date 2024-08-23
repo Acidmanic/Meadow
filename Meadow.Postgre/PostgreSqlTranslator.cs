@@ -10,14 +10,14 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Postgre
 {
-    public class PostgreSqlExpressionTranslator : SqlExpressionTranslatorBase
+    public class PostgreSqlTranslator : SqlTranslatorBase
     {
         protected override bool DoubleQuotesColumnNames => true;
         protected override bool DoubleQuotesTableNames => true;
 
         protected override string NotEqualOperator => "<>";
 
-        public PostgreSqlExpressionTranslator(MeadowConfiguration configuration)
+        public PostgreSqlTranslator(MeadowConfiguration configuration)
             : base(new PostgreValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;

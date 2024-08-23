@@ -5,7 +5,7 @@ namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 public class SnippetExecution
 {
-    public ISqlExpressionTranslator SqlExpressionTranslator { get; set; }
+    public ISqlTranslator SqlTranslator { get; set; }
     
     public IDbTypeNameMapper TypeNameMapper { get; set; }
 }

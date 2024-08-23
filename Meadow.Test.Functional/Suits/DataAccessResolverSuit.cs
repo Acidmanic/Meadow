@@ -62,7 +62,7 @@ public class DataAccessResolverSuit
         
         _outputHelper.WriteLine("DA: {0},Found DbTypeNameMapper: {1}",dataAccessName, mapper.GetType());
 
-        var translator = resolver.SqlExpressionTranslator;
+        var translator = resolver.SqlTranslator;
         
         Assert.NotNull(translator);
         

@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
 {
-    public abstract class SqlExpressionTranslatorBase : ISqlExpressionTranslator
+    public abstract class SqlTranslatorBase : ISqlTranslator
     {
 
         private readonly IValueTranslator _valueTranslator;
@@ -23,7 +23,7 @@ namespace Meadow.Sql
         
         protected record QuoterSet(Func<string, string> QuoteTableName, Func<string, string> QuoteColumnName);
 
-        protected SqlExpressionTranslatorBase(IValueTranslator valueTranslator)
+        protected SqlTranslatorBase(IValueTranslator valueTranslator)
         {
             _valueTranslator = valueTranslator;
         }
@@ -212,46 +212,5 @@ namespace Meadow.Sql
             return "";
         }
 
-        // protected virtual string HandleQuotingAndEscaping(object valueObject, Type type)
-        // {
-        //     var stringValue = _valueTranslator.Translate(valueObject);
-        //     
-        //     
-        //     if (type == typeof(string))
-        //     {
-        //         var escaped = stringValue.Replace("'", EscapedSingleQuote);
-        //
-        //         return $"'{escaped}'";
-        //     }
-        //
-        //     return stringValue;
-        // }
-
-        // protected string DefaultValue(Type type)
-        // {
-        //     if (TypeCheck.IsNumerical(type))
-        //     {
-        //         return "0";
-        //     }
-        //
-        //     if (type == typeof(string))
-        //     {
-        //         return "''";
-        //     }
-        //
-        //     return "";
-        // }
-
-        // private List<string> HandleQuotingAndEscaping(IEnumerable<string> values, Type type)
-        // {
-        //     var items = new List<string>();
-        //
-        //     foreach (var value in values)
-        //     {
-        //         items.Add(HandleQuotingAndEscaping(value, type));
-        //     }
-        //
-        //     return items;
-        // }
     }
 }

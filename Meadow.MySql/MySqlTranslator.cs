@@ -6,13 +6,13 @@ using Meadow.Sql;
 
 namespace Meadow.MySql
 {
-    public class MySqlExpressionTranslator : SqlExpressionTranslatorBase
+    public class MySqlTranslator : SqlTranslatorBase
     {
         
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 
-        public MySqlExpressionTranslator(MeadowConfiguration configuration):base(new MySqlValueTranslator(configuration.ExternalTypeCasts))
+        public MySqlTranslator(MeadowConfiguration configuration):base(new MySqlValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;
         }

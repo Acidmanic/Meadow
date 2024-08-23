@@ -6,14 +6,14 @@ namespace Meadow.Requests;
 
 public class RequestContext
 {
-    public RequestContext(ISqlExpressionTranslator translator, MeadowConfiguration configuration)
+    public RequestContext(ISqlTranslator translator, MeadowConfiguration configuration)
     {
         Translator = translator;
         
         Configuration = configuration;
     }
 
-    public ISqlExpressionTranslator Translator { get; }
+    public ISqlTranslator Translator { get; }
 
 
     public ITransliterationService Transliterator => Configuration.TransliterationService;

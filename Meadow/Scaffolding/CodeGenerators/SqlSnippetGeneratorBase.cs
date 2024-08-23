@@ -19,7 +19,7 @@ namespace Meadow.Scaffolding.CodeGenerators
         
         protected IDbTypeNameMapper TypeNameMapper { get; }
         
-        protected ISqlExpressionTranslator SqlExpressionTranslator { get; }
+        protected ISqlTranslator SqlTranslator { get; }
         protected SnippetExecution SnippetExecution { get; }
         
 
@@ -38,7 +38,7 @@ namespace Meadow.Scaffolding.CodeGenerators
             SnippetExecution = execution;
 
             TypeNameMapper = execution.TypeNameMapper;
-            SqlExpressionTranslator = execution.SqlExpressionTranslator;
+            SqlTranslator = execution.SqlTranslator;
 
             EntityType = Construction.EntityType;
 
@@ -99,7 +99,7 @@ namespace Meadow.Scaffolding.CodeGenerators
                 return new Result<string>().FailAndDefaultValue();
             }
 
-            var translatedQuery = SqlExpressionTranslator.TranslateFilterQueryToDbExpression(queryFilter, translation);
+            var translatedQuery = SqlTranslator.TranslateFilterQueryToDbExpression(queryFilter, translation);
 
             return new Result<string>(true, translatedQuery);
         }

@@ -16,7 +16,7 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new SqLiteExpressionTranslator(construction.MeadowConfiguration),
+                SqlTranslator = new SqLiteTranslator(construction.MeadowConfiguration),
                 TypeNameMapper = new SqLiteTypeNameMapper()
             })
         {

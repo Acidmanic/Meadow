@@ -37,9 +37,9 @@ namespace Meadow.SQLite
         }
 
 
-        public override ISqlExpressionTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
+        public override ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
         {
-            return new SqLiteExpressionTranslator(configuration);
+            return new SqLiteTranslator(configuration);
         }
 
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)

@@ -15,7 +15,7 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
             SnippetConfigurations configurations)
             : base(construction, configurations, new SnippetExecution()
             {
-                SqlExpressionTranslator = new SqlServerExpressionTranslator(construction.MeadowConfiguration),
+                SqlTranslator = new SqlServerTranslator(construction.MeadowConfiguration),
                 TypeNameMapper = new SqlDbTypeNameMapper()
             })
         {
