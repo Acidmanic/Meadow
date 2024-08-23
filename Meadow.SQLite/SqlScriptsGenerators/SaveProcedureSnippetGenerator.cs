@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Acidmanic.Utilities.Reflection.ObjectTree;
 using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
-using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
