@@ -22,11 +22,11 @@ public class SaveProceduresSnippet : ISnippet
     {
         return new List<ISnippet>()
         {
-            new Kido(),
-            new Kido(),
-            new Kido(),
-            new Kido(),
-            new Kido(),
+            new Kido(){Toolbox = Toolbox},
+            new Kido(){Toolbox = Toolbox},
+            new Kido(){Toolbox = Toolbox},
+            new Kido(){Toolbox = Toolbox},
+            new Kido(){Toolbox = Toolbox},
         };
     }
 }

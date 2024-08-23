@@ -13,8 +13,13 @@ namespace Meadow.Scaffolding.Macros.SnippetComposed;
 
 public abstract class SnippetComposedMacroBase:MacroBase
 {
+
+    
+    
     public override string GenerateCode(params string[] arguments)
     {
+        var entityType = GrabTypeArgument(arguments, 0);
+        
         var assemblingBehaviorBuilder = new AssemblingBehaviorBuilder();
         
         BuildUpAssemblingBehavior(assemblingBehaviorBuilder);
@@ -25,12 +30,12 @@ public abstract class SnippetComposedMacroBase:MacroBase
 
         var menu = ConstructSnippetsMenu();
         
-        assemblingBehavior.ForEach(b =>  script.AppendLine(PlaceSnippetCode(b,menu)));
+        assemblingBehavior.ForEach(b =>  script.AppendLine(PlaceSnippetCode(b,menu,entityType)));
 
         return script.ToString();
     }
 
-    private string PlaceSnippetCode(SnippetOrder snippetOrder, Dictionary<CommonSnippets,Type> menu)
+    private string PlaceSnippetCode(SnippetOrder snippetOrder, Dictionary<CommonSnippets,Type> menu,Type entityType)
     {
         if (menu.ContainsKey(snippetOrder.Snippet))
         {
@@ -39,7 +44,9 @@ public abstract class SnippetComposedMacroBase:MacroBase
             if (snippetInstance is { } snippet)
             {
                 var translator = new SnippetTranslator();
-
+                
+                snippet.Toolbox = CreateToolBox(entityType,snippetOrder);
+                
                 var translated = translator.Translate(snippet);
 
                 return translated;
@@ -107,6 +114,17 @@ public abstract class SnippetComposedMacroBase:MacroBase
         }
 
         return menu;
+    }
+
+    private SnippetToolbox CreateToolBox(Type entityType, SnippetOrder snippetOrder)
+    {
+        var snippetConstruction = new SnippetConstruction
+        {
+            EntityType = entityType,
+            MeadowConfiguration = Configuration
+        };
+
+        return new SnippetToolbox(snippetConstruction, snippetOrder.Configurations);
     }
     
     protected abstract void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder);
