@@ -58,7 +58,7 @@ public abstract class SnippetComposedMacroBase:MacroBase
 
     private ISnippet? InstantiateSnippetOrDefault(Type type)
     {
-        var constructor = type.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+        var constructor = type.GetConstructors().FirstOrDefault(ctr => ctr.GetParameters().Length == 0);
 
         if (constructor is { } c)
         {
