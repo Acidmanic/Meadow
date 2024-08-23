@@ -16,7 +16,7 @@ public class SnippetComposedSaveSuit
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly Func<Person, string> _toString = person => $"{person.Name}:{person.Id}";
-
+    private readonly Databases _database = Databases.MySql;
     public SnippetComposedSaveSuit(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
@@ -34,7 +34,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
@@ -66,7 +66,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
@@ -97,7 +97,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
@@ -126,7 +126,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
@@ -155,7 +155,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
@@ -184,7 +184,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
@@ -214,7 +214,7 @@ public class SnippetComposedSaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
 
-        environment.Perform(Databases.SqLite, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Tag>().Count;
 
