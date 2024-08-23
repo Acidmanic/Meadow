@@ -15,10 +15,12 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
     public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox, SaveProcedureComponents saveComponents)
     {
         Toolbox = toolbox;
-        KeyProcedureName = saveComponents.ProcedureName;
+        KeyHeaderCreationPhrase = toolbox.SqlTranslator.CreateProcedurePhrase
+            (toolbox.Configurations.RepetitionHandling, saveComponents.ProcedureName);
         
         KeyGeneralWhereClause = string.Join(" AND ",
             saveComponents.WhereEqualities.Select(p => EqualityClause(KeyTableName, p)));
+        
         KeyInsertWhereClause = KeyGeneralWhereClause;
         PreKeyInsertColumns = string.Join(',', saveComponents.InsertUpdateParameters.Select(p => p.Name));
         PreKeyInsertValues = string.Join(',', saveComponents.InsertUpdateParameters.Select(p => p.Name));
@@ -52,22 +54,20 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
                typeLower.StartsWith("nvarchar");
     }
 
-    public string KeyHeaderCreation
-    {
-        get
-        {
-            if (Toolbox is { } toolbox && toolbox.Configurations.RepetitionHandling == RepetitionHandling.Alter)
-            {
-                return "DROP PROCEDURE IF EXISTS " + KeyProcedureName + ";" +
-                       "\nCREATE PROCEDURE";
-            }
-
-            return "CREATE PROCEDURE";
-        }
-    }
-
-    public string KeyProcedureName { get; }
-
+    public string KeyHeaderCreationPhrase { get; }
+    // {
+    //     get
+    //     {
+    //         if (Toolbox is { } toolbox && toolbox.Configurations.RepetitionHandling == RepetitionHandling.Alter)
+    //         {
+    //             return "DROP PROCEDURE IF EXISTS " + KeyProcedureName + ";" +
+    //                    "\nCREATE PROCEDURE";
+    //         }
+    //
+    //         return "CREATE PROCEDURE";
+    //     }
+    // }
+    
     public string KeyGeneralWhereClause { get; }
     
     public string KeyInsertWhereClause { get; }
@@ -88,7 +88,7 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
     public string KeyDeclareNewId { get; }
 
     public string Template => $@"
-{KeyHeaderCreation} {KeyProcedureName}({KeyParameters})
+{KeyHeaderCreationPhrase}({KeyParameters})
 BEGIN
     IF EXISTS(SELECT 1 FROM {KeyTableName} WHERE {KeyGeneralWhereClause}{KeyEntityFilterSegment}) THEN
         
