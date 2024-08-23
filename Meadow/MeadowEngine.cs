@@ -90,7 +90,7 @@ namespace Meadow
         
         private ISqlTranslator SetupQueryTranslator() 
         {
-            var translator = ISqlTranslator.NullSqlTranslator.Instance;
+            var translator = NullSqlTranslator.Instance;
 
             try
             {

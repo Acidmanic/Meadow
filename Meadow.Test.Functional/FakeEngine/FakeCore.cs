@@ -111,7 +111,7 @@ namespace Meadow.Test.Functional.FakeEngine
 
         public override ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
         {
-            return ISqlTranslator.NullSqlTranslator.Instance;
+            return NullSqlTranslator.Instance;
         }
     }
 }

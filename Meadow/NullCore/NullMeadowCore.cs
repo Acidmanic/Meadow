@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Meadow.Configuration;
 using Meadow.Contracts;
-using Meadow.DataAccessCore;
 using Meadow.Requests;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -144,7 +143,7 @@ namespace Meadow.NullCore
 
         public ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
         {
-            return ISqlTranslator.NullSqlTranslator.Instance;
+            return NullSqlTranslator.Instance;
         }
 
 
