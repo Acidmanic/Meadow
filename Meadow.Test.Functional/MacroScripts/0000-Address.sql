@@ -1,4 +1,2 @@
-
--- {{Shave Meadow.Test.Functional.Models.Address}}
--- {{SCrud Meadow.Test.Functional.Models.Address}}
--- {{SFiltering Meadow.Test.Functional.Models.Address}}
+-- {{Crud Meadow.Test.Functional.Models.Address}}
+-- {{Filtering Meadow.Test.Functional.Models.Address}}
