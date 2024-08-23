@@ -1,66 +1,16 @@
-using System.Collections.Generic;
 using System.Linq;
 using Meadow.Contracts;
-using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
-using Meadow.Scaffolding.Snippets.Builtin;
 
-namespace Meadow.SQLite.SqlScriptsGenerators;
+namespace Meadow.SQLite.Snippets;
 
-[CommonSnippet(CommonSnippets.SaveProcedure)]
-public class SaveProceduresSnippet : ISnippet
+public class SaveProcedureByCollectionNameSnippet : ISnippet
 {
     public SnippetToolbox? Toolbox { get; set; }
 
-
-    public List<ISnippet> SaveByCollectionNames => CreateSaveSnippets();
-
-
-    public string Template => $"{{{nameof(SaveByCollectionNames)}}}";
-
-
-    private List<ISnippet> CreateSaveSnippets()
-    {
-        var snippets = new List<ISnippet>();
-        
-        if (Toolbox is { } toolbox)
-        {
-            snippets.Add(new TitleBarSnippet($"Save Procedures For Type: {toolbox.EntityType.Name}:{toolbox.EffectiveType.Name} Table: {toolbox.ProcessedType.NameConvention.TableName}"));
-            
-            var profile = toolbox.ProcessedType.RecordIdentificationProfile;
-
-            foreach (var collectiveIdSet in profile.CollectiveIdentifiersByName)
-            {
-                var analysis = toolbox.ComponentsProcessor
-                    .CreateSaveProcedureAnalysis(collectiveIdSet.Key, collectiveIdSet.Value.ToArray());
-                
-                snippets.Add(new SaveByCollectionNameSnippet(toolbox,analysis));
-                
-                snippets.Add(new CommentLineSnippet());
-            }
-            foreach (var singularIdSet in profile.SingularIdentifiersByName)
-            {
-                var analysis = toolbox.ComponentsProcessor
-                    .CreateSaveProcedureAnalysis(singularIdSet.Key, singularIdSet.Value);
-                
-                snippets.Add(new SaveByCollectionNameSnippet(toolbox,analysis));
-                
-                snippets.Add(new CommentLineSnippet());
-            }
-        }
-
-        return snippets;
-    }
-  
-}
-
-public class SaveByCollectionNameSnippet : ISnippet
-{
-    public SnippetToolbox? Toolbox { get; set; }
-
-    public SaveByCollectionNameSnippet(SnippetToolbox toolbox,SaveProcedureComponents saveComponents)
+    public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox,SaveProcedureComponents saveComponents)
     {
         Toolbox = toolbox;
         KeyProcedureName = saveComponents.ProcedureName;
