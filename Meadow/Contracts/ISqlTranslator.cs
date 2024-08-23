@@ -2,7 +2,9 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Configuration;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Meadow.Contracts;
 
@@ -21,6 +23,7 @@ public interface ISqlTranslator
 
     string TranslateSearchTerm(Type entityType, string[] searchTerms);
 
-
     string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree);
+
+    string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
 }

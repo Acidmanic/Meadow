@@ -2,6 +2,7 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Configuration;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -35,28 +36,35 @@ public class NullSqlTranslator : ISqlTranslator
     {
         LogError();
 
-        return "";
+        return string.Empty;
     }
 
     public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
     {
         LogError();
 
-        return "";
+        return string.Empty;
     }
 
     public string TranslateSearchTerm(Type entityType, string[] searchTerms)
     {
         LogError();
 
-        return "";
+        return string.Empty;
     }
 
     public string TranslateOrders(Type entityType, OrderTerm[] orders, bool fullTree)
     {
         LogError();
 
-        return "";
+        return string.Empty;
+    }
+
+    public string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName)
+    {
+        LogError();
+
+        return string.Empty;
     }
 
     private void LogError()

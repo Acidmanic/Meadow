@@ -1,17 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using Acidmanic.Utilities.Filtering;
-using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
-using Meadow.Contracts;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
-using Microsoft.Extensions.Logging;
 
 namespace Meadow.Postgre
 {
     public class PostgreSqlTranslator : SqlTranslatorBase
     {
+        public override string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName)
+        {
+            var creationHeader = "create";
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                creationHeader = "create or replace";
+            }
+            
+            return creationHeader + $" \"{procedureName}\"";
+        }
+
         protected override bool DoubleQuotesColumnNames => true;
         protected override bool DoubleQuotesTableNames => true;
 

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
@@ -10,6 +9,7 @@ using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
@@ -116,6 +116,8 @@ namespace Meadow.Sql
 
             return string.Join(", ", terms);
         }
+
+        public abstract string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
         {

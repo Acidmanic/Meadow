@@ -2,12 +2,29 @@ using System;
 using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
 using Meadow.Extensions;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Sql;
 
 namespace Meadow.SQLite
 {
     public class SqLiteTranslator : SqlTranslatorBase
     {
+        public override string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName)
+        {
+            var creationHeader = "CREATE PROCEDURE";
+
+            if (repetition == RepetitionHandling.Skip)
+            {
+                creationHeader = "CREATE IF NOT EXISTS";
+            }
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                creationHeader = "CREATE OR ALTER";
+            }
+
+            return creationHeader + " " + procedureName;
+        }
 
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
