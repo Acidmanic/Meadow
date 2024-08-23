@@ -10,58 +10,39 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
 {
     public SnippetToolbox? Toolbox { get; set; }
 
-    public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox,SaveProcedureComponents saveComponents)
+    public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox, SaveProcedureComponents saveComponents)
     {
         Toolbox = toolbox;
-        KeyProcedureName = saveComponents.ProcedureName;
-        PreKeyWhereClause =toolbox.ParameterNameValueSetJoint(saveComponents.WhereEqualities, " AND ", "@");
-        PreKeyInsertColumns=string.Join(',', saveComponents.InsertUpdateParameters.Select(p => p.Name));
-        PreKeyInsertValues=string.Join(',', saveComponents.InsertUpdateParameters.Select(p => "@" + p.Name));
-        PreKeyUpdates=toolbox.ParameterNameValueSetJoint(saveComponents.InsertUpdateParameters, ",", "@");
-        KeyParameters=toolbox.ParameterNameTypeJoint(toolbox.ProcessedType.Parameters, ",", "@");
+
+        KeyProcedureCreationHeader = toolbox.SqlTranslator.CreateProcedurePhrase
+            (toolbox.Configurations.RepetitionHandling, saveComponents.ProcedureName);
+        
+        PreKeyWhereClause = toolbox.ParameterNameValueSetJoint(saveComponents.WhereEqualities, " AND ", "@");
+        PreKeyInsertColumns = string.Join(',', saveComponents.InsertUpdateParameters.Select(p => p.Name));
+        PreKeyInsertValues = string.Join(',', saveComponents.InsertUpdateParameters.Select(p => "@" + p.Name));
+        PreKeyUpdates = toolbox.ParameterNameValueSetJoint(saveComponents.InsertUpdateParameters, ",", "@");
+        KeyParameters = toolbox.ParameterNameTypeJoint(toolbox.ProcessedType.Parameters, ",", "@");
     }
 
-    public string KeyHeaderCreation
-    {
-        get
-        {
-            var creationHeader = "CREATE PROCEDURE";
-
-            if (Toolbox is { } toolbox)
-            {
-                if (toolbox.Configurations.RepetitionHandling == RepetitionHandling.Skip)
-                {
-                    creationHeader = "CREATE IF NOT EXISTS";
-                }
-
-                if (toolbox.Configurations.RepetitionHandling == RepetitionHandling.Alter)
-                {
-                    creationHeader = "CREATE OR ALTER";
-                }
-            }
-
-            return creationHeader;
-        }
-    }
-
-    public string KeyProcedureName { get; }
+    public string KeyProcedureCreationHeader { get; }
     
     public string PreKeyWhereClause { get; }
-    
+
     public string PreKeyInsertColumns { get; }
-    
+
     public string PreKeyInsertValues { get; }
-    
+
     public string PreKeyUpdates { get; }
 
     public string KeyTableName => Toolbox?.ProcessedType.NameConvention.TableName ?? "";
 
-    public string KeyEntityFilterSegment => Toolbox?.GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly, " AND ", " ") ??"";
+    public string KeyEntityFilterSegment =>
+        Toolbox?.GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly, " AND ", " ") ?? "";
 
     public string KeyParameters { get; }
-    
+
     public string Template => $@"
-{KeyHeaderCreation} {KeyProcedureName} ({KeyParameters}) AS
+{KeyProcedureCreationHeader}({KeyParameters}) AS
 
     BEGIN;
     PRAGMA temp_store = 2;

@@ -55,18 +55,6 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
     }
 
     public string KeyHeaderCreationPhrase { get; }
-    // {
-    //     get
-    //     {
-    //         if (Toolbox is { } toolbox && toolbox.Configurations.RepetitionHandling == RepetitionHandling.Alter)
-    //         {
-    //             return "DROP PROCEDURE IF EXISTS " + KeyProcedureName + ";" +
-    //                    "\nCREATE PROCEDURE";
-    //         }
-    //
-    //         return "CREATE PROCEDURE";
-    //     }
-    // }
     
     public string KeyGeneralWhereClause { get; }
     
