@@ -12,7 +12,7 @@ public class ComponentsProcessor
         ProcessedType = processedType;
     }
 
-    public ProcessedType ProcessedType { get; }
+    private ProcessedType ProcessedType { get; }
     
     public SaveProcedureComponents CreateSaveProcedureAnalysis(string collectionName, params FieldKey[] identifierFields)
     {
