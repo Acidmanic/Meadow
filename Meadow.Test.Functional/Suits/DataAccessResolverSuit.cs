@@ -1,10 +1,7 @@
-using System;
-using System.Collections.Generic;
 using Meadow.Configuration;
 using Meadow.DataAccessResolving;
 using Meadow.MySql;
 using Meadow.Postgre;
-using Meadow.SQLite;
 using Meadow.SQLite.Extensions;
 using Meadow.SqlServer;
 using Xunit;
@@ -12,6 +9,7 @@ using Xunit.Abstractions;
 
 namespace Meadow.Test.Functional.Suits;
 
+[Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class DataAccessResolverSuit
 {
 

@@ -11,6 +11,7 @@ using Xunit.Abstractions;
 
 namespace Meadow.Test.Functional.Suits;
 
+[Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class SnippetsTranslationSuit
 {
 
