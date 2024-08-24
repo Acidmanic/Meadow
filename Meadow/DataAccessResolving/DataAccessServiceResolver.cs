@@ -6,6 +6,8 @@ using Acidmanic.Utilities.Reflection.Extensions;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
+using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Snippets;
 
 namespace Meadow.DataAccessResolving;
 
@@ -21,9 +23,21 @@ public class DataAccessServiceResolver
 
 
     public ISqlTranslator SqlTranslator => Produce<ISqlTranslator>();
-    
+
     public IDbTypeNameMapper DbTypeNameMapper => Produce<IDbTypeNameMapper>();
-    
+
+
+    public ISnippet? InstantiateSnippet(CommonSnippets commonSnippets)
+    {
+        var snippetType = Find<ISnippet>(a => a is CommonSnippetAttribute csa && csa.SnippetType == commonSnippets);
+        
+        if (snippetType is { } type)
+        {
+            return ConstructOrDefault(type) as ISnippet;
+        }
+
+        return null;
+    }
 
     private T Produce<T>() where T : class
     {
@@ -51,7 +65,8 @@ public class DataAccessServiceResolver
     {
         var parameterTypes = parameters.Select(p => p.GetType()).ToArray();
 
-        var constructor = type.GetConstructors().FirstOrDefault(constructorInfo => IsMatch(constructorInfo, parameterTypes));
+        var constructor = type.GetConstructors()
+            .FirstOrDefault(constructorInfo => IsMatch(constructorInfo, parameterTypes));
 
         if (constructor is { } c)
         {
@@ -84,8 +99,12 @@ public class DataAccessServiceResolver
     }
 
 
-    private Type Find<T>()
+    private Type Find<T>(Func<Attribute, bool>? attributeFilter = null)
     {
+        Func<Attribute, bool> aFilter = _ => true;
+
+        if (attributeFilter is { } filter) aFilter = filter;
+
         if (MeadowEngine.DataAccessAssembly() is { } assembly)
         {
             var typeToFind = typeof(T);
@@ -94,7 +113,9 @@ public class DataAccessServiceResolver
                 .GetAvailableTypes()
                 .FirstOrDefault(t =>
                     !t.IsAbstract && !t.IsInterface &&
-                    TypeCheck.InheritsFrom(typeToFind, t));
+                    TypeCheck.InheritsFrom(typeToFind, t)
+                    && t.GetCustomAttributes().Any(aFilter));
+
             if (foundType is { } implementationType)
             {
                 return implementationType;
