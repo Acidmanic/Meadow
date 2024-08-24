@@ -63,6 +63,24 @@ namespace Meadow.SQLite
             return definition;
         }
 
+        public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
+        {
+            var creationHeader = "CREATE VIEW";
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                creationHeader = "DROP VIEW IF EXISTS " + viewName + ";" +
+                                 "\nCREATE";
+            }
+
+            if (repetition == RepetitionHandling.Skip)
+            {
+                creationHeader = "CREATE VIEW IF NOT EXISTS";
+            }
+
+            return creationHeader + " " + viewName;
+        }
+
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 

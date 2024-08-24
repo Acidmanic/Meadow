@@ -82,7 +82,7 @@ public class NullSqlTranslator : ISqlTranslator
         return string.Empty;
     }
 
-    public string TableColumnDefinition(Parameter parameter, ParameterIdentifierStatus status = ParameterIdentifierStatus.None)
+    public string CreateViewPhrase(RepetitionHandling repetition, string viewName)
     {
         LogError();
 

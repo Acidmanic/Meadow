@@ -54,6 +54,18 @@ namespace Meadow.Postgre
             return definition;
         }
 
+        public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
+        {
+            var creationHeader = "create view";
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                creationHeader = "create or replace view";
+            }
+
+            return $"{creationHeader} \"{viewName}\"";
+        }
+
         protected override bool DoubleQuotesColumnNames => true;
         protected override bool DoubleQuotesTableNames => true;
 

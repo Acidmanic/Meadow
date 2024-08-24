@@ -31,4 +31,6 @@ public interface ISqlTranslator
     string CreateTablePhrase(RepetitionHandling repetition, string tableName);
 
     string TableColumnDefinition(Parameter parameter);
+    
+    string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 }

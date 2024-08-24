@@ -49,6 +49,17 @@ namespace Meadow.MySql
             return tableColumnDefinition;
         }
 
+        public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
+        {
+            if (repetition == RepetitionHandling.Alter)
+            {
+                return "DROP VIEW IF EXISTS " + viewName + ";" +
+                       "\nCREATE VIEW " + viewName;
+            }
+
+            return "CREATE VIEW " + viewName;
+        }
+
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 

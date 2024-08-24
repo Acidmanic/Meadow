@@ -48,6 +48,16 @@ namespace Meadow.SqlServer
             return definition;
         }
 
+        public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
+        {
+            if (repetition == RepetitionHandling.Alter)
+            {
+                return "CREATE OR ALTER VIEW " + viewName;
+            }
+
+            return "CREATE VIEW " + viewName;
+        }
+
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 
