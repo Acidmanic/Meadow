@@ -51,6 +51,7 @@ public class SnippetsTranslationSuit
     [InlineData(Databases.SqLite,CommonSnippets.FullTreeView)]
     [InlineData(Databases.MySql,CommonSnippets.CreateTable)]
     [InlineData(Databases.MySql,CommonSnippets.SaveProcedure)]
+    [InlineData(Databases.MySql,CommonSnippets.FullTreeView)]
     private void Should_Translate_TableScripts(Databases database, CommonSnippets snippets)
     {
         var context = new Context(database);
