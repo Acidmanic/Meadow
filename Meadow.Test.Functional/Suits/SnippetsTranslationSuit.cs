@@ -21,10 +21,14 @@ public class SnippetsTranslationSuit
         public Context(Databases databases)
         {
             var setup = new MeadowEngineSetup();
-        
+            
             setup.SelectDatabase(databases);
-
-            setup.CreateEngine();
+            
+            setup.CreateEngine(c =>
+            {
+                c.AddFilter<Address>(b => b.Where(a => a.IsDeleted).IsEqualTo(false));
+                c.AddFilter<Person>(b => b.Where(p => p.IsDeleted).IsEqualTo(false));    
+            });
 
             MeadowConfiguration = setup.Configuration;
         }
@@ -44,6 +48,7 @@ public class SnippetsTranslationSuit
     [Theory]
     [InlineData(Databases.SqLite,CommonSnippets.CreateTable)]
     [InlineData(Databases.SqLite,CommonSnippets.SaveProcedure)]
+    [InlineData(Databases.SqLite,CommonSnippets.FullTreeView)]
     [InlineData(Databases.MySql,CommonSnippets.CreateTable)]
     [InlineData(Databases.MySql,CommonSnippets.SaveProcedure)]
     private void Should_Translate_TableScripts(Databases database, CommonSnippets snippets)

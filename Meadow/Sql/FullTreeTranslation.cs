@@ -139,8 +139,8 @@ public class FullTreeTranslation
             $"LEFT JOIN {source} ON {_q.QuoteTableName(pointerTableName)}.{_q.QuoteColumnName(pointerIdFieldName)} =" +
             $" {_q.QuoteTableName(pointedAtTableName)}.{_q.QuoteColumnName(pointedAtIdField)}";
     }
-
-
+    
+    
     private string GetAlternatedSelectSource(FilterQuery queryFilter, string name)
     {
         var whereClause = GetFiltersWhereClause(ColumnNameTranslation.FullTree,queryFilter);

@@ -144,7 +144,11 @@ public class FindPagedSuit
     {
         var env = new Environment<PersonsDataProvider>();
 
-        env.RegulateMeadowConfigurations(configurations => { configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false)); });
+        env.RegulateMeadowConfigurations(configurations =>
+        {
+            configurations.AddFilter<Person>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
+            configurations.AddFilter<Address>(builder => builder.Where(d => d.IsDeleted).IsEqualTo(false));
+        });
 
 
         env.Perform(Databases, e =>
