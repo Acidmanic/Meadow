@@ -18,6 +18,24 @@ namespace Meadow.Postgre
             return creationHeader + $" \"{procedureName}\"";
         }
 
+        public override string CreateTablePhrase(RepetitionHandling repetition, string tableName)
+        {
+            var creationHeader = "create table";
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                creationHeader = $"drop table if exists \"{tableName}\";" +
+                                 $"\ncreate table";
+            }
+
+            if (repetition == RepetitionHandling.Skip)
+            {
+                creationHeader = "create table if not exists";
+            }
+
+            return $"{creationHeader} \"{tableName}\"";
+        }
+
         protected override bool DoubleQuotesColumnNames => true;
         protected override bool DoubleQuotesTableNames => true;
 

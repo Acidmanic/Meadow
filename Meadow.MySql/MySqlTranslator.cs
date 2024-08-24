@@ -17,6 +17,24 @@ namespace Meadow.MySql
             return "CREATE PROCEDURE "+procedureName;
         }
 
+        public override string CreateTablePhrase(RepetitionHandling repetition, string tableName)
+        {
+            var dropping = "";
+            var creation = "CREATE TABLE";
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                dropping = "DROP TABLE IF EXISTS " + tableName + ";\n";
+            }
+
+            if (repetition == RepetitionHandling.Skip)
+            {
+                creation = "CREATE TABLE IF NOT EXISTS";
+            }
+
+            return $"{dropping}{creation} {tableName}";
+        }
+
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 

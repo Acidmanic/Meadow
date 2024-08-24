@@ -119,6 +119,8 @@ namespace Meadow.Sql
 
         public abstract string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
 
+        public abstract string CreateTablePhrase(RepetitionHandling repetition, string tableName);
+
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
         {
             if (fullTree)

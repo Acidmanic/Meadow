@@ -67,6 +67,13 @@ public class NullSqlTranslator : ISqlTranslator
         return string.Empty;
     }
 
+    public string CreateTablePhrase(RepetitionHandling repetition, string tableName)
+    {
+        LogError();
+
+        return string.Empty;
+    }
+
     private void LogError()
     {
         Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +

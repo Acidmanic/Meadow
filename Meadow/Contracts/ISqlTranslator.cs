@@ -26,4 +26,5 @@ public interface ISqlTranslator
     string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree);
 
     string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
+    string CreateTablePhrase(RepetitionHandling repetition, string tableName);
 }

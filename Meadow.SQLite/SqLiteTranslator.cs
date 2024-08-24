@@ -26,6 +26,24 @@ namespace Meadow.SQLite
             return creationHeader + " " + procedureName;
         }
 
+        public override string CreateTablePhrase(RepetitionHandling repetition, string tableName)
+        {
+            var creationHeader = "CREATE TABLE " + tableName;
+
+            if (repetition == RepetitionHandling.Alter)
+            {
+                creationHeader = "DROP TABLE IF EXISTS " + tableName + ";" +
+                                 "\nCREATE TABLE " + tableName;
+            }
+
+            if (repetition == RepetitionHandling.Skip)
+            {
+                creationHeader = "CREATE TABLE IF NOT EXISTS " + tableName;
+            }
+
+            return creationHeader;
+        }
+
         protected override bool DoubleQuotesColumnNames => false;
         protected override bool DoubleQuotesTableNames => false;
 
@@ -38,8 +56,8 @@ namespace Meadow.SQLite
         {
             Configuration = configuration;
         }
-        
-        
+
+
         protected override string EmptyOrderExpression(Type entityType, bool fullTree)
         {
             var nc = Configuration.GetNameConvention(entityType);
@@ -62,8 +80,6 @@ namespace Meadow.SQLite
             var fieldName = TranslateFieldName(entityType, headlessKey, fullTree);
 
             return table + '.' + fieldName;
-
-
         }
 
         private string HeadLess(string key)
