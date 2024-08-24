@@ -3,6 +3,7 @@ using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -68,6 +69,20 @@ public class NullSqlTranslator : ISqlTranslator
     }
 
     public string CreateTablePhrase(RepetitionHandling repetition, string tableName)
+    {
+        LogError();
+
+        return string.Empty;
+    }
+
+    public string TableColumnDefinition(Parameter parameter)
+    {
+        LogError();
+
+        return string.Empty;
+    }
+
+    public string TableColumnDefinition(Parameter parameter, ParameterIdentifierStatus status = ParameterIdentifierStatus.None)
     {
         LogError();
 
