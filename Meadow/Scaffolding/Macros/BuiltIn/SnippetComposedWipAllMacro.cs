@@ -4,9 +4,9 @@ using Meadow.Scaffolding.Macros.SnippetComposed;
 
 namespace Meadow.Scaffolding.Macros.BuiltIn
 {
-    public class SnippetComposedSaveMacro : SnippetComposedMacroBase
+    public class SnippetComposedWipAllMacro : SnippetComposedMacroBase
     {
-        public override string Name { get; } = "ScSave";
+        public override string Name { get; } = "WipAll";
 
         protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
