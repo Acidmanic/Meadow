@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Snippets;
 
@@ -9,9 +11,11 @@ public class TableSnippet : ISnippet
     public SnippetToolbox? Toolbox { get; set; }
 
 
-    public string CreateTablePhrase => Toolbox?.DataAccessServiceResolver.SqlTranslator.CreateTablePhrase(
+    public string CreateTablePhrase => Toolbox?.SqlTranslator.CreateTablePhrase(
         Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.TableName) ?? string.Empty;
 
-    public string Template => @"{CreateTablePhrase}";
+    public List<string> Parameters => Toolbox?.ProcessedType.Parameters.Select(Toolbox.SqlTranslator.TableColumnDefinition).ToList() ?? new List<string>();
+    
+    public string Template => @"{CreateTablePhrase}({Parameters});";
 }
