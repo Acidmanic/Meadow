@@ -242,7 +242,6 @@ public class SnippetComposedSaveSuit
             File.Delete(file);
 
             var content = @"
--- {{Table Meadow.Test.Functional.Models.Person}}
 -- {{ScSave Meadow.Test.Functional.Models.Person}}
 -- {{ReadAll Meadow.Test.Functional.Models.Person}}
 -- {{Insert Meadow.Test.Functional.Models.Person}}
@@ -258,7 +257,6 @@ public class SnippetComposedSaveSuit
             File.Delete(file);
             
             content = @"
--- {{Table Meadow.Test.Functional.Models.Tag}}
 -- {{ScSave Meadow.Test.Functional.Models.Tag}}
 -- {{ReadAll Meadow.Test.Functional.Models.Tag}}
 -- {{Insert Meadow.Test.Functional.Models.Tag}}

@@ -3,6 +3,7 @@ using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Configuration;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -26,4 +27,8 @@ public interface ISqlTranslator
     string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree);
 
     string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
+    
+    string CreateTablePhrase(RepetitionHandling repetition, string tableName);
+
+    string TableColumnDefinition(Parameter parameter);
 }

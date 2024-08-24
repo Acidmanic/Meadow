@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Meadow.Scaffolding.Models;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;

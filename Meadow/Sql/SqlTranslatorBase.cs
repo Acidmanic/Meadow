@@ -10,6 +10,7 @@ using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
+using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
@@ -118,6 +119,10 @@ namespace Meadow.Sql
         }
 
         public abstract string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
+
+        public abstract string CreateTablePhrase(RepetitionHandling repetition, string tableName);
+        
+        public abstract string TableColumnDefinition(Parameter parameter);
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
         {
