@@ -18,7 +18,7 @@ namespace Meadow.Postgre
             {
                 creationHeader = "create or replace";
             }
-            
+
             return creationHeader + $" \"{procedureName}\"";
         }
 
@@ -66,8 +66,9 @@ namespace Meadow.Postgre
             return $"{creationHeader} \"{viewName}\"";
         }
 
-        protected override bool DoubleQuotesColumnNames => true;
-        protected override bool DoubleQuotesTableNames => true;
+        public  override bool DoubleQuotesColumnNames => true;
+        public  override bool DoubleQuotesTableNames => true;
+
 
         protected override string NotEqualOperator => "<>";
 

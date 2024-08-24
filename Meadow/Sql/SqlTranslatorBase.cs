@@ -11,6 +11,7 @@ using Meadow.Extensions;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
+using Meadow.Sql.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Meadow.Sql
@@ -22,21 +23,21 @@ namespace Meadow.Sql
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
         
-        protected record QuoterSet(Func<string, string> QuoteTableName, Func<string, string> QuoteColumnName);
-
+        
         protected SqlTranslatorBase(IValueTranslator valueTranslator)
         {
             _valueTranslator = valueTranslator;
         }
+        
 
-        protected QuoterSet GetQuoters() => new QuoterSet(
-            DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s,
-            DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s);
+        public virtual string AliasQuote => "'";
 
+        public virtual ColumnNameTranslation EntityFilterWhereClauseColumnTranslation =>
+            ColumnNameTranslation.DataOwnerDotColumnName;
 
         public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
         {
-            var q = GetQuoters();
+            var q = this.GetQuoters();
             
             Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, q.QuoteColumnName(item.Key));
 
@@ -90,7 +91,7 @@ namespace Meadow.Sql
 
             var nc = Configuration.GetNameConvention(entityType);
 
-            var q = GetQuoters();
+            var q = this.GetQuoters();
 
             var searchIndexTable = nc.SearchIndexTableName;
 
@@ -107,7 +108,7 @@ namespace Meadow.Sql
                 return EmptyOrderExpression(entityType, fullTree);
             }
 
-            var q = GetQuoters().QuoteColumnName;
+            var q = this.GetQuoters().QuoteColumnName;
             
             var map = Configuration.GetFullTreeMap(entityType);
             Func<OrderTerm, string> sort = o => o.Sort == OrderSort.Descending ? "DESC" : "ASC";
@@ -208,9 +209,9 @@ namespace Meadow.Sql
 
         
 
-        protected abstract bool DoubleQuotesColumnNames { get; }
+        public abstract bool DoubleQuotesColumnNames { get; }
 
-        protected abstract bool DoubleQuotesTableNames { get; }
+        public abstract bool DoubleQuotesTableNames { get; }
 
         protected virtual string EmptyConditionExpression => "";
 

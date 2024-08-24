@@ -81,8 +81,8 @@ namespace Meadow.SQLite
             return creationHeader + " " + viewName;
         }
 
-        protected override bool DoubleQuotesColumnNames => false;
-        protected override bool DoubleQuotesTableNames => false;
+        public  override bool DoubleQuotesColumnNames => false;
+        public  override bool DoubleQuotesTableNames => false;
 
 
         protected override string EmptyConditionExpression => "TRUE";

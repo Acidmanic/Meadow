@@ -33,62 +33,44 @@ public class NullSqlTranslator : ISqlTranslator
     public ILogger Logger { get; set; } = NullLogger.Instance;
     public MeadowConfiguration Configuration { get; set; } = new();
 
-    public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
+    public string AliasQuote=> ErrorAndTranslateEmpty();
+
+    public bool DoubleQuotesColumnNames  => ErrorAndReturnFalse();
+    public bool DoubleQuotesTableNames => ErrorAndReturnFalse();
+
+    public ColumnNameTranslation EntityFilterWhereClauseColumnTranslation
+    {
+        get
+        {
+            LogError();
+
+            return ColumnNameTranslation.ColumnNameOnly;
+        }
+    }
+
+    public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation) => ErrorAndTranslateEmpty();
+    public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree) => ErrorAndTranslateEmpty();
+    public string TranslateSearchTerm(Type entityType, string[] searchTerms) => ErrorAndTranslateEmpty();
+    public string TranslateOrders(Type entityType, OrderTerm[] orders, bool fullTree) => ErrorAndTranslateEmpty();
+    public string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName) => ErrorAndTranslateEmpty();
+    public string CreateTablePhrase(RepetitionHandling repetition, string tableName) => ErrorAndTranslateEmpty();
+    public string TableColumnDefinition(Parameter parameter) => ErrorAndTranslateEmpty();
+
+    public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
+
+    private string ErrorAndTranslateEmpty()
     {
         LogError();
 
         return string.Empty;
     }
-
-    public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
+    private bool ErrorAndReturnFalse()
     {
         LogError();
 
-        return string.Empty;
+        return false;
     }
-
-    public string TranslateSearchTerm(Type entityType, string[] searchTerms)
-    {
-        LogError();
-
-        return string.Empty;
-    }
-
-    public string TranslateOrders(Type entityType, OrderTerm[] orders, bool fullTree)
-    {
-        LogError();
-
-        return string.Empty;
-    }
-
-    public string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName)
-    {
-        LogError();
-
-        return string.Empty;
-    }
-
-    public string CreateTablePhrase(RepetitionHandling repetition, string tableName)
-    {
-        LogError();
-
-        return string.Empty;
-    }
-
-    public string TableColumnDefinition(Parameter parameter)
-    {
-        LogError();
-
-        return string.Empty;
-    }
-
-    public string CreateViewPhrase(RepetitionHandling repetition, string viewName)
-    {
-        LogError();
-
-        return string.Empty;
-    }
-
+    
     private void LogError()
     {
         Logger.LogError("Your DataAccessCore implementation does not provide FilterQuery Translation. " +

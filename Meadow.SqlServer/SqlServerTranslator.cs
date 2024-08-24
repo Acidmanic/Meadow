@@ -58,8 +58,8 @@ namespace Meadow.SqlServer
             return "CREATE VIEW " + viewName;
         }
 
-        protected override bool DoubleQuotesColumnNames => false;
-        protected override bool DoubleQuotesTableNames => false;
+        public  override bool DoubleQuotesColumnNames => false;
+        public  override bool DoubleQuotesTableNames => false;
 
         public SqlServerTranslator(MeadowConfiguration configuration)
         :base(new SqlServerValueTranslator(configuration.ExternalTypeCasts))

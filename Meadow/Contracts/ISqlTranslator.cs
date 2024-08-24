@@ -5,7 +5,6 @@ using Meadow.Configuration;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Meadow.Contracts;
 
@@ -17,7 +16,14 @@ public interface ISqlTranslator
     
     MeadowConfiguration Configuration { get; set; }
     
+    string AliasQuote { get; }
+    
+    bool DoubleQuotesColumnNames { get; }
 
+    bool DoubleQuotesTableNames { get; }
+    
+    ColumnNameTranslation EntityFilterWhereClauseColumnTranslation { get; }
+    
     string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation);
 
     string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
@@ -33,4 +39,5 @@ public interface ISqlTranslator
     string TableColumnDefinition(Parameter parameter);
     
     string CreateViewPhrase(RepetitionHandling repetition, string viewName);
+    
 }

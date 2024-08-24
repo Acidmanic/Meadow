@@ -4,12 +4,15 @@ using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.DataTypeMapping;
+using Meadow.Extensions;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
+using Meadow.Sql;
 using Meadow.Utility;
 
 namespace Meadow.Scaffolding.Snippets;
@@ -39,6 +42,10 @@ public class SnippetToolbox
     
     public  DataAccessServiceResolver DataAccessServiceResolver { get; }
     
+    public FullTreeTranslation FullTreeTranslation { get; }
+    
+    
+    
     public SnippetToolbox(SnippetConstruction construction, SnippetConfigurations configurations)
     {
         Construction = construction;
@@ -63,6 +70,8 @@ public class SnippetToolbox
         ComponentsProcessor = new ComponentsProcessor(ProcessedType);
             
         RegisteredFilter = GetRegisteredFilter();
+
+        FullTreeTranslation = new FullTreeTranslation(construction.MeadowConfiguration,ProcessedType, SqlTranslator);
     }
     
     private FilterQuery GetRegisteredFilter() => GetRegisteredFilter(EffectiveType);
@@ -80,20 +89,19 @@ public class SnippetToolbox
     }
 
 
-    public string GetFiltersWhereClause(ColumnNameTranslation translation, string successPrefix, string successPostfix)
+    public string GetEntityFiltersWhereClause(string successPrefix, string successPostfix)
     {
-        var entityFilterExpression = GetFiltersWhereClause(translation);
+        var entityFilterExpression = GetEntityFiltersWhereClause();
 
         var entityFilterSegment = entityFilterExpression.Success ? $"{successPrefix}{entityFilterExpression.Value}{successPostfix}" : "";
 
         return entityFilterSegment;
     }
     
-    public Result<string> GetFiltersWhereClause(ColumnNameTranslation translation) =>
-        GetFiltersWhereClause(EffectiveType, translation);
+    public Result<string> GetEntityFiltersWhereClause() => GetEntityFiltersWhereClause(EffectiveType);
         
         
-    public Result<string> GetFiltersWhereClause(Type type, ColumnNameTranslation translation)
+    public Result<string> GetEntityFiltersWhereClause(Type type)
     {
         var queryFilter = GetRegisteredFilter(type);
 
@@ -106,7 +114,7 @@ public class SnippetToolbox
             return new Result<string>().FailAndDefaultValue();
         }
 
-        var translatedQuery = SqlTranslator.TranslateFilterQueryToDbExpression(queryFilter, translation);
+        var translatedQuery = SqlTranslator.TranslateFilterQueryToDbExpression(queryFilter,SqlTranslator.EntityFilterWhereClauseColumnTranslation);
 
         return new Result<string>(true, translatedQuery);
     }

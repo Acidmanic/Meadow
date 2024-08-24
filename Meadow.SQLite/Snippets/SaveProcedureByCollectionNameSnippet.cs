@@ -36,8 +36,7 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
 
     public string KeyTableName => Toolbox?.ProcessedType.NameConvention.TableName ?? "";
 
-    public string KeyEntityFilterSegment =>
-        Toolbox?.GetFiltersWhereClause(ColumnNameTranslation.ColumnNameOnly, " AND ", " ") ?? "";
+    public string KeyEntityFilterSegment => Toolbox?.GetEntityFiltersWhereClause( " AND ", " ") ?? "";
 
     public string KeyParameters { get; }
 
