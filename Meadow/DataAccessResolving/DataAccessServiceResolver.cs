@@ -101,10 +101,14 @@ public class DataAccessServiceResolver
 
     private Type Find<T>(Func<Attribute, bool>? attributeFilter = null)
     {
-        Func<Attribute, bool> aFilter = _ => true;
 
-        if (attributeFilter is { } filter) aFilter = filter;
+        Func<Type, bool> typeFilter = _ => true;
 
+        if (attributeFilter is { } aFilter)
+        {
+            typeFilter = t => t.GetCustomAttributes().Any(aFilter);
+        }
+        
         if (MeadowEngine.DataAccessAssembly() is { } assembly)
         {
             var typeToFind = typeof(T);
@@ -114,8 +118,8 @@ public class DataAccessServiceResolver
                 .FirstOrDefault(t =>
                     !t.IsAbstract && !t.IsInterface &&
                     TypeCheck.InheritsFrom(typeToFind, t)
-                    && t.GetCustomAttributes().Any(aFilter));
-
+                    && typeFilter(t));
+            
             if (foundType is { } implementationType)
             {
                 return implementationType;
