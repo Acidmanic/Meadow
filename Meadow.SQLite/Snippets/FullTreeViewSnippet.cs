@@ -11,6 +11,7 @@ public class FullTreeViewSnippet : ISnippet
     public SnippetToolbox? Toolbox { get; set; }
 
     public ISnippet Line => new CommentLineSnippet();
+    public ISnippet Split => new SplitSnippet();
 
     public string CreateViewPhrase => Toolbox?.SqlTranslator
         .CreateViewPhrase(Toolbox.Configurations.RepetitionHandling,
@@ -31,6 +32,6 @@ public class FullTreeViewSnippet : ISnippet
 {CreateViewPhrase} AS 
     SELECT {FullTreeAliasedParameters}
     FROM   {TableName}{KeyInnerJoins}{KeyWhereClause};
-{Line}
+{Split}
 ";
 }
