@@ -36,12 +36,6 @@ namespace Meadow.SqlServer
             await PerformRequestAsync(request, configuration);
         }
 
-        public override ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
-        {
-            return new SqlServerTranslator(configuration);
-        }
-
-
         protected override IDbDataParameter InstantiateParameter()
         {
             return new SqlParameter();

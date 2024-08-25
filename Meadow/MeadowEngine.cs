@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.BuildupScripts;
 using Meadow.Configuration;
 using Meadow.Configuration.Requests;
@@ -68,7 +67,7 @@ namespace Meadow
         }
 
 
-        static internal Assembly? DataAccessAssembly()
+        internal static Assembly? DataAccessAssembly()
         {
             if (_coreProvider is { } provider)
             {
@@ -87,33 +86,6 @@ namespace Meadow
 
             return null;
         }
-        
-        private ISqlTranslator SetupQueryTranslator() 
-        {
-            var translator = NullSqlTranslator.Instance;
-
-            try
-            {
-                var core = _coreProvider.CreateDataAccessCore();
-
-                var t = core.ProvideFilterQueryTranslator(_configuration);
-
-                if (t != null)
-                {
-                    translator = t;
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error getting query translator.");
-            }
-
-            translator.Logger = _logger;
-
-            translator.Configuration = _configuration;
-
-            return translator;
-        }
 
         public MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
@@ -122,7 +94,7 @@ namespace Meadow
         {
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
 
-            request.SetContext(new RequestContext(SetupQueryTranslator(),_configuration));
+            request.SetContext(new RequestContext(_configuration));
 
             if (request is ConfigurationRequest<TOut> configRequest)
             {
@@ -144,7 +116,7 @@ namespace Meadow
         {
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
 
-            request.SetContext(new RequestContext(SetupQueryTranslator(),_configuration));
+            request.SetContext(new RequestContext(_configuration));
 
             if (request is ConfigurationRequest<TOut> configRequest)
             {

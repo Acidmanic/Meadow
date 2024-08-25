@@ -65,7 +65,5 @@ namespace Meadow.Contracts
         Task CreateReadAllProcedureAsync<TModel>(MeadowConfiguration configuration);
 
         IMeadowDataAccessCore Initialize(MeadowConfiguration configuration,ILogger logger);
-
-        ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration);
     }
 }

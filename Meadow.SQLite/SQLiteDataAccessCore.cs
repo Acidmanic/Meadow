@@ -36,12 +36,6 @@ namespace Meadow.SQLite
             AddCarrierInterceptor(new SqLiteCommandInterceptor());
         }
 
-
-        public override ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration)
-        {
-            return new SqLiteTranslator(configuration);
-        }
-
         protected override IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             DataStorageAdapter = new SqLiteStorageAdapter(configuration, Logger);

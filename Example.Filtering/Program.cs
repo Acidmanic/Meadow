@@ -160,13 +160,6 @@ namespace Example.Filtering
                 EqualityValues = new List<object> { "Mani", "Mona", "Farshid" },
                 ValueType = typeof(string)
             });
-            // filter.Add(new FilterItem
-            // {
-            //     Key = "Job.IncomeInRials",
-            //     ValueComparison = ValueComparison.LargerThan,
-            //     Minimum = "1000",
-            //     ValueType = typeof(long)
-            // });
 
             engine.PerformRequest(new RemoveExpiredFilterResultsRequest(1000));
 

@@ -113,8 +113,6 @@ namespace Meadow.DataAccessCore
             return InitializeDerivedClass(configuration);
         }
 
-        public abstract ISqlTranslator ProvideFilterQueryTranslator(MeadowConfiguration configuration);
-
         protected virtual IMeadowDataAccessCore InitializeDerivedClass(MeadowConfiguration configuration)
         {
             return this;
