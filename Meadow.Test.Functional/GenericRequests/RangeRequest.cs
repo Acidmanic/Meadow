@@ -12,7 +12,7 @@ namespace Meadow.Test.Functional.GenericRequests
             {
                 ToStorage = new FieldNameShell
                 {
-                    FieldName = context.Translator.TranslateFieldName(typeof(TEntity),fieldName,FullTreeReadWrite())
+                    FieldName = context.SqlTranslator.TranslateFieldName(typeof(TEntity),fieldName,FullTreeReadWrite())
                 };
             });
         }

@@ -14,13 +14,13 @@ public class RequestContext
         
         Configuration = configuration;
 
-        Translator = dataAccessServiceResolver.SqlTranslator;
+        SqlTranslator = dataAccessServiceResolver.SqlTranslator;
         Transliterator = configuration.TransliterationService;
         ValueTranslator = dataAccessServiceResolver.ValueTranslator;
         TypeNameMapper = dataAccessServiceResolver.DbTypeNameMapper;
     }
 
-    public ISqlTranslator Translator { get; }
+    public ISqlTranslator SqlTranslator { get; }
     
     public ITransliterationService Transliterator { get; }
     

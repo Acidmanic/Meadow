@@ -21,7 +21,7 @@ namespace Example.Filtering.Requests
             {
                 ToStorage = new FilterShell
                 {
-                    FilterExpression = context.Translator.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite()?ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly),
+                    FilterExpression = context.SqlTranslator.TranslateFilterQueryToDbExpression(filterQuery,FullTreeReadWrite()?ColumnNameTranslation.FullTree:ColumnNameTranslation.ColumnNameOnly),
                     ExpirationTimeStamp = typeof(TEntity).GetFilterResultExpirationPointMilliseconds(),
                     SearchId = searchId
                 };

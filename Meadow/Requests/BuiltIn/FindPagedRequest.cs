@@ -19,18 +19,18 @@ namespace Meadow.Requests.BuiltIn
         {
             Setup(context =>
             {
-                var filterExpression = context.Translator.TranslateFilterQueryToDbExpression(filter,
+                var filterExpression = context.SqlTranslator.TranslateFilterQueryToDbExpression(filter,
                     FullTreeReadWrite() ? ColumnNameTranslation.FullTree : ColumnNameTranslation.ColumnNameOnly);
 
                 searchTerms ??= new string[] { };
 
                 searchTerms = searchTerms.Select(context.Transliterator.Transliterate).ToArray();
 
-                var searchExpression = context.Translator.TranslateSearchTerm(typeof(TStorage), searchTerms);
+                var searchExpression = context.SqlTranslator.TranslateSearchTerm(typeof(TStorage), searchTerms);
 
                 orders ??= new OrderTerm[] { };
 
-                var ordersExpression = context.Translator.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
+                var ordersExpression = context.SqlTranslator.TranslateOrders(typeof(TStorage), orders, FullTreeReadWrite());
 
                 ToStorage = new FindPagedDto(offset, size, filterExpression, searchExpression, ordersExpression);
             });
