@@ -1,6 +1,7 @@
 using Meadow.Configuration;
 using Meadow.DataAccessResolving;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Scaffolding.Snippets.Extensions;
 using Meadow.Test.Functional.Models;
@@ -60,7 +61,8 @@ public class SnippetsTranslationSuit
         
         var snippet = context.InstantiateSnippet(snippets);
 
-        var generatedSnippet = snippet.Generate(context.MeadowConfiguration, typeof(Person));
+        var generatedSnippet = snippet.Generate(context.MeadowConfiguration, typeof(Person),
+            b => b.RepetitionHandling(RepetitionHandling.Alter));
 
         AssertSnippetIsGenerated(generatedSnippet);
         

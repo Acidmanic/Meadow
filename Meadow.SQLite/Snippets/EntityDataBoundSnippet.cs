@@ -7,30 +7,32 @@ namespace Meadow.SQLite.Snippets;
 
 public class EntityDataBoundSnippet : ISnippet
 {
-    private readonly SnippetToolboxBuilder _builder;
+    private readonly SnippetToolbox _toolbox;
 
     public EntityDataBoundSnippet(Type entityType,MeadowConfiguration configuration, RepetitionHandling repetitionHandling)
     {
-        _builder = new SnippetToolboxBuilder(configuration, entityType);
+        var builder = new SnippetToolboxBuilder(configuration, entityType);
 
-        _builder.RepetitionHandling(repetitionHandling);
+        builder.RepetitionHandling(repetitionHandling);
+
+        _toolbox = builder.Build();
     }
 
     public SnippetToolbox? Toolbox
     {
-        get => _builder.Build();
+        get => _toolbox;
         set { }
     }
 
     public string KeyRangeProcedureCreationPhrase
-        => Toolbox?.SqlTranslator.CreateProcedurePhrase(Toolbox.Configurations.RepetitionHandling,
-            Toolbox.ProcessedType.NameConvention.RangeProcedureName) ?? string.Empty;
+        => _toolbox.SqlTranslator.CreateProcedurePhrase(_toolbox.Configurations.RepetitionHandling,
+            _toolbox.ProcessedType.NameConvention.RangeProcedureName);
 
     public string KeyExistingValuesProcedureCreationPhrase
-        => Toolbox?.SqlTranslator.CreateProcedurePhrase(Toolbox.Configurations.RepetitionHandling,
-            Toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName) ?? string.Empty;
+        => _toolbox.SqlTranslator.CreateProcedurePhrase(_toolbox.Configurations.RepetitionHandling,
+            _toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
 
-    public string KeyTableName => Toolbox?.ProcessedType.NameConvention.TableName ?? string.Empty;
+    public string KeyTableName => _toolbox.ProcessedType.NameConvention.TableName;
 
     public string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
