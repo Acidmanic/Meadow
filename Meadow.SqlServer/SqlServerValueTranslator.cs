@@ -10,6 +10,10 @@ public class SqlServerValueTranslator : ValueTranslatorBase
     public SqlServerValueTranslator(List<ICast> externalCasts) : base(externalCasts)
     {
     }
+    
+    public SqlServerValueTranslator(MeadowConfiguration configuration) : base(configuration)
+    {
+    }
 
     protected override string EscapedStringValueQuote => "''";
 

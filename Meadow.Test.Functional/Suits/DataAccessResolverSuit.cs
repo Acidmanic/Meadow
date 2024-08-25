@@ -1,7 +1,9 @@
 using Meadow.Configuration;
 using Meadow.DataAccessResolving;
+using Meadow.DataTypeMapping;
 using Meadow.MySql;
 using Meadow.Postgre;
+using Meadow.Scaffolding.Attributes;
 using Meadow.SQLite.Extensions;
 using Meadow.SqlServer;
 using Xunit;
@@ -46,7 +48,34 @@ public class DataAccessResolverSuit
     [InlineData("mysql")]
     [InlineData("sqlserver")]
     [InlineData("postgre")]
-    public void Should_Resolve_DbTypeNameMapper(string dataAccessName)
+    public void Should_Resolve_DbTypeNameMapper(string dataAccessName) =>
+        Should_Resolve_Type<IDbTypeNameMapper>(dataAccessName);
+    
+    [Theory]
+    [InlineData("sqlite")]
+    [InlineData("mysql")]
+    [InlineData("sqlserver")]
+    [InlineData("postgre")]
+    public void Should_Resolve_SqlTranslator(string dataAccessName) =>
+        Should_Resolve_Type<IDbTypeNameMapper>(dataAccessName);
+    
+    [Theory]
+    [InlineData("sqlite")]
+    [InlineData("mysql")]
+    [InlineData("sqlserver")]
+    [InlineData("postgre")]
+    public void Should_Resolve_ValueTranslator(string dataAccessName) =>
+        Should_Resolve_Type<IValueTranslator>(dataAccessName);
+    
+    
+    [Theory]
+    [InlineData("sqlite",CommonSnippets.CreateTable)]
+    [InlineData("sqlite",CommonSnippets.FullTreeView)]
+    [InlineData("sqlite",CommonSnippets.SaveProcedure)]
+    [InlineData("mysql",CommonSnippets.CreateTable)]
+    [InlineData("mysql",CommonSnippets.FullTreeView)]
+    [InlineData("mysql",CommonSnippets.SaveProcedure)]
+    public void Should_Resolve_Snippets(string dataAccessName,CommonSnippets snippet)
     {
         var context = new Context();
         
@@ -54,17 +83,31 @@ public class DataAccessResolverSuit
 
         var resolver = new DataAccessServiceResolver(context.Configuration);
 
-        var mapper = resolver.DbTypeNameMapper;
+        var resolvedInstance = resolver.InstantiateSnippet(snippet);
 
-        Assert.NotNull(mapper);
+        Assert.NotNull(resolvedInstance);
         
-        _outputHelper.WriteLine("DA: {0},Found DbTypeNameMapper: {1}",dataAccessName, mapper.GetType());
-
-        var translator = resolver.SqlTranslator;
-        
-        Assert.NotNull(translator);
-        
-        _outputHelper.WriteLine("DA: {0},Found SqlExpressionTranslator: {1}",dataAccessName, translator.GetType());
+        _outputHelper.WriteLine("DA: {0},Found {1}: {2}",dataAccessName, resolvedInstance.GetType().FullName,snippet);
     }
+    
+    
+    public void Should_Resolve_Type<T>(string dataAccessName) where T : class
+    {
+        var context = new Context();
+        
+        context.UseDataAccess(dataAccessName);
+
+        var resolver = new DataAccessServiceResolver(context.Configuration);
+
+        var resolvedInstance = resolver.GetService<T>();
+
+        Assert.NotNull(resolvedInstance);
+
+        Assert.IsAssignableFrom<T>(resolvedInstance);
+        
+        _outputHelper.WriteLine("DA: {0},Found {1}: {2}",dataAccessName, resolvedInstance.GetType().FullName,typeof(T).Name);
+        
+    }
+    
     
 }

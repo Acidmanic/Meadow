@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.Casting;
 using Acidmanic.Utilities.Reflection.Extensions;
+using Meadow.Configuration;
 
 namespace Meadow.DataTypeMapping;
 
@@ -14,6 +15,10 @@ public abstract class ValueTranslatorBase : IValueTranslator
     public ValueTranslatorBase(List<ICast> externalCasts)
     {
         _externalCasts = externalCasts;
+    }
+    
+    public ValueTranslatorBase(MeadowConfiguration configuration):this(configuration.ExternalTypeCasts)
+    {
     }
 
     public string Translate(object? value)

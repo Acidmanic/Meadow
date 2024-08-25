@@ -10,6 +10,10 @@ public class PostgreValueTranslator : ValueTranslatorBase
     public PostgreValueTranslator(List<ICast> externalCasts) : base(externalCasts)
     {
     }
+    
+    public PostgreValueTranslator(MeadowConfiguration configuration) : base(configuration)
+    {
+    }
 
     protected override string EscapedStringValueQuote => "\\'";
 

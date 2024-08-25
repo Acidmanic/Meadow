@@ -10,6 +10,10 @@ public class SqLiteValueTranslator : ValueTranslatorBase
     public SqLiteValueTranslator(List<ICast> externalCasts) : base(externalCasts)
     {
     }
+    
+    public SqLiteValueTranslator(MeadowConfiguration configuration) : base(configuration)
+    {
+    }
 
     protected override string EscapedStringValueQuote => "\\'";
 

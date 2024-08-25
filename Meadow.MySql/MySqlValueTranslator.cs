@@ -11,6 +11,10 @@ public class MySqlValueTranslator : ValueTranslatorBase
     {
     }
 
+    public MySqlValueTranslator(MeadowConfiguration configuration) : base(configuration)
+    {
+    }
+
     protected override string EscapedStringValueQuote => "\\'";
 
     public static MySqlValueTranslator Create(MeadowConfiguration configuration)

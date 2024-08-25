@@ -22,11 +22,11 @@ public class DataAccessServiceResolver
     }
 
 
-    public ISqlTranslator SqlTranslator => Produce<ISqlTranslator>();
+    public ISqlTranslator SqlTranslator => GetService<ISqlTranslator>();
 
-    public IDbTypeNameMapper DbTypeNameMapper => Produce<IDbTypeNameMapper>();
+    public IDbTypeNameMapper DbTypeNameMapper => GetService<IDbTypeNameMapper>();
 
-
+    
     public ISnippet? InstantiateSnippet(CommonSnippets commonSnippets)
     {
         var snippetType = Find<ISnippet>(a => a is CommonSnippetAttribute csa && csa.SnippetType == commonSnippets);
@@ -39,7 +39,7 @@ public class DataAccessServiceResolver
         return null;
     }
 
-    private T Produce<T>() where T : class
+    public T GetService<T>() where T : class
     {
         var foundType = Find<T>();
 
