@@ -28,7 +28,7 @@ public class EntityDataBoundSnippet : ISnippet
 
     public string KeyExistingValuesProcedureCreationPhrase
         => Toolbox?.SqlTranslator.CreateProcedurePhrase(Toolbox.Configurations.RepetitionHandling,
-            Toolbox.ProcessedType.NameConvention.RangeProcedureName) ?? string.Empty;
+            Toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName) ?? string.Empty;
 
     public string KeyTableName => Toolbox?.ProcessedType.NameConvention.TableName ?? string.Empty;
 

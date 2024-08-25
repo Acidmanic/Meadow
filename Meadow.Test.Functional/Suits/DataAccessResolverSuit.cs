@@ -72,6 +72,7 @@ public class DataAccessResolverSuit
     [InlineData("sqlite",CommonSnippets.CreateTable)]
     [InlineData("sqlite",CommonSnippets.FullTreeView)]
     [InlineData("sqlite",CommonSnippets.SaveProcedure)]
+    [InlineData("sqlite",CommonSnippets.DataBound)]
     [InlineData("mysql",CommonSnippets.CreateTable)]
     [InlineData("mysql",CommonSnippets.FullTreeView)]
     [InlineData("mysql",CommonSnippets.SaveProcedure)]
