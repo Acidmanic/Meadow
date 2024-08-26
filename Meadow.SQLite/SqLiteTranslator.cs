@@ -22,7 +22,7 @@ namespace Meadow.SQLite
 
             if (repetition == RepetitionHandling.Alter)
             {
-                creationHeader = "CREATE OR ALTER";
+                creationHeader = "CREATE OR ALTER PROCEDURE";
             }
 
             return creationHeader + " " + procedureName;
