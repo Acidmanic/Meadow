@@ -1,12 +1,7 @@
-using System;
 using System.Collections.Generic;
-using Meadow.Configuration;
-using Meadow.DataTypeMapping;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.CodeGenerators;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
-using Meadow.Scaffolding.Models;
-using Newtonsoft.Json.Serialization;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
