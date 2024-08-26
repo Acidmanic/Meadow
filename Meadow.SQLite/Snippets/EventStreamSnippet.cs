@@ -36,7 +36,7 @@ public class EventStreamSnippet:ISnippet
         return string.Empty;
     }
     
-    public string Template => $@"
+    public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE TABLE {KeyTableName} (
     {KeyEventIdDefinition}

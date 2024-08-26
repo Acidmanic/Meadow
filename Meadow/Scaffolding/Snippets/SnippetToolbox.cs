@@ -98,6 +98,7 @@ public class SnippetToolbox
         return entityFilterSegment;
     }
     
+    
     public Result<string> GetEntityFiltersWhereClause() => GetEntityFiltersWhereClause(EffectiveType);
         
         

@@ -54,6 +54,7 @@ public class SnippetsTranslationSuit
     [InlineData(Databases.SqLite,CommonSnippets.FullTreeView)]
     [InlineData(Databases.SqLite,CommonSnippets.DataBound)]
     [InlineData(Databases.SqLite,CommonSnippets.EventStreamScript)]
+    [InlineData(Databases.SqLite,CommonSnippets.FindPaged)]
     [InlineData(Databases.MySql,CommonSnippets.CreateTable)]
     [InlineData(Databases.MySql,CommonSnippets.SaveProcedure)]
     [InlineData(Databases.MySql,CommonSnippets.FullTreeView)]
