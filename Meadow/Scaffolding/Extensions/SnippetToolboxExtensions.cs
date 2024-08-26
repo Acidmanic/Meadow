@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Scaffolding.Snippets;
 
@@ -46,6 +47,30 @@ public static class SnippetToolboxExtensions
             .Where(parameterSelector)
             .Select(p => toolbox.ParameterNameTypeJoint(p,toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix) ));
     }
+
+    public static bool ActsById(this SnippetToolbox toolbox) => toolbox.Configurations.IdAwarenessBehavior.Is(IdAwarenessBehavior.UseById); 
+    
+    public static string GetReadProcedureDefinitionParametersPhrase(this SnippetToolbox toolbox )
+    {
+        var byId = ActsById(toolbox);
+
+
+        if (byId)
+        {
+            return $"({toolbox.ParameterNameTypeJoint(toolbox.ProcessedType.IdParameter,
+                toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix)})";
+        }
+
+        //TODO: Add parameterLess procedure paranthesis (bool)
+        return string.Empty;
+    }
+    
+    public static string WhereByIdClause(this SnippetToolbox toolbox )
+    {
+        return ActsById(toolbox) ? $" WHERE {toolbox.ProcessedType.IdParameter?.Name} = {toolbox.SqlTranslator.ProcedureBodyParameterNamePrefix}{toolbox.ProcessedType.IdParameter?.Name}" : string.Empty;
+    }
+    
+    
 
     public static string IdFieldNameOrDefault(this SnippetToolbox toolbox, string defaultName)
     {

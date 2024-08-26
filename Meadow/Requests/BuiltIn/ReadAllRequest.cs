@@ -15,7 +15,7 @@ namespace Meadow.Requests.BuiltIn
             {
                 var nc = Configuration.GetNameConvention<TEntity>();
 
-                return FullTreeReadWrite() ? nc.SelectAllProcedureNameFullTree : nc.SelectAllProcedureName;
+                return FullTreeReadWrite() ? nc.ReadAllProcedureNameFullTree : nc.ReadAllProcedureName;
             }
         }
     }

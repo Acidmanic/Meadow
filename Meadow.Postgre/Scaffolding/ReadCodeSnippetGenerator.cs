@@ -68,16 +68,16 @@ namespace Meadow.Postgre.Scaffolding
         {
             return ProvideDbObjectNameSupportingOverriding(() =>
                 ActById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureName
-                    : ProcessedType.NameConvention.SelectAllProcedureName).DoubleQuot();
+                    ? ProcessedType.NameConvention.ReadByIdProcedureName
+                    : ProcessedType.NameConvention.ReadAllProcedureName).DoubleQuot();
         }
 
         protected string GetProcedureNameFullTree()
         {
             return ProvideDbObjectNameSupportingOverriding(() =>
                 ActById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
-                    : ProcessedType.NameConvention.SelectAllProcedureNameFullTree).DoubleQuot();
+                    ? ProcessedType.NameConvention.ReadByIdProcedureNameFullTree
+                    : ProcessedType.NameConvention.ReadAllProcedureNameFullTree).DoubleQuot();
         }
 
         protected override void AddBodyReplacements(Dictionary<string, string> replacementList)

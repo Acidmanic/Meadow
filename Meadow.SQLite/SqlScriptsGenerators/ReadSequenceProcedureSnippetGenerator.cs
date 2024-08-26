@@ -56,8 +56,8 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private string GetProcedureName()
         {
             return ProvideDbObjectNameSupportingOverriding(() => ActById
-                ? ProcessedType.NameConvention.SelectByIdProcedureName
-                : ProcessedType.NameConvention.SelectAllProcedureName);
+                ? ProcessedType.NameConvention.ReadByIdProcedureName
+                : ProcessedType.NameConvention.ReadAllProcedureName);
         }
 
         protected override string Template => $@"

@@ -52,13 +52,13 @@ namespace Meadow.SqlServer.Scaffolding.SqlScriptsGenerators
                 if (fullTree)
                 {
                     return ActById
-                        ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
-                        : ProcessedType.NameConvention.SelectAllProcedureNameFullTree;
+                        ? ProcessedType.NameConvention.ReadByIdProcedureNameFullTree
+                        : ProcessedType.NameConvention.ReadAllProcedureNameFullTree;
                 }
 
                 return ActById
-                    ? ProcessedType.NameConvention.SelectByIdProcedureName
-                    : ProcessedType.NameConvention.SelectAllProcedureName;
+                    ? ProcessedType.NameConvention.ReadByIdProcedureName
+                    : ProcessedType.NameConvention.ReadAllProcedureName;
             });
         }
 

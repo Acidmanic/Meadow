@@ -71,13 +71,13 @@ namespace Meadow.Contracts
 
             DeleteByIdProcedureName = "spDelete" + EntityName + "ById";
 
-            SelectByIdProcedureName = "spRead" + EntityName + "ById";
+            ReadByIdProcedureName = "spRead" + EntityName + "ById";
 
-            SelectByIdProcedureNameFullTree = "spRead" + EntityName + "ByIdFullTree";
+            ReadByIdProcedureNameFullTree = "spRead" + EntityName + "ByIdFullTree";
 
-            SelectAllProcedureName = "spReadAll" + TableName;
+            ReadAllProcedureName = "spReadAll" + TableName;
 
-            SelectAllProcedureNameFullTree = "spReadAll" + TableName + "FullTree";
+            ReadAllProcedureNameFullTree = "spReadAll" + TableName + "FullTree";
 
             SelectFirstProcedureName = "spSelectFirst" + TableName;
             SelectLastProcedureName = "spSelectLast" + TableName;
@@ -162,12 +162,13 @@ namespace Meadow.Contracts
 
         public string DeleteAllProcedureName { get; }
 
-        public string SelectByIdProcedureName { get; }
+        public string ReadByIdProcedureName { get; }
 
-        public string SelectByIdProcedureNameFullTree { get; }
+        public string ReadByIdProcedureNameFullTree { get; }
 
-        public string SelectAllProcedureName { get; }
+        public string ReadAllProcedureName { get; }
 
+        public string ReadAllProcedureNameFullTree { get; }
 
         public string SelectFirstProcedureName { get; }
 
@@ -177,7 +178,6 @@ namespace Meadow.Contracts
 
         public string SelectLastProcedureNameFullTree { get; }
 
-        public string SelectAllProcedureNameFullTree { get; }
 
 
         public string UpdateProcedureName { get; }

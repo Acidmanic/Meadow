@@ -115,12 +115,12 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
                         ? nameConvention.SelectLastProcedureNameFullTree
                         : nameConvention.SelectLastProcedureName,
                     _ => fullTree
-                        ? nameConvention.SelectAllProcedureNameFullTree
-                        : nameConvention.SelectAllProcedureName
+                        ? nameConvention.ReadAllProcedureNameFullTree
+                        : nameConvention.ReadAllProcedureName
                 };
             }
 
-            return fullTree ? nameConvention.SelectByIdProcedureNameFullTree : nameConvention.SelectByIdProcedureName;
+            return fullTree ? nameConvention.ReadByIdProcedureNameFullTree : nameConvention.ReadByIdProcedureName;
         }
 
         private readonly string _keyIdParam = GenerateKey();

@@ -13,7 +13,7 @@ namespace Meadow.Tools.Assistant.Commands.ExtractBuildScripts
 
         public override string RequestText
         {
-            get => Configuration.GetNameConvention<MeadowDatabaseHistory>().SelectAllProcedureName;
+            get => Configuration.GetNameConvention<MeadowDatabaseHistory>().ReadAllProcedureName;
             protected set { }
         }
     }

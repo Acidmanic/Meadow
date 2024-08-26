@@ -96,15 +96,15 @@ namespace Meadow.SQLite.SqlScriptsGenerators
         private string GetProcedureName()
         {
             return ProvideDbObjectNameSupportingOverriding(() => ActById
-                ? ProcessedType.NameConvention.SelectByIdProcedureName
-                : ProcessedType.NameConvention.SelectAllProcedureName);
+                ? ProcessedType.NameConvention.ReadByIdProcedureName
+                : ProcessedType.NameConvention.ReadAllProcedureName);
         }
 
         private string GetProcedureNameFullTree()
         {
             return ProvideDbObjectNameSupportingOverriding(() => ActById
-                ? ProcessedType.NameConvention.SelectByIdProcedureNameFullTree
-                : ProcessedType.NameConvention.SelectAllProcedureNameFullTree);
+                ? ProcessedType.NameConvention.ReadByIdProcedureNameFullTree
+                : ProcessedType.NameConvention.ReadAllProcedureNameFullTree);
         }
 
 
