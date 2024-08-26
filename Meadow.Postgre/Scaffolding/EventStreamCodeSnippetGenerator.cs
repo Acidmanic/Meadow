@@ -6,7 +6,7 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.Postgre.Scaffolding
 {
-    [CommonSnippet(CommonSnippets.EventSteamScript)]
+    [CommonSnippet(CommonSnippets.EventStreamScript)]
     public class EventStreamCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)

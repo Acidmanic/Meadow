@@ -11,7 +11,7 @@ public enum CommonSnippets
     ReadProcedure,
     UpdateProcedure,
     SaveProcedure,
-    EventSteamScript,
+    EventStreamScript,
     FilteringProcedures,
     FindPaged,
     FullTreeView,
@@ -33,7 +33,7 @@ public class CommonSnippetsInfo
         _idAwares.Add(CommonSnippets.ReadProcedure,true);
         _idAwares.Add(CommonSnippets.UpdateProcedure,false);
         _idAwares.Add(CommonSnippets.SaveProcedure,false);
-        _idAwares.Add(CommonSnippets.EventSteamScript,false);
+        _idAwares.Add(CommonSnippets.EventStreamScript,false);
         _idAwares.Add(CommonSnippets.FilteringProcedures,false);
         _idAwares.Add(CommonSnippets.FullTreeView,false);
         _idAwares.Add(CommonSnippets.DataBound,false);

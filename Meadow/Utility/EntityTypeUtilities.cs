@@ -183,6 +183,7 @@ public static class EntityTypeUtilities
         if (foundAsEventStream)
         {
             process.EventStream = foundAsEventStream;
+            process.EventIdType = foundAsEventStream.Value.EventIdType;
             process.EventIdTypeName = typeNameMapper.GetDatabaseTypeName(foundAsEventStream.Value.EventIdType);
             process.StreamIdTypeName = typeNameMapper.GetDatabaseTypeName(foundAsEventStream.Value.StreamIdType);
             process.EventStreamTypeNameDatabaseType = typeNameMapper.GetDatabaseTypeNameForString
@@ -225,6 +226,7 @@ public static class EntityTypeUtilities
             if (leaf.IsUnique || leaf.IsAutoValued)
             {
                 profile.AddSingularIdentifierItem(leaf.Name,fieldKey);
+                
             }else if (leaf.PropertyAttributes.FirstOrDefault(at => at is CollectiveIdentifierAttribute) is
                       CollectiveIdentifierAttribute collectiveIdentifier)
             {

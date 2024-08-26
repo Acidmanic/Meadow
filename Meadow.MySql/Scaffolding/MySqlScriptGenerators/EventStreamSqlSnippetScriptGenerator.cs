@@ -5,7 +5,7 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 {
-    [CommonSnippet(CommonSnippets.EventSteamScript)]
+    [CommonSnippet(CommonSnippets.EventStreamScript)]
     public class EventStreamSqlSnippetScriptGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         private readonly string _keyTableName = GenerateKey();

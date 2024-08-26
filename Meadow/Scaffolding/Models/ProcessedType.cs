@@ -21,8 +21,7 @@ namespace Meadow.Scaffolding.Models
         public List<Parameter> NoneIdUniqueParameters { get; set; } = new();
 
         public Parameter IdParameter { get; set; }
-
-
+        
         public List<Parameter> ParametersFullTree { get; set; } = new List<Parameter>();
 
         public List<Parameter> NoneIdParametersFullTree { get; set; } = new List<Parameter>();
@@ -43,6 +42,8 @@ namespace Meadow.Scaffolding.Models
         public EventStreamInfo EventStream { get; set; }
 
         public string EventIdTypeName { get; set; }
+        
+        public Type? EventIdType { get; set; }
 
         public string StreamIdTypeName { get; set; }
 

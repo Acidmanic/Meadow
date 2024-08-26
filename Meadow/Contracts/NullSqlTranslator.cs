@@ -55,8 +55,9 @@ public class NullSqlTranslator : ISqlTranslator
     public string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName) => ErrorAndTranslateEmpty();
     public string CreateTablePhrase(RepetitionHandling repetition, string tableName) => ErrorAndTranslateEmpty();
     public string TableColumnDefinition(Parameter parameter) => ErrorAndTranslateEmpty();
-
     public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
+    public string ProcedureBodyParameterNamePrefix => ErrorAndTranslateEmpty();
+    public string ProcedureDefinitionParameterNamePrefix => ErrorAndTranslateEmpty();
 
     private string ErrorAndTranslateEmpty()
     {

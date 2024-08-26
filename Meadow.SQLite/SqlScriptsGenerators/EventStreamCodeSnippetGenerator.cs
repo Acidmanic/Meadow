@@ -5,7 +5,7 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 namespace Meadow.SQLite.SqlScriptsGenerators
 {
-    [CommonSnippet(CommonSnippets.EventSteamScript)]
+    [CommonSnippet(CommonSnippets.EventStreamScript)]
     public class EventStreamCodeSnippetGenerator : ByTemplateSqlSnippetGeneratorBase
     {
         public EventStreamCodeSnippetGenerator(SnippetConstruction construction, SnippetConfigurations configurations)

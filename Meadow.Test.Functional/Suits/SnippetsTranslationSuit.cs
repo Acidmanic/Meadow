@@ -1,3 +1,4 @@
+using System;
 using Meadow.Configuration;
 using Meadow.DataAccessResolving;
 using Meadow.Scaffolding.Attributes;
@@ -52,6 +53,7 @@ public class SnippetsTranslationSuit
     [InlineData(Databases.SqLite,CommonSnippets.SaveProcedure)]
     [InlineData(Databases.SqLite,CommonSnippets.FullTreeView)]
     [InlineData(Databases.SqLite,CommonSnippets.DataBound)]
+    [InlineData(Databases.SqLite,CommonSnippets.EventStreamScript)]
     [InlineData(Databases.MySql,CommonSnippets.CreateTable)]
     [InlineData(Databases.MySql,CommonSnippets.SaveProcedure)]
     [InlineData(Databases.MySql,CommonSnippets.FullTreeView)]
@@ -61,7 +63,7 @@ public class SnippetsTranslationSuit
         
         var snippet = context.InstantiateSnippet(snippets);
 
-        var generatedSnippet = snippet.Generate(context.MeadowConfiguration, typeof(Person),
+        var generatedSnippet = snippet.Generate(context.MeadowConfiguration, GetTestEntityType(snippets),
             b => b.RepetitionHandling(RepetitionHandling.Alter));
 
         AssertSnippetIsGenerated(generatedSnippet);
@@ -69,6 +71,16 @@ public class SnippetsTranslationSuit
         _output.WriteLine(generatedSnippet);
     }
 
+
+    private Type GetTestEntityType(CommonSnippets snippets)
+    {
+        if (snippets == CommonSnippets.EventStreamScript)
+        {
+            return typeof(BigEvent);
+        }
+
+        return typeof(Person);
+    }
 
 
     private void AssertSnippetIsGenerated(string generatedSnippet)

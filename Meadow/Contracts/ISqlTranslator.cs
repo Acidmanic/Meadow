@@ -39,5 +39,8 @@ public interface ISqlTranslator
     string TableColumnDefinition(Parameter parameter);
     
     string CreateViewPhrase(RepetitionHandling repetition, string viewName);
+
+    string ProcedureBodyParameterNamePrefix { get; }
+    string ProcedureDefinitionParameterNamePrefix { get; }
     
 }

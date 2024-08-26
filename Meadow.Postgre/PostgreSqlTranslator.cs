@@ -71,6 +71,9 @@ namespace Meadow.Postgre
 
 
         protected override string NotEqualOperator => "<>";
+        
+        public override string ProcedureBodyParameterNamePrefix => "par_";
+        public override string ProcedureDefinitionParameterNamePrefix => "par_";
 
         public PostgreSqlTranslator(MeadowConfiguration configuration)
             : base(new PostgreValueTranslator(configuration.ExternalTypeCasts))

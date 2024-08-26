@@ -63,6 +63,9 @@ namespace Meadow.MySql
         public override bool DoubleQuotesColumnNames => false;
         public  override bool DoubleQuotesTableNames => false;
 
+        public override string ProcedureBodyParameterNamePrefix => "";
+        public override string ProcedureDefinitionParameterNamePrefix => "IN ";
+
         public MySqlTranslator(MeadowConfiguration configuration):base(new MySqlValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;

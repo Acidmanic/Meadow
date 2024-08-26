@@ -124,7 +124,10 @@ namespace Meadow.Sql
         public abstract string CreateTablePhrase(RepetitionHandling repetition, string tableName);
         
         public abstract string TableColumnDefinition(Parameter parameter);
-        
+
+        public virtual string ProcedureBodyParameterNamePrefix => "@";
+        public virtual string ProcedureDefinitionParameterNamePrefix => "@";
+
         public abstract string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)

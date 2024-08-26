@@ -11,7 +11,7 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
         
         protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
-            builder.Add(CommonSnippets.EventSteamScript).BehaviorUseIdAgnostic();
+            builder.Add(CommonSnippets.EventStreamScript).BehaviorUseIdAgnostic();
         }
     }
 }
