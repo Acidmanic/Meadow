@@ -40,7 +40,7 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
 
     public string KeyParameters { get; }
 
-    public string Template => $@"
+    public string Template => @"
 {KeyProcedureCreationHeader}({KeyParameters}) AS
 
     BEGIN;

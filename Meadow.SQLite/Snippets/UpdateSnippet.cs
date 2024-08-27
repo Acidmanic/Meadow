@@ -20,7 +20,7 @@ public class UpdateSnippet:ISnippet
     
     public string KeyEntityFilterSegment => T(t => t.GetEntityFiltersWhereClause(" AND "," "));
 
-    public string KeyIdFieldName => T(t => t.ProcessedType.IdParameter.Name);
+    public string KeyIdFieldName => T(t => t.ProcessedType.HasId? t.ProcessedType.IdParameter.Name:string.Empty);
     
     private string T(Func<SnippetToolbox, string> pickValue)
     {
@@ -31,7 +31,7 @@ public class UpdateSnippet:ISnippet
 
         return string.Empty;
     }
-    public string Template => $@"
+    public string Template => @"
 {ProcedureDefinition} ({DefinitionParameters}) AS
 
     UPDATE {TableName} SET {KeyNoneIdParametersSet} WHERE {TableName}.{KeyIdFieldName}=@{KeyIdFieldName}{KeyEntityFilterSegment};

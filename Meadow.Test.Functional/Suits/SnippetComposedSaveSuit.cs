@@ -241,13 +241,7 @@ public class SnippetComposedSaveSuit
 
             File.Delete(file);
 
-            var content = @"
--- {{WipAll Meadow.Test.Functional.Models.Person}}
--- {{ReadAll Meadow.Test.Functional.Models.Person}}
--- {{Insert Meadow.Test.Functional.Models.Person}}
--- {{FindPaged Meadow.Test.Functional.Models.Person}}
--- {{Filtering Meadow.Test.Functional.Models.Person}}
-".Trim();
+            var content = "-- {{WipAll Meadow.Test.Functional.Models.Person}}";
             File.WriteAllText(file, content);
 
             
@@ -256,11 +250,7 @@ public class SnippetComposedSaveSuit
 
             File.Delete(file);
             
-            content = @"
--- {{WipAll Meadow.Test.Functional.Models.Tag}}
--- {{ReadAll Meadow.Test.Functional.Models.Tag}}
--- {{Insert Meadow.Test.Functional.Models.Tag}}
-".Trim();
+            content = "-- {{WipSave Meadow.Test.Functional.Models.Tag}}";
             
             File.WriteAllText(file, content);
         });

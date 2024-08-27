@@ -10,7 +10,7 @@ public class EventStreamSnippet:ISnippet
 {
     public SnippetToolbox? Toolbox { get; set; }
 
-    public string KeyTableName => T(t => t.ProcessedType.NameConvention.TableName);
+    public string KeyTableName => T(t => t.ProcessedType.NameConvention.EventStreamTableName);
     public string KeyEventIdType => T(t => t.ProcessedType.EventIdTypeName);
     public string KeyStreamIdType => T(t => t.ProcessedType.StreamIdTypeName);
     public string KeyTypeNameType => T(t => t.ProcessedType.EventStreamTypeNameDatabaseType);

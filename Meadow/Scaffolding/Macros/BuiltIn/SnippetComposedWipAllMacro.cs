@@ -18,7 +18,30 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
             builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
             builder.Add(CommonSnippets.SaveProcedure);
             builder.Add(CommonSnippets.DataBound);
-            builder.Add(CommonSnippets.EventStreamScript);
+            builder.Add(CommonSnippets.FindPaged);
+            builder.Add(CommonSnippets.CreateTable)
+                .BehaviorUseIdAgnostic()
+                .OverrideEntityTypeBySearchIndex()
+                .OverrideDbObjectNameToSearchIndexTableName();
+            builder.Add(CommonSnippets.FindPaged).BehaviorUseIdAgnostic();
+            builder.Add(CommonSnippets.DataBound).BehaviorUseIdAgnostic();
+        }
+    }
+    
+    public class SnippetComposedSaveOnlyMacro : SnippetComposedMacroBase
+    {
+        public override string Name { get; } = "WipSave";
+
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
+        {
+            builder.Add(CommonSnippets.CreateTable);
+            builder.Add(CommonSnippets.FullTreeView);
+            builder.Add(CommonSnippets.InsertProcedure);
+            builder.Add(CommonSnippets.UpdateProcedure);
+            builder.Add(CommonSnippets.DeleteProcedure).BehaviorUseIdAware();
+            builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
+            builder.Add(CommonSnippets.SaveProcedure);
+            builder.Add(CommonSnippets.DataBound);
             builder.Add(CommonSnippets.FindPaged);
         }
     }

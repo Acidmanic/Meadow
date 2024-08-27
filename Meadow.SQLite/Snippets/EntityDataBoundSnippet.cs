@@ -25,11 +25,11 @@ public class EntityDataBoundSnippet : ISnippet
     }
 
     public string KeyRangeProcedureCreationPhrase
-        => _toolbox.SqlTranslator.CreateProcedurePhrase(_toolbox.Configurations.RepetitionHandling,
+        => _toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
             _toolbox.ProcessedType.NameConvention.RangeProcedureName);
 
     public string KeyExistingValuesProcedureCreationPhrase
-        => _toolbox.SqlTranslator.CreateProcedurePhrase(_toolbox.Configurations.RepetitionHandling,
+        => _toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
             _toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
 
     public string KeyTableName => _toolbox.ProcessedType.NameConvention.TableName;

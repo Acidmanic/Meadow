@@ -44,13 +44,13 @@ public class DeleteSnippet : ISnippet
         }
 
         public string Template => $@"
-{ProcedureCreationPhrase}{ByIdParameters} AS
+{{{nameof(ProcedureCreationPhrase)}}}{{{nameof(ByIdParameters)}}} AS
 
     PRAGMA temp_store = 2; /* 2 means use in-memory */
     CREATE TEMP TABLE _Existing(Count INTEGER);
-    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {TableName};
-    DELETE FROM {TableName}{KeyWhereClause};
-    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {TableName};
+    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {nameof(TableName)};
+    DELETE FROM {{{nameof(TableName)}}}{{{nameof(KeyWhereClause)}}};
+    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {{{nameof(TableName)}}};
     SELECT CASE WHEN Count(DISTINCT Count)=2 THEN CAST(1 as bit) ELSE CAST(0 as bit) 
                 END AS Success
                 FROM _Existing;
@@ -94,5 +94,5 @@ GO
     }
 
 
-    public string Template => "{Items}";
+    public string Template => $"{{{nameof(Items)}}}";
 }
