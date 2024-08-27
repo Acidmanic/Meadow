@@ -1,6 +1,7 @@
 using System;
 using Meadow.Configuration;
 using Meadow.DataAccessResolving;
+using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
@@ -56,18 +57,23 @@ public class SnippetsTranslationSuit
     [InlineData(Databases.SqLite,CommonSnippets.EventStreamScript)]
     [InlineData(Databases.SqLite,CommonSnippets.FindPaged)]
     [InlineData(Databases.SqLite,CommonSnippets.InsertProcedure)]
-    [InlineData(Databases.SqLite,CommonSnippets.ReadProcedure)]
+    [InlineData(Databases.SqLite,CommonSnippets.ReadProcedure,IdAwarenessBehavior.UseIdAware)]
     [InlineData(Databases.MySql,CommonSnippets.CreateTable)]
     [InlineData(Databases.MySql,CommonSnippets.SaveProcedure)]
     [InlineData(Databases.MySql,CommonSnippets.FullTreeView)]
-    private void Should_Translate_TableScripts(Databases database, CommonSnippets snippets)
+    public void Should_Translate_TableScripts(Databases database, CommonSnippets snippets,IdAwarenessBehavior behavior = IdAwarenessBehavior.UseNone)
     {
         var context = new Context(database);
         
         var snippet = context.InstantiateSnippet(snippets);
 
         var generatedSnippet = snippet.Generate(context.MeadowConfiguration, GetTestEntityType(snippets),
-            b => b.RepetitionHandling(RepetitionHandling.Alter));
+            b =>
+            {
+                b.RepetitionHandling(RepetitionHandling.Alter);
+                if (behavior.Is(IdAwarenessBehavior.UseAll)) b.BehaviorUseAll();
+                if (behavior.Is(IdAwarenessBehavior.UseById)) b.BehaviorUseById();
+            });
 
         AssertSnippetIsGenerated(generatedSnippet);
         
