@@ -25,7 +25,7 @@ public class ReadSnippet : ISnippet
 
         public string KeyHeaderCreation => T(t => t.CreateReadProcedurePhrase(_fullTree, _byId));
 
-        public string KeyParametersDeclaration => T(t => t.GetReadProcedureDefinitionParametersPhrase(_byId));
+        public string KeyParametersDeclaration => T(t => t.GetIdAwareProcedureDefinitionParametersPhrase(_byId));
         public string KeyTableName => T(t => t.TableOrFullViewName(_fullTree));
         public string KeyWhereClause => T(t => t.WhereByIdClause(_byId, _fullTree));
         public string KeyEntityFilterSegment => _fullTree ? string.Empty : T(t => t.GetEntityFiltersWhereClause($" {(_byId ? "AND " : string.Empty)}", " "));
@@ -68,7 +68,7 @@ GO
                     items.Add(new ReadSnippetBundle(true, false));
                 }
 
-                if (toolbox.ActsById())
+                if (toolbox.ActsAll())
                 {
                     items.Add(new ReadSnippetBundle(false, true));
                     items.Add(new ReadSnippetBundle(true, true));

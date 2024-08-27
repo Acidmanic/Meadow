@@ -12,7 +12,14 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
         {
             builder.Add(CommonSnippets.CreateTable);
             builder.Add(CommonSnippets.FullTreeView);
-            builder.Add(CommonSnippets.SaveProcedure).BehaviorUseIdAgnostic();
+            builder.Add(CommonSnippets.InsertProcedure);
+            builder.Add(CommonSnippets.UpdateProcedure);
+            builder.Add(CommonSnippets.DeleteProcedure).BehaviorUseIdAware();
+            builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
+            builder.Add(CommonSnippets.SaveProcedure);
+            builder.Add(CommonSnippets.DataBound);
+            builder.Add(CommonSnippets.EventStreamScript);
+            builder.Add(CommonSnippets.FindPaged);
         }
     }
 }

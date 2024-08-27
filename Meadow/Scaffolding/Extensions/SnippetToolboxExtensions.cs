@@ -64,10 +64,10 @@ public static class SnippetToolboxExtensions
     public static string IfById(this SnippetToolbox toolbox, string byIdTerm, string notByItTerm = "") => ActsById(toolbox) ? byIdTerm : notByItTerm;
 
 
-    public static string GetReadProcedureDefinitionParametersPhrase(this SnippetToolbox toolbox) =>
-        GetReadProcedureDefinitionParametersPhrase(toolbox, ActsById(toolbox));
+    public static string GetIdAwareProcedureDefinitionParametersPhrase(this SnippetToolbox toolbox) =>
+        GetIdAwareProcedureDefinitionParametersPhrase(toolbox, ActsById(toolbox));
 
-    public static string GetReadProcedureDefinitionParametersPhrase(this SnippetToolbox toolbox, bool byId)
+    public static string GetIdAwareProcedureDefinitionParametersPhrase(this SnippetToolbox toolbox, bool byId)
     {
         if (byId)
         {
@@ -79,6 +79,7 @@ public static class SnippetToolboxExtensions
         return string.Empty;
     }
 
+    
     public static string WhereByIdClause(this SnippetToolbox toolbox, bool fullTree = false) => WhereByIdClause(toolbox, ActsById(toolbox), fullTree);
 
     public static string WhereByIdClause(this SnippetToolbox toolbox, bool actById, bool fullTree)
