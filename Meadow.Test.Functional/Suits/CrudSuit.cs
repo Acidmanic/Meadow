@@ -128,6 +128,8 @@ public class CrudSuit
     {
         var environment = new Environment<PersonsDataProvider>();
         
+        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
+        
         if (considerEntityFilters)
         {
             environment.RegulateMeadowConfigurations(c => { c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false)); });
