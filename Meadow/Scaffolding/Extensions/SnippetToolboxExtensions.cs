@@ -98,9 +98,10 @@ public static class SnippetToolboxExtensions
 
     public static string WhereByIdClause(this SnippetToolbox toolbox, bool actById, bool fullTree)
     {
-        var idParameter = fullTree ? toolbox.ProcessedType.IdParameterFullTree : toolbox.ProcessedType.IdParameter;
-
-        return actById ? $" WHERE {idParameter?.Name} = {toolbox.SqlTranslator.ProcedureBodyParameterNamePrefix}{idParameter?.Name}" : string.Empty;
+        var tableIdParameter = fullTree ? toolbox.ProcessedType.IdParameterFullTree : toolbox.ProcessedType.IdParameter;
+        var procedureIdParameter = toolbox.ProcessedType.IdParameter;
+        
+        return actById ? $" WHERE {tableIdParameter?.Name} = {toolbox.SqlTranslator.ProcedureBodyParameterNamePrefix}{procedureIdParameter?.Name}" : string.Empty;
     }
 
     public static string TableOrFullViewName(this SnippetToolbox toolbox, bool fullTreeView = false)
