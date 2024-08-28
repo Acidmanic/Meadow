@@ -4,10 +4,10 @@ public class SplitSnippet:ISnippet
 {
     public SplitSnippet()
     {
-        Toolbox = null;
+        Toolbox = SnippetToolbox.Null;
     }
 
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } 
     
 
     public string Template => @"

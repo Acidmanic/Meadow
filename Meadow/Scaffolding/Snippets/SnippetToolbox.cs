@@ -19,6 +19,9 @@ namespace Meadow.Scaffolding.Snippets;
 
 public class SnippetToolbox
 {
+    
+    public static SnippetToolbox Null { get; } = new SnippetToolboxBuilder<object>(new MeadowConfiguration()).Build();
+    
     public ProcessedType ProcessedType { get; }
         
     public  ComponentsProcessor ComponentsProcessor { get; }

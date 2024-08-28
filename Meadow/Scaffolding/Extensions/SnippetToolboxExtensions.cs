@@ -22,8 +22,21 @@ public static class SnippetToolboxExtensions
     }
 
 
-    public static string GetSelectColumns(this SnippetToolbox toolbox)
+    public static string GetSelectColumns(this SnippetToolbox toolbox,ColumnNameTranslation columnNameTranslation = ColumnNameTranslation.ColumnNameOnly )
     {
+
+        if (columnNameTranslation == ColumnNameTranslation.FullTree)
+        {
+            return string.Join(',', toolbox.ProcessedType.ParametersFullTree.Select(p => p.Name));    
+        }
+        
+        if (columnNameTranslation == ColumnNameTranslation.DataOwnerDotColumnName)
+        {
+            var effectiveTableName = NameOrOverride(toolbox, nc => nc.TableName);
+            
+            return string.Join(',', toolbox.ProcessedType.Parameters.Select(p => $"{effectiveTableName}.{p.Name}"));    
+        }
+        
         return string.Join(',', toolbox.ProcessedType.Parameters.Select(p => p.Name));
     }
 
@@ -155,5 +168,15 @@ public static class SnippetToolboxExtensions
         }
 
         return pick(toolbox.ProcessedType.NameConvention);
+    }
+
+    public static string CreateTablePhrase(this SnippetToolbox toolbox, string tableName)
+    {
+        return toolbox.SqlTranslator.CreateTablePhrase(toolbox.Configurations.RepetitionHandling, tableName);
+    }
+    
+    public static string CreateTablePhrase(this SnippetToolbox toolbox)
+    {
+        return CreateTablePhrase(toolbox,NameOrOverride(toolbox,nc => nc.TableName));
     }
 }

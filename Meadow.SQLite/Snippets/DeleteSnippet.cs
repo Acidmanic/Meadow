@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
@@ -13,7 +11,7 @@ public class DeleteSnippet : ISnippet
 {
     private class DeleteSnippetCase : ISnippet
     {
-        public SnippetToolbox? Toolbox { get; set; }
+        public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
         private readonly bool _byId;
 
@@ -22,26 +20,15 @@ public class DeleteSnippet : ISnippet
             _byId = byId;
         }
 
-        public string ProcedureCreationPhrase => T(t =>
-            t.SqlTranslator.CreateProcedurePhrase(t.Configurations.RepetitionHandling,
-                _byId ? t.ProcessedType.NameConvention.DeleteByIdProcedureName : t.ProcessedType.NameConvention.DeleteAllProcedureName));
+        public string ProcedureCreationPhrase => Toolbox.SqlTranslator.CreateProcedurePhrase(Toolbox.Configurations.RepetitionHandling,
+            _byId ? Toolbox.ProcessedType.NameConvention.DeleteByIdProcedureName : Toolbox.ProcessedType.NameConvention.DeleteAllProcedureName);
 
-        public string ByIdParameters => T(t => t.GetIdAwareProcedureDefinitionParametersPhrase(_byId));
+        public string ByIdParameters => Toolbox.GetIdAwareProcedureDefinitionParametersPhrase(_byId);
 
-        public string TableName => T(t => t.ProcessedType.NameConvention.TableName);
+        public string TableName => Toolbox.ProcessedType.NameConvention.TableName;
 
-        public string KeyWhereClause => T(t => t.WhereByIdClause(_byId, false));
+        public string KeyWhereClause => Toolbox.WhereByIdClause(_byId, false);
 
-
-        private string T(Func<SnippetToolbox, string> pickValue)
-        {
-            if (Toolbox is { } toolbox)
-            {
-                return pickValue(toolbox);
-            }
-
-            return string.Empty;
-        }
 
         public string Template => $@"
 {{{nameof(ProcedureCreationPhrase)}}}{{{nameof(ByIdParameters)}}} AS
@@ -59,7 +46,7 @@ GO
 ".Trim();
     }
 
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public List<ISnippet> Items
@@ -85,10 +72,10 @@ GO
 
                     items.Add(new CommentLineSnippet());
                 }
-                
+
                 items.ForEach(s => s.Toolbox = toolbox);
             }
-            
+
             return items;
         }
     }

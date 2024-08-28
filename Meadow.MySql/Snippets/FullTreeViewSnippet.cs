@@ -8,23 +8,23 @@ namespace Meadow.MySql.Snippets;
 [CommonSnippet(CommonSnippets.FullTreeView)]
 public class FullTreeViewSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public ISnippet Line => new CommentLineSnippet();
 
-    public string CreateViewPhrase => Toolbox?.SqlTranslator
+    public string CreateViewPhrase => Toolbox.SqlTranslator
         .CreateViewPhrase(Toolbox.Configurations.RepetitionHandling,
-            Toolbox.ProcessedType.NameConvention.FullTreeViewName) ?? string.Empty;
+            Toolbox.ProcessedType.NameConvention.FullTreeViewName);
 
     public string FullTreeAliasedParameters =>
-        Toolbox?.FullTreeTranslation.GetFullTreeAliasedParameters() ?? string.Empty;
+        Toolbox.FullTreeTranslation.GetFullTreeAliasedParameters();
 
-    public string TableName => Toolbox?.SqlTranslator.GetQuoters()
-        .QuoteTableName(Toolbox.ProcessedType.NameConvention.TableName) ?? string.Empty;
+    public string TableName => Toolbox.SqlTranslator.GetQuoters()
+        .QuoteTableName(Toolbox.ProcessedType.NameConvention.TableName);
 
-    public string KeyInnerJoins => Toolbox?.FullTreeTranslation.GetInnerJoins() ?? string.Empty;
+    public string KeyInnerJoins => Toolbox.FullTreeTranslation.GetInnerJoins();
 
-    public string KeyWhereClause => Toolbox?.GetEntityFiltersWhereClause(" WHERE", "") ?? string.Empty;
+    public string KeyWhereClause => Toolbox.GetEntityFiltersWhereClause(" WHERE", "");
 
     public string Template => @"
 {Line}

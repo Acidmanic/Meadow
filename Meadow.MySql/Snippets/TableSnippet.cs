@@ -9,12 +9,12 @@ namespace Meadow.MySql.Snippets;
 [CommonSnippet(CommonSnippets.CreateTable)]
 public class TableSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
-    public string CreateTablePhrase => Toolbox?.SqlTranslator.CreateTablePhrase(
+    public string CreateTablePhrase => Toolbox.SqlTranslator.CreateTablePhrase(
         Toolbox.Configurations.RepetitionHandling,
-        Toolbox.ProcessedType.NameConvention.TableName) ?? string.Empty;
+        Toolbox.ProcessedType.NameConvention.TableName);
 
     public string Parameters => string.Join(",\n\t\t",Toolbox?.ProcessedType.Parameters.Select(Toolbox.SqlTranslator.TableColumnDefinition).ToList() ?? new List<string>());
 

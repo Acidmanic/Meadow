@@ -10,7 +10,7 @@ namespace Meadow.MySql.Snippets;
 
 public class SaveProcedureByCollectionNameSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; }
 
     public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox, SaveProcedureComponents saveComponents)
     {
@@ -74,7 +74,7 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
     
     public string KeyDeclareNewId { get; }
 
-    public string Template => $@"
+    public string Template => @"
 {KeyHeaderCreationPhrase}({KeyParameters})
 BEGIN
     IF EXISTS(SELECT 1 FROM {KeyTableName} WHERE {KeyGeneralWhereClause}{KeyEntityFilterSegment}) THEN

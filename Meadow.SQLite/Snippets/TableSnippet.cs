@@ -10,10 +10,10 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.CreateTable)]
 public class TableSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
-    public string CreateTablePhrase => Toolbox?.NameOrOverride(nc => nc.TableName) ?? string.Empty;
+    public string CreateTablePhrase => Toolbox.CreateTablePhrase();
 
     public string Parameters => string.Join(",\n\t\t",Toolbox?.ProcessedType.Parameters.Select(Toolbox.SqlTranslator.TableColumnDefinition).ToList() ?? new List<string>());
 

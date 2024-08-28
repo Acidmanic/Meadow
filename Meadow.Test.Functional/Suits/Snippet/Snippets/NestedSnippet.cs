@@ -4,7 +4,7 @@ namespace Meadow.Test.Functional.Suits.Snippet.Snippets;
 
 public class NestedSnippet:ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
     
     public ISnippet NextLine => new SimpleSnippet();
 

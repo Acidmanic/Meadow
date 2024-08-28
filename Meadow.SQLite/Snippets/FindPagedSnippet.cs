@@ -1,38 +1,26 @@
-using System;
+using Meadow.Contracts;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
 
 namespace Meadow.SQLite.Snippets;
 
-
 [CommonSnippet(CommonSnippets.FindPaged)]
-public class FindPagedSnippet:ISnippet
+public class FindPagedSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
-    public string KeyFindPagedProcedureName => T(t => t.ProcessedType.NameConvention.FindPagedProcedureName);
-    public string KeyFindPagedProcedureNameFullTree => T(t => t.ProcessedType.NameConvention.FindPagedProcedureNameFullTree);
+    public string KeyFindPagedProcedureName => Toolbox.ProcessedType.NameConvention.FindPagedProcedureName;
+    public string KeyFindPagedProcedureNameFullTree => Toolbox.ProcessedType.NameConvention.FindPagedProcedureNameFullTree;
 
-    public string KeySelectColumns => T(t => t.GetSelectColumns());
-    public string KeyTableName => T(t => t.ProcessedType.NameConvention.TableName);
-    public string KeyFullTreeView => T(t => t.ProcessedType.NameConvention.FullTreeViewName);
-    public string KeySearchIndexTableName => T(t => t.ProcessedType.NameConvention.SearchIndexTableName);
-    public string KeyIdFieldName => T(t => t.IdFieldNameOrDefault("Id"));
-    public string KeyIdFieldNameFullTree => T(t => t.IdFieldNameOrDefaultFullTree("Id"));
-    public string KeyEntityFilterSegment => T(t => t.GetEntityFiltersWhereClause(" AND "," "));
-    
-    private string T(Func<SnippetToolbox, string> pickValue)
-    {
-        if (Toolbox is { } toolbox)
-        {
-            return pickValue(toolbox);
-        }
+    public string KeySelectColumns => Toolbox.GetSelectColumns(ColumnNameTranslation.DataOwnerDotColumnName);
+    public string KeyTableName => Toolbox.ProcessedType.NameConvention.TableName;
+    public string KeyFullTreeView => Toolbox.ProcessedType.NameConvention.FullTreeViewName;
+    public string KeySearchIndexTableName => Toolbox.ProcessedType.NameConvention.SearchIndexTableName;
+    public string KeyIdFieldName => Toolbox.IdFieldNameOrDefault("Id");
+    public string KeyIdFieldNameFullTree => Toolbox.IdFieldNameOrDefaultFullTree("Id");
+    public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause(" AND ", " ");
 
-        return string.Empty;
-    }
-   
-        
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------

@@ -6,7 +6,7 @@ public interface ISnippet
 {
 
     [IgnoreNoneDataNode]
-    SnippetToolbox? Toolbox { get; set; }
+    SnippetToolbox Toolbox { get; set; }
     
     [IgnoreNoneDataNode]
     string Template { get; }

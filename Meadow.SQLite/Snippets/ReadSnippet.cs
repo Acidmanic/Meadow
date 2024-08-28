@@ -21,26 +21,16 @@ public class ReadSnippet : ISnippet
             _byId = byId;
         }
 
-        public SnippetToolbox? Toolbox { get; set; }
+        public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
-        public string KeyHeaderCreation => T(t => t.CreateReadProcedurePhrase(_fullTree, _byId));
+        public string KeyHeaderCreation => Toolbox.CreateReadProcedurePhrase(_fullTree, _byId);
 
-        public string KeyParametersDeclaration => T(t => t.GetIdAwareProcedureDefinitionParametersPhrase(_byId));
-        public string KeyTableName => T(t => t.TableOrFullViewName(_fullTree));
-        public string KeyWhereClause => T(t => t.WhereByIdClause(_byId, _fullTree));
-        public string KeyEntityFilterSegment => _fullTree ? string.Empty : T(t => t.GetEntityFiltersWhereClause($" {(_byId ? "AND " : string.Empty)}", " "));
+        public string KeyParametersDeclaration => Toolbox.GetIdAwareProcedureDefinitionParametersPhrase(_byId);
+        public string KeyTableName => Toolbox.TableOrFullViewName(_fullTree);
+        public string KeyWhereClause => Toolbox.WhereByIdClause(_byId, _fullTree);
+        public string KeyEntityFilterSegment => _fullTree ? string.Empty : Toolbox.GetEntityFiltersWhereClause($" {(_byId ? "AND " : string.Empty)}", " ");
 
         public ISnippet Line => new CommentLineSnippet();
-
-        private string T(Func<SnippetToolbox, string> pickValue)
-        {
-            if (Toolbox is { } toolbox)
-            {
-                return pickValue(toolbox);
-            }
-
-            return string.Empty;
-        }
 
         public string Template => @"
 {KeyHeaderCreation}{KeyParametersDeclaration} AS
@@ -50,36 +40,31 @@ GO
 ".Trim();
     }
 
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public List<ISnippet> Items
     {
         get
         {
-            if (Toolbox is { } toolbox)
+            var items = new List<ISnippet>();
+
+            items.Add(new TitleBarSnippet("Read Procedures For Entity " + Toolbox.ProcessedType.EventIdType?.Name));
+
+            if (Toolbox.ActsById())
             {
-                var items = new List<ISnippet>();
-
-                items.Add(new TitleBarSnippet("Read Procedures For Entity " + toolbox.ProcessedType.EventIdType?.Name));
-
-                if (toolbox.ActsById())
-                {
-                    items.Add(new ReadSnippetBundle(false, false));
-                    items.Add(new ReadSnippetBundle(true, false));
-                }
-
-                if (toolbox.ActsAll())
-                {
-                    items.Add(new ReadSnippetBundle(false, true));
-                    items.Add(new ReadSnippetBundle(true, true));
-                }
-
-                items.ForEach(s => s.Toolbox = toolbox);
-
-                return items;
+                items.Add(new ReadSnippetBundle(false, false));
+                items.Add(new ReadSnippetBundle(true, false));
             }
 
-            return new List<ISnippet>();
+            if (Toolbox.ActsAll())
+            {
+                items.Add(new ReadSnippetBundle(false, true));
+                items.Add(new ReadSnippetBundle(true, true));
+            }
+
+            items.ForEach(s => s.Toolbox = Toolbox);
+
+            return items;
         }
     }
 

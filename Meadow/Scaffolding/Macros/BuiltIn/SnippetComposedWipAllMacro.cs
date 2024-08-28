@@ -23,7 +23,6 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
                 .BehaviorUseIdAgnostic()
                 .OverrideEntityTypeBySearchIndex()
                 .OverrideDbObjectNameToSearchIndexTableName();
-            builder.Add(CommonSnippets.FindPaged).BehaviorUseIdAgnostic();
             builder.Add(CommonSnippets.DataBound).BehaviorUseIdAgnostic();
         }
     }

@@ -12,13 +12,13 @@ namespace Meadow.MySql.Snippets;
 [CommonSnippet(CommonSnippets.SaveProcedure)]
 public class SaveProceduresSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public List<ISnippet> SaveByCollectionNames => CreateSaveSnippets();
 
 
-    public string Template => $"{{{nameof(SaveByCollectionNames)}}}";
+    public string Template => "{SaveByCollectionNames}";
 
 
     private List<ISnippet> CreateSaveSnippets()

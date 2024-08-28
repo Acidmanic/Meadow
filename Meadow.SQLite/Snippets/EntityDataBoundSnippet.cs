@@ -7,7 +7,8 @@ namespace Meadow.SQLite.Snippets;
 
 public class EntityDataBoundSnippet : ISnippet
 {
-    private readonly SnippetToolbox _toolbox;
+    
+    public SnippetToolbox Toolbox { get; set; }
 
     public EntityDataBoundSnippet(Type entityType,MeadowConfiguration configuration, RepetitionHandling repetitionHandling)
     {
@@ -15,24 +16,18 @@ public class EntityDataBoundSnippet : ISnippet
 
         builder.RepetitionHandling(repetitionHandling);
 
-        _toolbox = builder.Build();
-    }
-
-    public SnippetToolbox? Toolbox
-    {
-        get => _toolbox;
-        set { }
+        Toolbox = builder.Build();
     }
 
     public string KeyRangeProcedureCreationPhrase
-        => _toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
-            _toolbox.ProcessedType.NameConvention.RangeProcedureName);
+        => Toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
+            Toolbox.ProcessedType.NameConvention.RangeProcedureName);
 
     public string KeyExistingValuesProcedureCreationPhrase
-        => _toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
-            _toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
+        => Toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
+            Toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
 
-    public string KeyTableName => _toolbox.ProcessedType.NameConvention.TableName;
+    public string KeyTableName => Toolbox.ProcessedType.NameConvention.TableName;
 
     public string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------

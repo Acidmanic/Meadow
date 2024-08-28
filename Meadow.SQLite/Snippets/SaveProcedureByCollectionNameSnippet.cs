@@ -8,7 +8,7 @@ namespace Meadow.SQLite.Snippets;
 
 public class SaveProcedureByCollectionNameSnippet : ISnippet
 {
-    public SnippetToolbox? Toolbox { get; set; }
+    public SnippetToolbox Toolbox { get; set; } 
 
     public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox, SaveProcedureComponents saveComponents)
     {
@@ -34,9 +34,9 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
 
     public string PreKeyUpdates { get; }
 
-    public string KeyTableName => Toolbox?.ProcessedType.NameConvention.TableName ?? "";
+    public string KeyTableName => Toolbox.ProcessedType.NameConvention.TableName;
 
-    public string KeyEntityFilterSegment => Toolbox?.GetEntityFiltersWhereClause( " AND ", " ") ?? "";
+    public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause( " AND ", " ");
 
     public string KeyParameters { get; }
 
