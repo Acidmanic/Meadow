@@ -1,3 +1,1 @@
-
--- {{Crud Meadow.Test.Functional.Models.Category}}
--- {{Filtering Meadow.Test.Functional.Models.Category}}
+-- {{WipAll Meadow.Test.Functional.Models.Category}}

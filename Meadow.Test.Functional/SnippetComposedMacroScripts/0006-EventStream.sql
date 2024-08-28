@@ -1,1 +1,1 @@
--- {{EventStream Meadow.Test.Functional.Models.BigEvent}}
+-- {{WipAll Meadow.Test.Functional.Models.BigEvent}}

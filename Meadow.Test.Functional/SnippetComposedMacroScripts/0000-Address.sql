@@ -1,2 +1,1 @@
--- {{Crud Meadow.Test.Functional.Models.Address}}
--- {{Filtering Meadow.Test.Functional.Models.Address}}
+-- {{WipAll Meadow.Test.Functional.Models.Address}}

@@ -1,3 +1,2 @@
 
--- {{Crud Meadow.Test.Functional.Models.Job}}
--- {{Filtering Meadow.Test.Functional.Models.Job}}
+-- {{WipAll Meadow.Test.Functional.Models.Job}}
