@@ -17,6 +17,8 @@ namespace Meadow.Test.Functional.TestEnvironment;
 
 public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new()
 {
+
+    private readonly string _scriptsDirectory;
     public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
 
     private Action<MeadowConfiguration> _updateConfigurations = _ => { };
@@ -31,6 +33,16 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
     public void OverrideScriptFile(string fileName, string content)
     {
         _scriptOverrides[fileName] = content;
+    }
+
+    public Environment():this("MacroScripts")
+    {
+        
+    }
+
+    public Environment(string scriptsDirectory)
+    {
+        _scriptsDirectory = scriptsDirectory;
     }
 
     private class Context : ISuitContext
@@ -168,7 +180,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
     {
         var engineSetup = new MeadowEngineSetup();
 
-        engineSetup.SelectDatabase(database);
+        engineSetup.SelectDatabase(database,_scriptsDirectory);
 
         MeadowEngine.UseLogger(logger);
 
