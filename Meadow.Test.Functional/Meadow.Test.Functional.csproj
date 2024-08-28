@@ -48,28 +48,7 @@
         <None Update="MacroScripts\**">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <None Update="MacroScripts\0005-Tags.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0000-Address.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0001-Job.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0002-Category.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0003-Person.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0004-Deletable.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0005-Tags.sql">
-          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </None>
-        <None Update="SnippetComposedMacroScripts\0006-EventStream.sql">
+        <None Update="SnippetComposedMacroScripts\**">
           <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
     </ItemGroup>

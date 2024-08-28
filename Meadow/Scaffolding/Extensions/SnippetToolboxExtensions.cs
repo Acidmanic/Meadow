@@ -85,8 +85,7 @@ public static class SnippetToolboxExtensions
     {
         if (byId && toolbox.ProcessedType.HasId)
         {
-            return $"({toolbox.ParameterNameTypeJoint(toolbox.ProcessedType.IdParameter,
-                toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix)})";
+            return $"({toolbox.ParameterNameTypeJoint(toolbox.ProcessedType.IdParameter, toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix)})";
         }
 
         //TODO: Add parameterLess procedure paranthesis (bool)

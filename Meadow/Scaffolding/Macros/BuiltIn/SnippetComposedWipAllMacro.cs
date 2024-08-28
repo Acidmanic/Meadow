@@ -44,4 +44,14 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
             builder.Add(CommonSnippets.FindPaged);
         }
     }
+    
+    public class SnippetComposedWipEventStreamsOnlyMacro : SnippetComposedMacroBase
+    {
+        public override string Name { get; } = "WipEventStream";
+
+        protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
+        {
+            builder.Add(CommonSnippets.EventStreamScript).BehaviorUseIdAgnostic();
+        }
+    }
 }

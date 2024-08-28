@@ -1,1 +1,1 @@
--- {{WipAll Meadow.Test.Functional.Models.Tag}}
+-- {{WipSave Meadow.Test.Functional.Models.Tag}}

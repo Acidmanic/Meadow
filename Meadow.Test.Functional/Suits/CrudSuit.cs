@@ -16,7 +16,7 @@ public class CrudSuit
     private const Databases Databases = TestEnvironment.Databases.SqLite;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
-
+    private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
     public CrudSuit(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;
@@ -29,10 +29,8 @@ public class CrudSuit
     [InlineData(true, true)]
     public void ShouldBeAble_ToRead_All(bool fullTree, bool considerEntityFilters)
     {
-        var environment = new Environment<PersonsDataProvider>();
+        var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
 
-        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
-        
         if (considerEntityFilters)
         {
             environment.RegulateMeadowConfigurations(c => { c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false)); });
@@ -58,9 +56,7 @@ public class CrudSuit
     [InlineData(true)]
     public void ShouldBeAble_ToRead_ById(bool fullTree)
     {
-        var environment = new Environment<PersonsDataProvider>();
-
-        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
+        var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
         
         environment.RegulateMeadowConfigurations(c => { c.AddFilter<Person>(builder => builder.Where(p => p.IsDeleted).IsEqualTo(false)); });
 
@@ -90,13 +86,12 @@ public class CrudSuit
     [InlineData("Farshid")]
     public void Deleted_Items_Should_NOT_Be_ReadAgain(string deletee)
     {
-        var environment = new Environment<PersonsDataProvider>();
 
         Person? actualDeleted = null;
         var actualUnDeleted = new List<Person>();
         var expectedUndeleted = new List<Person>();
 
-        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
+        var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
         
         environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
@@ -126,9 +121,8 @@ public class CrudSuit
     [InlineData(false)]
     public void ShouldBeAble_ToUpdateModel(bool considerEntityFilters)
     {
-        var environment = new Environment<PersonsDataProvider>();
         
-        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
+        var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
         
         if (considerEntityFilters)
         {
