@@ -234,27 +234,10 @@ public class SnippetComposedSaveSuit
     private Environment<PersonsDataProvider> CreateEnvironment()
     {
         var environment = new Environment<PersonsDataProvider>();
-
-        environment.RegulateMeadowConfigurations(config =>
-        {
-            var file = Path.Combine(config.BuildupScriptDirectory, "0003-Person.sql");
-
-            File.Delete(file);
-
-            var content = "-- {{WipAll Meadow.Test.Functional.Models.Person}}";
-            File.WriteAllText(file, content);
-
-            
-
-            file = Path.Combine(config.BuildupScriptDirectory, "0005-Tags.sql");
-
-            File.Delete(file);
-            
-            content = "-- {{WipSave Meadow.Test.Functional.Models.Tag}}";
-            
-            File.WriteAllText(file, content);
-        });
-
+        
+        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
+        environment.OverrideScriptFile("0005-Tags.sql","-- {{WipSave Meadow.Test.Functional.Models.Tag}}");
+        
         return environment;
     }
 }

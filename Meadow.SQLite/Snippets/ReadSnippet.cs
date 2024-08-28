@@ -28,7 +28,8 @@ public class ReadSnippet : ISnippet
         public string KeyParametersDeclaration => Toolbox.GetIdAwareProcedureDefinitionParametersPhrase(_byId);
         public string KeyTableName => Toolbox.TableOrFullViewName(_fullTree);
         public string KeyWhereClause => Toolbox.WhereByIdClause(_byId, _fullTree);
-        public string KeyEntityFilterSegment => _fullTree ? string.Empty : Toolbox.GetEntityFiltersWhereClause($" {(_byId ? "AND " : string.Empty)}", " ");
+        public string KeyEntityFilterSegment => _fullTree ? string.Empty : 
+            Toolbox.GetEntityFiltersWhereClause($" {(_byId ? "AND " : "WHERE ")}", " ");
 
         public ISnippet Line => new CommentLineSnippet();
 

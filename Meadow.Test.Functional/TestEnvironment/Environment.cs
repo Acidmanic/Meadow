@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
@@ -20,10 +21,16 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
     private Action<MeadowConfiguration> _updateConfigurations = _ => { };
 
+    private readonly Dictionary<string, string> _scriptOverrides = new();
 
     public void RegulateMeadowConfigurations(Action<MeadowConfiguration> configure)
     {
         _updateConfigurations = configure;
+    }
+
+    public void OverrideScriptFile(string fileName, string content)
+    {
+        _scriptOverrides[fileName] = content;
     }
 
     private class Context : ISuitContext
@@ -169,6 +176,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         {
             c.SetTransliterationService(TransliterationService);
 
+            OverrideScripts(c);
+
             _updateConfigurations(c);
         });
 
@@ -202,5 +211,20 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         var data = CaseData.Create(rawDataSets);
 
         env(new Context(engine, data, engineSetup.DatabaseName));
+    }
+
+    private void OverrideScripts(MeadowConfiguration configuration)
+    {
+
+        foreach (var scriptOverride in _scriptOverrides)
+        {
+            var file = Path.Combine(configuration.BuildupScriptDirectory, scriptOverride.Key);
+
+            File.Delete(file);
+
+            var content = scriptOverride.Value;
+            
+            File.WriteAllText(file, content);   
+        }
     }
 }
