@@ -96,6 +96,8 @@ public class CrudSuit
         var actualUnDeleted = new List<Person>();
         var expectedUndeleted = new List<Person>();
 
+        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
+        
         environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             expectedUndeleted = c.Data.Get<Person>(p => p.Name != deletee);
