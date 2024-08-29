@@ -7,6 +7,7 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Scaffolding.Snippets.Extensions;
 using Meadow.Test.Functional.Models;
+using Meadow.Test.Functional.Models.EventStream;
 using Meadow.Test.Functional.TestEnvironment;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Xunit;
@@ -87,7 +88,7 @@ public class SnippetsTranslationSuit
     {
         if (snippets == CommonSnippets.EventStreamScript)
         {
-            return typeof(BigEvent);
+            return typeof(NumberEvent);
         }
 
         return typeof(Person);
