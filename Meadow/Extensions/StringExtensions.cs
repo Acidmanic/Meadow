@@ -1,11 +1,14 @@
 using System;
+using System.Text;
 
 namespace Meadow.Extensions
 {
     public static class StringExtensions
     {
-        public static string ToBase64String(this string value)
+        public static string ToBase64String(this string value, Encoding? encoding = null)
         {
+            encoding ??= Encoding.Default;
+            
             if (value == null)
             {
                 return null;
@@ -16,14 +19,16 @@ namespace Meadow.Extensions
                 return "";
             }
 
-            var bytes = System.Text.Encoding.UTF8.GetBytes(value);
+            var bytes = encoding.GetBytes(value);
 
             return Convert.ToBase64String(bytes);
         }
 
 
-        public static string FromBase64String(this string base64)
+        public static string FromBase64String(this string base64, Encoding? encoding = null)
         {
+            encoding ??= Encoding.Default;
+            
             if (string.IsNullOrEmpty(base64))
             {
                 return null;
@@ -31,7 +36,7 @@ namespace Meadow.Extensions
 
             var bytes = Convert.FromBase64String(base64);
 
-            return System.Text.Encoding.UTF8.GetString(bytes);
+            return encoding.GetString(bytes);
         }
     }
 }

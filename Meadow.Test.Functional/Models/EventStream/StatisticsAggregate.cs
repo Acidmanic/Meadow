@@ -1,3 +1,4 @@
+using System;
 using System.Reflection.Metadata;
 
 namespace Meadow.Test.Functional.Models.EventStream;
@@ -13,6 +14,8 @@ public class StatisticsAggregate
     public double Max { get; set; }
 
     public double Average { get; set; }
+    
+    public Guid Id { get; set; }
 
     public StatisticsAggregate()
     {
