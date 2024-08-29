@@ -36,7 +36,7 @@ public class EventStreamSuit
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-           var events = c.ReadStream(actualAggregate)
+           
         });
 
         
