@@ -20,9 +20,7 @@ public class EventStreamSuit
     public void Should_SetupEngine_NoException()
     {
         var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
-
-       
-
+        
         environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
            
