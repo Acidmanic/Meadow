@@ -21,10 +21,10 @@ public class StatisticsDataProvider : ICaseDataProvider
 
     public void Initialize()
     {
-        Events.Add(new NumberEvent(Guid.NewGuid(), 10));
-        Events.Add(new NumberEvent(Guid.NewGuid(), 20));
-        Events.Add(new NumberEvent(Guid.NewGuid(), 30));
-        Events.Add(new NumberEvent(Guid.NewGuid(), 40));
+        Events.Add(new NumberEvent{EventId = Guid.NewGuid(),Number = 10});
+        Events.Add(new NumberEvent{EventId = Guid.NewGuid(),Number = 20});
+        Events.Add(new NumberEvent{EventId = Guid.NewGuid(),Number = 30});
+        Events.Add(new NumberEvent{EventId = Guid.NewGuid(),Number = 40});
 
         SeedSet = new List<List<object>> { Events.Select(e => e as object).ToList() };
     }
