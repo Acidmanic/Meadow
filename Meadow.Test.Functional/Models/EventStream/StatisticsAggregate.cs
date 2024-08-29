@@ -5,13 +5,13 @@ namespace Meadow.Test.Functional.Models.EventStream;
 public class StatisticsAggregate
 {
     public double Count { get; set; }
-    
+
     public double Sum { get; set; }
-    
+
     public double Min { get; set; }
-    
+
     public double Max { get; set; }
-    
+
     public double Average { get; set; }
 
     public StatisticsAggregate()
@@ -33,5 +33,17 @@ public class StatisticsAggregate
         if (number > Max) Max = number;
 
         Average = Sum / Count;
+    }
+
+    public Statistics GetValue()
+    {
+        return new Statistics
+        {
+            Average = Average,
+            Count = Count,
+            Max = Max,
+            Min = Min,
+            Sum = Sum
+        };
     }
 }
