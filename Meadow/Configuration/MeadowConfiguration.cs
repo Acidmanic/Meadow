@@ -5,14 +5,16 @@ using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Acidmanic.Utilities.Reflection.Casting;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Contracts;
 using Meadow.Transliteration;
 using Meadow.Transliteration.Builtin;
+using Meadow.Utility;
 
 namespace Meadow.Configuration
 {
     public class MeadowConfiguration : MeadowConfigurationModel
     {
-        private readonly Dictionary<Type,FilterQuery> _filters = new ();
+        private readonly Dictionary<Type, FilterQuery> _filters = new();
         private ITransliterationService _transliterationService = new DefaultTransliterationService();
 
         public List<Assembly> MacroContainingAssemblies { get; set; } = new List<Assembly>();
@@ -25,6 +27,8 @@ namespace Meadow.Configuration
         public IReadOnlyDictionary<Type, FilterQuery> Filters => _filters;
 
         public ITransliterationService TransliterationService => _transliterationService;
+
+        public IEventSerialization EventSerialization { get; set; } = new CompressedJsonEventSerialization();
 
         public MeadowConfiguration AddFilter<TEntity>(Action<FilterQueryBuilder<TEntity>> builder)
         {
@@ -43,8 +47,8 @@ namespace Meadow.Configuration
 
             return this;
         }
-        
-        public MeadowConfiguration SetTransliterationService(Func<string,string> transliterationService)
+
+        public MeadowConfiguration SetTransliterationService(Func<string, string> transliterationService)
         {
             _transliterationService = new FuncAdapterTransliterator(transliterationService);
 
