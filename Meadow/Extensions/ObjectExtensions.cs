@@ -37,24 +37,41 @@ namespace Meadow.Extensions
             var json = File.ReadAllText(path);
 
             return JsonConvert.DeserializeObject<T>(json);
-
         }
 
         public static TId? ReadIdOrDefault<TModel, TId>(this TModel value)
         {
-            var idLeaf = TypeIdentity.FindIdentityLeaf<TModel>();
+            var readId = ReadIdOrDefault(value, typeof(TModel), typeof(TId));
 
-            if (idLeaf is { } idL)
+            if (readId is TId id) return id;
+            
+            return default;
+        }
+
+        public static object? ReadIdOrDefault(this object? value, Type modelType, Type idType)
+        {
+            if (value is { } model)
             {
-                // var readId = new ObjectEvaluator(value).Read(idL.GetFullName(), true);
-                var readId = idL.Evaluator.Read(value);
+                var idLeaf = TypeIdentity.FindIdentityLeaf(modelType, idType);
 
-                if (readId is TId id) return id;
+                if (idLeaf is { } idL)
+                {
+                    try
+                    {
+                        var readId = idL.Evaluator.Read(model);
+                        
+                        if (readId is { } id) return id;
+                    }
+                    catch
+                    {
+                        /* Ignored */
+                    }
+
+                    
+                }
             }
 
             return default;
         }
-        
-        
     }
 }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Reflection;
+using Meadow.Requests.BuiltIn;
 using Meadow.Test.Functional.GenericRequests;
 
 namespace Meadow.Test.Functional.TestEnvironment.Utility;

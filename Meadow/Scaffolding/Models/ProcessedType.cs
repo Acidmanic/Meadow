@@ -39,7 +39,7 @@ namespace Meadow.Scaffolding.Models
 
         public bool IsStreamEvent { get; set; }
 
-        public EventStreamInfo EventStream { get; set; }
+        public EventStreamPreferencesInfo EventStream { get; set; }
 
         public string EventIdTypeName { get; set; }
         

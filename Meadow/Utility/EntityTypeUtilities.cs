@@ -176,7 +176,7 @@ public static class EntityTypeUtilities
             }
         });
 
-        var foundAsEventStream = EventStreamInfo.FromType(type);
+        var foundAsEventStream = EventStreamPreferencesInfo.FromType(type);
 
         process.IsStreamEvent = foundAsEventStream.Success;
 

@@ -1,3 +1,4 @@
+using Meadow.Attributes;
 using Meadow.Scaffolding.Attributes;
 
 namespace Example.Postgre.Models

@@ -1,6 +1,7 @@
 using System;
 using System.Security.Cryptography.X509Certificates;
 using Acidmanic.Utilities.Reflection.Attributes;
+using Meadow.Attributes;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Test.Functional.Models.EventStream;

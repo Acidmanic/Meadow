@@ -1,6 +1,6 @@
 using System;
 
-namespace Meadow.Scaffolding.Attributes;
+namespace Meadow.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
 public class EventStreamPreferencesAttribute : Attribute

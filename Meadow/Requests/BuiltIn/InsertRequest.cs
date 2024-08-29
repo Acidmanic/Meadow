@@ -2,9 +2,8 @@ using System.Linq;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.FieldInclusion;
 using Meadow.Extensions;
-using Meadow.Requests;
 
-namespace Meadow.Test.Functional.GenericRequests
+namespace Meadow.Requests.BuiltIn
 {
     public sealed class InsertRequest<T> : MeadowRequest<T, T> where T : class, new()
     {
