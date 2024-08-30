@@ -30,7 +30,7 @@ namespace Meadow.SQLite
             {
                 Code = "",
                 Name = "",
-                Parameters = new Dictionary<string, string>()
+                ParameterTypesByParameterName = new Dictionary<string, string>()
             };
             _filePath = filePath;
         }

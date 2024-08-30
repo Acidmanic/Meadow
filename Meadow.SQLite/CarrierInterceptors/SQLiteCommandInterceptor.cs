@@ -82,10 +82,13 @@ namespace Meadow.SQLite.CarrierInterceptors
         {
             var code = procedure.Code;
 
-            foreach (var parameterName in procedure.Parameters.Keys)
+            foreach (var parameter in procedure.ParameterTypesByParameterName)
             {
-                var value = GetValueString(parameterName, data);
-                var expansionValue = GetValueString(parameterName, data,true);
+                var parameterName = parameter.Key;
+                var parameterType = parameter.Value;
+                
+                var value = GetValueString(parameterName, parameterType, data);
+                var expansionValue = GetValueString(parameterName, parameterType,data,true);
 
                 if (value == null)
                 {
@@ -100,7 +103,7 @@ namespace Meadow.SQLite.CarrierInterceptors
             return code;
         }
 
-        private string GetValueString(string parameterName, List<DataPoint> data, bool expansion = false)
+        private string GetValueString(string parameterName, string parameterType, List<DataPoint> data, bool expansion = false)
         {
             var atLessName = parameterName.Substring(1, parameterName.Length - 1);
 
@@ -129,9 +132,9 @@ namespace Meadow.SQLite.CarrierInterceptors
 
             value = value.CastTo(type);
                 
-            if (value is string stringValue)
+            if (parameterType.ToUpper() =="TEXT")
             {
-                stringValue = EscapeSingleQuotes(stringValue);
+                var stringValue = EscapeSingleQuotes($"{value}");
                 
                 return $"'{stringValue}'";
             }

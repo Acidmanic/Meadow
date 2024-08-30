@@ -10,7 +10,7 @@ namespace Meadow.SQLite.ProcedureProcessing
         
         public DbObjectCreation Creation { get; set; } = DbObjectCreation.Create;
         
-        public Dictionary<string, string> Parameters { get; set; }
+        public Dictionary<string, string> ParameterTypesByParameterName { get; set; }
 
         public string Name { get; set; }
 
@@ -32,7 +32,7 @@ namespace Meadow.SQLite.ProcedureProcessing
 
         public SqLiteProcedure()
         {
-            Parameters = new Dictionary<string, string>();
+            ParameterTypesByParameterName = new Dictionary<string, string>();
         }
 
         private static int IndexOf(string value, int startIndex, params string[] find)
@@ -61,7 +61,7 @@ namespace Meadow.SQLite.ProcedureProcessing
 
             converted.Creation = procedure.Creation;
 
-            procedure.Parameters.ForEach(pr => converted.Parameters.Add(pr.Name, pr.Type));
+            procedure.Parameters.ForEach(pr => converted.ParameterTypesByParameterName.Add(pr.Name, pr.Type));
 
             return converted;
         }
