@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.IO;
 using System.Reflection;
 using Acidmanic.Utilities.Reflection;
@@ -53,6 +54,34 @@ namespace Meadow.Extensions
             if (value is { } model)
             {
                 var idLeaf = TypeIdentity.FindIdentityLeaf(modelType, idType);
+
+                if (idLeaf is { } idL)
+                {
+                    try
+                    {
+                        var readId = idL.Evaluator.Read(model);
+                        
+                        if (readId is { } id) return id;
+                    }
+                    catch
+                    {
+                        /* Ignored */
+                    }
+
+                    
+                }
+            }
+
+            return default;
+        }
+        
+        public static object? ReadIdOrDefault(this object? value)
+        {
+            if (value is { } model)
+            {
+                var modelType = model.GetType();
+                
+                var idLeaf = TypeIdentity.FindIdentityLeaf(modelType);
 
                 if (idLeaf is { } idL)
                 {

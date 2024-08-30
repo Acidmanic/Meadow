@@ -10,6 +10,7 @@ public class StatisticsDataProvider : ICaseDataProvider
 {
     public static readonly List<NumberEvent> Events = new List<NumberEvent>();
 
+    public static readonly Guid StreamId1 = Guid.Parse("15ff3d31-fcaf-40c2-8201-c01821ab4ced");
     public static Statistics Expected => new Statistics
     {
         Average = Events.Average(e => e.Number),
@@ -18,6 +19,8 @@ public class StatisticsDataProvider : ICaseDataProvider
         Min = Events.Min(e => e.Number),
         Sum = Events.Sum(e => e.Number)
     };
+    
+    
 
     public void Initialize()
     {
@@ -30,7 +33,7 @@ public class StatisticsDataProvider : ICaseDataProvider
         Events.Add(new NumberEvent{Id = 3,Number = 30});
         Events.Add(new NumberEvent{Id = 4,Number = 40});
 
-        SeedSet = new List<List<object>> { Events.Select(e => e as object).ToList() };
+        SeedSet = new List<List<object>> { Events.Select(e => e.ToStreamEvent(StreamId1) as object).ToList() };
     }
 
     public void PostSeeding()

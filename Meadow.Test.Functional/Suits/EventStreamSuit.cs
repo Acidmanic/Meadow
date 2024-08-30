@@ -13,7 +13,6 @@ namespace Meadow.Test.Functional.Suits;
 
 public class EventStreamSuit
 {
-
     [EventStreamSerializationEncoding("utf-8")]
     private class Shit
     {
@@ -33,28 +32,27 @@ public class EventStreamSuit
     {
         var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
 
-        var actualAggregate = new StatisticsAggregate(){Id = Guid.NewGuid()};
+        var actualAggregate = new StatisticsAggregate() { Id = Guid.NewGuid() };
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
-        {
-           
-        });
+        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c => { });
     }
-    
+
     [Fact]
     public void Should_Read_AllSeeded_Events()
     {
         var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
 
-        var actualAggregate = new StatisticsAggregate(){Id = Guid.NewGuid()};
+        var actualAggregate = new StatisticsAggregate() { Id = Guid.NewGuid() };
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             var entries = c.EventStreamRead<NumberEvent, long, Guid>().ToStreamEvent(c.MeadowConfiguration);
 
             var allEvents = c.Data.Get<NumberEvent>();
-            
-            Assert.Equal(allEvents.Count,entries.Count);
+
+            Assert.Equal(allEvents.Count, entries.Count);
         });
     }
+
+
 }
