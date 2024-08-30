@@ -7,14 +7,12 @@ namespace Meadow.Requests.GenericEventStreamRequests;
 public abstract class EventStreamRequestBase<TEvent,TEventId,TStreamId,TIn>:MeadowRequest<TIn,ObjectEntry<TEventId,TStreamId>>
 {
 
-
-    
     public EventStreamRequestBase() : base(true)
     {
     }
 
 
-    protected NameConvention NameConvention => Configuration.GetNameConvention<TEvent>();
+    private NameConvention NameConvention => Configuration.GetNameConvention<TEvent>();
 
     protected abstract string PickName(NameConvention nameConvention);
     

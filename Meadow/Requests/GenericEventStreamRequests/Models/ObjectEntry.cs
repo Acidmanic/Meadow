@@ -4,15 +4,16 @@ namespace Meadow.Requests.GenericEventStreamRequests.Models
 {
     public class ObjectEntry<TEventId, TStreamId>
     {
-        public ObjectEntry(TEventId eventId, TStreamId streamId, string typeName, string serializedValue)
+        public ObjectEntry(TEventId eventId, TStreamId streamId, string typeName, string assemblyName, string serializedValue)
         {
             EventId = eventId;
             StreamId = streamId;
             TypeName = typeName;
+            AssemblyName = assemblyName;
             SerializedValue = serializedValue;
         }
 
-        public ObjectEntry() : this(default, default, "System.object", "")
+        public ObjectEntry() : this(default, default, "System.object", "System",  "")
         {
         }
 
@@ -21,6 +22,8 @@ namespace Meadow.Requests.GenericEventStreamRequests.Models
         public TStreamId StreamId { get; set; }
 
         public string TypeName { get; set; }
+        
+        public string AssemblyName { get; set; }
 
         public string SerializedValue { get; set; }
     }

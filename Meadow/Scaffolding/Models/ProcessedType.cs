@@ -48,6 +48,8 @@ namespace Meadow.Scaffolding.Models
         public string StreamIdTypeName { get; set; }
 
         public string EventStreamTypeNameDatabaseType { get; set; }
+        
+        public string EventStreamAssemblyNameDatabaseType { get; set; }
 
         public string EventStreamSerializedValueDatabaseType { get; set; }
 

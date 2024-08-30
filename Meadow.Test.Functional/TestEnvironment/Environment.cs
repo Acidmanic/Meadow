@@ -6,7 +6,8 @@ using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Requests;
 using Meadow.Requests.BuiltIn;
-using Meadow.Test.Functional.GenericRequests;
+using Meadow.Requests.GenericEventStreamRequests;
+using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Meadow.Transliteration;
 using Meadow.Transliteration.Builtin;
@@ -51,12 +52,15 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public CaseData Data { get; }
 
         public string DatabaseName { get; }
+        
+        public MeadowConfiguration MeadowConfiguration { get; }
 
-        public Context(MeadowEngine engine, CaseData data, string databaseName)
+        public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration)
         {
             Engine = engine;
             Data = data;
             DatabaseName = databaseName;
+            MeadowConfiguration = meadowConfiguration;
         }
 
 
@@ -157,6 +161,12 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public DeleteById<TEntity, TId> DeleteById<TEntity, TId>(TId id)
             => (DeleteById<TEntity, TId>)PerformRequest(new DeleteById<TEntity, TId>(id));
 
+        public List<ObjectEntry<TEventId, TStreamId>> EventStreamRead<TEvent, TEventId, TStreamId>()
+        {
+            return PerformRequest(new ReadAllStreamsRequest<TEvent, TEventId, TStreamId>())
+                .FromStorage;
+        }
+
         private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>
             (MeadowRequest<TIn, TOut> request, bool fullTree = false) where TOut : class
         {
@@ -222,7 +232,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var data = CaseData.Create(rawDataSets);
 
-        env(new Context(engine, data, engineSetup.DatabaseName));
+        env(new Context(engine, data, engineSetup.DatabaseName,engineSetup.Configuration));
     }
 
     private void OverrideScripts(MeadowConfiguration configuration)

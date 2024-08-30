@@ -1,8 +1,7 @@
-
 using Meadow.Contracts;
-using Meadow.Requests.GenericEventStreamRequests;
+using Meadow.Extensions;
 
-namespace EnTier.DataAccess.Meadow.GenericEventStreamRequests;
+namespace Meadow.Requests.GenericEventStreamRequests;
 
 public sealed class ReadAllStreamsChunksRequest<TEvent,TEventId, TStreamId> :
     EventStreamRequestBase<TEvent, TEventId, TStreamId,
@@ -27,5 +26,12 @@ public sealed class ReadAllStreamsChunksRequest<TEvent,TEventId, TStreamId> :
     protected override string PickName(NameConvention nameConvention)
     {
         return nameConvention.ReadAllStreamsChunks;
+    }
+    private NameConvention NameConvention => Configuration.GetNameConvention<TEvent>();
+    
+    public override string RequestText
+    {
+        get => PickName(NameConvention);
+        protected set { }
     }
 }

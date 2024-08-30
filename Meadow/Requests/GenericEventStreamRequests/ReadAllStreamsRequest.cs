@@ -1,15 +1,40 @@
-using Meadow;
+using System;
 using Meadow.Contracts;
-using Meadow.Requests.GenericEventStreamRequests;
+using Meadow.Extensions;
+using Meadow.Requests.GenericEventStreamRequests.Models;
 
-namespace EnTier.DataAccess.Meadow.GenericEventStreamRequests;
+namespace Meadow.Requests.GenericEventStreamRequests;
 
-public sealed class ReadAllStreamsRequest<TEvent, TEventId, TStreamId> :
-    EventStreamRequestBase<TEvent, TEventId, TStreamId, MeadowVoid>
+public class ReadAllStreamsRequest<TEventId, TStreamId> :
+    MeadowRequest<MeadowVoid,ObjectEntry<TEventId,TStreamId>>
+
 {
+    private readonly Type _eventType;
+    
+    public ReadAllStreamsRequest(Type eventType) : base(true)
+    {
+        this._eventType = eventType;
+    }
 
-    protected override string PickName(NameConvention nameConvention)
+    private string PickName(NameConvention nameConvention)
     {
         return nameConvention.ReadAllStreams;
     }
+    
+    private NameConvention NameConvention => Configuration.GetNameConvention(_eventType);
+    
+    public override string RequestText
+    {
+        get => PickName(NameConvention);
+        protected set { }
+    }
 }
+
+public sealed class ReadAllStreamsRequest<TEvent, TEventId, TStreamId> : ReadAllStreamsRequest<TEventId, TStreamId>
+{
+    public ReadAllStreamsRequest() : base(typeof(TEvent))
+    {
+        
+    }
+}
+    

@@ -14,6 +14,7 @@ public class EventStreamSnippet:ISnippet
     public string KeyEventIdType => Toolbox.ProcessedType.EventIdTypeName;
     public string KeyStreamIdType => Toolbox.ProcessedType.StreamIdTypeName;
     public string KeyTypeNameType => Toolbox.ProcessedType.EventStreamTypeNameDatabaseType;
+    public string KeyAssemblyNameType => Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType;
     public string KeySerializedValueType => Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType;
     public string KeyInsertProcedureName => Toolbox.ProcessedType.NameConvention.InsertEvent;
     public string KeyEventIdDefinition => Toolbox.EventIdDefinitionPhrase(",");
@@ -26,12 +27,13 @@ public class EventStreamSnippet:ISnippet
     public string KeyReadStreamChunkByStreamIdProcedureName => Toolbox.ProcessedType.NameConvention.ReadStreamChunkByStreamId;
     
     
-    public string Template => @"
+    public string Template => $@"
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE TABLE {KeyTableName} (
     {KeyEventIdDefinition}
     StreamId {KeyStreamIdType},
     TypeName {KeyTypeNameType},
+    AssemblyName {KeyAssemblyNameType},
     SerializedValue {KeySerializedValueType});
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
@@ -39,10 +41,11 @@ CREATE TABLE {KeyTableName} (
 CREATE PROCEDURE {KeyInsertProcedureName}({KeyEventIdInsertParameter}
                                    @StreamId {KeyStreamIdType},
                                    @TypeName {KeyTypeNameType},
+                                   @AssemblyName {KeyAssemblyNameType},
                                    @SerializedValue {KeySerializedValueType}) AS
 
-    INSERT INTO {KeyTableName} (StreamId, TypeName, SerializedValue{KeyEventIdInsertColumn}) 
-        VALUES (@StreamId,@TypeName,@SerializedValue{KeyEventIdInsertValue});
+    INSERT INTO {KeyTableName} (EventId,StreamId, TypeName,AssemblyName, SerializedValue) 
+        VALUES (@EventId,@StreamId,@TypeName,@AssemblyName,@SerializedValue);
     
     SELECT * FROM {KeyTableName} WHERE ROWID=LAST_INSERT_ROWID(); 
 GO

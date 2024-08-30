@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
@@ -10,7 +11,7 @@ using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Utility;
 
-public class EventStreamUtilities
+public static class EventStreamUtilities
 {
     private static readonly object UpdateCacheLock = new();
     private static readonly Dictionary<Type, IEntryBuilder> BuildersByTypeCache;
@@ -31,7 +32,7 @@ public class EventStreamUtilities
     public static object? ToEntry(object? e, object? streamId, Type eventIdType, Type streamIdType,
         MeadowConfiguration meadowConfiguration)
     {
-        if (e is { } value && streamId is {} sId)
+        if (e is { } value && streamId is { } sId)
         {
             var eventType = value.GetType();
 
@@ -52,6 +53,7 @@ public class EventStreamUtilities
 
         return null;
     }
+
 
     private static IEntryBuilder CreateBuilderForEventType(Type eventType,
         object e, object streamId, Type eventIdType, Type streamIdType,
@@ -96,7 +98,7 @@ public class EventStreamUtilities
         var constructor = objectEntryType.GetConstructor(new[]
         {
             eventIdType, streamIdType,
-            typeof(string), typeof(string)
+            typeof(string), typeof(string), typeof(string)
         });
 
         return constructor;
@@ -154,7 +156,11 @@ public class EventStreamUtilities
                     {
                         var constructed = _constructorInfo.Invoke(new[]
                         {
-                            id, streamId, _eventType.FullName, serialized
+                            id,
+                            streamId,
+                            _eventType.FullName,
+                            _eventType.Assembly.FullName ?? string.Empty,
+                            serialized
                         });
 
                         if (constructed is { } entry) return entry;
@@ -168,5 +174,58 @@ public class EventStreamUtilities
 
             return new Result<object>().FailAndDefaultValue();
         }
+    }
+
+
+    public static StreamEvent? ToStreamEvent<TEventId, TStreamId>(this ObjectEntry<TEventId, TStreamId> entry,
+        MeadowConfiguration meadowConfiguration)
+    {
+        if (entry.EventId is not null && entry.StreamId is not null)
+        {
+            var serialization = meadowConfiguration.EventSerialization;
+
+            Type? eventType;
+            
+            if (!string.IsNullOrWhiteSpace(entry.AssemblyName))
+            {
+                eventType = Assembly.Load(entry.AssemblyName).GetType(entry.TypeName);
+            }
+            else
+            {
+                eventType = Type.GetType(entry.TypeName);
+            }
+
+            if (eventType is { } eType)
+            {
+                var serializationInfo = EventStreamSerializationInfo.FromType(eType);
+
+                var e = serialization.Deserialize(entry.SerializedValue, eType,
+                    serializationInfo.Encoding,
+                    serializationInfo.Compression).Result;
+
+                if (e is { } evObject)
+                {
+                    var se = new StreamEvent
+                    {
+                        Event = evObject, EventId = entry.EventId,
+                        StreamId = entry.StreamId, EventConcreteType = eType
+                    };
+
+                    return se;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public static List<StreamEvent> ToStreamEvent<TEventId, TStreamId>(
+        this IEnumerable<ObjectEntry<TEventId, TStreamId>> entries,
+        MeadowConfiguration meadowConfiguration)
+    {
+        return entries.Select(e => ToStreamEvent(e, meadowConfiguration))
+            .Where(e => e is not null)
+            .Select(e => e!)
+            .ToList();
     }
 }

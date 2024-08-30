@@ -1,7 +1,6 @@
 using Meadow.Contracts;
-using Meadow.Requests.GenericEventStreamRequests;
 
-namespace EnTier.DataAccess.Meadow.GenericEventStreamRequests;
+namespace Meadow.Requests.GenericEventStreamRequests;
 
 public sealed class ReadStreamByStreamIdRequest<TEvent, TEventId, TStreamId> :
     EventStreamRequestBase<TEvent, TEventId, TStreamId,

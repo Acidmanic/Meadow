@@ -2,6 +2,7 @@ using System;
 
 namespace Meadow.Requests.GenericEventStreamRequests.Models
 {
+   
     public class StreamEvent<TEvent, TEventId, TStreamId>
     {
         public TEvent Event { get; set; }
@@ -11,5 +12,10 @@ namespace Meadow.Requests.GenericEventStreamRequests.Models
         public TEventId EventId { get; set; }
         
         public Type EventConcreteType { get; set; }
+    }
+    
+    public class StreamEvent:StreamEvent<object,object,object>
+    {
+        
     }
 }

@@ -24,7 +24,7 @@ public static class EventSerializationExtensions
 {
 
 
-    public static async Task<T?> Deserialize<T>(this IEventSerialization serialization,
+    public static async Task<T?> DeserializeAs<T>(this IEventSerialization serialization,
         string serialized,
         Encoding encoding,
         Compressions compression)
