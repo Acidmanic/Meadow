@@ -9,10 +9,12 @@ namespace Meadow.Test.Functional.Models.EventStream;
 // [EventStreamPreferences(typeof(Guid),typeof(Guid))]
 // public record NumberEvent([UniqueMember] Guid EventId,double Number);
 
-[EventStreamPreferences(typeof(Guid), typeof(Guid))]
+[EventStreamPreferences(typeof(long), typeof(long))]
 public class NumberEvent
 {
-    [UniqueMember] public Guid EventId { get; set; }
+    [UniqueMember]
+    [TreatAsLeaf]
+    public long Id { get; set; }
     
     public double Number { get; set; }
 }

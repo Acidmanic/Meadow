@@ -42,7 +42,7 @@ CREATE PROCEDURE {KeyInsertProcedureName}({KeyEventIdInsertParameter}
                                    @SerializedValue {KeySerializedValueType}) AS
 
     INSERT INTO {KeyTableName} (StreamId, TypeName, SerializedValue{KeyEventIdInsertColumn}) 
-        VALUES (StreamId,TypeName,SerializedValue{KeyEventIdInsertValue});
+        VALUES (@StreamId,@TypeName,@SerializedValue{KeyEventIdInsertValue});
     
     SELECT * FROM {KeyTableName} WHERE ROWID=LAST_INSERT_ROWID(); 
 GO

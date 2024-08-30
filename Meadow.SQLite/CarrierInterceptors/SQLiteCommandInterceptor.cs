@@ -100,7 +100,7 @@ namespace Meadow.SQLite.CarrierInterceptors
             return code;
         }
 
-        private string GetValueString(string parameterName, List<DataPoint> data,bool expansion = false)
+        private string GetValueString(string parameterName, List<DataPoint> data, bool expansion = false)
         {
             var atLessName = parameterName.Substring(1, parameterName.Length - 1);
 

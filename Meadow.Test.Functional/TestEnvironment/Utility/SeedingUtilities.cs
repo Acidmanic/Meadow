@@ -55,6 +55,15 @@ public static class SeedingUtilities
 
         Func<T, object?> perform = i => PerformCrudInsertion(engine, i);
 
+        var eventIdLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
+
+        Action<object, object> setId = (i, s) => { };
+            
+        if (eventIdLeaf is {}  readerNode)
+        {
+            setId = (i, s) => eventIdLeaf.Evaluator.Write(s, readerNode.Evaluator.Read(i));
+        }
+        
         if (modelType.GetCustomAttribute<EventStreamPreferencesAttribute>() is { } pref)
         {
             var guidStreamIdForSeeds = "91365d16-85ed-415e-84df-5e56d8870344";
@@ -69,7 +78,14 @@ public static class SeedingUtilities
 
             var performMethod = genericPerformMethod.MakeGenericMethod(typeof(T), pref.EventId, pref.StreamIdType)!;
 
+            if (eventIdLeaf is {}  rn)
+            {
+                setId = (entry, e) => TypeIdentity.FindIdentityLeaf(entry.GetType())
+                    .Evaluator.Write(entry, rn.Evaluator.Read(e));
+            }
 
+            
+           
             if (pref.StreamIdType == typeof(string))
             {
                 perform = i =>
@@ -136,14 +152,9 @@ public static class SeedingUtilities
                 };
             }
 
-            var idLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
+            
 
-            Action<object, object> setId = (i, s) => { };
-
-            if (idLeaf != null)
-            {
-                setId = (i, s) => idLeaf.Evaluator.Write(s, idLeaf.Evaluator.Read(i));
-            }
+            
 
             foreach (var item in seed)
             {
