@@ -7,24 +7,38 @@ using Acidmanic.Utilities.Reflection;
 using Meadow.Attributes;
 using Meadow.Requests.BuiltIn;
 using Meadow.Requests.GenericEventStreamRequests;
+using Meadow.Requests.GenericEventStreamRequests.Models;
 
 namespace Meadow.Test.Functional.TestEnvironment.Utility;
 
 public static class SeedingUtilities
 {
+    public static void SeedCaseData(MeadowEngine engine, CaseData caseData)
+    {
+        foreach (var crudSeed in caseData.SeedsByType)
+        {
+            SeedCrudByType(engine, crudSeed.Value, crudSeed.Key);
+        }
+
+        foreach (var eventSeed in caseData.Events())
+        {
+            SeedEvent(engine, eventSeed);
+        }
+    }
+
     public static void SeedDataSets(MeadowEngine engine, List<List<object>> data)
     {
         foreach (var items in data)
         {
-            SeedByType(engine, items);
+            SeedCrudByType(engine, items);
         }
     }
 
-    public static void SeedByType(MeadowEngine engine, IEnumerable<object> seed)
+    public static void SeedCrudByType(MeadowEngine engine, IEnumerable<object> seed, Type modelType = null)
     {
         var seedList = seed.Where(o => o is { }).Select(o => o!).ToList();
 
-        var modelType = seedList.First().GetType();
+        modelType ??= seedList.First().GetType();
 
         var seedMethod = typeof(SeedingUtilities)
             .GetMethods()
@@ -49,6 +63,46 @@ public static class SeedingUtilities
     }
 
 
+    public static object? SeedEvent(MeadowEngine engine, StreamEvent streamEvent)
+    {
+        if (streamEvent.EventConcreteType.GetCustomAttribute<EventStreamPreferencesAttribute>(true) is { } pref)
+        {
+            if (streamEvent.StreamId is { } streamId && streamId.GetType() == pref.StreamIdType)
+            {
+                var genericPerformMethod = typeof(SeedingUtilities)
+                    .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
+                    .Where(m => m.Name == nameof(PerformEventInsertion))
+                    .Where(m => m.IsGenericMethod)
+                    .FirstOrDefault(m => m.GetGenericArguments().Length == 3)!;
+
+                var performMethod = genericPerformMethod.MakeGenericMethod(streamEvent.EventConcreteType
+                    , pref.EventId, pref.StreamIdType)!;
+
+                // var eventIdLeaf = TypeIdentity.FindIdentityLeaf(streamEvent.EventConcreteType);
+
+                // Action<object, object> setId = (i, s) => { };
+                //
+                // if (eventIdLeaf is {}  rn)
+                // {
+                //     setId = (entry, e) => TypeIdentity.FindIdentityLeaf(entry.GetType())
+                //         .Evaluator.Write(entry, rn.Evaluator.Read(e));
+                // }
+
+                var inserted = performMethod.Invoke(null, new object?[] { engine, streamEvent.Event, streamId });
+
+                if (inserted == null)
+                {
+                    Console.WriteLine("PROBLEM SEEDING OBJECT");
+                }
+
+                return inserted;
+            }
+        }
+
+        return null;
+    }
+
+
     public static void Seed<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class, new()
     {
         var modelType = typeof(T);
@@ -58,118 +112,107 @@ public static class SeedingUtilities
         var eventIdLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
 
         Action<object, object> setId = (i, s) => { };
-            
-        if (eventIdLeaf is {}  readerNode)
+
+        if (eventIdLeaf is { } readerNode)
         {
             setId = (i, s) => eventIdLeaf.Evaluator.Write(s, readerNode.Evaluator.Read(i));
         }
-        
-        if (modelType.GetCustomAttribute<EventStreamPreferencesAttribute>() is { } pref)
-        {
-            var guidStreamIdForSeeds = "91365d16-85ed-415e-84df-5e56d8870344";
-            long longStreamIdForSeeds = 9386229511;
-            int intStreamIdForSeeds = 93862295;
 
-            var genericPerformMethod = typeof(SeedingUtilities)
-                .GetMethods(BindingFlags.Static | BindingFlags.NonPublic)
-                .Where(m => m.Name == nameof(PerformEventInsertion))
-                .Where(m => m.IsGenericMethod)
-                .FirstOrDefault(m => m.GetGenericArguments().Length == 3)!;
-
-            var performMethod = genericPerformMethod.MakeGenericMethod(typeof(T), pref.EventId, pref.StreamIdType)!;
-
-            if (eventIdLeaf is {}  rn)
-            {
-                setId = (entry, e) => TypeIdentity.FindIdentityLeaf(entry.GetType())
-                    .Evaluator.Write(entry, rn.Evaluator.Read(e));
-            }
-
-            
-           
-            if (pref.StreamIdType == typeof(string))
-            {
-                perform = i =>
-                {
-                    try
-                    {
-                        return performMethod.Invoke(null, new object?[] { engine, i, guidStreamIdForSeeds });
-                    }
-                    catch
-                    {
-                        /* ignore */
-                    }
-
-                    return default;
-                };
-            }
-            else if (pref.StreamIdType == typeof(Guid))
-            {
-                perform = i =>
-                {
-                    try
-                    {
-                        return performMethod.Invoke(null,
-                            new object?[] { engine, i, Guid.Parse(guidStreamIdForSeeds) });
-                    }
-                    catch
-                    {
-                        /* ignore */
-                    }
-
-                    return default;
-                };
-            }
-            else if (pref.StreamIdType == typeof(long))
-            {
-                perform = i =>
-                {
-                    try
-                    {
-                        return performMethod.Invoke(null, new object?[] { engine, i, longStreamIdForSeeds });
-                    }
-                    catch
-                    {
-                        /* ignore */
-                    }
-
-                    return default;
-                };
-            }
-            else if (pref.StreamIdType == typeof(int))
-            {
-                perform = i =>
-                {
-                    try
-                    {
-                        return performMethod.Invoke(null, new object?[] { engine, i, intStreamIdForSeeds });
-                    }
-                    catch
-                    {
-                        /* ignore */
-                    }
-
-                    return default;
-                };
-            }
-
-            
-
-            
-
-            foreach (var item in seed)
-            {
-                var inserted = perform(item);
-
-                if (inserted == null)
-                {
-                    Console.WriteLine("PROBLEM SEEDING OBJECT");
-                }
-                else
-                {
-                    setId(inserted, item);
-                }
-            }
-        }
+        // if (modelType.GetCustomAttribute<EventStreamPreferencesAttribute>() is { } pref)
+        // {
+        //     var guidStreamIdForSeeds = "91365d16-85ed-415e-84df-5e56d8870344";
+        //     long longStreamIdForSeeds = 9386229511;
+        //     int intStreamIdForSeeds = 93862295;
+        //
+        //
+        //     if (eventIdLeaf is { } rn)
+        //     {
+        //         setId = (entry, e) => TypeIdentity.FindIdentityLeaf(entry.GetType())
+        //             .Evaluator.Write(entry, rn.Evaluator.Read(e));
+        //     }
+        //
+        //
+        //     if (pref.StreamIdType == typeof(string))
+        //     {
+        //         perform = i =>
+        //         {
+        //             try
+        //             {
+        //                 return performMethod.Invoke(null, new object?[] { engine, i, guidStreamIdForSeeds });
+        //             }
+        //             catch
+        //             {
+        //                 /* ignore */
+        //             }
+        //
+        //             return default;
+        //         };
+        //     }
+        //     else if (pref.StreamIdType == typeof(Guid))
+        //     {
+        //         perform = i =>
+        //         {
+        //             try
+        //             {
+        //                 return performMethod.Invoke(null,
+        //                     new object?[] { engine, i, Guid.Parse(guidStreamIdForSeeds) });
+        //             }
+        //             catch
+        //             {
+        //                 /* ignore */
+        //             }
+        //
+        //             return default;
+        //         };
+        //     }
+        //     else if (pref.StreamIdType == typeof(long))
+        //     {
+        //         perform = i =>
+        //         {
+        //             try
+        //             {
+        //                 return performMethod.Invoke(null, new object?[] { engine, i, longStreamIdForSeeds });
+        //             }
+        //             catch
+        //             {
+        //                 /* ignore */
+        //             }
+        //
+        //             return default;
+        //         };
+        //     }
+        //     else if (pref.StreamIdType == typeof(int))
+        //     {
+        //         perform = i =>
+        //         {
+        //             try
+        //             {
+        //                 return performMethod.Invoke(null, new object?[] { engine, i, intStreamIdForSeeds });
+        //             }
+        //             catch
+        //             {
+        //                 /* ignore */
+        //             }
+        //
+        //             return default;
+        //         };
+        //     }
+        //
+        //
+        //     foreach (var item in seed)
+        //     {
+        //         var inserted = perform(item);
+        //
+        //         if (inserted == null)
+        //         {
+        //             Console.WriteLine("PROBLEM SEEDING OBJECT");
+        //         }
+        //         else
+        //         {
+        //             setId(inserted, item);
+        //         }
+        //     }
+        // }
     }
 
     private static object? PerformCrudInsertion<T>(MeadowEngine engine, T item) where T : class, new()

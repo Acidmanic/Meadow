@@ -46,11 +46,11 @@ public class EventStreamSuit
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-            var entries = c.EventStreamRead<NumberEvent, long, Guid>().ToStreamEvent(c.MeadowConfiguration);
+            var actual = c.EventStreamRead<NumberEvent, long, Guid>().ToStreamEvent(c.MeadowConfiguration);
 
-            var allEvents = c.Data.Get<NumberEvent>();
+            var allEvents = c.Data.Events();
 
-            Assert.Equal(allEvents.Count, entries.Count);
+            Assert.Equal(allEvents.Count, actual.Count);
         });
     }
 

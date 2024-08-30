@@ -226,11 +226,11 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var rawDataSets = dataProvider.SeedSet;
 
-        SeedingUtilities.SeedDataSets(engine, rawDataSets);
+        var data = CaseData.Create(rawDataSets);
+
+        SeedingUtilities.SeedCaseData(engine, data);
 
         dataProvider.PostSeeding();
-
-        var data = CaseData.Create(rawDataSets);
 
         env(new Context(engine, data, engineSetup.DatabaseName,engineSetup.Configuration));
     }
