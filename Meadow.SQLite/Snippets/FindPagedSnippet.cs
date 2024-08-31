@@ -11,6 +11,7 @@ public class FindPagedSnippet : ISnippet
     public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public string KeyFindPagedProcedureName => Toolbox.ProcessedType.NameConvention.FindPagedProcedureName;
+    public string KeyIndexProcedureName => Toolbox.ProcessedType.NameConvention.IndexEntityProcedureName;
     public string KeyFindPagedProcedureNameFullTree => Toolbox.ProcessedType.NameConvention.FindPagedProcedureNameFullTree;
 
     public string KeySelectColumns => Toolbox.GetSelectColumns(ColumnNameTranslation.DataOwnerDotColumnName);
@@ -21,8 +22,19 @@ public class FindPagedSnippet : ISnippet
     public string KeyIdFieldNameFullTree => Toolbox.IdFieldNameOrDefaultFullTree("Id");
     public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause(" AND ", " ");
 
+    
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE {KeyIndexProcedureName} (@ResultId {KeyIdFieldName},@IndexCorpus TEXT) AS
+    UPDATE {KeySearchIndexTableName}  SET IndexCorpus=@IndexCorpus
+        WHERE {KeySearchIndexTableName}.ResultId=@ResultId;
+    INSERT INTO {KeySearchIndexTableName} (ResultId,IndexCorpus)
+            SELECT @ResultId,@IndexCorpus WHERE NOT EXISTS(SELECT * FROM {KeySearchIndexTableName}
+            WHERE {KeySearchIndexTableName}.ResultId=@ResultId);
+    SELECT * FROM {KeySearchIndexTableName} WHERE ROWID=LAST_INSERT_ROWID();
+    SELECT * FROM {KeySearchIndexTableName} WHERE {KeySearchIndexTableName}.ResultId=@ResultId OR ROWID = LAST_INSERT_ROWID() LIMIT 1;
+GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {KeyFindPagedProcedureName}(
                                             @Offset INTEGER,

@@ -9,13 +9,13 @@ using Xunit;
 namespace Meadow.Test.Functional.Suits;
 
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
-public class FindPagedSuit
+public class FindPagedSuitSnippetComposed
 {
     private const Databases Databases = TestEnvironment.Databases.SqLite;
 
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
 
-    private readonly string _scriptsDirectory = "MacroScripts";
+    private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
     
 
     [Theory]
