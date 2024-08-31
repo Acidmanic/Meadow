@@ -11,6 +11,7 @@ using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Meadow.Transliteration;
 using Meadow.Transliteration.Builtin;
+using Meadow.Utility;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
 
@@ -18,7 +19,6 @@ namespace Meadow.Test.Functional.TestEnvironment;
 
 public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new()
 {
-
     private readonly string _scriptsDirectory;
     public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
 
@@ -36,9 +36,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         _scriptOverrides[fileName] = content;
     }
 
-    public Environment():this("MacroScripts")
+    public Environment() : this("MacroScripts")
     {
-        
     }
 
     public Environment(string scriptsDirectory)
@@ -52,7 +51,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public CaseData Data { get; }
 
         public string DatabaseName { get; }
-        
+
         public MeadowConfiguration MeadowConfiguration { get; }
 
         public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration)
@@ -161,10 +160,28 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public DeleteById<TEntity, TId> DeleteById<TEntity, TId>(TId id)
             => (DeleteById<TEntity, TId>)PerformRequest(new DeleteById<TEntity, TId>(id));
 
-        public List<ObjectEntry<TEventId, TStreamId>> EventStreamRead<TEvent, TEventId, TStreamId>()
+        public List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>()
         {
             return PerformRequest(new ReadAllStreamsRequest<TEvent, TEventId, TStreamId>())
-                .FromStorage;
+                .FromStorage.ToStreamEvents(MeadowConfiguration);
+        }
+
+        public List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>(TStreamId streamId)
+        {
+            return PerformRequest(new ReadStreamByStreamIdRequest<TEvent, TEventId, TStreamId>(streamId))
+                .FromStorage.ToStreamEvents(MeadowConfiguration);
+        }
+
+        public List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>(TEventId baseEventId, long count)
+        {
+            return PerformRequest(new ReadAllStreamsChunksRequest<TEvent, TEventId, TStreamId>(baseEventId, count))
+                .FromStorage.ToStreamEvents(MeadowConfiguration);
+        }
+
+        public List<StreamEvent> EventStreamRead<TEvent,TEventId,TStreamId>(TStreamId streamId, TEventId baseEventId,long count)
+        {
+            return PerformRequest(new ReadStreamChunkByStreamIdRequest<TEvent, TEventId, TStreamId>(streamId, baseEventId, count))
+                .FromStorage.ToStreamEvents(MeadowConfiguration);
         }
 
         private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>
@@ -190,7 +207,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
     {
         var engineSetup = new MeadowEngineSetup();
 
-        engineSetup.SelectDatabase(database,_scriptsDirectory);
+        engineSetup.SelectDatabase(database, _scriptsDirectory);
 
         MeadowEngine.UseLogger(logger);
 
@@ -232,12 +249,11 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         dataProvider.PostSeeding();
 
-        env(new Context(engine, data, engineSetup.DatabaseName,engineSetup.Configuration));
+        env(new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration));
     }
 
     private void OverrideScripts(MeadowConfiguration configuration)
     {
-
         foreach (var scriptOverride in _scriptOverrides)
         {
             var file = Path.Combine(configuration.BuildupScriptDirectory, scriptOverride.Key);
@@ -245,8 +261,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             File.Delete(file);
 
             var content = scriptOverride.Value;
-            
-            File.WriteAllText(file, content);   
+
+            File.WriteAllText(file, content);
         }
     }
 }

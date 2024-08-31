@@ -219,7 +219,7 @@ public static class EventStreamUtilities
         return null;
     }
 
-    public static List<StreamEvent> ToStreamEvent<TEventId, TStreamId>(
+    public static List<StreamEvent> ToStreamEvents<TEventId, TStreamId>(
         this IEnumerable<ObjectEntry<TEventId, TStreamId>> entries,
         MeadowConfiguration meadowConfiguration)
     {

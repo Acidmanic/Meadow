@@ -38,6 +38,13 @@ public interface ISuitContext
     
     DeleteById<TEntity,TId> DeleteById<TEntity,TId>(TId id);
     
-    List<ObjectEntry<TEventId,TStreamId>> EventStreamRead<TEvent,TEventId,TStreamId>();
+    List<StreamEvent> EventStreamRead<TEvent,TEventId,TStreamId>();
+    
+    List<StreamEvent> EventStreamRead<TEvent,TEventId,TStreamId>(TStreamId streamId);
+    
+    List<StreamEvent> EventStreamRead<TEvent,TEventId,TStreamId>(TEventId baseEventId,long count);
+    
+    List<StreamEvent> EventStreamRead<TEvent,TEventId,TStreamId>(TStreamId streamId, TEventId baseEventId,long count);
+    
 
 }
