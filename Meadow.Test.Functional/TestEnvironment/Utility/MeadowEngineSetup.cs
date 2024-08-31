@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using Acidmanic.Utilities.Reflection;
 using Examples.Common;
 using Meadow.Configuration;
 using Meadow.MySql;
@@ -18,42 +20,64 @@ namespace Meadow.Test.Functional.TestEnvironment.Utility;
 public class MeadowEngineSetup
 {
     private string _connectionString;
+    private readonly string? _suggestedDataBaseName;
 
     // private string _scriptsDirectory;
     private readonly List<Assembly> _meadowConfigurationAssemblies = new List<Assembly>();
 
     public string DatabaseName { get; }
-    
-    public string DatabaseDisplayName { get; private set; }
+
+    public string DatabaseDisplayName { get; private set; } = string.Empty;
     
     public MeadowConfiguration Configuration { get; private set; }
 
-    public MeadowEngineSetup()
+    public MeadowEngineSetup(string? suggestedDataBaseName=null)
     {
+        _suggestedDataBaseName = suggestedDataBaseName;
         DatabaseName = ProvideDataBaseName();
     }
 
 
+    private class MarkedType
+    {
+        public Type Type { get; set; }
+        public bool Marked { get; set; }
+    }
+
+    
     private Type GetTestSuitType()
     {
         var stack = new StackTrace();
 
-        foreach (var stackFrame in stack.GetFrames())
+        var markedMethods =
+            stack.GetFrames().Select(f => f.GetMethod())
+                .Where(m => m != null)
+                .Select(m => m!)
+                .Where(m => m.DeclaringType!=null)
+                .Select(m => new
+                    MarkedType{
+                    Type = m.DeclaringType!, Marked = (m.GetCustomAttribute<FactAttribute>() is { }
+                                                      || m.GetCustomAttribute<TheoryAttribute>() is { })
+                })
+                .ToList();
+
+        var hit = false;
+
+        foreach (var markedMethod in markedMethods)
         {
-            if (stackFrame.GetMethod() is { } m)
-            {
-                if (m.GetCustomAttribute<FactAttribute>() is { }
-                    || m.GetCustomAttribute<TheoryAttribute>() is { })
-                {
-                    if (m.DeclaringType is { } t) return t;
-                }
-            }
+            hit |= markedMethod.Marked;
+            markedMethod.Marked = hit;
         }
+
+        var found =
+            markedMethods.FirstOrDefault(m => m.Marked && !m.Type.IsAbstract && !m.Type.IsGenericType);
+
+        if (found is { } f) return f.Type;
 
         return GetType();
     }
 
-    private string ProvideDataBaseName() => GetTestSuitType().Name + "Db2BeDeleted";
+    private string ProvideDataBaseName() => (_suggestedDataBaseName ?? GetTestSuitType().Name) + "Db2BeDeleted";
 
 
     private void UseSqLite(string scriptsDirectory = "MacroScripts")

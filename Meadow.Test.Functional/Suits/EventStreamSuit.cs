@@ -12,11 +12,29 @@ using Xunit.Abstractions;
 namespace Meadow.Test.Functional.Suits;
 
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
-public class EventStreamSuit
+public class AbstractEventStreamSuit : EventStreamSuit<IStatisticsEvent>
+{
+    public AbstractEventStreamSuit(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+}
+
+[Collection("SEQUENTIAL_DATABASE_TESTS")]
+public class ConcreteEventStreamSuit : EventStreamSuit<NumberEvent>
+{
+    public ConcreteEventStreamSuit(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+}
+
+public abstract class EventStreamSuit<TEventBase>
 {
     private const Databases Database = Databases.SqLite;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
+    
+
+    private string EventStreamScriptContent => "-- {{WipEventStream " + typeof(TEventBase).FullName + "}}";
 
     public EventStreamSuit(ITestOutputHelper testOutputHelper)
     {
@@ -26,7 +44,7 @@ public class EventStreamSuit
     [Fact]
     public void Should_SetupEngine_NoException()
     {
-        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
+        var environment = CreateEnvironment();
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c => { });
     }
@@ -34,11 +52,11 @@ public class EventStreamSuit
     [Fact]
     public void Should_Read_AllSeeded_Events()
     {
-        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
+        var environment = CreateEnvironment();
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-            var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>();
+            var actual = c.EventStreamRead<TEventBase, long, Guid>();
 
             var expected = c.Data.Events();
 
@@ -49,7 +67,7 @@ public class EventStreamSuit
     [Fact]
     public void Should_Read_AllEvents_ForEachStreamId()
     {
-        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
+        var environment = CreateEnvironment();
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
@@ -60,7 +78,7 @@ public class EventStreamSuit
                 var expected = eventsByStreamId.Value;
                 var expectedEvents = expected.ToEvents<NumberEvent>();
 
-                var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>(streamId);
+                var actual = c.EventStreamRead<TEventBase, long, Guid>(streamId);
                 var actualEvents = actual.ToEvents<NumberEvent>();
 
                 Assert.Equal(expected.Count, actual.Count);
@@ -76,7 +94,7 @@ public class EventStreamSuit
     [Fact]
     public void Should_Read_AllEvents_AfterGivenBase()
     {
-        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
+        var environment = CreateEnvironment();
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
@@ -94,7 +112,7 @@ public class EventStreamSuit
 
                     var baseEventId = (long)baseEvent.EventId;
 
-                    var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>(baseEventId, windowSize);
+                    var actual = c.EventStreamRead<TEventBase, long, Guid>(baseEventId, windowSize);
                     var actualEvents = actual.ToEvents<NumberEvent>();
 
                     Assert.Equal(expectedReadCount, actual.Count);
@@ -113,7 +131,7 @@ public class EventStreamSuit
     [Fact]
     public void Should_Read_AllEvents_AfterGivenBase_PerStreamId()
     {
-        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
+        var environment = CreateEnvironment();
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
@@ -136,7 +154,7 @@ public class EventStreamSuit
 
                         var baseEventId = (long)baseEvent.EventId;
 
-                        var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>(streamId, baseEventId, windowSize);
+                        var actual = c.EventStreamRead<TEventBase, long, Guid>(streamId, baseEventId, windowSize);
                         var actualEvents = actual.ToEvents<NumberEvent>();
 
                         Assert.Equal(expectedReadCount, actual.Count);
@@ -151,6 +169,15 @@ public class EventStreamSuit
                 }
             }
         });
+    }
+
+    private Environment<StatisticsDataProvider> CreateEnvironment()
+    {
+        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory,GetType().Name);
+        
+        environment.OverrideScriptFile("0006-EventStream.sql",EventStreamScriptContent);
+
+        return environment;
     }
 }
 

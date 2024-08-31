@@ -20,6 +20,7 @@ namespace Meadow.Test.Functional.TestEnvironment;
 public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new ()
 {
     private readonly string _scriptsDirectory;
+    private readonly string? _suggestedDatabaseName;
     public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
 
     private Action<MeadowConfiguration> _updateConfigurations = _ => { };
@@ -40,9 +41,10 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
     {
     }
 
-    public Environment(string scriptsDirectory)
+    public Environment(string scriptsDirectory,string? suggestedDatabaseName = null)
     {
         _scriptsDirectory = scriptsDirectory;
+        _suggestedDatabaseName = suggestedDatabaseName;
     }
 
     private class Context : ISuitContext
@@ -205,7 +207,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
     public void Perform(Databases database, ILogger logger, Action<ISuitContext> env)
     {
-        var engineSetup = new MeadowEngineSetup();
+        var engineSetup = new MeadowEngineSetup(_suggestedDatabaseName);
 
         engineSetup.SelectDatabase(database, _scriptsDirectory);
 
