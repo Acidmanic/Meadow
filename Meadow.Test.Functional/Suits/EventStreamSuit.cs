@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 namespace Meadow.Test.Functional.Suits;
 
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
-public class AbstractEventStreamSuit : EventStreamSuit<IStatisticsEvent>
+public class AbstractEventStreamSuit : EventStreamSuit<IStatisticsEvent,long,NumberEvent,StatisticsDataProvider>
 {
     public AbstractEventStreamSuit(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
@@ -20,14 +20,23 @@ public class AbstractEventStreamSuit : EventStreamSuit<IStatisticsEvent>
 }
 
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
-public class ConcreteEventStreamSuit : EventStreamSuit<NumberEvent>
+public class ConcreteClassEventStreamSuit : EventStreamSuit<NumberEventClass,long,NumberEventClass,ClassStatisticsDataProvider>
 {
-    public ConcreteEventStreamSuit(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    public ConcreteClassEventStreamSuit(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
     {
     }
 }
 
-public abstract class EventStreamSuit<TEventBase>
+[Collection("SEQUENTIAL_DATABASE_TESTS")]
+public class ConcreteRecordEventStreamSuit : EventStreamSuit<NumberEventRecord,Guid,NumberEventRecord,RecordStatisticsDataProvider>
+{
+    public ConcreteRecordEventStreamSuit(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+    {
+    }
+}
+
+public abstract class EventStreamSuit<TEventBase,TEventId, TConcreteEvent,TDataProvider>
+where TDataProvider:ICaseDataProvider, new()
 {
     private const Databases Database = Databases.SqLite;
     private readonly ITestOutputHelper _testOutputHelper;
@@ -46,7 +55,7 @@ public abstract class EventStreamSuit<TEventBase>
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c => { });
+        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), _ => { });
     }
 
     [Fact]
@@ -56,7 +65,7 @@ public abstract class EventStreamSuit<TEventBase>
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-            var actual = c.EventStreamRead<TEventBase, long, Guid>();
+            var actual = c.EventStreamRead<TEventBase, TEventId, Guid>();
 
             var expected = c.Data.Events();
 
@@ -76,16 +85,16 @@ public abstract class EventStreamSuit<TEventBase>
                 var streamId = (Guid)eventsByStreamId.Key;
 
                 var expected = eventsByStreamId.Value;
-                var expectedEvents = expected.ToEvents<NumberEvent>();
+                var expectedEvents = expected.ToEvents<TConcreteEvent>();
 
-                var actual = c.EventStreamRead<TEventBase, long, Guid>(streamId);
-                var actualEvents = actual.ToEvents<NumberEvent>();
+                var actual = c.EventStreamRead<TEventBase, TEventId, Guid>(streamId);
+                var actualEvents = actual.ToEvents<TConcreteEvent>();
 
                 Assert.Equal(expected.Count, actual.Count);
 
-                AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+                AssertX.ContainSameItemsDeep(expectedEvents, actualEvents);
 
-                AssertX.AreInSameOrder(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+                AssertX.AreInSameOrder(expectedEvents, actualEvents);
             }
         });
     }
@@ -108,18 +117,18 @@ public abstract class EventStreamSuit<TEventBase>
                     var expectedReadCount = Math.Min(allSeededEvents.Count - baseIndex - 1, windowSize);
                     var skip = allSeededEvents.IndexOf(baseEvent) + 1;
                     var expected = allSeededEvents.Skip(skip).Take(expectedReadCount).ToList();
-                    var expectedEvents = expected.ToEvents<NumberEvent>();
+                    var expectedEvents = expected.ToEvents<TConcreteEvent>();
 
-                    var baseEventId = (long)baseEvent.EventId;
+                    var baseEventId = (TEventId)baseEvent.EventId;
 
-                    var actual = c.EventStreamRead<TEventBase, long, Guid>(baseEventId, windowSize);
-                    var actualEvents = actual.ToEvents<NumberEvent>();
+                    var actual = c.EventStreamRead<TEventBase, TEventId, Guid>(baseEventId, windowSize);
+                    var actualEvents = actual.ToEvents<TConcreteEvent>();
 
                     Assert.Equal(expectedReadCount, actual.Count);
 
-                    AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+                    AssertX.ContainSameItemsDeep(expectedEvents, actualEvents);
 
-                    AssertX.AreInSameOrder(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+                    AssertX.AreInSameOrder(expectedEvents, actualEvents);
 
                     _testOutputHelper.WriteLine("[PASS] Expected {0} Items from Total: {1}", expectedReadCount,
                         allSeededEvents.Count);
@@ -150,18 +159,18 @@ public abstract class EventStreamSuit<TEventBase>
 
                         var skip = allSeededEvents.IndexOf(baseEvent) + 1;
                         var expected = allSeededEvents.Skip(skip).Take(expectedReadCount).ToList();
-                        var expectedEvents = expected.ToEvents<NumberEvent>();
+                        var expectedEvents = expected.ToEvents<TConcreteEvent>();
 
-                        var baseEventId = (long)baseEvent.EventId;
+                        var baseEventId = (TEventId)baseEvent.EventId;
 
-                        var actual = c.EventStreamRead<TEventBase, long, Guid>(streamId, baseEventId, windowSize);
-                        var actualEvents = actual.ToEvents<NumberEvent>();
+                        var actual = c.EventStreamRead<TEventBase, TEventId, Guid>(streamId, baseEventId, windowSize);
+                        var actualEvents = actual.ToEvents<TConcreteEvent>();
 
                         Assert.Equal(expectedReadCount, actual.Count);
 
-                        AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+                        AssertX.ContainSameItemsDeep(expectedEvents, actualEvents);
 
-                        AssertX.AreInSameOrder(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+                        AssertX.AreInSameOrder(expectedEvents, actualEvents);
 
                         _testOutputHelper.WriteLine("[PASS] Expected {0} Items For Stream: {1}, Stream.Total: {2}",
                             expectedReadCount, streamId, allSeededEvents.Count);
@@ -171,9 +180,9 @@ public abstract class EventStreamSuit<TEventBase>
         });
     }
 
-    private Environment<StatisticsDataProvider> CreateEnvironment()
+    private Environment<TDataProvider> CreateEnvironment()
     {
-        var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory,GetType().Name);
+        var environment = new Environment<TDataProvider>(_scriptsDirectory,GetType().Name);
         
         environment.OverrideScriptFile("0006-EventStream.sql",EventStreamScriptContent);
 
