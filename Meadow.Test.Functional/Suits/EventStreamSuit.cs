@@ -11,7 +11,6 @@ using Xunit.Abstractions;
 
 namespace Meadow.Test.Functional.Suits;
 
-
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class EventStreamSuit
 {
@@ -29,8 +28,6 @@ public class EventStreamSuit
     {
         var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
 
-        var actualAggregate = new StatisticsAggregate() { Id = Guid.NewGuid() };
-
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c => { });
     }
 
@@ -38,8 +35,6 @@ public class EventStreamSuit
     public void Should_Read_AllSeeded_Events()
     {
         var environment = new Environment<StatisticsDataProvider>(_scriptsDirectory);
-
-        var actualAggregate = new StatisticsAggregate() { Id = Guid.NewGuid() };
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
@@ -67,17 +62,17 @@ public class EventStreamSuit
 
                 var actual = c.EventStreamRead<NumberEvent, long, Guid>(streamId);
                 var actualEvents = actual.ToEvents<NumberEvent>();
-                
+
                 Assert.Equal(expected.Count, actual.Count);
-                
-                AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e=> $"Value:{e.Number}");
-                
-                AssertX.AreInSameOrder(expectedEvents, actualEvents, e=> $"Value:{e.Number}");
+
+                AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+
+                AssertX.AreInSameOrder(expectedEvents, actualEvents, e => $"Value:{e.Number}");
             }
         });
     }
-    
-    
+
+
     [Fact]
     public void Should_Read_AllEvents_AfterGivenBase()
     {
@@ -85,37 +80,36 @@ public class EventStreamSuit
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-
             var allSeededEvents = c.Data.Events();
 
             for (int baseIndex = 0; baseIndex < allSeededEvents.Count; baseIndex++)
             {
-
                 for (int windowSize = 1; windowSize < allSeededEvents.Count; windowSize++)
                 {
                     var baseEvent = allSeededEvents[baseIndex];
-                    var expectedReadCount = Math.Min(allSeededEvents.Count - baseIndex-1,windowSize);
+                    var expectedReadCount = Math.Min(allSeededEvents.Count - baseIndex - 1, windowSize);
                     var skip = allSeededEvents.IndexOf(baseEvent) + 1;
                     var expected = allSeededEvents.Skip(skip).Take(expectedReadCount).ToList();
                     var expectedEvents = expected.ToEvents<NumberEvent>();
-                    
+
                     var baseEventId = (long)baseEvent.EventId;
 
-                    var actual = c.EventStreamRead<NumberEvent, long, Guid>(baseEventId,windowSize);
+                    var actual = c.EventStreamRead<NumberEvent, long, Guid>(baseEventId, windowSize);
                     var actualEvents = actual.ToEvents<NumberEvent>();
-                    
-                    Assert.Equal(expectedReadCount,actual.Count);
-                    
-                    AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e=> $"Value:{e.Number}");
-                    
-                    AssertX.AreInSameOrder(expectedEvents, actualEvents, e=> $"Value:{e.Number}");
-                    
-                    _testOutputHelper.WriteLine("[PASS] Expected {0} Items from Total: {1}", expectedReadCount,allSeededEvents.Count);
+
+                    Assert.Equal(expectedReadCount, actual.Count);
+
+                    AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+
+                    AssertX.AreInSameOrder(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+
+                    _testOutputHelper.WriteLine("[PASS] Expected {0} Items from Total: {1}", expectedReadCount,
+                        allSeededEvents.Count);
                 }
             }
         });
     }
-    
+
     [Fact]
     public void Should_Read_AllEvents_AfterGivenBase_PerStreamId()
     {
@@ -123,7 +117,6 @@ public class EventStreamSuit
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-            
             foreach (var eventsByStreamId in c.Data.EventsByStreamId)
             {
                 var allSeededEvents = eventsByStreamId.Value;
@@ -131,44 +124,40 @@ public class EventStreamSuit
 
                 for (int baseIndex = 0; baseIndex < allSeededEvents.Count; baseIndex++)
                 {
-
                     for (int windowSize = 1; windowSize < allSeededEvents.Count; windowSize++)
                     {
                         var baseEvent = allSeededEvents[baseIndex];
-                        
-                        var expectedReadCount = Math.Min(allSeededEvents.Count - baseIndex-1,windowSize);
-                        
+
+                        var expectedReadCount = Math.Min(allSeededEvents.Count - baseIndex - 1, windowSize);
+
                         var skip = allSeededEvents.IndexOf(baseEvent) + 1;
                         var expected = allSeededEvents.Skip(skip).Take(expectedReadCount).ToList();
                         var expectedEvents = expected.ToEvents<NumberEvent>();
-                    
+
                         var baseEventId = (long)baseEvent.EventId;
 
-                        var actual = c.EventStreamRead<NumberEvent, long, Guid>(streamId, baseEventId,windowSize);
+                        var actual = c.EventStreamRead<NumberEvent, long, Guid>(streamId, baseEventId, windowSize);
                         var actualEvents = actual.ToEvents<NumberEvent>();
-                    
-                        Assert.Equal(expectedReadCount,actual.Count);
-                    
-                        AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e=> $"Value:{e.Number}");
-                        
-                        AssertX.AreInSameOrder(expectedEvents, actualEvents, e=> $"Value:{e.Number}");
-                        
+
+                        Assert.Equal(expectedReadCount, actual.Count);
+
+                        AssertX.ContainSameItemsDeep(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+
+                        AssertX.AreInSameOrder(expectedEvents, actualEvents, e => $"Value:{e.Number}");
+
                         _testOutputHelper.WriteLine("[PASS] Expected {0} Items For Stream: {1}, Stream.Total: {2}",
-                            expectedReadCount,streamId,allSeededEvents.Count);
+                            expectedReadCount, streamId, allSeededEvents.Count);
                     }
                 }
             }
-            
         });
     }
-    
 }
 
 internal static class EventStreamConversions
 {
-
     public static List<T> ToEvents<T>(this IEnumerable<StreamEvent> streamEvents)
     {
         return streamEvents.Select(s => (T)s.Event).ToList();
     }
-} 
+}
