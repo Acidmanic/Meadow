@@ -8,7 +8,7 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.FindPaged)]
 public class FindPagedSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public string KeyFindPagedProcedureName => Toolbox.ProcessedType.NameConvention.FindPagedProcedureName;
     public string KeyFindPagedProcedureNameFullTree => Toolbox.ProcessedType.NameConvention.FindPagedProcedureNameFullTree;

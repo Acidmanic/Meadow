@@ -5,7 +5,7 @@ namespace Meadow.Test.Functional.Suits.Snippet.Snippets;
 
 public class NestedCollectionSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public List<ISnippet> Collection => new()

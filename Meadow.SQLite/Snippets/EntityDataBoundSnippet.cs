@@ -8,7 +8,7 @@ namespace Meadow.SQLite.Snippets;
 public class EntityDataBoundSnippet : ISnippet
 {
     
-    public SnippetToolbox Toolbox { get; set; }
+    public ISnippetToolbox Toolbox { get; set; }
 
     public EntityDataBoundSnippet(Type entityType,MeadowConfiguration configuration, RepetitionHandling repetitionHandling)
     {

@@ -8,7 +8,7 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.UpdateProcedure)]
 public class UpdateSnippet:ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public string DefinitionParameters => Toolbox.GetProcedureDefinitionParameters();
 

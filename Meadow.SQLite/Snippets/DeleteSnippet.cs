@@ -11,7 +11,7 @@ public class DeleteSnippet : ISnippet
 {
     private class DeleteSnippetCase : ISnippet
     {
-        public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+        public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
         private readonly bool _byId;
 
@@ -46,7 +46,7 @@ GO
 ".Trim();
     }
 
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public List<ISnippet> Items

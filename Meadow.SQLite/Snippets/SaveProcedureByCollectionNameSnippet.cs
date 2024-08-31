@@ -8,9 +8,9 @@ namespace Meadow.SQLite.Snippets;
 
 public class SaveProcedureByCollectionNameSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } 
+    public ISnippetToolbox Toolbox { get; set; } 
 
-    public SaveProcedureByCollectionNameSnippet(SnippetToolbox toolbox, SaveProcedureComponents saveComponents)
+    public SaveProcedureByCollectionNameSnippet(ISnippetToolbox toolbox, SaveProcedureComponents saveComponents)
     {
         Toolbox = toolbox;
 

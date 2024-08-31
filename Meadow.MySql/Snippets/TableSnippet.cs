@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Snippets;
@@ -9,14 +8,14 @@ namespace Meadow.MySql.Snippets;
 [CommonSnippet(CommonSnippets.CreateTable)]
 public class TableSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public string CreateTablePhrase => Toolbox.SqlTranslator.CreateTablePhrase(
         Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.TableName);
 
-    public string Parameters => string.Join(",\n\t\t",Toolbox?.ProcessedType.Parameters.Select(Toolbox.SqlTranslator.TableColumnDefinition).ToList() ?? new List<string>());
+    public string Parameters => string.Join(",\n\t\t",Toolbox.ProcessedType.Parameters.Select(Toolbox.SqlTranslator.TableColumnDefinition).ToList());
 
     public ISnippet Line => new CommentLineSnippet();
     

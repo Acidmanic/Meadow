@@ -14,6 +14,9 @@ namespace Meadow.Configuration
 {
     public class MeadowConfiguration : MeadowConfigurationModel
     {
+        public static readonly MeadowConfiguration Null = new();
+        
+        
         private readonly Dictionary<Type, FilterQuery> _filters = new();
         private ITransliterationService _transliterationService = new DefaultTransliterationService();
 

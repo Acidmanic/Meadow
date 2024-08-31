@@ -8,7 +8,6 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.DataTypeMapping;
-using Meadow.Extensions;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -17,10 +16,10 @@ using Meadow.Utility;
 
 namespace Meadow.Scaffolding.Snippets;
 
-public class SnippetToolbox
+public class SnippetToolbox:ISnippetToolbox
 {
     
-    public static SnippetToolbox Null { get; } = new SnippetToolboxBuilder<object>(new MeadowConfiguration()).Build();
+    public static ISnippetToolbox Null { get; } = new SnippetToolboxBuilder<object>(new MeadowConfiguration()).Build();
     
     public ProcessedType ProcessedType { get; }
         
@@ -43,7 +42,7 @@ public class SnippetToolbox
         
     public  ISqlTranslator SqlTranslator { get; }
     
-    public  DataAccessServiceResolver DataAccessServiceResolver { get; }
+    public  IDataAccessServiceResolver DataAccessServiceResolver { get; }
     
     public FullTreeTranslation FullTreeTranslation { get; }
     

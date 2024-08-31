@@ -5,7 +5,9 @@ namespace Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 
 public class SnippetConstruction
 {
-    public Type EntityType { get; set; }
-    
-    public MeadowConfiguration MeadowConfiguration { get; set; }
+    public static readonly SnippetConstruction Null = new();
+
+    public Type EntityType { get; set; } = typeof(object);
+
+    public MeadowConfiguration MeadowConfiguration { get; set; } = MeadowConfiguration.Null;
 }

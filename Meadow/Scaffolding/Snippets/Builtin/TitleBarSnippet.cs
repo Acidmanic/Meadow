@@ -4,11 +4,11 @@ public class TitleBarSnippet:ISnippet
 {
     public TitleBarSnippet(string title)
     {
-        Toolbox = null;
+        Toolbox = ISnippetToolbox.Null;
         Title = title;
     }
 
-    public SnippetToolbox? Toolbox { get; set; }
+    public ISnippetToolbox Toolbox { get; set; }
 
     public string Title { get; }
 

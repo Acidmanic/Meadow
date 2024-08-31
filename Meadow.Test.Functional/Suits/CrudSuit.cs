@@ -16,7 +16,7 @@ public class CrudSuit
     private const Databases Databases = TestEnvironment.Databases.SqLite;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
-    private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
+    private readonly string _scriptsDirectory = "MacroScripts";
     public CrudSuit(ITestOutputHelper testOutputHelper)
     {
         _testOutputHelper = testOutputHelper;

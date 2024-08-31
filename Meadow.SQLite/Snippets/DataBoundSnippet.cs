@@ -10,7 +10,7 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.DataBound)]
 public class DataBoundSnippet:ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public List<ISnippet> EntityDataBounds => CreateEntityDataBoundSnippets();

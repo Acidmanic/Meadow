@@ -8,6 +8,13 @@ namespace Meadow.DataTypeMapping;
 public interface IValueTranslator
 {
 
+    public static readonly IValueTranslator Null = new NullValueTranslator();
 
     string Translate(object? value);
+    
+    
+    private class NullValueTranslator:IValueTranslator
+    {
+        public string Translate(object? value) =>  $"{value ?? string.Empty}";
+    }
 }

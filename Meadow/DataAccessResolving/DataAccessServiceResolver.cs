@@ -11,10 +11,9 @@ using Meadow.Scaffolding.Snippets;
 
 namespace Meadow.DataAccessResolving;
 
-public class DataAccessServiceResolver
+public class DataAccessServiceResolver:IDataAccessServiceResolver
 {
     private readonly MeadowConfiguration _configuration;
-
 
     public DataAccessServiceResolver(MeadowConfiguration configuration)
     {

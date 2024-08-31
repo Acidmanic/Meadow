@@ -21,7 +21,7 @@ public class ReadSnippet : ISnippet
             _byId = byId;
         }
 
-        public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+        public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
         public string KeyHeaderCreation => Toolbox.CreateReadProcedurePhrase(_fullTree, _byId);
 
@@ -41,7 +41,7 @@ GO
 ".Trim();
     }
 
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public List<ISnippet> Items
     {

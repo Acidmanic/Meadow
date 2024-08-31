@@ -12,7 +12,7 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.SaveProcedure)]
 public class SaveProceduresSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public List<ISnippet> SaveByCollectionNames => CreateSaveSnippets();

@@ -5,11 +5,14 @@ using Meadow.Configuration;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Contracts;
 
-public interface ISqlTranslator
+public partial interface ISqlTranslator
 {
+
+    public static readonly ISqlTranslator Null = new NullSqlTranslator();
     
 
     ILogger Logger { get; set; }
@@ -42,5 +45,5 @@ public interface ISqlTranslator
 
     string ProcedureBodyParameterNamePrefix { get; }
     string ProcedureDefinitionParameterNamePrefix { get; }
-    
+        
 }

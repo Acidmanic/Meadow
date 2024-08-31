@@ -4,12 +4,16 @@ using System.Reflection;
 using Acidmanic.Utilities.Reflection.Attributes;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using CorePluralizer.Extensions;
+using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Models;
 
 namespace Meadow.Contracts
 {
     public class NameConvention
     {
+        public static readonly NameConvention Null =
+            new NameConvention(typeof(object), new PluralDataOwnerNameProvider());
+        
         public string EntityName { get; private set; }
 
         public string TableName { get; private set; }

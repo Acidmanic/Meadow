@@ -4,9 +4,9 @@ namespace Meadow.Configuration;
 
 public class MeadowConfigurationModel
 {
-    public string ConnectionString { get; set; }
-        
-    public string BuildupScriptDirectory { get; set; }
+    public string ConnectionString { get; set; } = string.Empty;
+
+    public string BuildupScriptDirectory { get; set; } = "Scripts";
 
     public char DatabaseFieldNameDelimiter { get; set; } = '_';
 

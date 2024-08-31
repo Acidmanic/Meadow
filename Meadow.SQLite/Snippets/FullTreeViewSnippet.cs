@@ -8,7 +8,7 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.FullTreeView)]
 public class FullTreeViewSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public ISnippet Line => new CommentLineSnippet();
     public ISnippet Split => new SplitSnippet();

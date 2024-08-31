@@ -8,7 +8,7 @@ namespace Meadow.SQLite.Snippets;
 [CommonSnippet(CommonSnippets.InsertProcedure)]
 public class InsertSnippet : ISnippet
 {
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public string KeyHeaderCreation => Toolbox.SqlTranslator.CreateProcedurePhrase(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.InsertProcedureName);

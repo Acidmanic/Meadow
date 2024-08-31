@@ -7,7 +7,7 @@ public class SplitSnippet:ISnippet
         Toolbox = SnippetToolbox.Null;
     }
 
-    public SnippetToolbox Toolbox { get; set; } 
+    public ISnippetToolbox Toolbox { get; set; } 
     
 
     public string Template => @"

@@ -8,7 +8,7 @@ public class SimpleSnippet : ISnippet
 
     public string Property2 => "My Name Is Mani";
 
-    public SnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
+    public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
 
     public string Template => @"
