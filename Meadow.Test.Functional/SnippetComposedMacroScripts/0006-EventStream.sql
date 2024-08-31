@@ -1,1 +1,1 @@
--- {{WipEventStream Meadow.Test.Functional.Models.EventStream.NumberEvent}}
+-- {{WipEventStream Meadow.Test.Functional.Models.EventStream.IStatisticsEvent}}

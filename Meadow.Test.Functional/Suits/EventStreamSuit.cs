@@ -38,7 +38,7 @@ public class EventStreamSuit
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
-            var actual = c.EventStreamRead<NumberEvent, long, Guid>();
+            var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>();
 
             var expected = c.Data.Events();
 
@@ -60,7 +60,7 @@ public class EventStreamSuit
                 var expected = eventsByStreamId.Value;
                 var expectedEvents = expected.ToEvents<NumberEvent>();
 
-                var actual = c.EventStreamRead<NumberEvent, long, Guid>(streamId);
+                var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>(streamId);
                 var actualEvents = actual.ToEvents<NumberEvent>();
 
                 Assert.Equal(expected.Count, actual.Count);
@@ -94,7 +94,7 @@ public class EventStreamSuit
 
                     var baseEventId = (long)baseEvent.EventId;
 
-                    var actual = c.EventStreamRead<NumberEvent, long, Guid>(baseEventId, windowSize);
+                    var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>(baseEventId, windowSize);
                     var actualEvents = actual.ToEvents<NumberEvent>();
 
                     Assert.Equal(expectedReadCount, actual.Count);
@@ -136,7 +136,7 @@ public class EventStreamSuit
 
                         var baseEventId = (long)baseEvent.EventId;
 
-                        var actual = c.EventStreamRead<NumberEvent, long, Guid>(streamId, baseEventId, windowSize);
+                        var actual = c.EventStreamRead<IStatisticsEvent, long, Guid>(streamId, baseEventId, windowSize);
                         var actualEvents = actual.ToEvents<NumberEvent>();
 
                         Assert.Equal(expectedReadCount, actual.Count);

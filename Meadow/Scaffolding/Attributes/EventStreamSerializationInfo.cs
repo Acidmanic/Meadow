@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text;
 using Acidmanic.Utilities.Extensions;
 using Meadow.Attributes;
+using Meadow.Extensions;
 
 namespace Meadow.Scaffolding.Attributes;
 
@@ -35,19 +36,21 @@ public class EventStreamSerializationInfo
             CompressionLevel = CompressionLevel.NoCompression
         };
         
-        var compressionAttribute = eventType.GetCustomAttribute<EventStreamSerializationCompressionAttribute>();
+        var compression = eventType
+            .GetHierarchicalCustomAttribute<EventStreamSerializationCompressionAttribute>();
 
-        if (compressionAttribute is {} comp)
+        if (compression)
         {
-            info.Compression = comp.Compression;
-            info.CompressionLevel = comp.CompressionLevel;
+            info.Compression = compression.Primary.Compression;
+            info.CompressionLevel = compression.Primary.CompressionLevel;
         }
         
-        var encodingAttribute = eventType.GetCustomAttribute<EventStreamSerializationEncodingAttribute>();
+        var encoding = eventType
+            .GetHierarchicalCustomAttribute<EventStreamSerializationEncodingAttribute>();
 
-        if (encodingAttribute is { } enc)
+        if (encoding)
         {
-            info.Encoding = enc.Encoding;
+            info.Encoding = encoding.Primary.Encoding;
         }
 
         return info;

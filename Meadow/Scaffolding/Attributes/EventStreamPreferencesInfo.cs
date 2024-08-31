@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Acidmanic.Utilities.Results;
 using Meadow.Attributes;
+using Meadow.Extensions;
+using Meadow.RelationalStandardMapping;
 
 namespace Meadow.Scaffolding.Attributes;
 
@@ -16,6 +20,10 @@ public class EventStreamPreferencesInfo
     public long MaximumDataSize { get; set; }
 
     public Type EventAbstraction { get; set; }
+    
+    public Type EventType { get; set; }
+    
+    
 
     public static Result<EventStreamPreferencesInfo> FromType<T>()
     {
@@ -24,20 +32,23 @@ public class EventStreamPreferencesInfo
 
     public static Result<EventStreamPreferencesInfo> FromType(Type eventType)
     {
-        var attribute = eventType.GetCustomAttribute<EventStreamPreferencesAttribute>();
+        var attribute = eventType.GetHierarchicalCustomAttribute<EventStreamPreferencesAttribute>();
 
-        if (attribute != null)
+        if (attribute)
         {
             return new Result<EventStreamPreferencesInfo>(true, new EventStreamPreferencesInfo
             {
-                EventAbstraction = eventType,
-                EventIdType = attribute.EventId,
-                MaximumDataSize = attribute.MaximumDataSize,
-                MaximumTypeNameLength = attribute.MaximumTypeNameLength,
-                StreamIdType = attribute.StreamIdType
+                EventType = eventType,
+                EventAbstraction = attribute.Secondary,
+                EventIdType = attribute.Primary.EventId,
+                MaximumDataSize = attribute.Primary.MaximumDataSize,
+                MaximumTypeNameLength = attribute.Primary.MaximumTypeNameLength,
+                StreamIdType = attribute.Primary.StreamIdType
             });
         }
 
         return new Result<EventStreamPreferencesInfo>().FailAndDefaultValue();
     }
+ 
+    
 }

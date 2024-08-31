@@ -8,6 +8,7 @@ using Meadow.Attributes;
 using Meadow.Requests.BuiltIn;
 using Meadow.Requests.GenericEventStreamRequests;
 using Meadow.Requests.GenericEventStreamRequests.Models;
+using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Test.Functional.TestEnvironment.Utility;
 
@@ -57,8 +58,12 @@ public static class SeedingUtilities
 
     public static object? SeedEvent(MeadowEngine engine, StreamEvent streamEvent)
     {
-        if (streamEvent.EventConcreteType.GetCustomAttribute<EventStreamPreferencesAttribute>(true) is { } pref)
+        var prefInfo = EventStreamPreferencesInfo.FromType(streamEvent.EventConcreteType);
+        
+        if (prefInfo)
         {
+            var pref = prefInfo.Value;
+            
             if (streamEvent.StreamId is { } streamId && streamId.GetType() == pref.StreamIdType)
             {
                 var genericPerformMethod = typeof(SeedingUtilities)
@@ -67,7 +72,7 @@ public static class SeedingUtilities
                     .Where(m => m.IsGenericMethod)
                     .FirstOrDefault(m => m.GetGenericArguments().Length == 3)!;
 
-                var performMethod = genericPerformMethod.MakeGenericMethod(streamEvent.EventConcreteType, pref.EventId, pref.StreamIdType);
+                var performMethod = genericPerformMethod.MakeGenericMethod(pref.EventAbstraction, pref.EventIdType, pref.StreamIdType);
 
                 var inserted = performMethod.Invoke(null, new[] { engine, streamEvent.Event, streamId });
 

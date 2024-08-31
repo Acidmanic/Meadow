@@ -4,7 +4,6 @@ using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Requests.BuiltIn;
 using Meadow.Requests.GenericEventStreamRequests.Models;
-using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
