@@ -42,7 +42,8 @@ CREATE TABLE {KeyTableName} (
     StreamId {KeyStreamIdType},
     TypeName {KeyTypeNameType},
     AssemblyName {KeyAssemblyNameType},
-    SerializedValue {KeySerializedValueType});
+    SerializedValue {KeySerializedValueType},
+    EventRowNumber INTEGER NOT NULL);
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -52,24 +53,26 @@ CREATE PROCEDURE {KeyInsertProcedureName}({KeyEventIdInsertParameter}
                                    @AssemblyName {KeyAssemblyNameType},
                                    @SerializedValue {KeySerializedValueType}) AS
 
-    INSERT INTO {KeyTableName} (EventId,StreamId, TypeName,AssemblyName, SerializedValue) 
-        VALUES (@EventId,@StreamId,@TypeName,@AssemblyName,@SerializedValue);
+    INSERT INTO {KeyTableName} (EventId,StreamId, TypeName,AssemblyName, SerializedValue,EventRowNumber) 
+        VALUES (@EventId,@StreamId,@TypeName,@AssemblyName,@SerializedValue,(select (Count(*)+1) from {KeyTableName}) );
     
     SELECT * FROM {KeyTableName} WHERE ROWID=LAST_INSERT_ROWID(); 
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {KeyReadAllStreamsProcedureName} AS
-    SELECT * FROM {KeyTableName};
+    SELECT * FROM {KeyTableName} ORDER BY EventRowNumber ASC;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {KeyReadStreamByStreamIdProcedureName}(@StreamId {KeyStreamIdType}) AS
-    SELECT * FROM {KeyTableName} WHERE {KeyTableName}.StreamId = @StreamId;
+    SELECT * FROM {KeyTableName} WHERE {KeyTableName}.StreamId = @StreamId ORDER BY EventRowNumber ASC;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {KeyReadAllStreamsChunksProcedureName}(
                                          @BaseEventId {KeyEventIdType},
                                          @Count INTEGER) AS
-    SELECT * FROM {KeyTableName} WHERE EventId > @BaseEventId LIMIT @Count;
+    SELECT * FROM {KeyTableName} WHERE
+                  EventRowNumber > (SELECT EventRowNumber FROM {KeyTableName} WHERE EventId = @BaseEventId)
+                  ORDER BY EventRowNumber ASC LIMIT @Count;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 CREATE PROCEDURE {KeyReadStreamChunkByStreamIdProcedureName}(
@@ -78,7 +81,8 @@ CREATE PROCEDURE {KeyReadStreamChunkByStreamIdProcedureName}(
                                         @Count INTEGER) AS 
     SELECT * FROM {KeyTableName} WHERE
                   {KeyTableName}.StreamId = @StreamId
-                                AND EventId > @BaseEventId LIMIT @Count;
+                                AND EventRowNumber > (SELECT EventRowNumber FROM {KeyTableName} WHERE EventId = @BaseEventId)
+                  ORDER BY EventRowNumber ASC LIMIT @Count;
 GO
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
