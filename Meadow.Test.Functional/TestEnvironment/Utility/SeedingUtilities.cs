@@ -84,7 +84,7 @@ public static class SeedingUtilities
     }
 
 
-    public static void SeedCrud<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class, new()
+    public static void SeedCrud<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class
     {
         var eventIdLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
 
@@ -110,7 +110,7 @@ public static class SeedingUtilities
         }
     }
 
-    private static object? PerformCrudInsertion<T>(MeadowEngine engine, T item) where T : class, new()
+    private static object? PerformCrudInsertion<T>(MeadowEngine engine, T item) where T : class
         => engine.PerformRequest(new InsertRequest<T>(item))
             .FromStorage.FirstOrDefault();
 

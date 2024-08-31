@@ -43,7 +43,7 @@ namespace Meadow.Test.Functional
 
 
         
-        protected void Seed<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class, new()
+        protected void Seed<T>(MeadowEngine engine, IEnumerable<T> seed) where T : class
         {
             var idLeaf = TypeIdentity.FindIdentityLeaf(typeof(T));
 

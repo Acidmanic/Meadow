@@ -4,7 +4,7 @@ using Meadow.Requests;
 
 namespace Meadow.Configuration.Requests
 {
-    public class ReadLastModel<TModel> : MeadowRequest<MeadowVoid, TModel> where TModel : class, new()
+    public class ReadLastModel<TModel> : MeadowRequest<MeadowVoid, TModel> where TModel : class
     {
         public ReadLastModel() : base(true)
         {

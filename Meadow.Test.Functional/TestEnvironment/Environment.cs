@@ -17,7 +17,7 @@ using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
-public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new()
+public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new ()
 {
     private readonly string _scriptsDirectory;
     public ITransliterationService TransliterationService { get; set; } = new EnglishTransliterationsService();
@@ -90,7 +90,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public void Index<TModel>(IEnumerable<TModel> items) => IndexingUtilities.Index(Engine, items);
 
         public List<TModel> Update<TModel>(Func<TModel, bool> predicate, Action<TModel> update)
-            where TModel : class, new()
+            where TModel : class
         {
             var itemsToUpdate = Data.Get(predicate).ToList();
 
@@ -116,7 +116,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         }
 
         public List<TModel> Save<TModel>(Func<TModel, bool> predicate, Action<TModel> update,
-            string? collectionName = null) where TModel : class, new()
+            string? collectionName = null) where TModel : class
         {
             var itemsToSaved = Data.Get(predicate).ToList();
 
@@ -141,7 +141,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
             return savedObjects;
         }
 
-        public TModel? Save<TModel>(TModel model, string? collectionName = null) where TModel : class, new()
+        public TModel? Save<TModel>(TModel model, string? collectionName = null) where TModel : class
         {
             var response = Engine.PerformRequest(new SaveRequest<TModel>(model, collectionName));
 
@@ -151,10 +151,10 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         }
 
         public ReadByIdRequest<TModel, TId> ReadById<TModel, TId>(TId id, bool fullTree = false)
-            where TModel : class, new()
+            where TModel : class
             => (ReadByIdRequest<TModel, TId>)PerformRequest(new ReadByIdRequest<TModel, TId>(id), fullTree);
 
-        public ReadAllRequest<TModel> ReadAll<TModel>(bool fullTree = false) where TModel : class, new()
+        public ReadAllRequest<TModel> ReadAll<TModel>(bool fullTree = false) where TModel : class
             => (ReadAllRequest<TModel>)PerformRequest(new ReadAllRequest<TModel>(), fullTree);
 
         public DeleteById<TEntity, TId> DeleteById<TEntity, TId>(TId id)

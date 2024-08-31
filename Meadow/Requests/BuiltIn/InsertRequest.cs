@@ -5,7 +5,7 @@ using Meadow.Extensions;
 
 namespace Meadow.Requests.BuiltIn
 {
-    public sealed class InsertRequest<T> : MeadowRequest<T, T> where T : class, new()
+    public sealed class InsertRequest<T> : MeadowRequest<T, T> where T : class
     {
         public InsertRequest(T model) : base(true)
         {

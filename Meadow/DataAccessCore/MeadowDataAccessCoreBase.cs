@@ -146,14 +146,14 @@ namespace Meadow.DataAccessCore
 
         protected List<TOut> PerformConfigurationRequest<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new()
+            where TOut : class
         {
             return PerformConfigurationRequestAsync(request, configuration).Result;
         }
 
         protected async Task<List<TOut>> PerformConfigurationRequestAsync<TOut>(ConfigurationRequest<TOut> request,
             MeadowConfiguration configuration)
-            where TOut : class, new()
+            where TOut : class
         {
             try
             {

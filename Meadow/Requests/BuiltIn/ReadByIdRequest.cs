@@ -4,7 +4,7 @@ using Meadow.Requests.BuiltIn.Dtos;
 namespace Meadow.Requests.BuiltIn
 {
 
-    public sealed class ReadByIdRequest<TEntity, TId> : MeadowRequest<IdDto<TId>, TEntity> where TEntity : class, new()
+    public sealed class ReadByIdRequest<TEntity, TId> : MeadowRequest<IdDto<TId>, TEntity> where TEntity : class
     {
         public ReadByIdRequest(TId id) : base(true)
         {

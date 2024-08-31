@@ -147,7 +147,7 @@ namespace Meadow.NullCore
         }
 
 
-        public TModel ReadLastInsertedRecord<TModel>(MeadowConfiguration configuration) where TModel : class, new()
+        public TModel ReadLastInsertedRecord<TModel>(MeadowConfiguration configuration) where TModel : class
         {
             return null;
         }

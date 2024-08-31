@@ -5,7 +5,7 @@ using Meadow.Test.Functional.Models;
 
 namespace Meadow.Test.Functional.GenericRequests
 {
-    public sealed class ReadChunkRequest<TStorage> : MeadowRequest<ChunkShell, TStorage> where TStorage : class, new()
+    public sealed class ReadChunkRequest<TStorage> : MeadowRequest<ChunkShell, TStorage> where TStorage : class
     {
         public ReadChunkRequest(string searchId,long offset =0,long size =100) : base(true)
         {

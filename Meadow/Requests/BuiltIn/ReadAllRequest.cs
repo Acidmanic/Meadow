@@ -3,7 +3,7 @@ using Meadow.Requests.BuiltIn.Dtos;
 
 namespace Meadow.Requests.BuiltIn
 {
-    public sealed class ReadAllRequest<TEntity> : MeadowRequest<MeadowVoid, TEntity> where TEntity : class, new()
+    public sealed class ReadAllRequest<TEntity> : MeadowRequest<MeadowVoid, TEntity> where TEntity : class
     {
         public ReadAllRequest() : base(true)
         {

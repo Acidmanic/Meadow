@@ -7,7 +7,7 @@ using Meadow.Exceptions;
 namespace Meadow.Requests.Common
 {
     public abstract class ByIdRequestBase<TModel, TId, TOut> : MeadowRequest<object, TOut>
-        where TModel : class, new() where TOut : class, new()
+        where TModel : class where TOut : class
     {
         private readonly bool _fullTree;
         private readonly string _idFieldName;

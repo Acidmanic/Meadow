@@ -37,28 +37,14 @@ namespace Meadow
         }
 
 
-        public static void UseDataAccess(IMeadowDataAccessCoreProvider provider)
+        public static void UseDataAccess(IMeadowDataAccessCoreProvider? provider)
         {
-            if (provider == null)
-            {
-                _coreProvider = new CoreProvider<NullMeadowCore>();
-            }
-            else
-            {
-                _coreProvider = provider;
-            }
+            _coreProvider = provider ?? new CoreProvider<NullMeadowCore>();
         }
 
-        public static void UseLogger(ILogger logger)
+        public static void UseLogger(ILogger? logger)
         {
-            if (logger == null)
-            {
-                _logger = NullLogger.Instance;
-            }
-            else
-            {
-                _logger = logger;
-            }
+            _logger = logger ?? NullLogger.Instance;
         }
 
         private IMeadowDataAccessCore CreateInitializedCore(MeadowConfiguration configuration)
@@ -112,7 +98,7 @@ namespace Meadow
         public async Task<MeadowRequest<TIn, TOut>> PerformRequestAsync<TIn, TOut>(
             MeadowRequest<TIn, TOut> request,
             bool suggestFullTreeAccess = false)
-            where TOut : class, new()
+            where TOut : class
         {
             request.SuggestFullTreeReadWrite(suggestFullTreeAccess);
 
@@ -157,7 +143,7 @@ namespace Meadow
 
         private async Task<ConfigurationRequestResult> PerformConfigurationRequestAsync<TOut>(
             ConfigurationRequest<TOut> request)
-            where TOut : class, new()
+            where TOut : class
         {
             try
             {
@@ -263,11 +249,11 @@ namespace Meadow
         }
 
 
-        private async Task<TModel> ReadLastInsertedRecordAsync<TModel>() where TModel : class, new()
+        private async Task<TModel?> ReadLastInsertedRecordAsync<TModel>() where TModel : class
         {
             var response = await PerformRequestAsync(new ReadLastModel<TModel>());
 
-            if (response.FromStorage != null && response.FromStorage.Count == 1)
+            if (response.FromStorage.Count == 1)
             {
                 return response.FromStorage[0];
             }
@@ -349,23 +335,17 @@ namespace Meadow
                 }
             }
 
-            if (anyApplied)
-            {
-                _logger.LogInformation(@"*** Buildup process SUCCEEDED ***");
-            }
-            else
-            {
-                _logger.LogInformation(@"*** Everything Already Up-to-date ***");
-            }
+            _logger.LogInformation(anyApplied
+                ? @"*** Buildup process SUCCEEDED ***"
+                : @"*** Everything Already Up-to-date ***");
         }
 
         private BuildupScriptManager CreateBuildupScriptManager()
         {
-            var assemblies = new List<Assembly>(_configuration.MacroContainingAssemblies);
+                // Builtin assemblies
+            var assemblies = new List<Assembly>(_configuration.MacroContainingAssemblies) {GetType().Assembly };
 
-            // Builtin assemblies
-            assemblies.Add(this.GetType().Assembly);
-            assemblies.Add(Assembly.GetEntryAssembly());
+            if(Assembly.GetEntryAssembly() is {} entryAssembly) assemblies.Add(entryAssembly);
 
             return new BuildupScriptManager(_configuration.BuildupScriptDirectory,
                 _configuration, assemblies.ToArray());
@@ -399,9 +379,9 @@ namespace Meadow
 
         private async Task<ConfigurationRequestResult> PerformScriptAsync(ScriptInfo scriptInfo)
         {
-            var sqls = scriptInfo.SplitScriptIntoBatches();
+            var sqlScripts = scriptInfo.SplitScriptIntoBatches();
 
-            foreach (var sql in sqls)
+            foreach (var sql in sqlScripts)
             {
                 var request = new SqlRequest(sql);
 

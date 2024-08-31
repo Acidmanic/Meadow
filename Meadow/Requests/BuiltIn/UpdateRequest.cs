@@ -2,7 +2,7 @@ using Meadow.Extensions;
 
 namespace Meadow.Requests.BuiltIn
 {
-    public sealed class UpdateRequest<T> : MeadowRequest<T, T> where T : class, new()
+    public sealed class UpdateRequest<T> : MeadowRequest<T, T> where T : class
     {
         public UpdateRequest(T model) : base(true)
         {
