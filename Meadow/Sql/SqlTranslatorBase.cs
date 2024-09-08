@@ -133,6 +133,12 @@ namespace Meadow.Sql
 
         public virtual string ProcedureBodyParameterNamePrefix => "@";
         public virtual string ProcedureDefinitionParameterNamePrefix => "@";
+        
+        public virtual string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent)
+        {
+            return creationPhrase + parametersPhrase + "\nAS\n" + bodyContent + "\nGO\n";
+        }
+
 
         public abstract string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 
@@ -222,6 +228,8 @@ namespace Meadow.Sql
         public abstract bool DoubleQuotesColumnNames { get; }
 
         public abstract bool DoubleQuotesTableNames { get; }
+
+        public virtual bool DoubleQuotesProcedureParameterNames { get; } = false;
 
         protected virtual string EmptyConditionExpression => "";
 

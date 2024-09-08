@@ -20,6 +20,7 @@ public partial interface ISqlTranslator
 
         public bool DoubleQuotesColumnNames => ErrorAndReturnFalse();
         public bool DoubleQuotesTableNames => ErrorAndReturnFalse();
+        public bool DoubleQuotesProcedureParameterNames => ErrorAndReturnFalse();
 
         public ColumnNameTranslation EntityFilterWhereClauseColumnTranslation
         {
@@ -48,6 +49,7 @@ public partial interface ISqlTranslator
         public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
         public string ProcedureBodyParameterNamePrefix => ErrorAndTranslateEmpty();
         public string ProcedureDefinitionParameterNamePrefix => ErrorAndTranslateEmpty();
+        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent) => ErrorAndTranslateEmpty();
 
         private string ErrorAndTranslateEmpty()
         {

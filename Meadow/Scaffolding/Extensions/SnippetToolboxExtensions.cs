@@ -176,4 +176,14 @@ public static class SnippetToolboxExtensions
     {
         return CreateTablePhrase(toolbox,NameOrOverride(toolbox,nc => nc.TableName));
     }
+
+
+    public static string Procedure(this ISnippetToolbox toolbox,RepetitionHandling repetition, string procedureName, string body, params Parameter[] parameters)
+    {
+        var creationPhrase = toolbox.SqlTranslator.CreateProcedurePhrase(repetition, procedureName);
+
+        var parametersDefinition = toolbox.ParameterNameTypeJoint(parameters, ",", toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix);
+
+        return toolbox.SqlTranslator.FormatProcedure(creationPhrase, parametersDefinition, body);
+    }
 }

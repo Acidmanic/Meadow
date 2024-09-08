@@ -68,7 +68,7 @@ namespace Meadow.Postgre
 
         public  override bool DoubleQuotesColumnNames => true;
         public  override bool DoubleQuotesTableNames => true;
-
+        public override bool DoubleQuotesProcedureParameterNames => true;
 
         protected override string NotEqualOperator => "<>";
         

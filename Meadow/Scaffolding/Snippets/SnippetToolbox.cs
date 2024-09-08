@@ -12,6 +12,7 @@ using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
+using Meadow.Sql.Extensions;
 using Meadow.Utility;
 
 namespace Meadow.Scaffolding.Snippets;
@@ -135,7 +136,9 @@ public class SnippetToolbox:ISnippetToolbox
     }
     public string ParameterNameTypeJoint(Parameter p, string namePrefix = "")
     {
-        return namePrefix + p.Name + " " + p.Type;
+        var q = SqlTranslator.GetQuoters().QuoteParameterDefinitionName;
+        
+        return namePrefix + q(p.Name) + " " + p.Type;
     }
 
     public string ParameterNameValueSetJoint(Parameter p, string valuePrefix = "")
