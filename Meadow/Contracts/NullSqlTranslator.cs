@@ -21,6 +21,9 @@ public partial interface ISqlTranslator
         public bool DoubleQuotesColumnNames => ErrorAndReturnFalse();
         public bool DoubleQuotesTableNames => ErrorAndReturnFalse();
         public bool DoubleQuotesProcedureParameterNames => ErrorAndReturnFalse();
+        public bool ProcedureParameterNamePrefixBeforeQuoting => ErrorAndReturnFalse();
+
+        public bool ParameterLessProcedureDefinitionParentheses => ErrorAndReturnFalse();
 
         public ColumnNameTranslation EntityFilterWhereClauseColumnTranslation
         {
@@ -49,8 +52,8 @@ public partial interface ISqlTranslator
         public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
         public string ProcedureBodyParameterNamePrefix => ErrorAndTranslateEmpty();
         public string ProcedureDefinitionParameterNamePrefix => ErrorAndTranslateEmpty();
-        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent) => ErrorAndTranslateEmpty();
-
+        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent,string declarations = "", string returnDataTypeName="") => ErrorAndTranslateEmpty();
+        
         private string ErrorAndTranslateEmpty()
         {
             LogError();

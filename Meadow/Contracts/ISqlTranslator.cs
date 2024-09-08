@@ -26,6 +26,10 @@ public partial interface ISqlTranslator
     
     bool DoubleQuotesProcedureParameterNames { get; }
     
+    bool ProcedureParameterNamePrefixBeforeQuoting { get; }
+    
+    bool ParameterLessProcedureDefinitionParentheses { get; }
+    
     ColumnNameTranslation EntityFilterWhereClauseColumnTranslation { get; }
     
     string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation);
@@ -48,5 +52,5 @@ public partial interface ISqlTranslator
     
     string ProcedureDefinitionParameterNamePrefix { get; }
 
-    string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent);
+    string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "");
 }

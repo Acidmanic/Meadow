@@ -4,6 +4,7 @@ using Meadow.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
+using Meadow.Sql.Extensions;
 using Microsoft.VisualBasic.CompilerServices;
 
 namespace Meadow.Postgre
@@ -19,7 +20,7 @@ namespace Meadow.Postgre
                 creationHeader = "create or replace";
             }
 
-            return creationHeader + $" \"{procedureName}\"";
+            return $"{creationHeader} function \"{procedureName}\"";
         }
 
         public override string CreateTablePhrase(RepetitionHandling repetition, string tableName)
@@ -66,12 +67,15 @@ namespace Meadow.Postgre
             return $"{creationHeader} \"{viewName}\"";
         }
 
-        public  override bool DoubleQuotesColumnNames => true;
-        public  override bool DoubleQuotesTableNames => true;
+        public override bool DoubleQuotesColumnNames => true;
+        public override bool DoubleQuotesTableNames => true;
         public override bool DoubleQuotesProcedureParameterNames => true;
 
+        public override bool ProcedureParameterNamePrefixBeforeQuoting => true;
+
+
         protected override string NotEqualOperator => "<>";
-        
+
         public override string ProcedureBodyParameterNamePrefix => "par_";
         public override string ProcedureDefinitionParameterNamePrefix => "par_";
 
@@ -79,6 +83,22 @@ namespace Meadow.Postgre
             : base(new PostgreValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;
+        }
+
+        public override string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "")
+        {
+            if (ParameterLessProcedureDefinitionParentheses || !string.IsNullOrWhiteSpace(parametersPhrase))
+            {
+                parametersPhrase = $"({parametersPhrase})";
+            }
+
+            if (!string.IsNullOrWhiteSpace(declarations)) declarations = $"\n{declarations}\n";
+
+            var q = this.GetQuoters().QuoteColumnName;
+            
+            return creationPhrase + parametersPhrase + $" returns setof {q(returnDataTypeName)} as $$" +
+                   declarations +
+                   $"\nbegin\n" + bodyContent + "\nend;\n$$ language plpgsql;";
         }
     }
 }

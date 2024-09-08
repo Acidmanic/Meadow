@@ -137,8 +137,22 @@ public class SnippetToolbox:ISnippetToolbox
     public string ParameterNameTypeJoint(Parameter p, string namePrefix = "")
     {
         var q = SqlTranslator.GetQuoters().QuoteParameterDefinitionName;
+
+        var name = p.Name;
+
+        if (SqlTranslator.ProcedureParameterNamePrefixBeforeQuoting)
+        {
+            name = namePrefix + name;
+        }
+
+        name = q(name);
         
-        return namePrefix + q(p.Name) + " " + p.Type;
+        if (!SqlTranslator.ProcedureParameterNamePrefixBeforeQuoting)
+        {
+            name = namePrefix + name;
+        }
+        
+        return name + " " + p.Type;
     }
 
     public string ParameterNameValueSetJoint(Parameter p, string valuePrefix = "")

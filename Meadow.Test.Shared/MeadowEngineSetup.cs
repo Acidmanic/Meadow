@@ -73,12 +73,27 @@ public class MeadowEngineSetup
 
     private string ProvideDataBaseName() => (_suggestedDataBaseName ?? GetTestSuitType().Name) + "Db2BeDeleted";
 
+    private void AddCommonAssemblies()
+    {
+        var meadowCallingAssemblies = new StackTrace().GetFrames()
+            .Where(m => m.GetMethod() != null).Select(m => m.GetMethod()!)
+            .Select(m => m.DeclaringType)
+            .Where(t => t != null)
+            .Select(t => t!)
+            .Where(t => t.Namespace != null && t.Namespace.StartsWith("Meadow")).Select(t => t.Assembly)
+            .Distinct()
+            .ToList();
+        _meadowConfigurationAssemblies.Clear();
+        _meadowConfigurationAssemblies.AddRange(meadowCallingAssemblies);
+        _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+        _meadowConfigurationAssemblies.Add(Assembly.GetExecutingAssembly());
+        _meadowConfigurationAssemblies.Add(Assembly.GetCallingAssembly());
+        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+    }
 
     private void UseSqLite(string scriptsDirectory = "MacroScripts")
     {
-        _meadowConfigurationAssemblies.Clear();
-        _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+        AddCommonAssemblies();
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqLiteMeadowAssembly());
 
         var executablePath = new FileInfo(typeof(MeadowEngineSetup).Assembly.Location).Directory?.FullName
@@ -97,6 +112,7 @@ public class MeadowEngineSetup
     {
         _meadowConfigurationAssemblies.Clear();
         _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+        _meadowConfigurationAssemblies.Add(Assembly.GetExecutingAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMySqlMeadowAssembly());
 
@@ -113,6 +129,7 @@ public class MeadowEngineSetup
     {
         _meadowConfigurationAssemblies.Clear();
         _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
+        _meadowConfigurationAssemblies.Add(Assembly.GetExecutingAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqlServerMeadowAssembly());
 
@@ -128,6 +145,8 @@ public class MeadowEngineSetup
     private void UsePostgre(string scriptsDirectory = "MacroScripts")
     {
         _meadowConfigurationAssemblies.Clear();
+        _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly ());
+        _meadowConfigurationAssemblies.Add(Assembly.GetExecutingAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetPostgreMeadowAssembly());
 
