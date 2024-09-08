@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-#
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow", "Meadow\Meadow.csproj", "{85B53D4D-A410-4573-A49D-23EF1BD3E167}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{4EC7AF28-92F5-47AB-BE1D-6C660D5C0466}"
@@ -48,6 +48,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Microsoft.Extensions.DependencyInjection", "Meadow.Microsoft.Extensions.DependencyInjection\Meadow.Microsoft.Extensions.DependencyInjection.csproj", "{B215D702-4572-4F69-ADCA-E410CC836A58}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example.EntityStorage", "Example.EntityStorage\Example.EntityStorage.csproj", "{B70E8761-5975-40BA-A637-6FA4B9C1922E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Meadow.Test.Unit", "Meadow.Test.Unit\Meadow.Test.Unit.csproj", "{959EB42E-2DB3-400B-B039-97EC05D0F51E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,5 +129,9 @@ Global
 		{B70E8761-5975-40BA-A637-6FA4B9C1922E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B70E8761-5975-40BA-A637-6FA4B9C1922E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B70E8761-5975-40BA-A637-6FA4B9C1922E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{959EB42E-2DB3-400B-B039-97EC05D0F51E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{959EB42E-2DB3-400B-B039-97EC05D0F51E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{959EB42E-2DB3-400B-B039-97EC05D0F51E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{959EB42E-2DB3-400B-B039-97EC05D0F51E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
