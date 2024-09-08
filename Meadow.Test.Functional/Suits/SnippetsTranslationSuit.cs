@@ -10,6 +10,7 @@ using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Models.EventStream;
 using Meadow.Test.Functional.TestEnvironment;
 using Meadow.Test.Functional.TestEnvironment.Utility;
+using Meadow.Test.Shared;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -4,6 +4,7 @@ using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
+using Meadow.Test.Shared;
 using Xunit;
 
 namespace Meadow.Test.Functional.Suits;
@@ -11,7 +12,7 @@ namespace Meadow.Test.Functional.Suits;
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class FindPagedSuitSnippetComposed
 {
-    private const Databases Databases = TestEnvironment.Databases.SqLite;
+    private const Databases Databases = Shared.Databases.SqLite;
 
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
 

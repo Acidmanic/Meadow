@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  
+  <ItemGroup>
+    <PackageReference Include="xunit" Version="2.9.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
+    <ProjectReference Include="..\Meadow.Microsoft.Extensions.DependencyInjection\Meadow.Microsoft.Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
+    <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
+    <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
+    <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
+    <ProjectReference Include="..\Meadow\Meadow.csproj" />
+  </ItemGroup>
+
+</Project>

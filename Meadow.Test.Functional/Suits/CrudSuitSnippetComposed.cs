@@ -4,6 +4,7 @@ using System.Linq;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
+using Meadow.Test.Shared;
 using Microsoft.Extensions.Logging.LightWeight;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,7 +14,7 @@ namespace Meadow.Test.Functional.Suits;
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class CrudSuitSnippetComposed
 {
-    private const Databases Databases = TestEnvironment.Databases.SqLite;
+    private const Databases Databases = Shared.Databases.SqLite;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";

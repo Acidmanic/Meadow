@@ -1,6 +1,4 @@
-using System;
-
-namespace Meadow.Test.Functional.TestEnvironment;
+namespace Meadow.Test.Shared;
 
 public enum Databases
 {

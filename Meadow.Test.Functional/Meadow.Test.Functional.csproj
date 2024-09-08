@@ -23,6 +23,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Examples.Common\Examples.Common.csproj" />
+        <ProjectReference Include="..\Meadow.Test.Shared\Meadow.Test.Shared.csproj" />
         <ProjectReference Include="..\Meadow\Meadow.csproj" />
         <ProjectReference Include="..\Meadow.Tools.Assistant\Meadow.Tools.Assistant.csproj" />
         <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />

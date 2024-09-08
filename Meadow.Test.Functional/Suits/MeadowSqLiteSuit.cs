@@ -4,6 +4,7 @@ using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
 using Meadow.Test.Functional.TestEnvironment.Utility;
+using Meadow.Test.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Logging.LightWeight;
 using Xunit;

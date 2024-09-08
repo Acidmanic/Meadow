@@ -1,21 +1,15 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Reflection;
-using Acidmanic.Utilities.Reflection;
 using Examples.Common;
 using Meadow.Configuration;
 using Meadow.MySql;
 using Meadow.Postgre;
 using Meadow.SQLite;
 using Meadow.SqlServer;
-using Meadow.Test.Functional.TDDAbstractions;
 using Meadow.Utility;
 using Xunit;
 
-namespace Meadow.Test.Functional.TestEnvironment.Utility;
+namespace Meadow.Test.Shared;
 
 public class MeadowEngineSetup
 {
@@ -87,7 +81,7 @@ public class MeadowEngineSetup
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetSqLiteMeadowAssembly());
 
-        var executablePath = new FileInfo(typeof(MeadowFunctionalTest).Assembly.Location).Directory?.FullName
+        var executablePath = new FileInfo(typeof(MeadowEngineSetup).Assembly.Location).Directory?.FullName
                              ?? Environment.CurrentDirectory;
         
         _connectionString = ExampleConnectionString.GetSqLiteConnectionString(DatabaseName,executablePath);
@@ -148,12 +142,12 @@ public class MeadowEngineSetup
 
     private void UpdateConfigurations(string scriptsDirectory)
     {
-        var executablePath = new FileInfo(typeof(MeadowFunctionalTest).Assembly.Location).Directory?.FullName
+        var executablePath = new FileInfo(typeof(MeadowEngineSetup).Assembly.Location).Directory?.FullName
                              ?? Environment.CurrentDirectory;
 
         var sd = Path.Combine(executablePath, scriptsDirectory);
 
-        _meadowConfigurationAssemblies.Add(typeof(MeadowFunctionalTest).Assembly);
+        _meadowConfigurationAssemblies.Add(typeof(MeadowEngineSetup).Assembly);
 
         Configuration = new MeadowConfiguration
         {

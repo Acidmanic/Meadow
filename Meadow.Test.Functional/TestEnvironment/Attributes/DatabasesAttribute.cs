@@ -1,3 +1,5 @@
+using Meadow.Test.Shared;
+
 namespace Meadow.Test.Functional.TestEnvironment.Attributes;
 
 public class DatabasesAttribute
