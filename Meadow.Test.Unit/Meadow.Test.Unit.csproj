@@ -21,4 +21,13 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Meadow.Microsoft.Extensions.DependencyInjection\Meadow.Microsoft.Extensions.DependencyInjection.csproj" />
+    <ProjectReference Include="..\Meadow.MySql\Meadow.MySql.csproj" />
+    <ProjectReference Include="..\Meadow.Postgre\Meadow.Postgre.csproj" />
+    <ProjectReference Include="..\Meadow.SQLite\Meadow.SQLite.csproj" />
+    <ProjectReference Include="..\Meadow.SqlServer\Meadow.SqlServer.csproj" />
+    <ProjectReference Include="..\Meadow\Meadow.csproj" />
+  </ItemGroup>
+
 </Project>
