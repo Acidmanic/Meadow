@@ -5,7 +5,6 @@ using Meadow.Configuration;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Contracts;
 
@@ -31,7 +30,7 @@ public partial interface ISqlTranslator
 
     string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
 
-    string TranslateSearchTerm(Type entityType, string[] searchTerms);
+    string TranslateSearchTerm(Type entityType, string[]? searchTerms);
 
     string TranslateOrders(Type entityType,  OrderTerm[] orders, bool fullTree);
 

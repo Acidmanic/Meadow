@@ -13,6 +13,7 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Meadow.Sql
 {
@@ -20,6 +21,7 @@ namespace Meadow.Sql
     {
 
         private readonly IValueTranslator _valueTranslator;
+        
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
         
@@ -27,6 +29,10 @@ namespace Meadow.Sql
         protected SqlTranslatorBase(IValueTranslator valueTranslator)
         {
             _valueTranslator = valueTranslator;
+
+            Logger = NullLogger.Instance;
+            
+            Configuration = MeadowConfiguration.Null;
         }
         
 
@@ -82,7 +88,7 @@ namespace Meadow.Sql
             return EmptyConditionExpression;
         }
 
-        public string TranslateSearchTerm(Type entityType, string[] searchTerms)
+        public string TranslateSearchTerm(Type entityType, string[]? searchTerms)
         {
             if (searchTerms == null || searchTerms.Length == 0)
             {
@@ -101,7 +107,7 @@ namespace Meadow.Sql
                 s => $"{columnFullName} like '%{s}%'"));
         }
 
-        public string TranslateOrders(Type entityType, OrderTerm[] orders, bool fullTree)
+        public string TranslateOrders(Type entityType, OrderTerm[]? orders, bool fullTree)
         {
             if (orders == null || orders.Length == 0)
             {
@@ -172,7 +178,8 @@ namespace Meadow.Sql
                 
                 var columnName = foundKey.Value;
                 
-                var sep = "";
+                string sep;
+                
                 switch (filter.ValueComparison)
                 {
                     case ValueComparison.SmallerThan:
