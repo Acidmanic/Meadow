@@ -79,15 +79,22 @@ public class SnippetTranslator
 
         foreach (var method in methods)
         {
-            var foundReplacement = ParseReplacement(method, translated);
-
-            if (foundReplacement)
+            while (true)
             {
-                var invoked = Invoke(snippet, method, foundReplacement.Value);
+                var foundReplacement = ParseReplacement(method, translated);
 
-                if (invoked)
+                if (foundReplacement)
                 {
-                    translated = Replace(foundReplacement.Value, invoked.Value, translated);
+                    var invoked = Invoke(snippet, method, foundReplacement.Value);
+
+                    if (invoked)
+                    {
+                        translated = Replace(foundReplacement.Value, invoked.Value, translated);
+                    }
+                }
+                else
+                {
+                    break;
                 }
             }
         }
@@ -157,32 +164,54 @@ public class SnippetTranslator
     }
 
 
-    private record MethodReplacement(int Index, int Length, string Parameter);
+    private record MethodReplacement(int Index, int Length, string Parameter, bool HasParameter);
+
 
     private Result<MethodReplacement> ParseReplacement(MethodInfo method, string content)
     {
         string startTag = "{" + method.Name + "}";
+
         string endTag = "{/" + method.Name + "}";
 
-        var startIndex = content.IndexOf(startTag, StringComparison.Ordinal);
-
-        if (startIndex > -1)
+        int searchStart = 0;
+        
+        while (searchStart < content.Length)
         {
-            var parameterStartIndex = startIndex + startTag.Length;
+            var startIndex = content.IndexOf(startTag, searchStart, StringComparison.Ordinal);
 
-            var endStartIndex = content.IndexOf(endTag, parameterStartIndex, StringComparison.Ordinal);
-
-            if (endStartIndex > startIndex)
+            if (startIndex > -1)
             {
-                var parameterLength = endStartIndex - parameterStartIndex;
+                var parameterStartIndex = startIndex + startTag.Length;
 
-                var parameter = content.Substring(parameterStartIndex, parameterLength);
+                var endStartIndex = content.IndexOf(endTag, parameterStartIndex, StringComparison.Ordinal);
 
-                var replacementEndIndex = endStartIndex + endTag.Length;
+                if (endStartIndex > startIndex)
+                {
+                    var parameterLength = endStartIndex - parameterStartIndex;
 
-                var replacementLength = replacementEndIndex - startIndex;
+                    var parameter = content.Substring(parameterStartIndex, parameterLength);
 
-                return new Result<MethodReplacement>(true, new MethodReplacement(startIndex, replacementLength, parameter));
+                    var replacementEndIndex = endStartIndex + endTag.Length;
+
+                    var replacementLength = replacementEndIndex - startIndex;
+
+                    var hasParams = parameter.Length > 0;
+
+                    if (hasParams == (method.GetParameters().Length > 0))
+                    {
+                        return new Result<MethodReplacement>(true, new MethodReplacement(startIndex, replacementLength, parameter, hasParams));
+                    }
+
+                    searchStart = replacementEndIndex;
+                }
+                else
+                {
+                    searchStart = startIndex + 1;
+                }
+            }
+            else
+            {
+                searchStart += content.Length;
             }
         }
 

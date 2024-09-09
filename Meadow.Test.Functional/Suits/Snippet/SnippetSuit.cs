@@ -53,4 +53,16 @@ public class SnippetSuit
 
         Assert.Equal(NestedCollectionSnippet.Expected, actual);
     }
+    
+    [Fact]
+    public void Should_Translate_MethodSnippet()
+    {
+        var snippet = new MethodSnippet();
+
+        var sut = new SnippetTranslator();
+
+        var actual = sut.Translate(snippet);
+
+        Assert.Equal(MethodSnippet.Expected, actual);
+    }
 }
