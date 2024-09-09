@@ -10,8 +10,6 @@ public class UpdateSnippet:ISnippet
 {
     public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
-    public string DefinitionParameters => Toolbox.GetProcedureDefinitionParameters();
-
     public string ProcedureDefinition => Toolbox.SqlTranslator.CreateProcedurePhrase(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.UpdateProcedureName);
 
@@ -22,12 +20,17 @@ public class UpdateSnippet:ISnippet
     public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause(" AND "," ");
 
     public string KeyIdFieldName => Toolbox.ProcessedType.HasId? Toolbox.ProcessedType.IdParameter.Name:string.Empty;
+
+    public string Procedure(string body) => Toolbox.Procedure(
+        Toolbox.Configurations.RepetitionHandling,
+        Toolbox.ProcessedType.NameConvention.UpdateProcedureName,
+        body, string.Empty,Toolbox.ProcessedType.NameConvention.TableName,
+        Toolbox.ProcessedType.Parameters.ToArray());
     
     public string Template => @"
-{ProcedureDefinition} ({DefinitionParameters}) AS
-
+{Procedure}
     UPDATE {TableName} SET {KeyNoneIdParametersSet} WHERE {TableName}.{KeyIdFieldName}=@{KeyIdFieldName}{KeyEntityFilterSegment};
     SELECT * FROM {TableName} WHERE {TableName}.{KeyIdFieldName}=@{KeyIdFieldName}{KeyEntityFilterSegment};
-GO
+{/Procedure}
 ".Trim();
 }
