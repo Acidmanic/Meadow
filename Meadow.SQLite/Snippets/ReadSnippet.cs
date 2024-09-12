@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
+using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Scaffolding.Snippets.Builtin;
 
@@ -23,20 +24,24 @@ public class ReadSnippet : ISnippet
 
         public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
-        public string KeyHeaderCreation => Toolbox.CreateReadProcedurePhrase(_fullTree, _byId);
-
-        public string KeyParametersDeclaration => Toolbox.GetIdAwareProcedureDefinitionParametersPhrase(_byId);
         public string KeyTableName => Toolbox.TableOrFullViewName(_fullTree);
         public string KeyWhereClause => Toolbox.WhereByIdClause(_byId, _fullTree);
         public string KeyEntityFilterSegment => _fullTree ? string.Empty : 
             Toolbox.GetEntityFiltersWhereClause($" {(_byId ? "AND " : "WHERE ")}", " ");
 
+        public string Procedure(string content) => Toolbox.Procedure(
+            Toolbox.Configurations.RepetitionHandling,
+            Toolbox.GetReadProcedureName(_fullTree,_byId),
+            content,string.Empty,
+            Toolbox.ProcessedType.NameConvention.TableName,
+            Toolbox.GetIdAwareProcedureDefinitionParameters(_byId));
+        
         public ISnippet Line => new CommentLineSnippet();
 
         public string Template => @"
-{KeyHeaderCreation}{KeyParametersDeclaration} AS
+{Procedure}
     SELECT * FROM {KeyTableName}{KeyWhereClause}{KeyEntityFilterSegment}
-GO
+{Procedure}
 {Line}
 ".Trim();
     }

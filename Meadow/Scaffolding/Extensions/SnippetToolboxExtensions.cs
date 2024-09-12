@@ -78,6 +78,17 @@ public static class SnippetToolboxExtensions
     public static string GetIdAwareProcedureDefinitionParametersPhrase(this ISnippetToolbox toolbox) =>
         GetIdAwareProcedureDefinitionParametersPhrase(toolbox, ActsById(toolbox));
 
+
+    public static Parameter[] GetIdAwareProcedureDefinitionParameters(this ISnippetToolbox toolbox, bool byId)
+    {
+        if (byId && toolbox.ProcessedType.HasId)
+        {
+            return new[] { toolbox.ProcessedType.IdParameter };
+        }
+
+        return new Parameter[] { };
+    }
+    
     public static string GetIdAwareProcedureDefinitionParametersPhrase(this ISnippetToolbox toolbox, bool byId)
     {
         if (byId && toolbox.ProcessedType.HasId)
@@ -85,7 +96,10 @@ public static class SnippetToolboxExtensions
             return $"({toolbox.ParameterNameTypeJoint(toolbox.ProcessedType.IdParameter, toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix)})";
         }
 
-        //TODO: Add parameterLess procedure paranthesis (bool)
+        if (toolbox.SqlTranslator.ParameterLessProcedureDefinitionParentheses)
+        {
+            return "()";
+        }
         return string.Empty;
     }
 

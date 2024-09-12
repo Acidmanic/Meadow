@@ -37,7 +37,7 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
     public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause(" AND ", " ");
     
     public string Procedure(string content) => Toolbox.Procedure(
-        RepetitionHandling.Create,
+        Toolbox.Configurations.RepetitionHandling,
         _components.ProcedureName,
         content,
         string.Empty, Toolbox.ProcessedType.NameConvention.TableName,
