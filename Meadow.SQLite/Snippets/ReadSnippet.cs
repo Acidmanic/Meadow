@@ -41,7 +41,7 @@ public class ReadSnippet : ISnippet
         public string Template => @"
 {Procedure}
     SELECT * FROM {KeyTableName}{KeyWhereClause}{KeyEntityFilterSegment}
-{Procedure}
+{/Procedure}
 {Line}
 ".Trim();
     }
