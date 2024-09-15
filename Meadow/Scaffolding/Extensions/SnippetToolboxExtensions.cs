@@ -229,4 +229,9 @@ public static class SnippetToolboxExtensions
         return toolbox.SqlTranslator.FormatProcedure(creationPhrase, parametersDefinition, body, declarations,
             returnTypeName);
     }
+
+    public static ParameterBuilder Parameter(this ISnippetToolbox toolbox)
+    {
+        return new ParameterBuilder(toolbox.TypeNameMapper);
+    }
 }
