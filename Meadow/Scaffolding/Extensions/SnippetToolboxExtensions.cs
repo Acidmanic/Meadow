@@ -146,6 +146,16 @@ public static class SnippetToolboxExtensions
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Name : defaultName;
     }
 
+    public static string IdFieldTypeOrDefaultFullTree(this ISnippetToolbox toolbox, string defaultType)
+    {
+        return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameterFullTree.Type : defaultType;
+    }
+    
+    public static string IdFieldTypeOrDefault(this ISnippetToolbox toolbox, string defaultType)
+    {
+        return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Type : defaultType;
+    }
+
     public static string IdFieldNameOrDefaultFullTree(this ISnippetToolbox toolbox, string defaultName)
     {
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameterFullTree.Name : defaultName;
@@ -233,5 +243,10 @@ public static class SnippetToolboxExtensions
     public static ParameterBuilder Parameter(this ISnippetToolbox toolbox)
     {
         return new ParameterBuilder(toolbox.TypeNameMapper);
+    }
+    
+    public static ParameterSetBuilder Parameters(this ISnippetToolbox toolbox)
+    {
+        return new ParameterSetBuilder(toolbox.TypeNameMapper);
     }
 }

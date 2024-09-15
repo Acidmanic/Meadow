@@ -22,6 +22,12 @@ public class FindPagedSnippet : ISnippet
     public string KeyIdFieldNameFullTree => Toolbox.IdFieldNameOrDefaultFullTree("Id");
     public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause(" AND ", " ");
     
+    public string IndexProcedure(string body)=> Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
+        Toolbox.ProcessedType.NameConvention.IndexEntityProcedureName,body,string.Empty, 
+        Toolbox.ProcessedType.NameConvention.TableName,
+        Toolbox.Parameters()
+            .Add().Name("ResultId").Type(Toolbox.IdFieldTypeOrDefault(string.Empty))
+            .Add)
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------

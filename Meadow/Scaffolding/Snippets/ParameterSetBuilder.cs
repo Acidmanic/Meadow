@@ -5,7 +5,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.Scaffolding.Snippets;
 
-public interface ICallBackParameterBuilder:IParameterBuilder
+public interface ICallBackParameterBuilder:IParameterBuilder<ICallBackParameterBuilder>
 {
 
     ICallBackParameterBuilder Add();
