@@ -146,12 +146,7 @@ public static class SnippetToolboxExtensions
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Name : defaultName;
     }
 
-    public static string IdFieldTypeOrDefaultFullTree(this ISnippetToolbox toolbox, string defaultType)
-    {
-        return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameterFullTree.Type : defaultType;
-    }
-    
-    public static string IdFieldTypeOrDefault(this ISnippetToolbox toolbox, string defaultType)
+    public static string IdFieldTypeOrDefault(this ISnippetToolbox toolbox, string defaultType="")
     {
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Type : defaultType;
     }
@@ -229,6 +224,17 @@ public static class SnippetToolboxExtensions
 
 
     public static string Procedure(this ISnippetToolbox toolbox, RepetitionHandling repetition, string procedureName,
+        Action<IParameterBuilder> parameters,
+        string body, string declarations = "", string returnTypeName = "")
+    {
+        var parameterBuilder = new ParameterBuilder(toolbox.TypeNameMapper);
+
+        parameters(parameterBuilder);
+
+        return Procedure(toolbox, repetition, procedureName, body, declarations, returnTypeName, parameterBuilder.Build());
+    }
+    
+    public static string Procedure(this ISnippetToolbox toolbox, RepetitionHandling repetition, string procedureName,
         string body, string declarations = "", string returnTypeName = "", params Parameter[] parameters)
     {
         var creationPhrase = toolbox.SqlTranslator.CreateProcedurePhrase(repetition, procedureName);
@@ -245,8 +251,4 @@ public static class SnippetToolboxExtensions
         return new ParameterBuilder(toolbox.TypeNameMapper);
     }
     
-    public static ParameterSetBuilder Parameters(this ISnippetToolbox toolbox)
-    {
-        return new ParameterSetBuilder(toolbox.TypeNameMapper);
-    }
 }
