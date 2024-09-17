@@ -10,25 +10,32 @@ public class EventStreamSnippet : ISnippet
     public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
     public string KeyTableName => Toolbox.ProcessedType.NameConvention.EventStreamTableName;
-    public string KeyTypeNameType => Toolbox.ProcessedType.EventStreamTypeNameDatabaseType ?? string.Empty;
 
     public string KeyEventIdDefinition => Toolbox.EventIdDefinitionPhrase(",");
 
     public string KeyReadStreamChunkByStreamIdProcedureName =>
         Toolbox.ProcessedType.NameConvention.ReadStreamChunkByStreamId;
 
+    private  string DefaultTypeName => Toolbox.TypeNameMapper.GetDatabaseTypeName(typeof(string)); 
+    
+    public string KeyStreamIdType => Toolbox.ProcessedType.StreamIdTypeName ?? DefaultTypeName;
+    public string KeyTypeNameType => Toolbox.ProcessedType.EventStreamTypeNameDatabaseType ?? DefaultTypeName;
+    public string KeyAssemblyNameType => Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType?? DefaultTypeName;
+    
+    public string KeySerializedValueType => Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType?? DefaultTypeName;
 
+    
     public string InsertProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.InsertEvent,
         p => p
             .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? "").Add()
-            .Name("TypeName").Type(Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType ?? "").Add()
+            .Name("TypeName").Type(Toolbox.ProcessedType.EventStreamTypeNameDatabaseType ?? "").Add()
             .Name("AssemblyName").Type(Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType ?? "").Add()
             .Name("SerializedValue").Type(Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType ?? "")
         , body);
 
     public string ReadStreamChunkByStreamIdProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
-        Toolbox.ProcessedType.NameConvention.InsertEvent,
+        Toolbox.ProcessedType.NameConvention.ReadStreamChunkByStreamId,
         p => p
             .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? "").Add()
             .Name("BaseEventId").Type(Toolbox.ProcessedType.EventIdTypeName ?? "").Add()

@@ -17,13 +17,12 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
             builder.Add(CommonSnippets.DeleteProcedure).BehaviorUseIdAware();
             builder.Add(CommonSnippets.ReadProcedure).BehaviorUseIdAware();
             builder.Add(CommonSnippets.SaveProcedure);
-            builder.Add(CommonSnippets.DataBound);
+            builder.Add(CommonSnippets.DataBound).RepetitionHandling(RepetitionHandling.Alter);
             builder.Add(CommonSnippets.FindPaged);
             builder.Add(CommonSnippets.CreateTable)
                 .BehaviorUseIdAgnostic()
                 .OverrideEntityTypeBySearchIndex()
                 .OverrideDbObjectNameToSearchIndexTableName();
-            builder.Add(CommonSnippets.DataBound).BehaviorUseIdAgnostic();
         }
     }
     

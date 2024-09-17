@@ -25,17 +25,17 @@ public class EntityDataBoundSnippet : ISnippet
     private string Procedure(string body, string name) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         name, pb => pb.Name("FieldName").Type<string>(), body, string.Empty, string.Empty);
 
-    private string RangeProcedure(string body) => Procedure(body, Toolbox.ProcessedType.NameConvention.RangeProcedureName);
-    private string ExistingProcedure(string body) => Procedure(body, Toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
+    public string RangeProcedure(string body) => Procedure(body, Toolbox.ProcessedType.NameConvention.RangeProcedureName);
+    public string ExistingProcedure(string body) => Procedure(body, Toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
 {RangeProcedure}
-    SELECT MAX(&@FieldName) 'Max', MIN(&@FieldName) 'Min' FROM {{{nameof(KeyTableName)}}};
+    SELECT MAX(&@FieldName) 'Max', MIN(&@FieldName) 'Min' FROM {KeyTableName};
 {/RangeProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 {ExistingProcedure}
-    SELECT DISTINCT &@FieldName 'Value' FROM {{{nameof(KeyTableName)}}} ORDER BY &@FieldName ASC;
+    SELECT DISTINCT &@FieldName 'Value' FROM {KeyTableName} ORDER BY &@FieldName ASC;
 {/ExistingProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
