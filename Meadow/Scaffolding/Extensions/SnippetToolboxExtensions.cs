@@ -146,8 +146,17 @@ public static class SnippetToolboxExtensions
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Name : defaultName;
     }
 
-    public static string IdFieldTypeOrDefault(this ISnippetToolbox toolbox, string defaultType="")
+    public static string IdFieldTypeNameOrDefault(this ISnippetToolbox toolbox, string defaultType="")
     {
+        return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Type : defaultType;
+    }
+
+    public static string IdFieldTypeNameOrDefault<TDefault>(this ISnippetToolbox toolbox) => IdFieldTypeNameOrDefault(toolbox,typeof(TDefault));
+    
+    public static string IdFieldTypeNameOrDefault(this ISnippetToolbox toolbox, Type type)
+    {
+        var defaultType = toolbox.TypeNameMapper.GetDatabaseTypeName(type);
+        
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Type : defaultType;
     }
 

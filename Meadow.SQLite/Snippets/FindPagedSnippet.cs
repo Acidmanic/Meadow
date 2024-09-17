@@ -20,7 +20,7 @@ public class FindPagedSnippet : ISnippet
 
     public string IndexProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.IndexEntityProcedureName,
-        pb => pb.Name("ResultId").Type(Toolbox.IdFieldTypeOrDefault())
+        pb => pb.Name("ResultId").Type(Toolbox.IdFieldTypeNameOrDefault<string>())
             .Add().Name("IndexCorpus").Type<string>(),
         body, string.Empty,
         Toolbox.ProcessedType.NameConvention.TableName);
