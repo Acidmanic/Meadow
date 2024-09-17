@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
@@ -29,10 +30,13 @@ public class DeleteSnippet : ISnippet
 
         public string KeyWhereClause => Toolbox.WhereByIdClause(_byId, false);
 
+        public string Procedure(string body) => Toolbox.Procedure(
+           Toolbox.Configurations.RepetitionHandling,
+           _byId ? Toolbox.ProcessedType.NameConvention.DeleteByIdProcedureName : Toolbox.ProcessedType.NameConvention.DeleteAllProcedureName
+           ,body,string.Empty,string.Empty,Toolbox.GetIdAwareProcedureDefinitionParameters(_byId));
 
         public string Template => @"
-{ProcedureCreationPhrase}{ByIdParameters} AS
-
+{Procedure}
     PRAGMA temp_store = 2; /* 2 means use in-memory */
     CREATE TEMP TABLE _Existing(Count INTEGER);
     INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {TableName};
@@ -42,7 +46,7 @@ public class DeleteSnippet : ISnippet
                 END AS Success
                 FROM _Existing;
     DROP TABLE _Existing;
-GO
+{/Procedure}
 ".Trim();
     }
 
