@@ -20,6 +20,8 @@ public class EntityBoundDataProvider : ICaseDataProvider
     {
         new Person { Name = "a", Age = 100, Surname = "A" },
         new Person { Name = "b", Age = 75, Surname = "B" },
+        new Person { Name = "b", Age = 75, Surname = "B" },
+        new Person { Name = "c", Age = 50, Surname = "C" },
         new Person { Name = "c", Age = 50, Surname = "C" },
         new Person { Name = "d", Age = 25, Surname = "D" },
     };
