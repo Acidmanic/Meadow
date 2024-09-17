@@ -20,14 +20,6 @@ public class EntityDataBoundSnippet : ISnippet
         Toolbox = builder.Build();
     }
 
-    public string KeyRangeProcedureCreationPhrase
-        => Toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
-            Toolbox.ProcessedType.NameConvention.RangeProcedureName);
-
-    public string KeyExistingValuesProcedureCreationPhrase
-        => Toolbox.SqlTranslator.CreateProcedurePhrase(RepetitionHandling.Alter,
-            Toolbox.ProcessedType.NameConvention.ExistingValuesProcedureName);
-
     public string KeyTableName => Toolbox.ProcessedType.NameConvention.TableName;
 
     private string Procedure(string body, string name) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
