@@ -193,8 +193,10 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         }
 
         public FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector) => PerformRequest(new RangeRequest<TEntity, TField>(selector)).FromStorage.FirstOrDefault();
-        
-        
+        public List<TField> Existings<TEntity, TField>(Expression<Func<TEntity, TField>> selector)
+        => PerformRequest(new ExistingValuesRequest<TEntity, TField>(selector)).FromStorage
+            .Select(vd => vd.Value).ToList();
+
 
         private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>
             (MeadowRequest<TIn, TOut> request, bool fullTree = false) where TOut : class

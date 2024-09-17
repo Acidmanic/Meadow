@@ -161,7 +161,7 @@ namespace Meadow.Test.Functional
                 personsRange.Min, personsRange.Max);
 
             var existingValues = engine
-                .PerformRequest(new ExistingValuesRequest<Person>(fieldName))
+                .PerformRequest(new ExistingValuesRequest<Person,long>(p => p.JobId))
                 .FromStorage.Select(s => s.Value.ToString());
 
             if (!existingValues.Any())

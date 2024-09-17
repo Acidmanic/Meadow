@@ -75,6 +75,33 @@ public class DataBoundSuit
         });
     }
 
+    [Fact]
+    public void Should_Return_CorrectExistingValues_For_Name() => 
+        Should_Return_CorrectExistingValues(p => p.Name, EntityBoundDataProvider.ExistingNames);
+    
+    [Fact]
+    public void Should_Return_CorrectExistingValues_For_Surname() => 
+        Should_Return_CorrectExistingValues(p => p.Surname, EntityBoundDataProvider.ExistingSurnames);
+    
+    [Fact]
+    public void Should_Return_CorrectExistingValues_For_Ages() => 
+        Should_Return_CorrectExistingValues(p => p.Age, EntityBoundDataProvider.ExistingAges);
+    
+    private void Should_Return_CorrectExistingValues<TField>(Expression<Func<Person,TField>> field, TField[] expectedExistingValues)
+    {
+        var environment = CreateEnvironment();
+
+        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        {
+            var actualExistings = c.Existings(field);
+            
+            AssertX.ContainSameItems(expectedExistingValues.ToList(),actualExistings);
+            
+            c.Logger.LogInformation("Range For {Values}",string.Join(',',expectedExistingValues));
+            
+        });
+    }
+
 
     private Environment<EntityBoundDataProvider> CreateEnvironment()
     {

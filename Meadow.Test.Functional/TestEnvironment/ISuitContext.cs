@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
@@ -50,4 +48,5 @@ public interface ISuitContext
     List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>(TStreamId streamId, TEventId baseEventId, long count);
 
     FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector);
+    List<TField> Existings<TEntity, TField>(Expression<Func<TEntity, TField>> selector);
 }
