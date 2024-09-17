@@ -38,5 +38,5 @@ public class DataBoundSnippet:ISnippet
         return new List<ISnippet>();
     }
 
-    public string Template => $"{{{nameof(EntityDataBounds)}}}";
+    public string Template => $"{EntityDataBounds}";
 }

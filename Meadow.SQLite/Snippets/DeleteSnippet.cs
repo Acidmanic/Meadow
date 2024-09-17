@@ -85,5 +85,5 @@ public class DeleteSnippet : ISnippet
     }
 
 
-    public string Template => $"{{{nameof(Items)}}}";
+    public string Template => "{Items}";
 }
