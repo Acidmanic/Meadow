@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
 using Meadow.Requests;
 using Meadow.Requests.BuiltIn;
+using Meadow.Requests.BuiltIn.Dtos;
 using Meadow.Requests.GenericEventStreamRequests;
 using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Test.Functional.TestEnvironment.Utility;
@@ -56,13 +58,16 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public string DatabaseName { get; }
 
         public MeadowConfiguration MeadowConfiguration { get; }
+        
+        public ILogger Logger { get; }
 
-        public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration)
+        public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration, ILogger logger)
         {
             Engine = engine;
             Data = data;
             DatabaseName = databaseName;
             MeadowConfiguration = meadowConfiguration;
+            Logger = logger;
         }
 
 
@@ -187,6 +192,10 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
                 .FromStorage.ToStreamEvents(MeadowConfiguration);
         }
 
+        public FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector) => PerformRequest(new RangeRequest<TEntity, TField>(selector)).FromStorage.FirstOrDefault();
+        
+        
+
         private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>
             (MeadowRequest<TIn, TOut> request, bool fullTree = false) where TOut : class
         {
@@ -252,7 +261,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         dataProvider.PostSeeding();
 
-        env(new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration));
+        env(new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration,logger));
     }
 
     private void OverrideScripts(MeadowConfiguration configuration)

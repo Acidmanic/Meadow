@@ -1,6 +1,10 @@
+using System.Linq.Expressions;
+using Acidmanic.Utilities.Reflection;
+using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
 using Meadow.Test.Shared;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.LightWeight;
 using Xunit;
 using Xunit.Abstractions;
@@ -22,7 +26,7 @@ public class DataBoundSuit
 
 
     [Fact]
-    private void Should_Create_Environment_Without_Exception()
+    public void Should_Create_Environment_Without_Exception()
     {
         var environment = CreateEnvironment();
 
@@ -32,17 +36,42 @@ public class DataBoundSuit
             
         });
     }
-    
+
+
+    [Fact]
+    public void Should_Return_CorrectRange_ForNames() => Should_Return_CorrectRange(
+        p => p.Name,
+        EntityBoundDataProvider.MinimumName,
+        EntityBoundDataProvider.MaximumName);
     
     [Fact]
-    private void Should_Return_CorrectRange_ForEachField()
+    public void Should_Return_CorrectRange_ForSurnames() => Should_Return_CorrectRange(
+        p => p.Surname,
+        EntityBoundDataProvider.MinimumSurname,
+        EntityBoundDataProvider.MaximumSurname);
+    
+    [Fact]
+    public void Should_Return_CorrectRange_ForAges() => Should_Return_CorrectRange(
+        p => p.Age,
+        EntityBoundDataProvider.MinimumAge,
+        EntityBoundDataProvider.MaximumAge);
+    
+    
+    private void Should_Return_CorrectRange<TField>(Expression<Func<Person,TField>> field, TField min,TField max)
     {
         var environment = CreateEnvironment();
 
         environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
+            var range = c.Range(field);
+
+            Assert.NotNull(range);
             
+            c.Logger.LogInformation("Range For {Field} -> Min: {Min}, Max: {Max}",MemberOwnerUtilities.GetAddress(field),range.Min,range.Max);
             
+            Assert.Equal(min, range.Min);
+            
+            Assert.Equal(max, range.Max);
         });
     }
 

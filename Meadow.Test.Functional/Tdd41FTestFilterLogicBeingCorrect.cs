@@ -19,7 +19,7 @@ namespace Meadow.Test.Functional
         protected override void Main(MeadowEngine engine, ILogger logger)
         {
             base.Main(engine, logger);
-            
+
             Index(engine, Persons);
 
 
@@ -136,7 +136,7 @@ namespace Meadow.Test.Functional
             var fieldName = "JobId";
 
             var personsRange = engine
-                .PerformRequest(new RangeRequest<Person>(fieldName))
+                .PerformRequest(new RangeRequest<Person,long>(p => p.JobId))
                 .FromStorage
                 .FirstOrDefault();
 
