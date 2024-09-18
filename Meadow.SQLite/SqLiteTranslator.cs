@@ -3,6 +3,7 @@ using Acidmanic.Utilities.Reflection;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
+using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
@@ -46,7 +47,7 @@ namespace Meadow.SQLite
             return creationHeader;
         }
 
-        public override string TableColumnDefinition(Parameter parameter)
+        public override TableParameterDefinition TableColumnDefinition(Parameter parameter)
         {
             var definition = parameter.Name + " " + parameter.Type;
 
@@ -60,7 +61,7 @@ namespace Meadow.SQLite
                 definition += " AUTOINCREMENT";
             }
 
-            return definition;
+            return new TableParameterDefinition(definition,string.Empty);
         }
 
         public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)

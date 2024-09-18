@@ -80,6 +80,30 @@ public static class SnippetToolboxExtensions
                 toolbox.ParameterNameTypeJoint(p, toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix)));
     }
 
+
+    public static string TranslateTable(this ISnippetToolbox toolbox, string tableName, params Parameter[] parameters)
+        => TranslateTable(toolbox, tableName, (IEnumerable<Parameter>)parameters);
+    
+    public static string TranslateTable(this ISnippetToolbox toolbox,string tableName, IEnumerable<Parameter> parameters)
+    {
+        var tableDeclarationPhrase = CreateTablePhrase(toolbox, tableName);
+        
+        var definitions = parameters.ToArray().Select(toolbox.SqlTranslator.TableColumnDefinition).ToArray();
+        
+        var declarations = string.Join(',', definitions.Select(d => d.Declaration));
+
+        var tailing = string.Join(',', definitions.Select(a => a.AuxiliaryContent));
+
+        var tableContent = declarations;
+
+        if (!string.IsNullOrWhiteSpace(tableContent))
+        {
+            tableContent += ",\n" + tailing;
+        }
+
+        return $"{tableDeclarationPhrase}({tableContent})";
+    }
+    
     public static bool ActsById(this ISnippetToolbox toolbox) =>
         toolbox.Configurations.IdAwarenessBehavior.Is(IdAwarenessBehavior.UseById);
 

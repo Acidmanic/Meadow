@@ -2,6 +2,7 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Configuration;
+using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
@@ -44,7 +45,7 @@ public partial interface ISqlTranslator
     
     string CreateTablePhrase(RepetitionHandling repetition, string tableName);
 
-    string TableColumnDefinition(Parameter parameter);
+    TableParameterDefinition TableColumnDefinition(Parameter parameter);
     
     string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 

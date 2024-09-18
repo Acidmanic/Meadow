@@ -2,6 +2,7 @@ using System;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Configuration;
+using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Microsoft.Extensions.Logging;
@@ -48,7 +49,7 @@ public partial interface ISqlTranslator
             ErrorAndTranslateEmpty();
 
         public string CreateTablePhrase(RepetitionHandling repetition, string tableName) => ErrorAndTranslateEmpty();
-        public string TableColumnDefinition(Parameter parameter) => ErrorAndTranslateEmpty();
+        public TableParameterDefinition TableColumnDefinition(Parameter parameter) => ErrorAndReturnEmptyDefinitions();
         public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
         public string ProcedureBodyParameterNamePrefix => ErrorAndTranslateEmpty();
         public string ProcedureDefinitionParameterNamePrefix => ErrorAndTranslateEmpty();
@@ -66,6 +67,13 @@ public partial interface ISqlTranslator
             LogError();
 
             return false;
+        }
+        
+        private TableParameterDefinition ErrorAndReturnEmptyDefinitions()
+        {
+            LogError();
+
+            return new TableParameterDefinition(string.Empty,string.Empty);
         }
 
         private void LogError()

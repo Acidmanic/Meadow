@@ -8,6 +8,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataTypeMapping;
 using Meadow.Extensions;
+using Meadow.Models;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -130,7 +131,7 @@ namespace Meadow.Sql
 
         public abstract string CreateTablePhrase(RepetitionHandling repetition, string tableName);
         
-        public abstract string TableColumnDefinition(Parameter parameter);
+        public abstract TableParameterDefinition TableColumnDefinition(Parameter parameter);
 
         public virtual string ProcedureBodyParameterNamePrefix => "@";
         public virtual string ProcedureDefinitionParameterNamePrefix => "@";
