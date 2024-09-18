@@ -14,7 +14,7 @@ namespace Meadow.Test.Functional.Suits;
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class CrudSuitSnippetComposed
 {
-    private const Databases Databases = Shared.Databases.SqLite;
+    private const Databases Databases = Shared.Databases.MySql;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";

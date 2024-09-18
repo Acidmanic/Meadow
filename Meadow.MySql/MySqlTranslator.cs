@@ -67,6 +67,8 @@ namespace Meadow.MySql
 
         public override string ProcedureBodyParameterNamePrefix => "";
         public override string ProcedureDefinitionParameterNamePrefix => "IN ";
+        
+        public override bool ParameterLessProcedureDefinitionParentheses => true;
 
         public MySqlTranslator(MeadowConfiguration configuration) : base(new MySqlValueTranslator(configuration.ExternalTypeCasts))
         {
