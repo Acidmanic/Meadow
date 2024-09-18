@@ -144,6 +144,7 @@ public static class EntityTypeUtilities
                 StandardAddress = leaf.GetFullName(),
                 IdentifierStatus = GetIdentifierStatus(leaf),
                 IsNumerical = TypeCheck.IsNumerical(leaf.Type),
+                IsString = leaf.Type == typeof(string),
                 Type = GetTypeName(leaf, configuration, typeNameMapper)
             };
             var parameterFullTree = new Parameter
@@ -152,6 +153,7 @@ public static class EntityTypeUtilities
                 StandardAddress = parameter.StandardAddress,
                 IdentifierStatus = parameter.IdentifierStatus,
                 IsNumerical = parameter.IsNumerical,
+                IsString = parameter.IsString,
                 Name = fullTreeMap.GetColumnNameByFullAddress(leaf.GetFullName())
             };
 

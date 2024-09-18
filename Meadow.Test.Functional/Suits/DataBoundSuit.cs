@@ -15,7 +15,7 @@ namespace Meadow.Test.Functional.Suits;
 public class DataBoundSuit
 {
 
-    private const Databases Database = Databases.SqLite;
+    private const Databases Database = Databases.MySql;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
 

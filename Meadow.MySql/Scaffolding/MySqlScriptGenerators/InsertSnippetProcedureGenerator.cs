@@ -94,7 +94,7 @@ namespace Meadow.MySql.Scaffolding.MySqlScriptGenerators
 BEGIN
     INSERT INTO {_keyTableName} ({_keyColumns}) VALUES ({_keyValues});
     {_keyDeclareNewId}
-    SELECT {_keySelectNoIdParameters}{_keyEntityFilterSegmentNoAnd};
+    SELECT {_keySelectNoIdParameters} FROM {_keyTableName}{_keyEntityFilterSegmentNoAnd};
 END;
 ".Trim();
 

@@ -110,10 +110,7 @@ public class MeadowEngineSetup
 
     private void UseMySql(string scriptsDirectory = "MacroScripts")
     {
-        _meadowConfigurationAssemblies.Clear();
-        _meadowConfigurationAssemblies.Add(Assembly.GetEntryAssembly());
-        _meadowConfigurationAssemblies.Add(Assembly.GetExecutingAssembly());
-        _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMeadowAssembly());
+        AddCommonAssemblies();
         _meadowConfigurationAssemblies.Add(TheMeadow.Anchor.GetMySqlMeadowAssembly());
 
         _connectionString = ExampleConnectionString.GetMySqlConnectionString(DatabaseName);

@@ -20,25 +20,24 @@ namespace Meadow.Sql
 {
     public abstract class SqlTranslatorBase : ISqlTranslator
     {
-
         private readonly IValueTranslator _valueTranslator;
-        
+
         public ILogger Logger { get; set; }
         public MeadowConfiguration Configuration { get; set; }
-        
-        
+
+
         protected SqlTranslatorBase(IValueTranslator valueTranslator)
         {
             _valueTranslator = valueTranslator;
 
             Logger = NullLogger.Instance;
-            
+
             Configuration = MeadowConfiguration.Null;
         }
-        
+
 
         public virtual string AliasQuote => "'";
-        
+
         public virtual bool ParameterLessProcedureDefinitionParentheses => false;
 
         public virtual bool UsesSemicolon => true;
@@ -48,14 +47,14 @@ namespace Meadow.Sql
         public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
         {
             var q = this.GetQuoters();
-            
+
             Func<FilterItem, Result<string>> pickColumName = item => new Result<string>(true, q.QuoteColumnName(item.Key));
 
             if (translation == ColumnNameTranslation.FullTree)
             {
                 var columns = Configuration.GetFullTreeMap(filterQuery.EntityType);
 
-                pickColumName = item => new Result<string>(true,q.QuoteColumnName(columns.GetColumnName(item.Key)));
+                pickColumName = item => new Result<string>(true, q.QuoteColumnName(columns.GetColumnName(item.Key)));
             }
             else if (translation == ColumnNameTranslation.DataOwnerDotColumnName)
             {
@@ -132,19 +131,20 @@ namespace Meadow.Sql
         public abstract string CreateProcedurePhrase(RepetitionHandling repetition, string procedureName);
 
         public abstract string CreateTablePhrase(RepetitionHandling repetition, string tableName);
-        
+
         public abstract TableParameterDefinition TableColumnDefinition(Parameter parameter);
+        public virtual string EqualityAssertionOperator(Parameter p) => p.IsString ? "like" : "=";
 
         public virtual string ProcedureBodyParameterNamePrefix => "@";
         public virtual string ProcedureDefinitionParameterNamePrefix => "@";
-        
-        public virtual string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent,string declarations = "", string returnDataTypeName="")
+
+        public virtual string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "")
         {
             if (ParameterLessProcedureDefinitionParentheses || !string.IsNullOrWhiteSpace(parametersPhrase))
             {
                 parametersPhrase = $"({parametersPhrase})";
             }
-            
+
             return creationPhrase + parametersPhrase + "\nAS\n" + bodyContent + "\nGO\n";
         }
 
@@ -190,11 +190,10 @@ namespace Meadow.Sql
 
             if (foundKey)
             {
-                
                 var columnName = foundKey.Value;
-                
+
                 string sep;
-                
+
                 switch (filter.ValueComparison)
                 {
                     case ValueComparison.SmallerThan:
@@ -232,8 +231,6 @@ namespace Meadow.Sql
         }
 
 
-        
-
         public abstract bool DoubleQuotesColumnNames { get; }
 
         public abstract bool DoubleQuotesTableNames { get; }
@@ -250,6 +247,5 @@ namespace Meadow.Sql
         {
             return "";
         }
-
     }
 }

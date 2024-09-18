@@ -14,6 +14,8 @@ namespace Meadow.Scaffolding.Models
 
         public bool IsNumerical { get; set; } 
         
+        public bool IsString { get; set; }
+        
         public ParameterIdentifierStatus IdentifierStatus { get; set; }
 
     }
