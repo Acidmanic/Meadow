@@ -41,6 +41,8 @@ namespace Meadow.Sql
         
         public virtual bool ParameterLessProcedureDefinitionParentheses => false;
 
+        public virtual bool UsesSemicolon => true;
+
         public virtual ColumnNameTranslation EntityFilterWhereClauseColumnTranslation => ColumnNameTranslation.DataOwnerDotColumnName;
 
         public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)

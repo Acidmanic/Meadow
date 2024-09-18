@@ -1,4 +1,4 @@
-using System.Linq;
+
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
@@ -11,15 +11,9 @@ public class TableSnippet : ISnippet
 {
     public ISnippetToolbox Toolbox { get; set; } = SnippetToolbox.Null;
 
-
-    public string CreateTablePhrase => Toolbox.CreateTablePhrase();
-
-    public string Parameters => string.Join(",\n\t\t",Toolbox.ProcessedType.Parameters.Select(Toolbox.SqlTranslator.TableColumnDefinition).ToList());
-
     public ISnippet Split => new SplitSnippet();
+
+    public string Table => Toolbox.TranslateTable( Toolbox.ProcessedType.Parameters);
     
-    public string Template => @"
-{CreateTablePhrase}({Parameters});
-{Split}
-";
+    public string Template => "{Table}\n{Split}";
 }

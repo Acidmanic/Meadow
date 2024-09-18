@@ -25,6 +25,7 @@ public partial interface ISqlTranslator
         public bool ProcedureParameterNamePrefixBeforeQuoting => ErrorAndReturnFalse();
 
         public bool ParameterLessProcedureDefinitionParentheses => ErrorAndReturnFalse();
+        public bool UsesSemicolon => ErrorAndReturnFalse();
 
         public ColumnNameTranslation EntityFilterWhereClauseColumnTranslation
         {

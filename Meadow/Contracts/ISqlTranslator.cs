@@ -31,6 +31,8 @@ public partial interface ISqlTranslator
     
     bool ParameterLessProcedureDefinitionParentheses { get; }
     
+    bool UsesSemicolon { get; }
+    
     ColumnNameTranslation EntityFilterWhereClauseColumnTranslation { get; }
     
     string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation);
@@ -46,6 +48,7 @@ public partial interface ISqlTranslator
     string CreateTablePhrase(RepetitionHandling repetition, string tableName);
 
     TableParameterDefinition TableColumnDefinition(Parameter parameter);
+    
     
     string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 

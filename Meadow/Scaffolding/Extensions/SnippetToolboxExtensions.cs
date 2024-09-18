@@ -81,27 +81,31 @@ public static class SnippetToolboxExtensions
     }
 
 
-    public static string TranslateTable(this ISnippetToolbox toolbox, string tableName, params Parameter[] parameters)
-        => TranslateTable(toolbox, tableName, (IEnumerable<Parameter>)parameters);
+    public static string TranslateTable(this ISnippetToolbox toolbox, params Parameter[] parameters)
+        => TranslateTable(toolbox, (IEnumerable<Parameter>)parameters);
     
-    public static string TranslateTable(this ISnippetToolbox toolbox,string tableName, IEnumerable<Parameter> parameters)
+    public static string TranslateTable(this ISnippetToolbox toolbox,IEnumerable<Parameter> parameters)
     {
-        var tableDeclarationPhrase = CreateTablePhrase(toolbox, tableName);
+        var tableDeclarationPhrase = CreateTablePhrase(toolbox);
         
         var definitions = parameters.ToArray().Select(toolbox.SqlTranslator.TableColumnDefinition).ToArray();
         
         var declarations = string.Join(',', definitions.Select(d => d.Declaration));
 
-        var tailing = string.Join(',', definitions.Select(a => a.AuxiliaryContent));
+        var tailing = string.Join(',', definitions
+            .Select(d => d.AuxiliaryContent)
+            .Where(a => !string.IsNullOrWhiteSpace(a)));
 
         var tableContent = declarations;
 
-        if (!string.IsNullOrWhiteSpace(tableContent))
+        if (!string.IsNullOrWhiteSpace(tailing))
         {
             tableContent += ",\n" + tailing;
         }
 
-        return $"{tableDeclarationPhrase}({tableContent})";
+        var semicolon = toolbox.SqlTranslator.UsesSemicolon ? ";" : string.Empty;
+        
+        return $"{tableDeclarationPhrase}({tableContent}){semicolon}";
     }
     
     public static bool ActsById(this ISnippetToolbox toolbox) =>
