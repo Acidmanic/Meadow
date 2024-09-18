@@ -180,8 +180,8 @@ public static class SnippetToolboxExtensions
 
         return " WHERE " + EqualityClause(toolbox, toolbox.ProcessedType.NameConvention.TableName, fullTree, valueParameters);
     }
-    
-    private static string EqualityClause(this ISnippetToolbox toolbox, Parameter p,bool fullTree = false, string? tableName = null)
+
+    public static string SourceName(this ISnippetToolbox toolbox, bool fullTree = false, string? tableName = null)
     {
         string sourceName;
         
@@ -193,6 +193,21 @@ public static class SnippetToolboxExtensions
         {
             sourceName = TableOrFullViewName(toolbox, fullTree);
         }
+
+        return sourceName;
+    }
+    
+    public static string EqualityClause(this ISnippetToolbox toolbox, Parameter column, string variableName, bool fullTree = false, string? tableName = null)
+    {
+        var sourceName = SourceName(toolbox, fullTree, tableName);
+        
+        return sourceName + "." + column.Name + " " + toolbox.SqlTranslator.EqualityAssertionOperator(column) + " " + variableName;
+    }
+    
+    private static string EqualityClause(this ISnippetToolbox toolbox, Parameter p,bool fullTree = false, string? tableName = null)
+    {
+        var sourceName = SourceName(toolbox, fullTree, tableName);
+        
         return sourceName + "." + p.Name + " " + toolbox.SqlTranslator.EqualityAssertionOperator(p) + " " + p.Name;
     }
 
@@ -325,4 +340,6 @@ public static class SnippetToolboxExtensions
 
         return builder.Build();
     }
+
+    public static string Semicolon(this ISnippetToolbox toolbox) => toolbox.SqlTranslator.UsesSemicolon ? ";" : string.Empty;
 }

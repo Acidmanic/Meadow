@@ -51,11 +51,13 @@ public partial interface ISqlTranslator
 
         public string CreateTablePhrase(RepetitionHandling repetition, string tableName) => ErrorAndTranslateEmpty();
         public TableParameterDefinition TableColumnDefinition(Parameter parameter) => ErrorAndReturnEmptyDefinitions();
+        public string EqualityAssertionOperator(Parameter p) => ErrorAndTranslateEmpty();
+
         public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
         public string ProcedureBodyParameterNamePrefix => ErrorAndTranslateEmpty();
         public string ProcedureDefinitionParameterNamePrefix => ErrorAndTranslateEmpty();
-        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent,string declarations = "", string returnDataTypeName="") => ErrorAndTranslateEmpty();
-        
+        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "") => ErrorAndTranslateEmpty();
+
         private string ErrorAndTranslateEmpty()
         {
             LogError();
@@ -69,12 +71,12 @@ public partial interface ISqlTranslator
 
             return false;
         }
-        
+
         private TableParameterDefinition ErrorAndReturnEmptyDefinitions()
         {
             LogError();
 
-            return new TableParameterDefinition(string.Empty,string.Empty);
+            return new TableParameterDefinition(string.Empty, string.Empty);
         }
 
         private void LogError()
