@@ -1,6 +1,8 @@
+using System;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
+using Meadow.SQLite.ProcedureProcessing;
 
 namespace Meadow.SQLite.Snippets;
 
@@ -16,23 +18,36 @@ public class EventStreamSnippet : ISnippet
     public string KeyReadStreamChunkByStreamIdProcedureName =>
         Toolbox.ProcessedType.NameConvention.ReadStreamChunkByStreamId;
 
-    private  string DefaultTypeName => Toolbox.TypeNameMapper.GetDatabaseTypeName(typeof(string)); 
-    
+    private string DefaultTypeName => Toolbox.TypeNameMapper.GetDatabaseTypeName(typeof(string));
+
     public string KeyStreamIdType => Toolbox.ProcessedType.StreamIdTypeName ?? DefaultTypeName;
     public string KeyTypeNameType => Toolbox.ProcessedType.EventStreamTypeNameDatabaseType ?? DefaultTypeName;
-    public string KeyAssemblyNameType => Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType?? DefaultTypeName;
-    
-    public string KeySerializedValueType => Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType?? DefaultTypeName;
+    public string KeyAssemblyNameType => Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType ?? DefaultTypeName;
 
-    
+    public string KeySerializedValueType => Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType ?? DefaultTypeName;
+
+
+    private Action<IParameterBuilder> EventTableInsertParameterSetup => p => p
+        .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? DefaultTypeName).Add()
+        .Name("EventId").Type(Toolbox.ProcessedType.EventIdTypeName ?? DefaultTypeName).Add()
+        .Name("TypeName").Type(Toolbox.ProcessedType.EventStreamTypeNameDatabaseType ?? DefaultTypeName).Add()
+        .Name("AssemblyName").Type(Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType ?? DefaultTypeName).Add()
+        .Name("SerializedValue").Type(Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType ?? DefaultTypeName);
+
+    private Action<IParameterBuilder> EventTableParameterSetup => p =>
+    {
+        EventTableInsertParameterSetup(p);
+
+            p.Add().Name("EventRowNumber").Type<int>();
+    };
+
+
     public string InsertProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.InsertEvent,
-        p => p
-            .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? "").Add()
-            .Name("TypeName").Type(Toolbox.ProcessedType.EventStreamTypeNameDatabaseType ?? "").Add()
-            .Name("AssemblyName").Type(Toolbox.ProcessedType.EventStreamAssemblyNameDatabaseType ?? "").Add()
-            .Name("SerializedValue").Type(Toolbox.ProcessedType.EventStreamSerializedValueDatabaseType ?? "")
+        EventTableInsertParameterSetup
         , body);
+
+    public string EventTable => Toolbox.TranslateTable(EventTableParameterSetup, KeyTableName);
 
     public string ReadStreamChunkByStreamIdProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.ReadStreamChunkByStreamId,
@@ -60,13 +75,7 @@ public class EventStreamSnippet : ISnippet
 
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
-CREATE TABLE {KeyTableName} (
-    {KeyEventIdDefinition}
-    StreamId {KeyStreamIdType},
-    TypeName {KeyTypeNameType},
-    AssemblyName {KeyAssemblyNameType},
-    SerializedValue {KeySerializedValueType},
-    EventRowNumber INTEGER NOT NULL);
+{EventTable}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------

@@ -80,16 +80,19 @@ public static class SnippetToolboxExtensions
                 toolbox.ParameterNameTypeJoint(p, toolbox.SqlTranslator.ProcedureDefinitionParameterNamePrefix)));
     }
 
+    public static string TranslateTable(this ISnippetToolbox toolbox, Action<IParameterBuilder> setup, string? overridenTableName = null)
+        => TranslateTable(toolbox, Parameters(toolbox, setup),overridenTableName);
 
-    public static string TranslateTable(this ISnippetToolbox toolbox, params Parameter[] parameters)
-        => TranslateTable(toolbox, (IEnumerable<Parameter>)parameters);
-    
-    public static string TranslateTable(this ISnippetToolbox toolbox,IEnumerable<Parameter> parameters)
+    public static string TranslateTable(this ISnippetToolbox toolbox, string? overridenTableName = null, params Parameter[] parameters)
+        => TranslateTable(toolbox, (IEnumerable<Parameter>)parameters,overridenTableName);
+
+    public static string TranslateTable(this ISnippetToolbox toolbox, IEnumerable<Parameter> parameters, string? overridenTableName = null)
     {
-        var tableDeclarationPhrase = CreateTablePhrase(toolbox);
-        
+        string tableDeclarationPhrase =
+            (overridenTableName is { } tableName) ? CreateTablePhrase(toolbox, tableName) : CreateTablePhrase(toolbox);
+
         var definitions = parameters.ToArray().Select(toolbox.SqlTranslator.TableColumnDefinition).ToArray();
-        
+
         var declarations = string.Join(',', definitions.Select(d => d.Declaration));
 
         var tailing = string.Join(',', definitions
@@ -104,10 +107,10 @@ public static class SnippetToolboxExtensions
         }
 
         var semicolon = toolbox.SqlTranslator.UsesSemicolon ? ";" : string.Empty;
-        
+
         return $"{tableDeclarationPhrase}({tableContent}){semicolon}";
     }
-    
+
     public static bool ActsById(this ISnippetToolbox toolbox) =>
         toolbox.Configurations.IdAwarenessBehavior.Is(IdAwarenessBehavior.UseById);
 
@@ -174,17 +177,17 @@ public static class SnippetToolboxExtensions
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Name : defaultName;
     }
 
-    public static string IdFieldTypeNameOrDefault(this ISnippetToolbox toolbox, string defaultType="")
+    public static string IdFieldTypeNameOrDefault(this ISnippetToolbox toolbox, string defaultType = "")
     {
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Type : defaultType;
     }
 
-    public static string IdFieldTypeNameOrDefault<TDefault>(this ISnippetToolbox toolbox) => IdFieldTypeNameOrDefault(toolbox,typeof(TDefault));
-    
+    public static string IdFieldTypeNameOrDefault<TDefault>(this ISnippetToolbox toolbox) => IdFieldTypeNameOrDefault(toolbox, typeof(TDefault));
+
     public static string IdFieldTypeNameOrDefault(this ISnippetToolbox toolbox, Type type)
     {
         var defaultType = toolbox.TypeNameMapper.GetDatabaseTypeName(type);
-        
+
         return toolbox.ProcessedType.HasId ? toolbox.ProcessedType.IdParameter.Type : defaultType;
     }
 
@@ -270,7 +273,7 @@ public static class SnippetToolboxExtensions
 
         return Procedure(toolbox, repetition, procedureName, body, declarations, returnTypeName, parameterBuilder.Build());
     }
-    
+
     public static string Procedure(this ISnippetToolbox toolbox, RepetitionHandling repetition, string procedureName,
         string body, string declarations = "", string returnTypeName = "", params Parameter[] parameters)
     {
@@ -283,9 +286,12 @@ public static class SnippetToolboxExtensions
             returnTypeName);
     }
 
-    public static ParameterBuilder Parameter(this ISnippetToolbox toolbox)
+    public static Parameter[] Parameters(this ISnippetToolbox toolbox, Action<IParameterBuilder> setup)
     {
-        return new ParameterBuilder(toolbox.TypeNameMapper);
+        var builder = new ParameterBuilder(toolbox.TypeNameMapper);
+
+        setup(builder);
+
+        return builder.Build();
     }
-    
 }
