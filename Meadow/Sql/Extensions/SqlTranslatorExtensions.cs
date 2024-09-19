@@ -23,9 +23,9 @@ public static class SqlTranslatorExtensions
     public static ParameterDecoratorSet GetParameterDecorators(this ISqlTranslator tr)
     {
         return new ParameterDecoratorSet(
-            GetParameterDecorator(tr,ParameterUsage.ColumnName),
-            GetParameterDecorator(tr,ParameterUsage.ProcedureDeclaration),
-            GetParameterDecorator(tr,ParameterUsage.ProcedureBody));
+            GetParameterDecorator(tr, ParameterUsage.ColumnName),
+            GetParameterDecorator(tr, ParameterUsage.ProcedureDeclaration),
+            GetParameterDecorator(tr, ParameterUsage.ProcedureBody));
     }
 
     public static bool Quotes(this ISqlTranslator tr, ParameterUsage usage)
@@ -34,12 +34,12 @@ public static class SqlTranslatorExtensions
 
         return tr.DoubleQuotesProcedureParameterNames;
     }
-    
-    public static Func<string,string> GetParameterDecorator(this ISqlTranslator tr, ParameterUsage usage)
-    {
-        Func<string,string> decorator = s => tr.ParameterPrefix(usage) + s;
 
-        if (Quotes(tr,usage))
+    public static Func<string, string> GetParameterDecorator(this ISqlTranslator tr, ParameterUsage usage)
+    {
+        Func<string, string> decorator = s => tr.ParameterPrefix(usage) + s;
+
+        if (Quotes(tr, usage))
         {
             if (tr.ProcedureParameterNamePrefixBeforeQuoting(usage))
             {
@@ -55,7 +55,10 @@ public static class SqlTranslatorExtensions
     }
 
     public static string Decorate(this ISqlTranslator tr, Parameter parameter, ParameterUsage usage)
-        => GetParameterDecorator(tr, usage)(parameter.Name);
+        => Decorate(tr, parameter.Name, usage);
+
+    public static string Decorate(this ISqlTranslator tr, string parameterName, ParameterUsage usage)
+        => GetParameterDecorator(tr, usage)(parameterName);
 
     public static string EqualityAssertionOperator(this ISqlTranslator sqlTranslator, Parameter p)
         => sqlTranslator.EqualityAssertionOperator(p.IsString);

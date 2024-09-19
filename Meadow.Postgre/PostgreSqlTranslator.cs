@@ -76,13 +76,18 @@ namespace Meadow.Postgre
         public override bool DoubleQuotesTableNames => true;
         public override bool DoubleQuotesProcedureParameterNames => true;
 
-        public override bool ProcedureParameterNamePrefixBeforeQuoting => true;
+        public override bool ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage) => true;
 
 
         protected override string NotEqualOperator => "<>";
+        
 
-        public override string ProcedureBodyParameterNamePrefix => "par_";
-        public override string ProcedureDefinitionParameterNamePrefix => "par_";
+        public override string ParameterPrefix(ParameterUsage usage)
+        {
+            if (usage == ParameterUsage.ProcedureBody || usage == ParameterUsage.ProcedureDeclaration) return "par_";
+
+            return string.Empty;
+        }
 
         public PostgreSqlTranslator(MeadowConfiguration configuration)
             : base(new PostgreValueTranslator(configuration.ExternalTypeCasts))

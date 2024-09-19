@@ -228,7 +228,15 @@ public static class SnippetToolboxExtensions
     {
         var sourceName = SourceName(toolbox, fullTree, tableName);
 
-        return EqualityClause(toolbox, sourceName + "." + p.Name, p.Name, p.IsString);
+        var columnName = toolbox.SqlTranslator.Decorate(p, ParameterUsage.ColumnName);
+        
+        if(fullTree) columnName = toolbox.SqlTranslator.Decorate(
+            toolbox.FullTreeTranslation.GetFullTreeColumnNameByAddress(p.StandardAddress)
+            , ParameterUsage.ColumnName);
+        
+        var bodyName = toolbox.SqlTranslator.Decorate(p, ParameterUsage.ProcedureBody);
+
+        return EqualityClause(toolbox, sourceName + "." + columnName, bodyName, p.IsString);
     }
 
     public static string EqualityClause(this ISnippetToolbox toolbox, string var1, string var2, bool isString)

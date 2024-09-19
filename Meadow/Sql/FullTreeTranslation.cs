@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
+using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Acidmanic.Utilities.Reflection.ObjectTree.FieldAddressing;
 using Acidmanic.Utilities.Results;
 using Meadow.Attributes;
 using Meadow.Configuration;
@@ -31,6 +33,11 @@ public class FullTreeTranslation
         _sqlTranslator = sqlTranslator;
         _processedType.NameConvention.EntityType.GetAlteredOrOriginal();
         _q = _sqlTranslator.GetQuoters();
+    }
+
+    public string GetFullTreeColumnNameByAddress(string address)
+    {
+        return _fullTreeMap.GetColumnName(FieldKey.Parse(address).Headless().ToString());
     }
     
     public string GetFullTreeAliasedParameters()
