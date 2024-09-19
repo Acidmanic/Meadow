@@ -134,9 +134,12 @@ namespace Meadow.Sql
 
         public abstract TableParameterDefinition TableColumnDefinition(Parameter parameter);
         public virtual string EqualityAssertionOperator(bool isString) => isString ? "like" : "=";
+        
 
-        public virtual string ProcedureBodyParameterNamePrefix => "@";
-        public virtual string ProcedureDefinitionParameterNamePrefix => "@";
+        bool ISqlTranslator.ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage)
+        {
+            throw new NotImplementedException();
+        }
 
         public virtual string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "")
         {
@@ -150,6 +153,13 @@ namespace Meadow.Sql
 
 
         public abstract string CreateViewPhrase(RepetitionHandling repetition, string viewName);
+        
+        public virtual string ParameterPrefix(ParameterUsage usage)
+        {
+            if (usage == ParameterUsage.ProcedureBody) return "@";
+            if (usage == ParameterUsage.ProcedureDeclaration) return "@";
+            return string.Empty;
+        }
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree)
         {
@@ -237,7 +247,7 @@ namespace Meadow.Sql
 
         public virtual bool DoubleQuotesProcedureParameterNames => false;
 
-        public virtual bool ProcedureParameterNamePrefixBeforeQuoting => false;
+        public virtual bool ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage) => false;
 
         protected virtual string EmptyConditionExpression => "";
 

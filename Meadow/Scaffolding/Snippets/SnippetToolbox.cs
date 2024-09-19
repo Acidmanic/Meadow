@@ -8,6 +8,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.DataTypeMapping;
+using Meadow.Models;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -17,54 +18,52 @@ using Meadow.Utility;
 
 namespace Meadow.Scaffolding.Snippets;
 
-public class SnippetToolbox:ISnippetToolbox
+public class SnippetToolbox : ISnippetToolbox
 {
-    
     public static ISnippetToolbox Null { get; } = new SnippetToolboxBuilder<object>(new MeadowConfiguration()).Build();
-    
+
     public ProcessedType ProcessedType { get; }
-        
-    public  ComponentsProcessor ComponentsProcessor { get; }
 
-    public  Type EntityType { get; }
+    public ComponentsProcessor ComponentsProcessor { get; }
 
-    public  Type EntityTypeOrOverridenEntityType { get; }
+    public Type EntityType { get; }
 
-    public  FilterQuery RegisteredFilter { get; }
-    
+    public Type EntityTypeOrOverridenEntityType { get; }
 
-    public  Type EffectiveType => EntityTypeOrOverridenEntityType.GetAlteredOrOriginal();
-    
-    public  SnippetConstruction Construction { get; }
-    
-    public  SnippetConfigurations Configurations { get; }
-    
-    public  IDbTypeNameMapper TypeNameMapper { get; }
-        
-    public  ISqlTranslator SqlTranslator { get; }
-    
+    public FilterQuery RegisteredFilter { get; }
+
+
+    public Type EffectiveType => EntityTypeOrOverridenEntityType.GetAlteredOrOriginal();
+
+    public SnippetConstruction Construction { get; }
+
+    public SnippetConfigurations Configurations { get; }
+
+    public IDbTypeNameMapper TypeNameMapper { get; }
+
+    public ISqlTranslator SqlTranslator { get; }
+
     public IValueTranslator ValueTranslator { get; }
 
-    public  IDataAccessServiceResolver DataAccessServiceResolver { get; }
-    
+    public IDataAccessServiceResolver DataAccessServiceResolver { get; }
+
     public FullTreeTranslation FullTreeTranslation { get; }
-    
-    
-    
+
+
     public SnippetToolbox(SnippetConstruction construction, SnippetConfigurations configurations)
     {
         Construction = construction;
-        
+
         Configurations = configurations;
 
         DataAccessServiceResolver = new DataAccessServiceResolver(construction.MeadowConfiguration);
 
         ValueTranslator = DataAccessServiceResolver.ValueTranslator;
-        
+
         TypeNameMapper = DataAccessServiceResolver.DbTypeNameMapper;
-        
+
         SqlTranslator = DataAccessServiceResolver.SqlTranslator;
-        
+
         EntityType = Construction.EntityType;
 
         EntityTypeOrOverridenEntityType = Configurations.OverrideEntityType
@@ -75,18 +74,17 @@ public class SnippetToolbox:ISnippetToolbox
             Construction.MeadowConfiguration, TypeNameMapper);
 
         ComponentsProcessor = new ComponentsProcessor(ProcessedType);
-            
+
         RegisteredFilter = GetRegisteredFilter();
 
-        FullTreeTranslation = new FullTreeTranslation(construction.MeadowConfiguration,ProcessedType, SqlTranslator);
+        FullTreeTranslation = new FullTreeTranslation(construction.MeadowConfiguration, ProcessedType, SqlTranslator);
     }
-    
+
     private FilterQuery GetRegisteredFilter() => GetRegisteredFilter(EffectiveType);
-        
-        
+
+
     private FilterQuery GetRegisteredFilter(Type type)
     {
-            
         if (Construction.MeadowConfiguration.Filters.ContainsKey(type))
         {
             return Construction.MeadowConfiguration.Filters[type];
@@ -100,15 +98,17 @@ public class SnippetToolbox:ISnippetToolbox
     {
         var entityFilterExpression = GetEntityFiltersWhereClause();
 
-        var entityFilterSegment = entityFilterExpression.Success ? $"{successPrefix}{entityFilterExpression.Value}{successPostfix}" : "";
+        var entityFilterSegment = entityFilterExpression.Success
+            ? $"{successPrefix}{entityFilterExpression.Value}{successPostfix}"
+            : "";
 
         return entityFilterSegment;
     }
-    
-    
+
+
     public Result<string> GetEntityFiltersWhereClause() => GetEntityFiltersWhereClause(EffectiveType);
-        
-        
+
+
     public Result<string> GetEntityFiltersWhereClause(Type type)
     {
         var queryFilter = GetRegisteredFilter(type);
@@ -122,45 +122,34 @@ public class SnippetToolbox:ISnippetToolbox
             return new Result<string>().FailAndDefaultValue();
         }
 
-        var translatedQuery = SqlTranslator.TranslateFilterQueryToDbExpression(queryFilter,SqlTranslator.EntityFilterWhereClauseColumnTranslation);
+        var translatedQuery =
+            SqlTranslator.TranslateFilterQueryToDbExpression(queryFilter,
+                SqlTranslator.EntityFilterWhereClauseColumnTranslation);
 
         return new Result<string>(true, translatedQuery);
     }
-    
-    public string ParameterNameTypeJoint(IEnumerable<Parameter> parameters, string delimiter,
-        string namePrefix = "")
+
+    public string ParameterNameTypePair(IEnumerable<Parameter> parameters, string delimiter,
+        ParameterUsage usage)
     {
-        return string.Join(delimiter, parameters.Select(p => ParameterNameTypeJoint(p, namePrefix)));
+        return string.Join(delimiter, parameters.Select(p => ParameterNameTypePair(p, usage)));
     }
-    
-    public string ParameterNameValueSetJoint(IEnumerable<Parameter> parameters, string delimiter,
-        string valuePrefix = "")
+
+    public string ParameterNameValueSetPair(IEnumerable<Parameter> parameters, string delimiter)
+        => string.Join(delimiter, parameters.Select(ParameterNameValueSetPair));
+
+    public string ParameterNameTypePair(Parameter p, ParameterUsage usage)
     {
-        return string.Join(delimiter, parameters.Select(p => ParameterNameValueSetJoint(p, valuePrefix)));
-    }
-    public string ParameterNameTypeJoint(Parameter p, string namePrefix = "")
-    {
-        var q = SqlTranslator.GetQuoters().QuoteParameterDefinitionName;
+        var name = SqlTranslator.Decorate(p, usage);
 
-        var name = p.Name;
-
-        if (SqlTranslator.ProcedureParameterNamePrefixBeforeQuoting)
-        {
-            name = namePrefix + name;
-        }
-
-        name = q(name);
-        
-        if (!SqlTranslator.ProcedureParameterNamePrefixBeforeQuoting)
-        {
-            name = namePrefix + name;
-        }
-        
         return name + " " + p.Type;
     }
 
-    public string ParameterNameValueSetJoint(Parameter p, string valuePrefix = "")
+    public string ParameterNameValueSetPair(Parameter p)
     {
-        return p.Name + " = " + valuePrefix + p.Name;
+        var body = SqlTranslator.Decorate(p, ParameterUsage.ProcedureBody);
+        var column = SqlTranslator.Decorate(p, ParameterUsage.ColumnName);
+
+        return column + " = " + body;
     }
 }

@@ -27,7 +27,6 @@ public partial interface ISqlTranslator
     
     bool DoubleQuotesProcedureParameterNames { get; }
     
-    bool ProcedureParameterNamePrefixBeforeQuoting { get; }
     
     bool ParameterLessProcedureDefinitionParentheses { get; }
     
@@ -53,9 +52,9 @@ public partial interface ISqlTranslator
     
     string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 
-    string ProcedureBodyParameterNamePrefix { get; }
-    
-    string ProcedureDefinitionParameterNamePrefix { get; }
+    string ParameterPrefix(ParameterUsage usage);
+
+    bool ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage); 
 
     string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "");
 }

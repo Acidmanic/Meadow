@@ -1,13 +1,11 @@
 using System.Linq;
-using Meadow.Contracts;
 using Meadow.Models;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Extensions;
-using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Sql.Extensions;
 
-namespace Meadow.SQLite.Snippets;
+namespace Meadow.MySql.Snippets;
 
 public class SaveProcedureByCollectionNameSnippet : ISnippet
 {

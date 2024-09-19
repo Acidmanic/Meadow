@@ -6,6 +6,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.DataTypeMapping;
+using Meadow.Models;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -46,11 +47,12 @@ public class NullSnippetToolbox:ISnippetToolbox
 
     public Result<string> GetEntityFiltersWhereClause(Type type) => new Result<string>().FailAndDefaultValue();
 
-    public string ParameterNameTypeJoint(IEnumerable<Parameter> parameters, string delimiter, string namePrefix = "")=> string.Empty;
+    public string ParameterNameTypePair(IEnumerable<Parameter> parameters, string delimiter,ParameterUsage usage)=> string.Empty;
 
-    public string ParameterNameValueSetJoint(IEnumerable<Parameter> parameters, string delimiter, string valuePrefix = "")=> string.Empty;
+    public string ParameterNameValueSetPair(IEnumerable<Parameter> parameters, string delimiter)=> string.Empty;
 
-    public string ParameterNameTypeJoint(Parameter p, string namePrefix = "")=> string.Empty;
+    public string ParameterNameTypePair(Parameter p,ParameterUsage usage)=> string.Empty;
+    
 
-    public string ParameterNameValueSetJoint(Parameter p, string valuePrefix = "")=> string.Empty;
+    public string ParameterNameValueSetPair(Parameter p)=> string.Empty;
 }

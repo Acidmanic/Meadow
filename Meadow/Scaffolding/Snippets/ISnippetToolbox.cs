@@ -7,6 +7,7 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.DataTypeMapping;
+using Meadow.Models;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -50,11 +51,12 @@ public interface ISnippetToolbox
 
     Result<string> GetEntityFiltersWhereClause(Type type);
 
-    string ParameterNameTypeJoint(IEnumerable<Parameter> parameters, string delimiter, string namePrefix = "");
+    string ParameterNameTypePair(IEnumerable<Parameter> parameters, string delimiter, ParameterUsage usage);
+    
+    string ParameterNameTypePair(Parameter p, ParameterUsage usage);
 
-    string ParameterNameValueSetJoint(IEnumerable<Parameter> parameters, string delimiter, string valuePrefix = "");
+    string ParameterNameValueSetPair(IEnumerable<Parameter> parameters, string delimiter);
 
-    string ParameterNameTypeJoint(Parameter p, string namePrefix = "");
 
-    string ParameterNameValueSetJoint(Parameter p, string valuePrefix = "");
+    string ParameterNameValueSetPair(Parameter p);
 }
