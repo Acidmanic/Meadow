@@ -51,7 +51,8 @@ public partial interface ISqlTranslator
 
         public string CreateTablePhrase(RepetitionHandling repetition, string tableName) => ErrorAndTranslateEmpty();
         public TableParameterDefinition TableColumnDefinition(Parameter parameter) => ErrorAndReturnEmptyDefinitions();
-        public string EqualityAssertionOperator(Parameter p) => ErrorAndTranslateEmpty();
+        
+        public string EqualityAssertionOperator(bool isString) => ErrorAndTranslateEmpty();
 
         public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
         public string ProcedureBodyParameterNamePrefix => ErrorAndTranslateEmpty();

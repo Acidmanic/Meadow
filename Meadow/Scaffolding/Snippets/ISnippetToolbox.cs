@@ -37,6 +37,8 @@ public interface ISnippetToolbox
     IDbTypeNameMapper TypeNameMapper { get; }
 
     ISqlTranslator SqlTranslator { get; }
+    
+    IValueTranslator ValueTranslator { get; }
 
     IDataAccessServiceResolver DataAccessServiceResolver { get; }
 

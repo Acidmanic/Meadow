@@ -49,7 +49,7 @@ public partial interface ISqlTranslator
 
     TableParameterDefinition TableColumnDefinition(Parameter parameter);
 
-    string EqualityAssertionOperator(Parameter p);
+    string EqualityAssertionOperator(bool isString);
     
     string CreateViewPhrase(RepetitionHandling repetition, string viewName);
 

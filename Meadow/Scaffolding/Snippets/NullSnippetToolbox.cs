@@ -32,6 +32,8 @@ public class NullSnippetToolbox:ISnippetToolbox
     public IDbTypeNameMapper TypeNameMapper { get; }  =IDbTypeNameMapper.Null;
     
     public ISqlTranslator SqlTranslator { get; } = ISqlTranslator.Null;
+    
+    public IValueTranslator ValueTranslator { get; } = IValueTranslator.Null;
 
     public IDataAccessServiceResolver DataAccessServiceResolver { get; } = IDataAccessServiceResolver.Null;
 

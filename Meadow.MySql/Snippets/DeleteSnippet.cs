@@ -1,11 +1,10 @@
-using System;
 using System.Collections.Generic;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Scaffolding.Snippets.Builtin;
 
-namespace Meadow.SQLite.Snippets;
+namespace Meadow.MySql.Snippets;
 
 [CommonSnippet(CommonSnippets.DeleteProcedure)]
 public class DeleteSnippet : ISnippet
@@ -25,22 +24,25 @@ public class DeleteSnippet : ISnippet
 
         public string KeyWhereClause => Toolbox.WhereByIdClause(_byId, false);
 
+        public string Semicolon => Toolbox.Semicolon();
+
         public string Procedure(string body) => Toolbox.Procedure(
-           Toolbox.Configurations.RepetitionHandling,
-           _byId ? Toolbox.ProcessedType.NameConvention.DeleteByIdProcedureName : Toolbox.ProcessedType.NameConvention.DeleteAllProcedureName
-           ,body,string.Empty,string.Empty,Toolbox.GetIdAwareProcedureDefinitionParameters(_byId));
+            Toolbox.Configurations.RepetitionHandling,
+            _byId
+                ? Toolbox.ProcessedType.NameConvention.DeleteByIdProcedureName
+                : Toolbox.ProcessedType.NameConvention.DeleteAllProcedureName
+            , body, string.Empty, string.Empty, Toolbox.GetIdAwareProcedureDefinitionParameters(_byId));
+
+        public string ExistingVar => "@existingCount";
+        public string RemainingVar => "@remained";
+
 
         public string Template => @"
 {Procedure}
-    PRAGMA temp_store = 2; /* 2 means use in-memory */
-    CREATE TEMP TABLE _Existing(Count INTEGER);
-    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {TableName};
-    DELETE FROM {TableName}{KeyWhereClause};
-    INSERT INTO _Existing (Count) SELECT COUNT(*) FROM {TableName};
-    SELECT CASE WHEN Count(DISTINCT Count)=2 THEN CAST(1 as bit) ELSE CAST(0 as bit) 
-                END AS Success
-                FROM _Existing;
-    DROP TABLE _Existing;
+    SET {ExistingVar} = (SELECT COUNT(*) FROM {TableName}{KeyWhereClause}){Semicolon}
+    DELETE FROM {TableName}{KeyWhereClause}{Semicolon}
+    SET {RemainingVar} = (SELECT COUNT(*) FROM {TableName}{KeyWhereClause}){Semicolon}
+    SELECT ({ExistingVar}>0 AND {RemainingVar} < {ExistingVar} ) AS 'Success'{Semicolon}
 {/Procedure}
 ".Trim();
     }
@@ -56,13 +58,21 @@ public class DeleteSnippet : ISnippet
 
             if (Toolbox is { } toolbox)
             {
-                items.Add(new TitleBarSnippet($"Delete Procedures For Entity: {toolbox.ProcessedType.NameConvention.EntityType.Name}"));
+                items.Add(new TitleBarSnippet(
+                    $"Delete Procedures For Entity: {toolbox.ProcessedType.NameConvention.EntityType.Name}"));
 
                 if (toolbox.ActsById())
                 {
-                    items.Add(new DeleteSnippetCase(true));
+                    if (toolbox.ProcessedType.HasId)
+                    {
+                        items.Add(new DeleteSnippetCase(true));
 
-                    items.Add(new CommentLineSnippet());
+                        items.Add(new CommentLineSnippet());
+                    }
+                    else
+                    {
+                        items.Add(new TitleBarSnippet("Can not Add 'by-id' procedure for entity without Id field"));
+                    }
                 }
 
                 if (toolbox.ActsAll())

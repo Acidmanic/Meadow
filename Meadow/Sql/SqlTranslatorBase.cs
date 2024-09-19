@@ -133,7 +133,7 @@ namespace Meadow.Sql
         public abstract string CreateTablePhrase(RepetitionHandling repetition, string tableName);
 
         public abstract TableParameterDefinition TableColumnDefinition(Parameter parameter);
-        public virtual string EqualityAssertionOperator(Parameter p) => p.IsString ? "like" : "=";
+        public virtual string EqualityAssertionOperator(bool isString) => isString ? "like" : "=";
 
         public virtual string ProcedureBodyParameterNamePrefix => "@";
         public virtual string ProcedureDefinitionParameterNamePrefix => "@";

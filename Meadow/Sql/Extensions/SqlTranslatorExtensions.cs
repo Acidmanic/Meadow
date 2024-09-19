@@ -1,5 +1,6 @@
 using System;
 using Meadow.Contracts;
+using Meadow.Scaffolding.Models;
 
 namespace Meadow.Sql.Extensions;
 
@@ -13,5 +14,9 @@ public static class SqlTranslatorExtensions
         tr.DoubleQuotesTableNames ? s => $"\"{s}\"" : s => s,
         tr.DoubleQuotesColumnNames ? s => $"\"{s}\"" : s => s,
         tr.DoubleQuotesProcedureParameterNames ? s => $"\"{s}\"" : s => s);
+    
+    
+    public static string EqualityAssertionOperator(this ISqlTranslator sqlTranslator, Parameter p) 
+        => sqlTranslator.EqualityAssertionOperator(p.IsString);
     
 }
