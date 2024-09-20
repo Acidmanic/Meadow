@@ -18,13 +18,13 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
         Toolbox = toolbox;
         _components = saveComponents;
 
-        PreKeyWhereClause = toolbox.EqualityClause(null,false,saveComponents.WhereEqualities.ToArray());
+        PreKeyWhereByIdentifiers = toolbox.EqualityClause(null,false,saveComponents.WhereEqualities.ToArray());
         PreKeyInsertColumns = string.Join(',', saveComponents.InsertUpdateParameters.Select(p => toolbox.SqlTranslator.Decorate(p,ParameterUsage.ColumnName)));
         PreKeyInsertValues = string.Join(',', saveComponents.InsertUpdateParameters.Select(p => toolbox.SqlTranslator.Decorate(p,ParameterUsage.ProcedureBody)));
         PreKeyUpdates = toolbox.ParameterNameValueSetPair(saveComponents.InsertUpdateParameters, ",");
     }
     
-    public string PreKeyWhereClause { get; }
+    public string PreKeyWhereByIdentifiers { get; }
 
     public string PreKeyInsertColumns { get; }
 
@@ -33,6 +33,13 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
     public string PreKeyUpdates { get; }
 
     public string KeyTableName => Toolbox.ProcessedType.NameConvention.TableName;
+    
+    private static readonly string NewIdVariable = "@nid";
+    
+    public string KeyWhereForInserted => Toolbox.ProcessedType.HasId ? 
+        Toolbox.EqualityClause(Toolbox.ProcessedType.IdParameter!, NewIdVariable) : 
+        PreKeyWhereByIdentifiers;
+
 
     public string KeyEntityFilterSegment => Toolbox.GetEntityFiltersWhereClause(" AND ", " ");
     
@@ -43,20 +50,27 @@ public class SaveProcedureByCollectionNameSnippet : ISnippet
         string.Empty, Toolbox.ProcessedType.NameConvention.TableName,
         Toolbox.ProcessedType.Parameters.ToArray());
 
+    public string Semicolon => Toolbox.Semicolon();
+    
+    public string KeyDeclareNewId => Toolbox.ProcessedType.HasId?
+        ($"SET {NewIdVariable} = (select LAST_INSERT_ID())"+Toolbox.Semicolon()):string.Empty;
+
     public string Template => @"
 {Procedure}
-    BEGIN;
-    PRAGMA temp_store = 2;
-    CREATE TEMP TABLE _alreadyExists(Id INTEGER PRIMARY KEY);
-    INSERT INTO _alreadyExists (Id) SELECT (1) WHERE EXISTS(SELECT * FROM {KeyTableName} WHERE {PreKeyWhereClause}{KeyEntityFilterSegment});
+    IF EXISTS(SELECT 1 FROM {KeyTableName} WHERE {PreKeyWhereByIdentifiers}{KeyEntityFilterSegment}) then
+        
+        UPDATE {KeyTableName} SET {PreKeyUpdates} WHERE {PreKeyWhereByIdentifiers}{KeyEntityFilterSegment}{Semicolon}
+        
+        SELECT * FROM {KeyTableName} WHERE {PreKeyWhereByIdentifiers}{KeyEntityFilterSegment} LIMIT 1{Semicolon}
+        
+    ELSE
 
-    UPDATE {KeyTableName} SET {PreKeyUpdates} WHERE {PreKeyWhereClause}{KeyEntityFilterSegment} AND EXISTS (SELECT * FROM _alreadyExists);
+        INSERT INTO {KeyTableName} ({PreKeyInsertColumns}) VALUES ({PreKeyInsertValues}){Semicolon}
 
-    INSERT INTO {KeyTableName} ({PreKeyInsertColumns}) SELECT {PreKeyInsertValues} WHERE NOT EXISTS (SELECT * FROM _alreadyExists);
+        {KeyDeclareNewId}
 
-    SELECT * FROM {KeyTableName} WHERE (({PreKeyWhereClause}) OR ROWID = LAST_INSERT_ROWID()) {KeyEntityFilterSegment} LIMIT 1;
-    DROP TABLE _alreadyExists;
-    END;
+        SELECT * FROM {KeyTableName} WHERE {KeyWhereForInserted}{KeyEntityFilterSegment}{Semicolon}
+    END IF;
 {/Procedure}
 ".Trim();
 }

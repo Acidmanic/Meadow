@@ -197,6 +197,13 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         => PerformRequest(new ExistingValuesRequest<TEntity, TField>(selector)).FromStorage
             .Select(vd => vd.Value).ToList();
 
+        public List<TReturn> DirectPerform<TReturn>(string sql)
+            where TReturn : class 
+            => PerformRequest(new DiscouragedDirectSqlRequest<TReturn>(sql))
+                .FromStorage;
+
+        public void DirectPerform(string sql) => PerformRequest(new DiscouragedDirectSqlRequest(sql));
+
 
         private MeadowRequest<TIn, TOut> PerformRequest<TIn, TOut>
             (MeadowRequest<TIn, TOut> request, bool fullTree = false) where TOut : class

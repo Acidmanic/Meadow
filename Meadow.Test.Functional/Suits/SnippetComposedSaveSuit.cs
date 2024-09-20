@@ -13,7 +13,7 @@ public class SnippetComposedSaveSuit
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly Func<Person, string> _toString = person => $"{person.Name}:{person.Id}";
-    private readonly Databases _database = Databases.SqLite;
+    private readonly Databases _database = Databases.MySql;
     public SnippetComposedSaveSuit(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
@@ -102,7 +102,8 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { m.Age = 1234; }, nameof(Person.Id));
 
-            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            // afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            afterSaveItemsCount = c.DirectPerform<Person>("SELECT * FROM Persons;").Count;
         });
 
         Assert.Single(savedPersons);

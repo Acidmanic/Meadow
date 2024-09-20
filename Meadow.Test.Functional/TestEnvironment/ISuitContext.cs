@@ -49,4 +49,10 @@ public interface ISuitContext
 
     FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector);
     List<TField> Existings<TEntity, TField>(Expression<Func<TEntity, TField>> selector);
+
+
+    List<TReturn> DirectPerform<TReturn>(string sql) where TReturn : class ;
+    void DirectPerform(string sql);
+    
+    
 }
