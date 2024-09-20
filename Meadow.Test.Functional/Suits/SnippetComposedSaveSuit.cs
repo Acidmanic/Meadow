@@ -1,4 +1,3 @@
-using Meadow.DataAccessResolving;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
@@ -15,7 +14,7 @@ public class SnippetComposedSaveSuit
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly Func<Person, string> _toString = person => $"{person.Name}:{person.Id}";
-    private readonly Databases _database = Databases.MySql;
+    private readonly Databases _database = Databases.SqLite;
     public SnippetComposedSaveSuit(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
@@ -130,9 +129,9 @@ public class SnippetComposedSaveSuit
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
-            expectedResult = c.Data.Get<Person>(p => true).First();
+            expectedResult = c.Data.Get<Person>(_ => true).First();
 
-            savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { });
+            savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, _ => { });
 
             afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
         });
@@ -159,7 +158,7 @@ public class SnippetComposedSaveSuit
         {
             existingItemsCount = c.Data.Get<Person>().Count;
 
-            expectedResult = c.Data.Get<Person>(p => true).First();
+            expectedResult = c.Data.Get<Person>(_ => true).First();
 
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { m.Age = 1234; });
 
