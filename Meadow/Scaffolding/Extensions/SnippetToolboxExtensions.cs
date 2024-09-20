@@ -223,7 +223,7 @@ public static class SnippetToolboxExtensions
                variableName;
     }
 
-    private static string EqualityClause(this ISnippetToolbox toolbox, Parameter p, bool fullTree = false,
+    public static string EqualityClause(this ISnippetToolbox toolbox, Parameter p, bool fullTree = false,
         string? tableName = null)
     {
         var sourceName = SourceName(toolbox, fullTree, tableName);
