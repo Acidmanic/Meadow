@@ -1,5 +1,7 @@
 using System;
+using Meadow.Configuration;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Models;
 using Meadow.Scaffolding.Models;
 
@@ -62,4 +64,5 @@ public static class SqlTranslatorExtensions
 
     public static string EqualityAssertionOperator(this ISqlTranslator sqlTranslator, Parameter p)
         => sqlTranslator.EqualityAssertionOperator(p.IsString);
+    
 }

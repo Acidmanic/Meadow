@@ -54,5 +54,4 @@ public interface ISuitContext
     List<TReturn> DirectPerform<TReturn>(string sql) where TReturn : class ;
     void DirectPerform(string sql);
     
-    
 }

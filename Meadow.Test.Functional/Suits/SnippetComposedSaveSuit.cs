@@ -1,6 +1,8 @@
+using Meadow.DataAccessResolving;
 using Meadow.Test.Functional.Models;
 using Meadow.Test.Functional.Suits.DataProviders;
 using Meadow.Test.Functional.TestEnvironment;
+using Meadow.Test.Functional.TestEnvironment.Extensions;
 using Meadow.Test.Shared;
 using Microsoft.Extensions.Logging.LightWeight;
 using Xunit;
@@ -42,7 +44,7 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Name == "Mani", m => { m.Age = 1234; }, "FullName");
 
-            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
         });
 
         Assert.Single(savedPersons);
@@ -73,7 +75,7 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { m.Age = 1234; }, "FamilyJob");
 
-            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
         });
 
         Assert.Single(savedPersons);
@@ -102,8 +104,8 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { m.Age = 1234; }, nameof(Person.Id));
 
-            // afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
-            afterSaveItemsCount = c.DirectPerform<Person>("SELECT * FROM Persons;").Count;
+            afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
+            
         });
 
         Assert.Single(savedPersons);
@@ -132,7 +134,7 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { });
 
-            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
         });
 
         Assert.Single(savedPersons);
@@ -161,7 +163,7 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Id == expectedResult.Id, m => { m.Age = 1234; });
 
-            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
         });
 
         Assert.Single(savedPersons);
@@ -190,7 +192,7 @@ public class SnippetComposedSaveSuit
 
             savedPersons = c.Save<Person>(p => p.Id == itemOfInterest.Id, m => { m.Age = 1234; });
 
-            afterSaveItemsCount = c.FindPaged<Person>().FromStorage.Count;
+            afterSaveItemsCount = c.DirectPerform<Person>(c.TranslateSelectAll<Person>()).Count;
         });
 
         Assert.Single(savedPersons);
