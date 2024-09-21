@@ -47,9 +47,6 @@ public class DirectRequestsSuit
     {
         var environment = new Environment<PersonsDataProvider>();
         
-        environment.OverrideScriptFile("0003-Person.sql","-- {{WipAll Meadow.Test.Functional.Models.Person}}");
-        environment.OverrideScriptFile("0005-Tags.sql","-- {{WipSave Meadow.Test.Functional.Models.Tag}}");
-        
         return environment;
     }
 }
