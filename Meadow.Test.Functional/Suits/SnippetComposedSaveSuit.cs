@@ -14,7 +14,7 @@ public class SnippetComposedSaveSuit
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly Func<Person, string> _toString = person => $"{person.Name}:{person.Id}";
-    private readonly Databases _database = Databases.SqLite;
+    private readonly Databases _database = Databases.MySql;
     public SnippetComposedSaveSuit(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;
@@ -228,7 +228,7 @@ public class SnippetComposedSaveSuit
 
         Assert.Equal(existingItemsCount + 1, afterSaveItemsCount);
     }
-
+   
 
     private Environment<PersonsDataProvider> CreateEnvironment()
     {
