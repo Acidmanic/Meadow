@@ -41,6 +41,27 @@ public class DirectRequestsSuit
 
         
     }
+    
+    [Fact]
+    public void Should_Insert_WithDirectInsert_Event()
+    {
+        var environment = new Environment<StatisticsDataProvider>();
+        
+        environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
+        {
+            var model = new Person()
+            {
+                Age = 1234,
+                Name = "Inserted",
+                Surname = "Directly",
+                JobId = 4321
+            };
+            
+            c.DirectPerform(c.TranslateInsert(model));
+        });
+
+        
+    }
 
 
     private Environment<PersonsDataProvider> CreateEnvironment()

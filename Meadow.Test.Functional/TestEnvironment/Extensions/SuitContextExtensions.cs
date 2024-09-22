@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Reflection.ObjectTree;
+using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.Extensions;
@@ -11,9 +12,18 @@ namespace Meadow.Test.Functional.TestEnvironment.Extensions;
 
 public static class SuitContextExtensions
 {
+
     public static string TranslateSelectAll<TModel>(this ISuitContext context, bool fullTree = false)
+        => TranslateSelectAll<TModel>(context.MeadowConfiguration, fullTree);
+
+    public static string TranslateInsert<TModel>(this ISuitContext context, TModel model) where TModel : class
+        => TranslateInsert(context.MeadowConfiguration, model);
+
+    public static string TranslateSelectAll<TModel>(this MeadowConfiguration configuration, bool fullTree = false)
+        => TranslateSelectAll(configuration, typeof(TModel), fullTree);
+    
+    public static string TranslateSelectAll(this MeadowConfiguration configuration, Type modelType, bool fullTree = false)
     {
-        var configuration = context.MeadowConfiguration;
 
         var resolver = new DataAccessServiceResolver(configuration);
 
@@ -21,7 +31,7 @@ public static class SuitContextExtensions
 
         var semi = tr.UsesSemicolon ? ";" : string.Empty;
 
-        var nc = configuration.GetNameConvention(typeof(TModel));
+        var nc = configuration.GetNameConvention(modelType);
 
         var source = fullTree ? nc.FullTreeViewName : nc.TableName;
 
@@ -30,24 +40,27 @@ public static class SuitContextExtensions
         return $"SELECT * FROM {source}{semi}";
     }
 
-    public static string TranslateInsert<TModel>(this ISuitContext context, TModel model) where TModel : class
-    {
-        var configuration = context.MeadowConfiguration;
 
+
+    public static string TranslateInsert<TModel>(this MeadowConfiguration configuration, TModel model) where TModel : class
+        => TranslateInsert(configuration, typeof(TModel), model);
+    
+    public static string TranslateInsert(this MeadowConfiguration configuration,Type modelType, object model, string? overrideTableName = null)
+    {
         var resolver = new DataAccessServiceResolver(configuration);
 
         var sqlTranslator = resolver.SqlTranslator;
         var valueTranslator = resolver.ValueTranslator;
 
         var semi = sqlTranslator.UsesSemicolon ? ";" : string.Empty;
-
-        var type = typeof(TModel);
-
-        var processedType = EntityTypeUtilities.Process(type, configuration, resolver.DbTypeNameMapper);
+        
+        var processedType = EntityTypeUtilities.Process(modelType, configuration, resolver.DbTypeNameMapper);
         
         var qt = sqlTranslator.GetQuoters();
         
         var source = qt.QuoteTableName(processedType.NameConvention.TableName);
+
+        if (overrideTableName is { } tn) source = qt.QuoteTableName(tn);
         
         var ev = new ObjectEvaluator(model);
 

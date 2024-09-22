@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Configuration;
+using Meadow.Extensions;
 using Meadow.Requests;
 using Meadow.Requests.BuiltIn;
 using Meadow.Requests.BuiltIn.Dtos;
 using Meadow.Requests.GenericEventStreamRequests;
 using Meadow.Requests.GenericEventStreamRequests.Models;
+using Meadow.Scaffolding.Attributes;
+using Meadow.Test.Functional.TestEnvironment.Extensions;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Meadow.Test.Shared;
 using Meadow.Transliteration;
@@ -20,7 +24,7 @@ using Microsoft.Extensions.Logging.LightWeight;
 
 namespace Meadow.Test.Functional.TestEnvironment;
 
-public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new ()
+public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider, new()
 {
     private readonly string _scriptsDirectory;
     private readonly string? _suggestedDatabaseName;
@@ -44,7 +48,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
     {
     }
 
-    public Environment(string scriptsDirectory,string? suggestedDatabaseName = null)
+    public Environment(string scriptsDirectory, string? suggestedDatabaseName = null)
     {
         _scriptsDirectory = scriptsDirectory;
         _suggestedDatabaseName = suggestedDatabaseName;
@@ -58,7 +62,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         public string DatabaseName { get; }
 
         public MeadowConfiguration MeadowConfiguration { get; }
-        
+
         public ILogger Logger { get; }
 
         public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration, ILogger logger)
@@ -186,19 +190,20 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
                 .FromStorage.ToStreamEvents(MeadowConfiguration);
         }
 
-        public List<StreamEvent> EventStreamRead<TEvent,TEventId,TStreamId>(TStreamId streamId, TEventId baseEventId,long count)
+        public List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>(TStreamId streamId, TEventId baseEventId, long count)
         {
             return PerformRequest(new ReadStreamChunkByStreamIdRequest<TEvent, TEventId, TStreamId>(streamId, baseEventId, count))
                 .FromStorage.ToStreamEvents(MeadowConfiguration);
         }
 
         public FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector) => PerformRequest(new RangeRequest<TEntity, TField>(selector)).FromStorage.FirstOrDefault();
+
         public List<TField> Existings<TEntity, TField>(Expression<Func<TEntity, TField>> selector)
-        => PerformRequest(new ExistingValuesRequest<TEntity, TField>(selector)).FromStorage
-            .Select(vd => vd.Value).ToList();
+            => PerformRequest(new ExistingValuesRequest<TEntity, TField>(selector)).FromStorage
+                .Select(vd => vd.Value).ToList();
 
         public List<TReturn> DirectPerform<TReturn>(string sql)
-            where TReturn : class 
+            where TReturn : class
             => PerformRequest(new DiscouragedDirectSqlRequest<TReturn>(sql))
                 .FromStorage;
 
@@ -262,15 +267,135 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         dataProvider.Initialize();
 
-        var rawDataSets = dataProvider.SeedSet;
+        // var rawDataSets = dataProvider.SeedSet;
 
-        var data = CaseData.Create(rawDataSets);
+        // var data = CaseData.Create(rawDataSets);
 
-        SeedingUtilities.SeedCaseData(engine, data);
+        var data = Seed(dataProvider, engine, engineSetup.Configuration);
+        
+        var context = new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration, logger);
+
+        //SeedingUtilities.SeedCaseData(engine, data);
 
         dataProvider.PostSeeding();
 
-        env(new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration,logger));
+        env(context);
+    }
+
+
+    private CaseData Seed(TCaseProvider provider, MeadowEngine engine, MeadowConfiguration configuration)
+    {
+        provider.Initialize();
+
+        var data = CaseData.Create(provider.SeedSet);
+
+        var seedsByType = SeedObjectsByType(data.SeedsByType,engine,configuration);
+        var eventsByStreamId = SeedEventsByStreamId(data.EventsByStreamId,engine,configuration);
+
+        return new CaseData(seedsByType, eventsByStreamId);
+    }
+    
+    
+    private Dictionary<Type, List<object>> SeedObjectsByType(IReadOnlyDictionary<Type, List<object>> objectsByType, MeadowEngine engine, MeadowConfiguration configuration)
+    {
+      
+        var seedsByType = new Dictionary<Type, List<object>>();
+
+        foreach (var typeValue in objectsByType)
+        {
+            if(!seedsByType.ContainsKey(typeValue.Key)) seedsByType.Add(typeValue.Key, new List<object>());
+            
+            foreach (object o in typeValue.Value)
+            {
+                var insertScript = configuration.TranslateInsert(typeValue.Key, o);
+
+                var request = new DiscouragedDirectSqlRequest(insertScript);
+
+                engine.Perform(request, false);
+            }
+        }
+        
+        foreach (var typeValue in objectsByType)
+        {
+            var readAllSql = configuration.TranslateSelectAll(typeValue.Key, true);
+
+            var readAllRequest = CreateRequest(readAllSql, typeValue.Key);
+
+            if (readAllRequest is { } raRequest)
+            {
+                var readAllResponse = engine.Perform(raRequest, true);
+
+                if (readAllResponse.Success)
+                {
+                    seedsByType[typeValue.Key].AddRange(readAllResponse.FromStorage);
+                }
+            }
+        }
+
+        return seedsByType;
+    }
+    
+    private Dictionary<object, List<StreamEvent>> SeedEventsByStreamId(IReadOnlyDictionary<object, List<StreamEvent>> dataEventsByStreamId, MeadowEngine engine, MeadowConfiguration configuration)
+    {
+        var eventsByStreamId = new Dictionary<object, List<StreamEvent>>();
+        
+        foreach (var sIdEvent in dataEventsByStreamId)
+        {
+            var streamId = sIdEvent.Key;
+            
+            if(!eventsByStreamId.ContainsKey(streamId)) eventsByStreamId.Add(streamId, new List<StreamEvent>());
+
+            foreach (var streamEvent in sIdEvent.Value)
+            {
+                var entry = new ObjectEntry<object, object>();
+                var prefInfo = EventStreamPreferencesInfo.FromType(streamEvent.EventConcreteType);
+                var serInfo = EventStreamSerializationInfo.FromType(streamEvent.EventConcreteType);
+                
+                entry.StreamId = streamId;
+                entry.AssemblyName = streamEvent.EventConcreteType.AssemblyQualifiedName!;
+                entry.EventId = streamEvent.EventId;
+                entry.TypeName = streamEvent.EventConcreteType.FullName!;
+                entry.SerializedValue = MeadowConfiguration.Null.EventSerialization.Serialize(
+                    streamEvent.Event, serInfo.Encoding, serInfo.Compression, serInfo.CompressionLevel).Result;
+
+                var tableName = configuration.GetNameConvention(prefInfo.Value.EventAbstraction).EventStreamTableName;
+                
+                var insertSql = configuration.TranslateInsert(entry.GetType(), entry, tableName);
+                
+                var request = new DiscouragedDirectSqlRequest(insertSql);
+
+                engine.Perform(request, false);
+
+            }
+        }
+        
+        return eventsByStreamId;
+    }
+
+
+    private object? CreateRequest(string sql, Type returnType, bool fullTree = false)
+    {
+        var requestGenericType = typeof(DiscouragedDirectSqlRequest<>);
+
+        var requestType = requestGenericType.MakeGenericType(returnType);
+
+        var constructor = requestType.GetConstructor(new Type[] { typeof(string), typeof(object) });
+
+        if (constructor is { } c)
+        {
+            try
+            {
+                var request = c.Invoke(new object[] { sql, fullTree });
+
+                return request;
+            }
+            catch (Exception e)
+            {
+                /* Ignore */
+            }
+        }
+
+        return null;
     }
 
     private void OverrideScripts(MeadowConfiguration configuration)

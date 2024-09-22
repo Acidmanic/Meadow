@@ -14,7 +14,7 @@ public class CaseData
     private readonly Dictionary<object, List<StreamEvent>> _eventsByStreamId;
 
 
-    private CaseData(Dictionary<Type, List<object>> seedsByType, Dictionary<object, List<StreamEvent>> eventsByStreamId)
+    public CaseData(Dictionary<Type, List<object>> seedsByType, Dictionary<object, List<StreamEvent>> eventsByStreamId)
     {
         _seedsByType = seedsByType;
         _eventsByStreamId = eventsByStreamId;

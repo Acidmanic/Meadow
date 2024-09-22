@@ -34,6 +34,7 @@ public sealed class
         }
     }
 
+    
 
     protected override string PickName(NameConvention nameConvention)
     {
