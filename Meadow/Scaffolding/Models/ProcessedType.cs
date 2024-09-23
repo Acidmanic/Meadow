@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
+using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Scaffolding.Attributes;
 
 namespace Meadow.Scaffolding.Models
@@ -64,5 +65,11 @@ namespace Meadow.Scaffolding.Models
         public Parameter IndexCorpusParameter { get; set; } = Parameter.Null;
 
         public Dictionary<string, string> SaveProcedureNames { get; set; } = new();
+
+        public Type EntityType { get; set; } = typeof(object);
+
+        public Type EventStreamType { get; set; } = typeof(ObjectEntry<string, string>);
+
+        public List<Parameter> EventStreamParameters { get; set; } = new();
     }
 }

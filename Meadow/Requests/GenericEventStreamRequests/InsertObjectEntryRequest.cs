@@ -38,6 +38,6 @@ public sealed class
 
     protected override string PickName(NameConvention nameConvention)
     {
-        return nameConvention.InsertEvent;
+        return nameConvention.InsertEventProcedure;
     }
 }

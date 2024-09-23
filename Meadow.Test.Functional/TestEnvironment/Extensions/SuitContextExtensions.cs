@@ -24,7 +24,6 @@ public static class SuitContextExtensions
     
     public static string TranslateSelectAll(this MeadowConfiguration configuration, Type modelType, bool fullTree = false)
     {
-
         var resolver = new DataAccessServiceResolver(configuration);
 
         var tr = resolver.SqlTranslator;

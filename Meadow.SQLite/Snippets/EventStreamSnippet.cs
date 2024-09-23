@@ -43,7 +43,7 @@ public class EventStreamSnippet : ISnippet
 
 
     public string InsertProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
-        Toolbox.ProcessedType.NameConvention.InsertEvent,
+        Toolbox.ProcessedType.NameConvention.InsertEventProcedure,
         EventTableInsertParameterSetup
         , body);
 

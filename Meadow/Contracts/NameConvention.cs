@@ -36,7 +36,7 @@ namespace Meadow.Contracts
 
         public string EventStreamTableName { get; private set; }
 
-        public string InsertEvent { get; private set; }
+        public string InsertEventProcedure { get; private set; }
 
         public string ReadAllStreams { get; private set; }
 
@@ -125,7 +125,7 @@ namespace Meadow.Contracts
                 EventStreamTableName = EventStreamEntity.ToPlural() + "EventStream";
             }
 
-            InsertEvent = "spInsert" + EventStreamEntity + "Event";
+            InsertEventProcedure = "spInsert" + EventStreamEntity + "Event";
 
             ReadAllStreams = "spReadAll" + EventStreamEntity + "Streams";
 
