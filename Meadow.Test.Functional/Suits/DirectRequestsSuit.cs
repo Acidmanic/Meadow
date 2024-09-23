@@ -45,7 +45,7 @@ public class DirectRequestsSuit
     [Fact]
     public void Should_Insert_WithDirectInsert_Event()
     {
-        var environment = new Environment<StatisticsDataProvider>();
+        var environment = new Environment<StatisticsDataProvider>("SnippetComposedMacroScripts","DeleteTheFOutOfIt");
         
         environment.Perform(_database, new LoggerAdapter(_outputHelper.WriteLine), c =>
         {

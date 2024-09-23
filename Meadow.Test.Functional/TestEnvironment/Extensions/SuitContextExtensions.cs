@@ -50,6 +50,7 @@ public static class SuitContextExtensions
         var resolver = new DataAccessServiceResolver(configuration);
 
         var sqlTranslator = resolver.SqlTranslator;
+        
         var valueTranslator = resolver.ValueTranslator;
 
         var semi = sqlTranslator.UsesSemicolon ? ";" : string.Empty;
@@ -69,6 +70,7 @@ public static class SuitContextExtensions
             .ToList();
         
         var columns = new List<string>();
+        
         var values = new List<string>();
 
         foreach (var columnParameter in columnParameters)
@@ -76,6 +78,7 @@ public static class SuitContextExtensions
             if (ev.Read(columnParameter.StandardAddress, true) is { } value)
             {
                 values.Add(valueTranslator.Translate(value));
+                
                 columns.Add(qt.QuoteColumnName(columnParameter.Name));
             }
         }

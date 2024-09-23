@@ -47,9 +47,9 @@ public static class EntityTypeUtilities
 
     public static void WalkThroughLeaves(Type type, Action<AccessNode> scan)
     {
-        var rootOnlyNode = ObjectStructure.CreateStructure(type, false);
+        var rootOnlyNode = new ObjectEvaluator(type).RootNode;
 
-        var children = rootOnlyNode.GetChildren();
+        var children = rootOnlyNode.GetDirectLeaves(true);
 
         foreach (var child in children)
         {
@@ -144,7 +144,7 @@ public static class EntityTypeUtilities
                 StandardAddress = leaf.GetFullName(),
                 IdentifierStatus = GetIdentifierStatus(leaf),
                 IsNumerical = TypeCheck.IsNumerical(leaf.Type),
-                IsString = leaf.Type == typeof(string),
+                IsString = leaf.Type == typeof(string) || leaf.Type ==  typeof(Guid),
                 Type = GetTypeName(leaf, configuration, typeNameMapper)
             };
             var parameterFullTree = new Parameter
@@ -158,6 +158,7 @@ public static class EntityTypeUtilities
             };
 
             process.Parameters.Add(parameter);
+            
             process.ParametersFullTree.Add(parameterFullTree);
 
             if (process.HasId && leaf.Name == process.IdField.Name)

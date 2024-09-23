@@ -44,6 +44,15 @@ public abstract class ValueTranslatorBase : IValueTranslator
         return TranslateNull();
     }
 
+    public virtual string Quote(Type type, string value)
+    {
+        if (type == typeof(string) || type == typeof(Guid))
+        {
+            return StringQuote + value + StringQuote;
+        }
+        return value;
+    }
+
 
     private string Translate(Type type, object v)
     {
@@ -54,6 +63,13 @@ public abstract class ValueTranslatorBase : IValueTranslator
             var escaped = stringValue.Replace($"{StringQuote}", EscapedStringValueQuote);
 
             return $"{StringQuote}{escaped}{StringQuote}";
+        }
+        
+        if (type == typeof(Guid))
+        {
+            var stringValue = $"{v}";
+
+            return $"{StringQuote}{stringValue}{StringQuote}";
         }
 
         if (type == typeof(bool)) return TranslateBoolean((bool)v);

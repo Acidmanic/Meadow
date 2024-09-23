@@ -1,3 +1,5 @@
+using System;
+
 namespace Meadow.DataTypeMapping;
 
 /// <summary>
@@ -12,9 +14,9 @@ public interface IValueTranslator
 
     string Translate(object? value);
     
-    
     private class NullValueTranslator:IValueTranslator
     {
         public string Translate(object? value) =>  $"{value ?? string.Empty}";
+        public string Quote(Type _, string value) => value;
     }
 }

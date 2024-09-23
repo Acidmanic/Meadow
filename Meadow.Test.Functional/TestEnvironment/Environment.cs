@@ -360,7 +360,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
                 var tableName = configuration.GetNameConvention(prefInfo.Value.EventAbstraction).EventStreamTableName;
                 
-                var insertSql = configuration.TranslateInsert(entry.GetType(), entry, tableName);
+                var insertSql = configuration.TranslateInsert( typeof(ObjectEntry<,>).MakeGenericType(prefInfo.Value.EventIdType,prefInfo.Value.StreamIdType), entry, tableName);
                 
                 var request = new DiscouragedDirectSqlRequest(insertSql);
 
@@ -372,6 +372,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         return eventsByStreamId;
     }
 
+    
 
     private object? CreateRequest(string sql, Type returnType, bool fullTree = false)
     {
