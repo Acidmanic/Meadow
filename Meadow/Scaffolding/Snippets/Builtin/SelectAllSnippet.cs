@@ -6,7 +6,7 @@ using Meadow.Scaffolding.Models;
 
 namespace Meadow.Scaffolding.Snippets.Builtin;
 
-public class SelectAllSnippet:ISnippet
+public class SelectAllSnippet<TEntity>:ISnippet
 {
 
     private readonly FilterQuery _filterQuery;

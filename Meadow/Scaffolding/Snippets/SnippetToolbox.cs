@@ -152,4 +152,23 @@ public class SnippetToolbox : ISnippetToolbox
 
         return column + " = " + body;
     }
+
+    public ISnippetToolbox CloneFor(Type entityType)
+    {
+        var construction = new SnippetConstruction()
+        {
+            EntityType = entityType,
+            MeadowConfiguration = this.Construction.MeadowConfiguration
+        };
+
+        var configuration = new SnippetConfigurations()
+        {
+            RepetitionHandling = this.Configurations.RepetitionHandling,
+            IdAwarenessBehavior = this.Configurations.IdAwarenessBehavior,
+            OverrideEntityType = this.Configurations.OverrideEntityType,
+            OverrideDbObjectName = this.Configurations.OverrideDbObjectName
+        };
+
+        return new SnippetToolbox(construction, configuration);
+    }
 }

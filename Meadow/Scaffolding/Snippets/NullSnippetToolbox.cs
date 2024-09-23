@@ -55,4 +55,5 @@ public class NullSnippetToolbox:ISnippetToolbox
     
 
     public string ParameterNameValueSetPair(Parameter p)=> string.Empty;
+    public ISnippetToolbox CloneFor(Type entityType) => this;
 }

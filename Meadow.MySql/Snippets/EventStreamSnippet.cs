@@ -24,11 +24,18 @@ public class EventStreamSnippet : ISnippet
 
     public string InsertProcedure => Toolbox.TranslateEventStreamsPhraseInsertProcedure();
     
+    public string ReadAllStreamsProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
+        Toolbox.ProcessedType.NameConvention.ReadAllStreams, body);
+    
+    public ISnippet SelectReadAllStreamsSelect => new SelectAllSnippet() 
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
 {InsertProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
+{ReadAllStreamsProcedure}
+{SelectReadAllStreamsSelect}
+{/ReadAllStreamsProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
