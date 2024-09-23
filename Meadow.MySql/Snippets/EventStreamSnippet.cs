@@ -48,12 +48,13 @@ public class EventStreamSnippet : ISnippet
     //     EventTableInsertParameterSetup
     //     , body);
 
-    public ISnippet EventTable => 
-        Toolbox.ProcessedType.IsStreamEvent ? new CustomTableSnippet(
-        typeof(ObjectEntry<,>).MakeGenericType(Toolbox.ProcessedType.EventStream!.StreamIdType, 
-            Toolbox.ProcessedType.EventStream.StreamIdType),
-        Toolbox.ProcessedType.NameConvention.EventStreamTableName):
-            new TitleBarSnippet(Toolbox.ProcessedType.NameConvention.EntityType.FullName + " is not pointing to any event streams, please use Event Stream annotations to annotate the type."); 
+    // public ISnippet EventTable => 
+    //     Toolbox.ProcessedType.IsStreamEvent ? new CustomTableSnippet(
+    //     typeof(ObjectEntry<,>).MakeGenericType(Toolbox.ProcessedType.EventStream!.StreamIdType, 
+    //         Toolbox.ProcessedType.EventStream.StreamIdType),
+    //     Toolbox.ProcessedType.NameConvention.EventStreamTableName):
+    //         new TitleBarSnippet(Toolbox.ProcessedType.NameConvention.EntityType.FullName + " is not pointing to any event streams, please use Event Stream annotations to annotate the type.");
+    
     //Toolbox.TranslateTable(EventTableParameterSetup, KeyTableName);
 
     // public string ReadStreamChunkByStreamIdProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
@@ -82,7 +83,6 @@ public class EventStreamSnippet : ISnippet
 
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
-{EventTable}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- SPLIT
 -- ---------------------------------------------------------------------------------------------------------------------

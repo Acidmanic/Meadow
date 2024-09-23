@@ -170,6 +170,13 @@ public class SnippetConfigurationBuilder
             (true, c => c.MeadowConfiguration.GetNameConvention(c.EntityType).SearchIndexTableName);
         return this;
     }
+    
+    public SnippetConfigurationBuilder OverrideDbObjectNameToEventStreamTableName()
+    {
+        _configurations.OverrideDbObjectName = new Result<Func<SnippetConstruction, string>>
+            (true, c => c.MeadowConfiguration.GetNameConvention(c.EntityType).EventStreamTableName);
+        return this;
+    }
 
 
     public SnippetConfigurations Build()

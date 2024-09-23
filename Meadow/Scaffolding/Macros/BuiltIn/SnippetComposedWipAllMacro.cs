@@ -1,3 +1,7 @@
+using System;
+using System.Reflection.Metadata;
+using Meadow.Configuration;
+using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Macros.SnippetComposed;
@@ -50,7 +54,26 @@ namespace Meadow.Scaffolding.Macros.BuiltIn
 
         protected override void BuildUpAssemblingBehavior(AssemblingBehaviorBuilder builder)
         {
+            builder.Add(CommonSnippets.CreateTable)
+                .OverrideEntityType(GetObjectEntryType)
+                .OverrideDbObjectNameToEventStreamTableName()
+                .BehaviorUseIdAgnostic();
             builder.Add(CommonSnippets.EventStreamScript).BehaviorUseIdAgnostic();
+        }
+
+        private Type GetObjectEntryType(SnippetConstruction construction)
+        {
+            var genericType = typeof(ObjectEntry<,>);
+
+            var p = EventStreamPreferencesInfo.FromType(construction.EntityType);
+
+            if (p)
+            {
+                return genericType.MakeGenericType(p.Value.EventIdType, p.Value.StreamIdType);
+                
+            }
+            //TODO: Handle the situation properly
+            return genericType.MakeGenericType(typeof(string), typeof(string));
         }
     }
 }
