@@ -26,5 +26,9 @@ namespace Meadow.Requests.GenericEventStreamRequests.Models
         public string AssemblyName { get; set; }
 
         public string SerializedValue { get; set; }
+        
+        [UniqueMember]
+        [AutoValuedMember]
+        public long EventRowNumber { get; set; }
     }
 }
