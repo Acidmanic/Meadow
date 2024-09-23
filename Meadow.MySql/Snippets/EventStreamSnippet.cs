@@ -22,12 +22,18 @@ public class EventStreamSnippet : ISnippet
 
     private RepetitionHandling RepetitionHandling => Toolbox.Configurations.RepetitionHandling;
 
+    // private EventStreamPreferencesInfo Info =>
+    //     EventStreamPreferencesInfo.FromType(Toolbox.ProcessedType.EntityType);
+    //
+    // private Type ObjectEntryType => typeof(ObjectEntry<,>).MakeGenericType(Info.EventIdType, Info.StreamIdType);
+    //
     public string InsertProcedure => Toolbox.TranslateEventStreamsPhraseInsertProcedure();
-    
+    //
     public string ReadAllStreamsProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.ReadAllStreams, body);
     
-    public ISnippet SelectReadAllStreamsSelect => new SelectAllSnippet() 
+    public ISnippet SelectReadAllStreamsSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
+        (Toolbox.ProcessedType.EventStreamType, null, o => o.OrderAscendingBy(oe => oe.EventRowNumber)); 
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
