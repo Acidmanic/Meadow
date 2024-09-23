@@ -50,7 +50,7 @@ public partial interface ISqlTranslator
 
         public string CreateTablePhrase(RepetitionHandling repetition, string tableName) => ErrorAndTranslateEmpty();
         public TableParameterDefinition TableColumnDefinition(Parameter parameter) => ErrorAndReturnEmptyDefinitions();
-        
+
         public string EqualityAssertionOperator(bool isString) => ErrorAndTranslateEmpty();
 
         public string CreateViewPhrase(RepetitionHandling repetition, string viewName) => ErrorAndTranslateEmpty();
@@ -59,7 +59,10 @@ public partial interface ISqlTranslator
 
         public bool ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage) => ErrorAndReturnFalse();
 
-        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "") => ErrorAndTranslateEmpty();
+        public string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent,
+            string declarations = "", string returnDataTypeName = "") => ErrorAndTranslateEmpty();
+
+        public string TranslatePagination(Parameter offset, Parameter size) => ErrorAndTranslateEmpty();
 
         private string ErrorAndTranslateEmpty()
         {

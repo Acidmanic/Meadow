@@ -7,6 +7,7 @@ using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
+using Meadow.Sql.Extensions;
 
 namespace Meadow.SQLite
 {
@@ -62,6 +63,12 @@ namespace Meadow.SQLite
             }
 
             return new TableParameterDefinition(definition,string.Empty);
+        }
+
+        public override string TranslatePagination(Parameter offset, Parameter size)
+        {
+            return $"LIMIT {this.Decorate(size,ParameterUsage.ProcedureBody)}" +
+                   $" OFFSET {this.Decorate(offset,ParameterUsage.ProcedureBody)}";
         }
 
         public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)

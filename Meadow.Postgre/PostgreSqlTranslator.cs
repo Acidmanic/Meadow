@@ -60,6 +60,12 @@ namespace Meadow.Postgre
             return new TableParameterDefinition(definition,parametersTail);
         }
 
+        public override string TranslatePagination(Parameter offset, Parameter size)
+        {
+            return $"limit {this.Decorate(size,ParameterUsage.ProcedureBody)}" +
+                   $" offset {this.Decorate(offset,ParameterUsage.ProcedureBody)}";
+        }
+
         public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
         {
             var creationHeader = "create view";

@@ -57,4 +57,6 @@ public partial interface ISqlTranslator
     bool ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage); 
 
     string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "");
+
+    string TranslatePagination(Parameter offset, Parameter size);
 }

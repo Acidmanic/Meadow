@@ -151,6 +151,8 @@ namespace Meadow.Sql
             return creationPhrase + parametersPhrase + "\nAS\n" + bodyContent + "\nGO\n";
         }
 
+        public abstract string TranslatePagination(Parameter offset, Parameter size);
+
 
         public abstract string CreateViewPhrase(RepetitionHandling repetition, string viewName);
         
