@@ -17,7 +17,7 @@ namespace Meadow.Requests.GenericEventStreamRequests.Models
         {
         }
 
-        [AutoValuedMember] [UniqueMember] public TEventId EventId { get; set; }
+        public TEventId EventId { get; set; }
 
         public TStreamId StreamId { get; set; }
 
