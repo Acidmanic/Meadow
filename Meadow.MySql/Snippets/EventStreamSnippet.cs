@@ -32,11 +32,22 @@ public class EventStreamSnippet : ISnippet
     public string ReadAllStreamsProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.ReadAllStreams, body);
     
+    public string ReadStreamByStreamIdProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
+        Toolbox.ProcessedType.NameConvention.ReadStreamByStreamId,
+        p => p
+            .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? ""), body);
     
     public ISnippet SelectReadAllStreamsSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
         (Toolbox.ProcessedType.EventStreamType, null, 
             o => o.OrderAscendingBy(oe => oe.EventRowNumber),
             false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName)); 
+    
+    
+    public ISnippet ReadStreamByStreamIdSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
+    (Toolbox.ProcessedType.EventStreamType,
+        b => b.Where(e => e.StreamId), 
+        o => o.OrderAscendingBy(oe => oe.EventRowNumber),
+        false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -46,6 +57,9 @@ public class EventStreamSnippet : ISnippet
 {SelectReadAllStreamsSelect}
 {/ReadAllStreamsProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
+{ReadStreamByStreamIdProcedure}
+{ReadStreamByStreamIdSelect}
+{/ReadStreamByStreamIdProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
