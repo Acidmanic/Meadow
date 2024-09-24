@@ -32,8 +32,11 @@ public class EventStreamSnippet : ISnippet
     public string ReadAllStreamsProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
         Toolbox.ProcessedType.NameConvention.ReadAllStreams, body);
     
+    
     public ISnippet SelectReadAllStreamsSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
-        (Toolbox.ProcessedType.EventStreamType, null, o => o.OrderAscendingBy(oe => oe.EventRowNumber)); 
+        (Toolbox.ProcessedType.EventStreamType, null, 
+            o => o.OrderAscendingBy(oe => oe.EventRowNumber),
+            false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName)); 
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------

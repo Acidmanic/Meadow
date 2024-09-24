@@ -250,6 +250,10 @@ public static class SnippetToolboxExtensions
         {
             sourceName = name;
         }
+        else if (toolbox.Configurations.OverrideDbObjectName)
+        {
+            return toolbox.Configurations.OverrideDbObjectName.Value(toolbox.Construction);
+        }
         else
         {
             sourceName = TableOrFullViewName(toolbox, fullTree);
