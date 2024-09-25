@@ -36,7 +36,7 @@ public partial interface ISqlTranslator
             }
         }
 
-        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation) =>
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation, string? overrideTableName= null) =>
             ErrorAndTranslateEmpty();
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree) =>

@@ -34,7 +34,7 @@ public partial interface ISqlTranslator
     
     ColumnNameTranslation EntityFilterWhereClauseColumnTranslation { get; }
     
-    string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation);
+    string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation, string? overrideTableName= null);
 
     string TranslateFieldName(Type ownerEntityType,string headlessAddress, bool fullTree);
 

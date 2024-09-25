@@ -35,7 +35,7 @@ public class SelectAllSnippet : ISnippet
         _manipulateToolbox = manipulateToolbox ?? (t => { });
     }
 
-    public SelectAllSnippet(Type entityType, FilterQuery filterQuery, OrderTerm[] orders, bool fullTree, Action<SnippetConfigurationBuilder>? manipulateToolbox=null)
+    public SelectAllSnippet(Type entityType, FilterQuery filterQuery, OrderTerm[] orders, bool fullTree, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
     {
         _filterQuery = filterQuery;
         _orders = orders;
@@ -55,10 +55,10 @@ public class SelectAllSnippet : ISnippet
             var t = Toolbox.CloneFor(_entityType);
 
             var b = new SnippetConfigurationBuilder(t.Configurations);
-            
+
             _manipulateToolbox(b);
 
-            return new SnippetToolbox(t.Construction,b.Build());
+            return new SnippetToolbox(t.Construction, b.Build());
         }
     }
 
@@ -66,19 +66,18 @@ public class SelectAllSnippet : ISnippet
         ? T.SqlTranslator.TranslatePagination(_offsetParameter, _sizeParameter)
         : string.Empty;
 
-    public string Order => _orders.Any()?
-        " ORDER BY " + T.SqlTranslator.TranslateOrders(T.EffectiveType, _orders, _fullTree):
-        string.Empty;
+    public string Order => _orders.Any() ? " ORDER BY " + T.SqlTranslator.TranslateOrders(T.EffectiveType, _orders, _fullTree) : string.Empty;
 
-    public string Where =>
+    public string WhereFilter =>
         T.SqlTranslator.TranslateFilterQueryToDbExpression(_filterQuery,
-            ColumnNameTranslation.DataOwnerDotColumnName);
+            ColumnNameTranslation.DataOwnerDotColumnName, T.SourceName(_fullTree));
 
+    public string WhereKeyword => _filterQuery.NormalizedKeys().Count > 0 ? " WHERE " : string.Empty;
     public string Source => T.SourceName();
 
     public string Semicolon => T.Semicolon();
 
-    public string Template => "Select * FROM {Source} {Where}{Order}{Pagination}{Semicolon}";
+    public string Template => "Select * FROM {Source}{WhereKeyword}{WhereFilter}{Order}{Pagination}{Semicolon}";
 
 
     public static SelectAllSnippet Create<TBuildersArgument>(
@@ -115,7 +114,7 @@ public class SelectAllSnippet : ISnippet
         Type actualEntityType,
         Action<FilterQueryBuilder<TBuildersArgument>>? filter = null,
         Action<OrderSetBuilder<TBuildersArgument>>? order = null,
-        bool fullTree = false, Action<SnippetConfigurationBuilder>? manipulateToolbox=null)
+        bool fullTree = false, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
     {
         Action<FilterQueryBuilder<TBuildersArgument>> fb = filter ?? (b => { });
         Action<OrderSetBuilder<TBuildersArgument>> ob = order ?? (o => { });
@@ -130,12 +129,12 @@ public class SelectAllSnippet : ISnippet
         var filterQuery = filterBuilder.Build();
         var orders = orderBuilder.Build();
 
-        return new SelectAllSnippet(actualEntityType, filterQuery, orders, fullTree,manipulateToolbox);
+        return new SelectAllSnippet(actualEntityType, filterQuery, orders, fullTree, manipulateToolbox);
     }
 
     public static SelectAllSnippet Create<TEntity>(
         Action<FilterQueryBuilder<TEntity>>? filter = null,
         Action<OrderSetBuilder<TEntity>>? order = null,
-        bool fullTree = false, Action<SnippetConfigurationBuilder>? manipulateToolbox=null)
-        => Create(typeof(TEntity), filter, order, fullTree,manipulateToolbox);
+        bool fullTree = false, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
+        => Create(typeof(TEntity), filter, order, fullTree, manipulateToolbox);
 }

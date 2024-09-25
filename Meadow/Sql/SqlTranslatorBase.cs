@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
@@ -44,7 +45,7 @@ namespace Meadow.Sql
 
         public virtual ColumnNameTranslation EntityFilterWhereClauseColumnTranslation => ColumnNameTranslation.DataOwnerDotColumnName;
 
-        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation)
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation, string? overrideTableName= null)
         {
             var q = this.GetQuoters();
 
@@ -58,9 +59,21 @@ namespace Meadow.Sql
             }
             else if (translation == ColumnNameTranslation.DataOwnerDotColumnName)
             {
-                pickColumName = item => new Result<string>(true,
-                    q.QuoteTableName(Configuration.TableNameProvider.GetNameForOwnerType(filterQuery.EntityType))
-                    + "." + q.QuoteColumnName(item.Key));
+                string tableName;
+
+                if (overrideTableName is { } tName)
+                {
+                    tableName = tName;
+                }
+                else
+                {
+                    tableName = Configuration.TableNameProvider.GetNameForOwnerType(filterQuery.EntityType);
+                                
+                }
+
+                tableName = q.QuoteTableName(tableName);
+                
+                pickColumName = item => new Result<string>(true,tableName+ "." + q.QuoteColumnName(item.Key));
             }
 
             var sb = new StringBuilder();

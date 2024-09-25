@@ -45,20 +45,21 @@ public class EventStreamSnippet : ISnippet
     
     public ISnippet ReadStreamByStreamIdSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
     (Toolbox.ProcessedType.EventStreamType,
-        b => b.Where(e => e.StreamId), 
+        b => b.Where(e => e.StreamId).IsEqualTo(10), 
         o => o.OrderAscendingBy(oe => oe.EventRowNumber),
         false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
+    
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
 {InsertProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 {ReadAllStreamsProcedure}
-{SelectReadAllStreamsSelect}
+    {SelectReadAllStreamsSelect}
 {/ReadAllStreamsProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 {ReadStreamByStreamIdProcedure}
-{ReadStreamByStreamIdSelect}
+    {ReadStreamByStreamIdSelect}
 {/ReadStreamByStreamIdProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
