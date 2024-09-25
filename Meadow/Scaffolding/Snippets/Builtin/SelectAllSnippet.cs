@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Linq;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
@@ -21,9 +21,19 @@ public class SelectAllSnippet : ISnippet
     private readonly Parameter _sizeParameter = Parameter.Null;
     private readonly Type _entityType;
     private readonly Action<SnippetConfigurationBuilder> _manipulateToolbox;
+    private readonly List<Parameter> _inputParameters;
+    private readonly Action<IParameterSelector> _byParametersBuilder;
+    private readonly Func<List<Parameter>> _inputParameterProducer;
 
-    public SelectAllSnippet(Type entityType, FilterQuery filterQuery, OrderTerm[] orders, Parameter offset,
-        Parameter size, bool fullTree, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
+    public SelectAllSnippet(Type entityType, 
+        FilterQuery filterQuery, 
+        OrderTerm[] orders, 
+        Parameter offset,
+        Parameter size, 
+        bool fullTree, 
+        Action<IParameterSelector> byParametersBuilder, 
+        Func<List<Parameter>> inputParameterProducer, 
+        Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
     {
         _filterQuery = filterQuery;
         _orders = orders;
@@ -31,18 +41,24 @@ public class SelectAllSnippet : ISnippet
         _offsetParameter = offset;
         _sizeParameter = size;
         _fullTree = fullTree;
+        _byParametersBuilder = byParametersBuilder;
+        _inputParameterProducer = inputParameterProducer;
         _entityType = entityType;
         _manipulateToolbox = manipulateToolbox ?? (t => { });
+        _inputParameters = new List<Parameter>();
     }
 
-    public SelectAllSnippet(Type entityType, FilterQuery filterQuery, OrderTerm[] orders, bool fullTree, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
+    public SelectAllSnippet(Type entityType, FilterQuery filterQuery, OrderTerm[] orders, bool fullTree, Action<IParameterSelector> byParametersBuilder, Func<List<Parameter>> inputParameterProducer, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
     {
         _filterQuery = filterQuery;
         _orders = orders;
         _fullTree = fullTree;
+        _byParametersBuilder = byParametersBuilder;
+        _inputParameterProducer = inputParameterProducer;
         _entityType = entityType;
         _usePagination = false;
         _manipulateToolbox = manipulateToolbox ?? (t => { });
+        _inputParameters = new List<Parameter>();
     }
 
     public ISnippetToolbox Toolbox { get; set; } = ISnippetToolbox.Null;
@@ -72,12 +88,30 @@ public class SelectAllSnippet : ISnippet
         T.SqlTranslator.TranslateFilterQueryToDbExpression(_filterQuery,
             ColumnNameTranslation.DataOwnerDotColumnName, T.SourceName(_fullTree));
 
+    private Parameter[] ByParameters
+    {
+        get
+        {
+            var builder = new ParameterSelector(T.Construction.MeadowConfiguration,T.TypeNameMapper);
+
+            _byParametersBuilder(builder);
+
+            var parameters = builder.Build();
+
+            return parameters;
+        }
+    }
+    
+
+    public string WhereBy => T.EqualityClause(fullTree: _fullTree, parameters: ByParameters);
+
+    private string ByToFilter => ByParameters.Length > 0 && _filterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
     public string WhereKeyword => _filterQuery.NormalizedKeys().Count > 0 ? " WHERE " : string.Empty;
     public string Source => T.SourceName();
 
     public string Semicolon => T.Semicolon();
 
-    public string Template => "Select * FROM {Source}{WhereKeyword}{WhereFilter}{Order}{Pagination}{Semicolon}";
+    public string Template => "Select * FROM {Source}{WhereKeyword}{WhereBy}{ByToFilter}{WhereFilter}{Order}{Pagination}{Semicolon}";
 
 
     public static SelectAllSnippet Create<TBuildersArgument>(
@@ -85,11 +119,14 @@ public class SelectAllSnippet : ISnippet
         Parameter offset, Parameter size,
         Action<FilterQueryBuilder<TBuildersArgument>>? filter = null,
         Action<OrderSetBuilder<TBuildersArgument>>? order = null,
+        Action<IParameterSelector>? byParameters = null,
+        Func<List<Parameter>>? inputParameterProducer = null,
         bool fullTree = false)
     {
         Action<FilterQueryBuilder<TBuildersArgument>> fb = filter ?? (b => { });
         Action<OrderSetBuilder<TBuildersArgument>> ob = order ?? (o => { });
-
+        var bp = byParameters ?? (p => { });
+        var ip = inputParameterProducer ?? (()=> new List<Parameter>());
 
         var filterBuilder = new FilterQueryBuilder<TBuildersArgument>();
         var orderBuilder = new OrderSetBuilder<TBuildersArgument>();
@@ -100,26 +137,32 @@ public class SelectAllSnippet : ISnippet
         var filterQuery = filterBuilder.Build();
         var orders = orderBuilder.Build();
 
-        return new SelectAllSnippet(actualEntityType, filterQuery, orders, offset, size, fullTree);
+        return new SelectAllSnippet(actualEntityType, filterQuery, orders,  offset, size, fullTree, bp,ip);
     }
 
     public static SelectAllSnippet Create<TEntity>(
         Parameter offset, Parameter size,
         Action<FilterQueryBuilder<TEntity>>? filter = null,
         Action<OrderSetBuilder<TEntity>>? order = null,
+        Action<IParameterSelector>? byParameters = null,
+        Func<List<Parameter>>? inputParameterProducer = null,
         bool fullTree = false) => Create<TEntity>(typeof(TEntity),
-        offset, size, filter, order, fullTree);
+        offset, size, filter, order, byParameters,inputParameterProducer, fullTree);
 
     public static SelectAllSnippet Create<TBuildersArgument>(
         Type actualEntityType,
         Action<FilterQueryBuilder<TBuildersArgument>>? filter = null,
         Action<OrderSetBuilder<TBuildersArgument>>? order = null,
+        Action<IParameterSelector>? byParameters = null,
+        Func<List<Parameter>>? inputParameterProducer = null,
         bool fullTree = false, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
     {
         Action<FilterQueryBuilder<TBuildersArgument>> fb = filter ?? (b => { });
         Action<OrderSetBuilder<TBuildersArgument>> ob = order ?? (o => { });
-
-
+        Action<IParameterSelector> bp = byParameters ?? (pb => { });
+        var ip = inputParameterProducer ?? (()=> new List<Parameter>());
+        
+        
         var filterBuilder = new FilterQueryBuilder<TBuildersArgument>();
         var orderBuilder = new OrderSetBuilder<TBuildersArgument>();
 
@@ -129,12 +172,15 @@ public class SelectAllSnippet : ISnippet
         var filterQuery = filterBuilder.Build();
         var orders = orderBuilder.Build();
 
-        return new SelectAllSnippet(actualEntityType, filterQuery, orders, fullTree, manipulateToolbox);
+        return new SelectAllSnippet(actualEntityType, filterQuery, orders, fullTree, bp, ip,manipulateToolbox);
     }
 
     public static SelectAllSnippet Create<TEntity>(
         Action<FilterQueryBuilder<TEntity>>? filter = null,
         Action<OrderSetBuilder<TEntity>>? order = null,
-        bool fullTree = false, Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
-        => Create(typeof(TEntity), filter, order, fullTree, manipulateToolbox);
+        Action<IParameterSelector>? byParameters = null,
+        Func<List<Parameter>>? inputParameterProducer = null,
+        bool fullTree = false, 
+        Action<SnippetConfigurationBuilder>? manipulateToolbox = null)
+        => Create(typeof(TEntity), filter, order, byParameters, inputParameterProducer, fullTree, manipulateToolbox);
 }

@@ -40,6 +40,7 @@ public class EventStreamSnippet : ISnippet
     public ISnippet SelectReadAllStreamsSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
         (Toolbox.ProcessedType.EventStreamType, null, 
             o => o.OrderAscendingBy(oe => oe.EventRowNumber),
+            null,
             false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName)); 
     
     
@@ -47,7 +48,9 @@ public class EventStreamSnippet : ISnippet
     (Toolbox.ProcessedType.EventStreamType,
         b => b.Where(e => e.StreamId).IsEqualTo(10), 
         o => o.OrderAscendingBy(oe => oe.EventRowNumber),
-        false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
+        bp => bp.Add<ObjectEntry<object, object>>(o => o.StreamId), 
+        false,
+        b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
     
     
     public string Template => @"
