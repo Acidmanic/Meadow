@@ -9,7 +9,7 @@ namespace Meadow.Scaffolding.Snippets.Builtin;
 public class ReadAllProcedureSnippetBuilder<TEntity>
 {
     private readonly string _procedureName;
-    private readonly SnippetToolbox _snippetToolbox;
+    private readonly ISnippetToolbox _snippetToolbox;
 
     private Parameter _offset = Parameter.Null;
     private Parameter _size = Parameter.Null;
@@ -25,10 +25,13 @@ public class ReadAllProcedureSnippetBuilder<TEntity>
     private FilterQueryBuilder<TEntity> _filterQueryBuilder = new FilterQueryBuilder<TEntity>();
     private OrderSetBuilder<TEntity> _orderSetBuilder = new OrderSetBuilder<TEntity>();
 
-    public ReadAllProcedureSnippetBuilder(string procedureName, SnippetToolbox snippetToolbox)
+    public ReadAllProcedureSnippetBuilder(string procedureName, ISnippetToolbox snippetToolbox)
     {
         _procedureName = procedureName;
         _snippetToolbox = snippetToolbox;
+
+        _byParameters = new List<Parameter>();
+        _inputParameters = new List<Parameter>();
     }
 
 
@@ -67,19 +70,23 @@ public class ReadAllProcedureSnippetBuilder<TEntity>
     public ReadAllProcedureSnippetBuilder<TEntity> EntityType(Type type)
     {
         _entityType = type;
+        
         return this;
     }
 
-    public ReadAllProcedureSnippetBuilder<TEntity> ManipulateConfigurations(Action<SnippetConfigurationBuilder> manipulateConfigurations)
+    public ReadAllProcedureSnippetBuilder<TEntity> ManipulateConfigurations(
+        Action<SnippetConfigurationBuilder> manipulateConfigurations)
     {
         _manipulateConfigurations = manipulateConfigurations;
-
+        
         return this;
     }
 
     public ReadAllProcedureSnippetBuilder<TEntity> By(Action<IParameterSelector<TEntity>> select)
     {
-        var parameterSelector = new ParameterSelector<TEntity>(_snippetToolbox.Construction.MeadowConfiguration, _snippetToolbox.TypeNameMapper);
+        var parameterSelector = new ParameterSelector<TEntity>
+        (_snippetToolbox.Construction.MeadowConfiguration,
+            _snippetToolbox.TypeNameMapper, _entityType);
 
         select(parameterSelector);
 
@@ -99,13 +106,28 @@ public class ReadAllProcedureSnippetBuilder<TEntity>
 
         var orders = _orderSetBuilder.Build();
 
+
+        Action<SnippetConfigurationBuilder> manipulate = _manipulateConfigurations;
+            
+        if (_entityType != typeof(TEntity))
+        {
+            manipulate = cb =>
+            {
+                cb.OverrideEntityType(_entityType);
+
+                _manipulateConfigurations(cb);
+            };
+        }
+        
+        
         if (_usePagination)
         {
             return new ReadAllProcedureSnippet(filterQuery, orders, _fullTree, _entityType,
-                _manipulateConfigurations, _inputParameters, _byParameters,
+                manipulate, _inputParameters, _byParameters,
                 _procedureName, _offset, _size);
         }
 
-        return new ReadAllProcedureSnippet(filterQuery, orders, _fullTree, _entityType, _manipulateConfigurations, _inputParameters, _byParameters, _procedureName);
+        return new ReadAllProcedureSnippet(filterQuery, orders, _fullTree, _entityType, manipulate,
+            _inputParameters, _byParameters, _procedureName);
     }
 }

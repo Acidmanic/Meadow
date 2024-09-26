@@ -33,17 +33,19 @@ public class ParameterSelector:IParameterSelector,ISelectedParametersBuilder
     private readonly IDbTypeNameMapper _dbTypeNameMapper;
     private readonly MeadowConfiguration _meadowConfiguration;
     private readonly List<Parameter> _parameters;
+    private readonly Type? _overrideType;
     
-    public ParameterSelector(MeadowConfiguration meadowConfiguration,IDbTypeNameMapper dbTypeNameMapper)
+    public ParameterSelector(MeadowConfiguration meadowConfiguration,IDbTypeNameMapper dbTypeNameMapper, Type? overrideType=null)
     {
         _dbTypeNameMapper = dbTypeNameMapper;
+        _overrideType = overrideType;
         _meadowConfiguration = meadowConfiguration;
         _parameters = new List<Parameter>();
     }
 
     public IParameterSelector Add<TEntity>(Expression<Func<TEntity, object>> select, Type? overrideType = null,bool fullTree = false)
     {
-        var effectiveType = overrideType ?? typeof(TEntity);
+        var effectiveType = overrideType ?? _overrideType ?? typeof(TEntity);
 
         var processedType = EntityTypeUtilities.Process(effectiveType,_meadowConfiguration,_dbTypeNameMapper);
 
@@ -78,17 +80,18 @@ public class ParameterSelector<TEntity>:IParameterSelector<TEntity>,ISelectedPar
     private readonly IDbTypeNameMapper _dbTypeNameMapper;
     private readonly MeadowConfiguration _meadowConfiguration;
     private readonly List<Parameter> _parameters;
-    
-    public ParameterSelector(MeadowConfiguration meadowConfiguration,IDbTypeNameMapper dbTypeNameMapper)
+    private readonly Type? _overrideType;
+    public ParameterSelector(MeadowConfiguration meadowConfiguration,IDbTypeNameMapper dbTypeNameMapper, Type? overrideType=null)
     {
         _dbTypeNameMapper = dbTypeNameMapper;
+        _overrideType = overrideType;
         _meadowConfiguration = meadowConfiguration;
         _parameters = new List<Parameter>();
     }
 
     public IParameterSelector<TEntity> Add(Expression<Func<TEntity, object>> select, Type? overrideType = null,bool fullTree = false)
     {
-        var effectiveType = overrideType ?? typeof(TEntity);
+        var effectiveType = overrideType ?? _overrideType ?? typeof(TEntity);
 
         var processedType = EntityTypeUtilities.Process(effectiveType,_meadowConfiguration,_dbTypeNameMapper);
 

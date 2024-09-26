@@ -102,9 +102,11 @@ public class ReadAllProcedureSnippet : ISnippet
 
     public string WhereBy => T.EqualityClause(fullTree: _fullTree, parameters: _byParameters.ToArray());
 
-    private string ByToFilter => _byParameters.Count > 0 && _filterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
+    public string ByToFilter => _byParameters.Count > 0 && _filterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
     
-    public string WhereKeyword => _filterQuery.NormalizedKeys().Count > 0 ? " WHERE " : string.Empty;
+    public string WhereKeyword => 
+        _filterQuery.NormalizedKeys().Count + _byParameters.Count
+                                  > 0 ? " WHERE " : string.Empty;
     
     public string Source => T.SourceName();
 

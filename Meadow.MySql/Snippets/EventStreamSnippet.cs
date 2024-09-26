@@ -29,41 +29,41 @@ public class EventStreamSnippet : ISnippet
     //
     public string InsertProcedure => Toolbox.TranslateEventStreamsPhraseInsertProcedure();
     //
-    public string ReadAllStreamsProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
-        Toolbox.ProcessedType.NameConvention.ReadAllStreams, body);
+    // public string ReadAllStreamsProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
+    //     Toolbox.ProcessedType.NameConvention.ReadAllStreams, body);
     
-    public string ReadStreamByStreamIdProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
-        Toolbox.ProcessedType.NameConvention.ReadStreamByStreamId,
-        p => p
-            .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? ""), body);
+    // public string ReadStreamByStreamIdProcedure(string body) => Toolbox.Procedure(Toolbox.Configurations.RepetitionHandling,
+    //     Toolbox.ProcessedType.NameConvention.ReadStreamByStreamId,
+    //     p => p
+    //         .Name("StreamId").Type(Toolbox.ProcessedType.StreamIdTypeName ?? ""), body);
     
-    public ISnippet SelectReadAllStreamsSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
-        (Toolbox.ProcessedType.EventStreamType, null, 
-            o => o.OrderAscendingBy(oe => oe.EventRowNumber),
-            null,
-            false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName)); 
-    
-    
-    public ISnippet ReadStreamByStreamIdSelect => SelectAllSnippet.Create<ObjectEntry<object, object>>
-    (Toolbox.ProcessedType.EventStreamType,
-        b => b.Where(e => e.StreamId).IsEqualTo(10), 
-        o => o.OrderAscendingBy(oe => oe.EventRowNumber),
-        bp => bp.Add<ObjectEntry<object, object>>(o => o.StreamId), 
-        false,
-        b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
-    
+    // public ISnippet ReadAllStreamsProcedure => SelectAllSnippet.Create<ObjectEntry<object, object>>
+    //     (Toolbox.ProcessedType.EventStreamType, null, 
+    //         o => o.OrderAscendingBy(oe => oe.EventRowNumber),
+    //         null,
+    //         false, b => b.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName)); 
+    //
+
+    public ISnippet ReadAllStreamsProcedure => new ReadAllProcedureSnippetBuilder<ObjectEntry<object, object>>
+            (Toolbox.ProcessedType.NameConvention.ReadAllStreams,Toolbox)
+        .EntityType(ProcessedType.EventStreamType)
+        .ManipulateConfigurations(cb => cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName))
+        .Build();
+
+    public ISnippet ReadStreamByStreamIdProcedure => new ReadAllProcedureSnippetBuilder<ObjectEntry<object, object>>
+            (Toolbox.ProcessedType.NameConvention.ReadAllStreams, Toolbox)
+        .EntityType(ProcessedType.EventStreamType)
+        .ManipulateConfigurations(cb => cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName))
+        .By(ps => ps.Add(e => e.StreamId))
+        .Build();
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
 {InsertProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 {ReadAllStreamsProcedure}
-    {SelectReadAllStreamsSelect}
-{/ReadAllStreamsProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 {ReadStreamByStreamIdProcedure}
-    {ReadStreamByStreamIdSelect}
-{/ReadStreamByStreamIdProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------

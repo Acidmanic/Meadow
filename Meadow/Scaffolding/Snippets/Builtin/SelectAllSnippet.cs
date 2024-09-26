@@ -105,7 +105,7 @@ public class SelectAllSnippet : ISnippet
 
     public string WhereBy => T.EqualityClause(fullTree: _fullTree, parameters: ByParameters);
 
-    private string ByToFilter => ByParameters.Length > 0 && _filterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
+    public string ByToFilter => ByParameters.Length > 0 && _filterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
     public string WhereKeyword => _filterQuery.NormalizedKeys().Count > 0 ? " WHERE " : string.Empty;
     public string Source => T.SourceName();
 
