@@ -58,6 +58,13 @@ public class EventStreamSnippet : ISnippet
         .By(ps => ps.Add(e => e.StreamId))
         .Order(o=>o.OrderAscendingBy(e=>e.EventRowNumber))
         .Build();
+public ISnippet ReadAllStreamsChunksProcedure => new ReadAllProcedureSnippetBuilder<ObjectEntry<object, object>>
+            (Toolbox.ProcessedType.NameConvention.ReadAllStreamsChunks, Toolbox)
+        .EntityType(ProcessedType.EventStreamType)
+        .ManipulateConfigurations(cb => cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName))
+        .By(ps => ps.Add(e => e.StreamId))
+        .Order(o=>o.OrderAscendingBy(e=>e.EventRowNumber))
+        .Build();
     
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
@@ -67,6 +74,7 @@ public class EventStreamSnippet : ISnippet
 -- ---------------------------------------------------------------------------------------------------------------------
 {ReadStreamByStreamIdProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
+{ReadAllStreamsChunksProcedure}
 -- ---------------------------------------------------------------------------------------------------------------------
 -- ---------------------------------------------------------------------------------------------------------------------
 ".Trim();
