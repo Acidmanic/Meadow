@@ -105,8 +105,7 @@ public class ReadAllProcedureSnippet : ISnippet
     public string ByToFilter => _byParameters.Count > 0 && _filterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
     
     public string WhereKeyword => 
-        _filterQuery.NormalizedKeys().Count + _byParameters.Count
-                                  > 0 ? " WHERE " : string.Empty;
+        _filterQuery.NormalizedKeys().Count + _byParameters.Count > 0 ? " WHERE " : string.Empty;
     
     public string Source => T.SourceName();
 

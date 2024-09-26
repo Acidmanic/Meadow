@@ -48,13 +48,15 @@ public class EventStreamSnippet : ISnippet
             (Toolbox.ProcessedType.NameConvention.ReadAllStreams,Toolbox)
         .EntityType(ProcessedType.EventStreamType)
         .ManipulateConfigurations(cb => cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName))
+        .Order(o=>o.OrderAscendingBy(e=>e.EventRowNumber))
         .Build();
 
     public ISnippet ReadStreamByStreamIdProcedure => new ReadAllProcedureSnippetBuilder<ObjectEntry<object, object>>
-            (Toolbox.ProcessedType.NameConvention.ReadAllStreams, Toolbox)
+            (Toolbox.ProcessedType.NameConvention.ReadStreamByStreamId, Toolbox)
         .EntityType(ProcessedType.EventStreamType)
         .ManipulateConfigurations(cb => cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName))
         .By(ps => ps.Add(e => e.StreamId))
+        .Order(o=>o.OrderAscendingBy(e=>e.EventRowNumber))
         .Build();
     
     public string Template => @"
