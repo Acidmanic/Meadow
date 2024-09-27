@@ -17,7 +17,7 @@ public partial interface ISqlTranslator
 
     ILogger Logger { get; set; }
     
-    MeadowConfiguration Configuration { get; set; }
+    MeadowConfiguration Configuration { get; }
     
     string AliasQuote { get; }
     

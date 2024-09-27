@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection.Casting;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
@@ -80,11 +82,7 @@ namespace Meadow.MySql
 
         public override bool ParameterLessProcedureDefinitionParentheses => true;
 
-        public MySqlTranslator(MeadowConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
+  
         public override string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "")
         {
             if (ParameterLessProcedureDefinitionParentheses || !string.IsNullOrWhiteSpace(parametersPhrase))
@@ -96,5 +94,10 @@ namespace Meadow.MySql
         }
         
         protected override string EscapedStringValueQuote => "\\'";
+
+
+        public MySqlTranslator(MeadowConfiguration configuration) : base(configuration)
+        {
+        }
     }
 }

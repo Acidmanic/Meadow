@@ -94,13 +94,7 @@ namespace Meadow.SQLite
 
 
         protected override string EmptyConditionExpression => "TRUE";
-
-
-        public SqLiteTranslator(MeadowConfiguration configuration) {
-            Configuration = configuration;
-        }
-
-
+        
         protected override string EmptyOrderExpression(Type entityType, bool fullTree)
         {
             var nc = Configuration.GetNameConvention(entityType);
@@ -138,6 +132,9 @@ namespace Meadow.SQLite
         }
         
         protected override string EscapedStringValueQuote => "\\'";
-        
+
+        public SqLiteTranslator(MeadowConfiguration configuration) : base(configuration)
+        {
+        }
     }
 }

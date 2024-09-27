@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Acidmanic.Utilities.Reflection.Casting;
 using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.Extensions;
@@ -6,7 +8,6 @@ using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
 using Meadow.Sql.Extensions;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace Meadow.Postgre
 {
@@ -95,10 +96,6 @@ namespace Meadow.Postgre
             return string.Empty;
         }
 
-        public PostgreSqlTranslator(MeadowConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
 
         public override string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "")
         {
@@ -120,5 +117,9 @@ namespace Meadow.Postgre
 
         protected override string TranslateBoolean(bool value)
             => value ? "true" : "false";
+
+        public PostgreSqlTranslator(MeadowConfiguration configuration) : base(configuration)
+        {
+        }
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
@@ -11,7 +10,6 @@ using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
-using Meadow.DataTypeMapping;
 using Meadow.Extensions;
 using Meadow.Models;
 using Meadow.RelationalStandardMapping;
@@ -25,27 +23,24 @@ namespace Meadow.Sql
 {
     public abstract class SqlTranslatorBase : ISqlTranslator
     {
-        // private readonly IValueTranslator _valueTranslator;
-
+        
         public ILogger Logger { get; set; }
-        //TODO: Move it into constructor
-        public MeadowConfiguration Configuration { get; set; }
+        
+        public MeadowConfiguration Configuration { get; }
 
         private readonly List<ICast> _externalCasts;
 
-        protected SqlTranslatorBase(List<ICast> externalCasts)
+        protected SqlTranslatorBase(MeadowConfiguration configuration)
         {
-            _externalCasts = externalCasts;
-            // _valueTranslator = valueTranslator;
+            _externalCasts = new List<ICast>();
+            
+            Configuration = configuration;
+            
+            _externalCasts.AddRange(configuration.ExternalTypeCasts);
 
             Logger = NullLogger.Instance;
 
             Configuration = MeadowConfiguration.Null;
-        }
-        
-        protected SqlTranslatorBase():this(new List<ICast>())
-        {
-            
         }
         
 
