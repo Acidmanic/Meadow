@@ -16,7 +16,8 @@ public class ReadAllProcedureSnippetBuilder<TEntity>
     private bool _usePagination = false;
     private bool _fullTree = false;
     private Type _entityType = typeof(TEntity);
-
+    private ISnippet? _source;
+    
     private readonly List<Parameter> _inputParameters;
     private readonly List<Parameter> _byParameters;
 
@@ -100,6 +101,13 @@ public class ReadAllProcedureSnippetBuilder<TEntity>
     }
 
 
+    public ReadAllProcedureSnippetBuilder<TEntity> Source(ISnippet source)
+    {
+        _source = source;
+
+        return this;
+    }
+
     public ReadAllProcedureSnippet Build()
     {
         var filterQuery = _filterQueryBuilder.Build();
@@ -124,10 +132,10 @@ public class ReadAllProcedureSnippetBuilder<TEntity>
         {
             return new ReadAllProcedureSnippet(filterQuery, orders, _fullTree, _entityType,
                 manipulate, _inputParameters, _byParameters,
-                _procedureName, _offset, _size);
+                _procedureName, _offset, _size,_source);
         }
 
         return new ReadAllProcedureSnippet(filterQuery, orders, _fullTree, _entityType, manipulate,
-            _inputParameters, _byParameters, _procedureName);
+            _inputParameters, _byParameters, _procedureName,_source);
     }
 }
