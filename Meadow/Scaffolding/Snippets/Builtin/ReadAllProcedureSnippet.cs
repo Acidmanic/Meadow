@@ -24,6 +24,7 @@ public class ReadAllProcedureSnippet : ISnippet
     private readonly string _procedureName; 
     private readonly List<Parameter> _inputParameters;
     private readonly List<Parameter> _byParameters;
+    private readonly ISnippet? _overrideSource;
 
 
     public ReadAllProcedureSnippet(FilterQuery filterQuery, 
@@ -35,7 +36,8 @@ public class ReadAllProcedureSnippet : ISnippet
         List<Parameter> byParameters,
         string procedureName,
         Parameter offsetParameter,
-        Parameter sizeParameter)
+        Parameter sizeParameter,
+        ISnippet? overrideSource)
     {
         _filterQuery = filterQuery;
         _orders = orders;
@@ -49,6 +51,7 @@ public class ReadAllProcedureSnippet : ISnippet
         _sizeParameter = sizeParameter;
         _procedureName = procedureName;
         inputParameters.AddRange(new Parameter[]{_offsetParameter,_sizeParameter});
+        _overrideSource = overrideSource;
     }
     public ReadAllProcedureSnippet(FilterQuery filterQuery, 
         OrderTerm[] orders, 
@@ -57,7 +60,8 @@ public class ReadAllProcedureSnippet : ISnippet
         Action<SnippetConfigurationBuilder> manipulateToolbox, 
         List<Parameter> inputParameters, 
         List<Parameter> byParameters,
-        string procedureName)
+        string procedureName,
+        ISnippet? overrideSource)
     {
         _filterQuery = filterQuery;
         _orders = orders;
@@ -68,6 +72,7 @@ public class ReadAllProcedureSnippet : ISnippet
         _inputParameters = inputParameters;
         _byParameters = byParameters;
         _procedureName = procedureName;
+        _overrideSource = overrideSource;
     }
     
 
@@ -88,6 +93,8 @@ public class ReadAllProcedureSnippet : ISnippet
         }
     }
 
+    public ISnippet Source => _overrideSource ?? new StringSnippet(T.SourceName());
+
     public string Pagination => _usePagination
         ? T.SqlTranslator.TranslatePagination(_offsetParameter, _sizeParameter)
         : string.Empty;
@@ -106,8 +113,6 @@ public class ReadAllProcedureSnippet : ISnippet
     
     public string WhereKeyword => 
         _filterQuery.NormalizedKeys().Count + _byParameters.Count > 0 ? " WHERE " : string.Empty;
-    
-    public string Source => T.SourceName();
 
     public string Semicolon => T.Semicolon();
 
