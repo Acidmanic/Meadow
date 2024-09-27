@@ -96,7 +96,6 @@ namespace Meadow.Postgre
         }
 
         public PostgreSqlTranslator(MeadowConfiguration configuration)
-            : base(new PostgreValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;
         }
@@ -116,5 +115,10 @@ namespace Meadow.Postgre
                    declarations +
                    $"\nbegin\n" + bodyContent + "\nend;\n$$ language plpgsql;";
         }
+        
+        protected override string EscapedStringValueQuote => "\\'";
+
+        protected override string TranslateBoolean(bool value)
+            => value ? "true" : "false";
     }
 }

@@ -16,15 +16,12 @@ public class RequestContext
 
         SqlTranslator = dataAccessServiceResolver.SqlTranslator;
         Transliterator = configuration.TransliterationService;
-        ValueTranslator = dataAccessServiceResolver.ValueTranslator;
         TypeNameMapper = dataAccessServiceResolver.DbTypeNameMapper;
     }
 
     public ISqlTranslator SqlTranslator { get; }
     
     public ITransliterationService Transliterator { get; }
-    
-    public IValueTranslator ValueTranslator { get; }
     
     public IDbTypeNameMapper TypeNameMapper { get; }
     

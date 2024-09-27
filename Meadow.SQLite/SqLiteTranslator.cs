@@ -96,9 +96,7 @@ namespace Meadow.SQLite
         protected override string EmptyConditionExpression => "TRUE";
 
 
-        public SqLiteTranslator(MeadowConfiguration configuration)
-            : base(new SqLiteValueTranslator(configuration.ExternalTypeCasts))
-        {
+        public SqLiteTranslator(MeadowConfiguration configuration) {
             Configuration = configuration;
         }
 
@@ -138,5 +136,8 @@ namespace Meadow.SQLite
 
             return key;
         }
+        
+        protected override string EscapedStringValueQuote => "\\'";
+        
     }
 }

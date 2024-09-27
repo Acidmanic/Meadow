@@ -33,7 +33,7 @@ public class DiscouragedDirectSqlRequest<TReturn> : MeadowRequest<MeadowVoid, TR
         {
             var name = ev.Map.FieldKeyByAddress(dp.Identifier).Headless().ToString();
 
-            var value = context.ValueTranslator.Translate(dp.Value);
+            var value = context.SqlTranslator.TranslateValue(dp.Value);
 
             sql = sql.Replace("{" + name + "}", value);
 

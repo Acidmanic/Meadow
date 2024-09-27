@@ -80,7 +80,7 @@ namespace Meadow.MySql
 
         public override bool ParameterLessProcedureDefinitionParentheses => true;
 
-        public MySqlTranslator(MeadowConfiguration configuration) : base(new MySqlValueTranslator(configuration.ExternalTypeCasts))
+        public MySqlTranslator(MeadowConfiguration configuration)
         {
             Configuration = configuration;
         }
@@ -94,5 +94,7 @@ namespace Meadow.MySql
 
             return creationPhrase + parametersPhrase + "\nBEGIN\n" + bodyContent + "\nEND;\n";
         }
+        
+        protected override string EscapedStringValueQuote => "\\'";
     }
 }

@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
+using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.Casting;
+using Acidmanic.Utilities.Reflection.Extensions;
 using Acidmanic.Utilities.Results;
 using Meadow.Configuration;
 using Meadow.Contracts;
@@ -21,27 +25,29 @@ namespace Meadow.Sql
 {
     public abstract class SqlTranslatorBase : ISqlTranslator
     {
-        private readonly IValueTranslator _valueTranslator;
+        // private readonly IValueTranslator _valueTranslator;
 
         public ILogger Logger { get; set; }
+        //TODO: Move it into constructor
         public MeadowConfiguration Configuration { get; set; }
 
+        private readonly List<ICast> _externalCasts;
 
-        protected SqlTranslatorBase(IValueTranslator valueTranslator)
+        protected SqlTranslatorBase(List<ICast> externalCasts)
         {
-            _valueTranslator = valueTranslator;
+            _externalCasts = externalCasts;
+            // _valueTranslator = valueTranslator;
 
             Logger = NullLogger.Instance;
 
             Configuration = MeadowConfiguration.Null;
         }
-
-
-        public virtual string AliasQuote => "'";
-
-        public virtual bool ParameterLessProcedureDefinitionParentheses => false;
-
-        public virtual bool UsesSemicolon => true;
+        
+        protected SqlTranslatorBase():this(new List<ICast>())
+        {
+            
+        }
+        
 
         public virtual ColumnNameTranslation EntityFilterWhereClauseColumnTranslation => ColumnNameTranslation.DataOwnerDotColumnName;
 
@@ -207,9 +213,9 @@ namespace Meadow.Sql
 
         private void Append(StringBuilder sb, FilterItem filter, Func<FilterItem, Result<string>> pickKey)
         {
-            var max = _valueTranslator.Translate(filter.Maximum);
-            var min = _valueTranslator.Translate(filter.Minimum);
-            var equalities = _valueTranslator.TranslateList(filter.EqualityValues);
+            var max = TranslateValue(filter.Maximum);
+            var min = TranslateValue(filter.Minimum);
+            var equalities = TranslateValue(filter.EqualityValues);
 
             var foundKey = pickKey(filter);
 
@@ -255,6 +261,75 @@ namespace Meadow.Sql
             }
         }
 
+        
+        public string TranslateValue(object? value)
+        {
+            if (value is { } v)
+            {
+                var translatingType = v.GetType();
+
+                var translatingObject = v;
+
+                var altered = translatingType.GetAlteredOrOriginal();
+
+                if (altered is { } alteredType && alteredType != translatingType)
+                {
+                    translatingObject = v.CastTo(alteredType, _externalCasts);
+
+                    translatingType = alteredType;
+                }
+
+                return Translate(translatingType, translatingObject);
+            }
+
+            return TranslateNull();
+        }
+        
+        protected virtual string TranslateBoolean(bool value)
+        {
+            if (value)
+            {
+                return "1";
+            }
+
+            return "0";
+        }
+
+        protected virtual string TranslateParameter(Parameter parameter)
+        {
+            var translated = parameter.Name;
+
+
+            //TODO: Implement this after merging value and expression translators
+            return translated;
+        }
+        
+        private string Translate(Type type, object v)
+        {
+            if (type == typeof(string))
+            {
+                var stringValue = (v as string)!;
+            
+                var escaped = stringValue.Replace($"{StringQuote}", EscapedStringValueQuote);
+
+                return $"{StringQuote}{escaped}{StringQuote}";
+            }
+        
+            if (type == typeof(Guid))
+            {
+                var stringValue = $"{v}";
+
+                return $"{StringQuote}{stringValue}{StringQuote}";
+            }
+
+            if (type == typeof(bool)) return TranslateBoolean((bool)v);
+
+            if (TypeCheck.IsNumerical(type)) return $"{v}";
+
+            return $"{v}";
+        }
+
+        protected virtual string TranslateNull() => "null";
 
         public abstract bool DoubleQuotesColumnNames { get; }
 
@@ -268,9 +343,18 @@ namespace Meadow.Sql
 
         protected virtual string NotEqualOperator => "!=";
 
-        protected virtual string EmptyOrderExpression(Type entityType, bool fullTree)
-        {
-            return "";
-        }
+        protected virtual string EmptyOrderExpression(Type entityType, bool fullTree) => string.Empty;
+        
+        public virtual string AliasQuote => "'";
+        
+        protected virtual char StringQuote => '\'';
+
+        public virtual bool ParameterLessProcedureDefinitionParentheses => false;
+
+        public virtual bool UsesSemicolon => true;
+        
+        protected abstract string EscapedStringValueQuote { get; }
+        
+        
     }
 }

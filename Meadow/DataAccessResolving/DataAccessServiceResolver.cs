@@ -24,8 +24,6 @@ public class DataAccessServiceResolver:IDataAccessServiceResolver
     public ISqlTranslator SqlTranslator => GetService<ISqlTranslator>();
 
     public IDbTypeNameMapper DbTypeNameMapper => GetService<IDbTypeNameMapper>();
-    
-    public IValueTranslator ValueTranslator => GetService<IValueTranslator>();
 
     
     public ISnippet? InstantiateSnippet(CommonSnippets commonSnippets)

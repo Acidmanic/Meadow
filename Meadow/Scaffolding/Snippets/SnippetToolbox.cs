@@ -43,8 +43,6 @@ public class SnippetToolbox : ISnippetToolbox
 
     public ISqlTranslator SqlTranslator { get; }
 
-    public IValueTranslator ValueTranslator { get; }
-
     public IDataAccessServiceResolver DataAccessServiceResolver { get; }
 
     public FullTreeTranslation FullTreeTranslation { get; }
@@ -57,8 +55,6 @@ public class SnippetToolbox : ISnippetToolbox
         Configurations = configurations;
 
         DataAccessServiceResolver = new DataAccessServiceResolver(construction.MeadowConfiguration);
-
-        ValueTranslator = DataAccessServiceResolver.ValueTranslator;
 
         TypeNameMapper = DataAccessServiceResolver.DbTypeNameMapper;
 

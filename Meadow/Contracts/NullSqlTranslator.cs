@@ -63,6 +63,7 @@ public partial interface ISqlTranslator
             string declarations = "", string returnDataTypeName = "") => ErrorAndTranslateEmpty();
 
         public string TranslatePagination(Parameter offset, Parameter size) => ErrorAndTranslateEmpty();
+        public string TranslateValue(object? value) => ErrorAndTranslateEmpty();
 
         private string ErrorAndTranslateEmpty()
         {

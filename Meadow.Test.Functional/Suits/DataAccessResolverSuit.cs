@@ -59,13 +59,13 @@ public class DataAccessResolverSuit
     public void Should_Resolve_SqlTranslator(string dataAccessName) =>
         Should_Resolve_Type<IDbTypeNameMapper>(dataAccessName);
     
-    [Theory]
-    [InlineData("sqlite")]
-    [InlineData("mysql")]
-    [InlineData("sqlserver")]
-    [InlineData("postgre")]
-    public void Should_Resolve_ValueTranslator(string dataAccessName) =>
-        Should_Resolve_Type<IValueTranslator>(dataAccessName);
+    // [Theory]
+    // [InlineData("sqlite")]
+    // [InlineData("mysql")]
+    // [InlineData("sqlserver")]
+    // [InlineData("postgre")]
+    // public void Should_Resolve_ValueTranslator(string dataAccessName) =>
+    //     Should_Resolve_Type<IValueTranslator>(dataAccessName);
     
     
     [Theory]

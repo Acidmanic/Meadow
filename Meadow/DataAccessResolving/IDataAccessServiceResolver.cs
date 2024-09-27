@@ -12,8 +12,6 @@ public interface IDataAccessServiceResolver
     ISqlTranslator SqlTranslator { get; }
 
     IDbTypeNameMapper DbTypeNameMapper { get; }
-
-    IValueTranslator ValueTranslator { get; }
     
     ISnippet? InstantiateSnippet(CommonSnippets commonSnippets);
 

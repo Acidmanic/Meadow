@@ -70,9 +70,10 @@ namespace Meadow.SqlServer
         public  override bool DoubleQuotesTableNames => false;
 
         public SqlServerTranslator(MeadowConfiguration configuration)
-        :base(new SqlServerValueTranslator(configuration.ExternalTypeCasts))
         {
             Configuration = configuration;
         }
+        
+        protected override string EscapedStringValueQuote => "''";
     }
 }

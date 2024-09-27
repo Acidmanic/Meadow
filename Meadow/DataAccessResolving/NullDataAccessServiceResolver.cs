@@ -12,9 +12,6 @@ public class NullDataAccessServiceResolver:IDataAccessServiceResolver
     public ISqlTranslator SqlTranslator => ISqlTranslator.Null;
 
     public IDbTypeNameMapper DbTypeNameMapper => IDbTypeNameMapper.Null;
-    
-    public IValueTranslator ValueTranslator => IValueTranslator.Null;
-
 
     public ISnippet? InstantiateSnippet(CommonSnippets commonSnippets) => null;
 
