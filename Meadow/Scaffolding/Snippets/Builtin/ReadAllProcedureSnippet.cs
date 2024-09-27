@@ -95,6 +95,9 @@ public class ReadAllProcedureSnippet : ISnippet
 
     public ISnippet Source => _overrideSource ?? new StringSnippet(T.SourceName());
 
+    public string Sop => _overrideSource == null ? string.Empty : "(";
+    public string Scp => _overrideSource == null ? string.Empty : ")";
+
     public string Pagination => _usePagination
         ? T.SqlTranslator.TranslatePagination(_offsetParameter, _sizeParameter)
         : string.Empty;
@@ -123,7 +126,7 @@ public class ReadAllProcedureSnippet : ISnippet
     
     public string Template => @"
 {Procedure}
-    Select * FROM {Source}{WhereKeyword}{WhereBy}{ByToFilter}{WhereFilter}{Order}{Pagination}{Semicolon}
+    Select * FROM {Sop}{Source}{Scp}{WhereKeyword}{WhereBy}{ByToFilter}{WhereFilter}{Order}{Pagination}{Semicolon}
 {/Procedure}
 {Line}
 ";
