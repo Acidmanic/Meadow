@@ -8,7 +8,6 @@ using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Sql;
-using Meadow.Sql.Extensions;
 
 namespace Meadow.MySql
 {

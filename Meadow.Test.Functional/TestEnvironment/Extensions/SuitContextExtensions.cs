@@ -5,7 +5,6 @@ using Meadow.Configuration;
 using Meadow.Contracts;
 using Meadow.DataAccessResolving;
 using Meadow.Extensions;
-using Meadow.Sql.Extensions;
 using Meadow.Utility;
 
 namespace Meadow.Test.Functional.TestEnvironment.Extensions;

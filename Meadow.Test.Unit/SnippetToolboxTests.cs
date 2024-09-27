@@ -1,10 +1,10 @@
 using Meadow.Configuration;
+using Meadow.Extensions;
 using Meadow.MySql;
 using Meadow.Postgre;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets;
-using Meadow.Sql.Extensions;
 using Meadow.SQLite;
 using Meadow.SqlServer;
 using Meadow.Test.Shared;

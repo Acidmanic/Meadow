@@ -1,11 +1,9 @@
 using System;
-using Meadow.Configuration;
 using Meadow.Contracts;
-using Meadow.Extensions;
 using Meadow.Models;
 using Meadow.Scaffolding.Models;
 
-namespace Meadow.Sql.Extensions;
+namespace Meadow.Extensions;
 
 public record QuoterSet(Func<string, string> QuoteTableName, Func<string, string> QuoteColumnName,
     Func<string, string> QuoteParameterDeclarationName);

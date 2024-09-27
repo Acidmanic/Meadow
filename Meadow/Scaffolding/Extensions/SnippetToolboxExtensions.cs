@@ -7,7 +7,6 @@ using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Scaffolding.Snippets;
-using Meadow.Sql.Extensions;
 using Meadow.Utility;
 
 namespace Meadow.Scaffolding.Extensions;

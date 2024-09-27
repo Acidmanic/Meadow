@@ -15,7 +15,6 @@ using Meadow.Models;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
-using Meadow.Sql.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -150,11 +149,6 @@ namespace Meadow.Sql
         public virtual string EqualityAssertionOperator(bool isString) => isString ? "like" : "=";
         
 
-        bool ISqlTranslator.ProcedureParameterNamePrefixBeforeQuoting(ParameterUsage usage)
-        {
-            throw new NotImplementedException();
-        }
-
         public virtual string FormatProcedure(string creationPhrase, string parametersPhrase, string bodyContent, string declarations = "", string returnDataTypeName = "")
         {
             if (ParameterLessProcedureDefinitionParentheses || !string.IsNullOrWhiteSpace(parametersPhrase))
@@ -261,6 +255,11 @@ namespace Meadow.Sql
         {
             if (value is { } v)
             {
+                if (v is Parameter p)
+                {
+                    return this.Decorate(p,ParameterUsage.ProcedureBody);
+                }
+                
                 var translatingType = v.GetType();
 
                 var translatingObject = v;
@@ -290,15 +289,6 @@ namespace Meadow.Sql
             return "0";
         }
 
-        protected virtual string TranslateParameter(Parameter parameter)
-        {
-            var translated = parameter.Name;
-
-
-            //TODO: Implement this after merging value and expression translators
-            return translated;
-        }
-        
         private string Translate(Type type, object v)
         {
             if (type == typeof(string))

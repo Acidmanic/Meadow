@@ -1,8 +1,8 @@
+using Meadow.Extensions;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Scaffolding.Snippets.Builtin;
-using Meadow.Sql.Extensions;
 
 namespace Meadow.MySql.Snippets;
 

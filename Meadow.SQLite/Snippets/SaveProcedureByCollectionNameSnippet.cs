@@ -1,9 +1,9 @@
 using System.Linq;
+using Meadow.Extensions;
 using Meadow.Models;
 using Meadow.Scaffolding.CodeGenerators.CodeGeneratingComponents;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Snippets;
-using Meadow.Sql.Extensions;
 
 namespace Meadow.SQLite.Snippets;
 
