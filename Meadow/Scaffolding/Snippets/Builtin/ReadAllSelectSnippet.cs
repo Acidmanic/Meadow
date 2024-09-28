@@ -51,7 +51,7 @@ public class ReadAllSelectSnippet : ISnippet
 
     public string WhereFilter =>
         T.SqlTranslator.TranslateFilterQueryToDbExpression(_parameters.FilterQuery,
-            ColumnNameTranslation.DataOwnerDotColumnName, T.SourceName(_parameters.FullTree));
+            ColumnNameTranslation.DataOwnerDotColumnName, SourceAliasOrDefault);
 
     private string? SourceAliasOrDefault => _parameters.IsSourceOverride ? _parameters.SourceAlias : null; 
     
