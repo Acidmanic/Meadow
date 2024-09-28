@@ -21,25 +21,26 @@ public class EventStreamSnippet : ISnippet
 
     public string InsertProcedure => Toolbox.TranslateEventStreamsPhraseInsertProcedure();
     
-    private ReadAllProcedureSnippetBuilder<ObjectEntry<object, object>> Builder =>
-        new ReadAllProcedureSnippetBuilder<ObjectEntry<object, object>>
-                (Toolbox.ProcessedType.NameConvention.ReadAllStreams, Toolbox)
+    private SelectSnippetParametersBuilder<ObjectEntry<object, object>> Builder =>
+        new SelectSnippetParametersBuilder<ObjectEntry<object, object>>(Toolbox)
             .EntityType(ProcessedType.EventStreamType)
             .ManipulateConfigurations(cb =>
                 cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
     
-    public ISnippet ReadAllStreamsProcedure => Builder
+    public ISnippet ReadAllStreamsProcedure => new ReadAllProcedureSnippet(Builder
         .Order(o => o.OrderAscendingBy(e => e.EventRowNumber))
-        .Build();
+        .Build(),NameConvention.ReadAllStreams);
 
-    public ISnippet ReadStreamByStreamIdProcedure => Builder
+    public ISnippet ReadStreamByStreamIdProcedure => new ReadAllProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
-        .Build();
+        .Build(),NameConvention.ReadStreamByStreamId);
 
-    public ISnippet ReadAllStreamsChunksProcedure => Builder
+    private ISnippet ReadAllStreamChunksSelect => new ReadAllSelectSnippet(Builder.Inline().Build());
+    
+    public ISnippet ReadAllStreamsChunksProcedure => new ReadAllProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
-        .Source(Builder.Build())
-        .Build();
+        .Source(ReadAllStreamChunksSelect)
+        .Build(),NameConvention.ReadChunkProcedureName);
 
     public string Template => @"
 -- ---------------------------------------------------------------------------------------------------------------------
