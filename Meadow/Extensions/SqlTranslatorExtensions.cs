@@ -34,6 +34,13 @@ public static class SqlTranslatorExtensions
 
         return tr.DoubleQuotesProcedureParameterNames;
     }
+    
+    public static string QuoteTable(this ISqlTranslator tr, string name)
+    {
+        if (tr.DoubleQuotesTableNames) return "\""+name+"\"";
+        
+        return name;
+    }
 
     public static Func<string, string> GetParameterDecorator(this ISqlTranslator tr, ParameterUsage usage)
     {

@@ -34,15 +34,12 @@ public class ReadAllProcedureSnippet : ISnippet
     public string Procedure(string body) => Toolbox.Procedure(T.Configurations.RepetitionHandling,_procedureName,
         body,string.Empty,T.SourceName(),_parameters.InputParameters.ToArray());
 
-    public ISnippet Line => new CommentLineSnippet();
-
     public ISnippet Select => new ReadAllSelectSnippet(_parameters);
     
     public string Template => @"
 {Procedure}
     {Select}
 {/Procedure}
-{Line}
 ";
 
 

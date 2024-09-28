@@ -1,5 +1,6 @@
 using System.Linq;
 using Meadow.Contracts;
+using Meadow.Extensions;
 using Meadow.Scaffolding.Extensions;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Snippets.Builtin.Models;
@@ -38,6 +39,10 @@ public class ReadAllSelectSnippet : ISnippet
     public string Sop => _parameters.SourceInParentheses ? "(" : string.Empty;
     public string Scp => _parameters.SourceInParentheses ? ")" : string.Empty;
 
+    public string SourceAlias => _parameters.SourceInParentheses ? 
+        " " + T.SqlTranslator
+        .AliasTableName(T.SqlTranslator.QuoteTable(_parameters.SourceAlias ?? string.Empty)) : string.Empty;
+    
     public string Pagination => _parameters.UsePagination
         ? T.SqlTranslator.TranslatePagination(_parameters.OffsetParameter, _parameters.SizeParameter)
         : string.Empty;
@@ -56,5 +61,5 @@ public class ReadAllSelectSnippet : ISnippet
 
     public string Semicolon => _parameters.CloseLine ? T.Semicolon() : string.Empty;
 
-    public string Template => "Select * FROM {Sop}{Source}{Scp}{WhereKeyword}{WhereBy}{ByToFilter}{WhereFilter}{Order}{Pagination}{Semicolon}";
+    public string Template => "Select * FROM {Sop}{Source}{Scp}{SourceAlias}{WhereKeyword}{WhereBy}{ByToFilter}{WhereFilter}{Order}{Pagination}{Semicolon}";
 }

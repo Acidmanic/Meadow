@@ -39,19 +39,20 @@ public class EventStreamSnippet : ISnippet
     
     public ISnippet ReadAllStreamsChunksProcedure => new ReadAllProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
-        .Source(ReadAllStreamChunksSelect)
+        .Source(ReadAllStreamChunksSelect,"Source")
         .Build(),NameConvention.ReadChunkProcedureName);
 
+    public ISnippet Line => new CommentLineSnippet();
+    
     public string Template => @"
--- ---------------------------------------------------------------------------------------------------------------------
+{Line}
 {InsertProcedure}
--- ---------------------------------------------------------------------------------------------------------------------
+{Line}
 {ReadAllStreamsProcedure}
--- ---------------------------------------------------------------------------------------------------------------------
+{Line}
 {ReadStreamByStreamIdProcedure}
--- ---------------------------------------------------------------------------------------------------------------------
+{Line}
 {ReadAllStreamsChunksProcedure}
--- ---------------------------------------------------------------------------------------------------------------------
--- ---------------------------------------------------------------------------------------------------------------------
+{Line}
 ".Trim();
 }

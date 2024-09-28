@@ -316,6 +316,9 @@ namespace Meadow.Sql
 
         protected virtual string TranslateNull() => "null";
 
+
+        public string AliasTableName(string name) => $"AS {name}";
+
         public abstract bool DoubleQuotesColumnNames { get; }
 
         public abstract bool DoubleQuotesTableNames { get; }
@@ -330,7 +333,7 @@ namespace Meadow.Sql
 
         protected virtual string EmptyOrderExpression(Type entityType, bool fullTree) => string.Empty;
         
-        public virtual string AliasQuote => "'";
+        public virtual string ColumnNameAliasQuote => "'";
         
         protected virtual char StringQuote => '\'';
 

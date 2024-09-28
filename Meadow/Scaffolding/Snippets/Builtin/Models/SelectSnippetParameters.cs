@@ -21,6 +21,9 @@ public class SelectSnippetParameters
     public List<Parameter> ByParameters { get; }
     public ISnippet? OverrideSource { get; }
     
+    public string? SourceAlias { get; }
+    
+    
     public bool CloseLine { get; }
 
     public SelectSnippetParameters(FilterQuery filterQuery, 
@@ -28,7 +31,7 @@ public class SelectSnippetParameters
         bool fullTree, Type entityType, 
         Action<SnippetConfigurationBuilder> manipulateToolbox, List<Parameter> inputParameters, 
         List<Parameter> byParameters, ISnippet? overrideSource, bool closeLine,
-        Parameter offsetParameter,Parameter sizeParameter)
+        Parameter offsetParameter,Parameter sizeParameter, string? sourceAlias)
     {
         FilterQuery = filterQuery;
         Orders = orders;
@@ -42,6 +45,7 @@ public class SelectSnippetParameters
         CloseLine = closeLine;
         OffsetParameter = offsetParameter;
         SizeParameter = sizeParameter;
+        SourceAlias = sourceAlias;
     }
 
     public bool SourceInParentheses => OverrideSource != null;

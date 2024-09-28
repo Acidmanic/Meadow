@@ -17,7 +17,11 @@ public partial interface ISqlTranslator
         public ILogger Logger { get; set; } = NullLogger.Instance;
         public MeadowConfiguration Configuration { get; set; } = new();
 
-        public string AliasQuote => ErrorAndTranslateEmpty();
+        public string ColumnNameAliasQuote => ErrorAndTranslateEmpty();
+
+        public string AliasTableName => ErrorAndTranslateEmpty();
+
+        string ISqlTranslator.AliasTableName(string name) => ErrorAndTranslateEmpty();
 
         public bool DoubleQuotesColumnNames => ErrorAndReturnFalse();
         public bool DoubleQuotesTableNames => ErrorAndReturnFalse();
@@ -25,6 +29,7 @@ public partial interface ISqlTranslator
 
         public bool ParameterLessProcedureDefinitionParentheses => ErrorAndReturnFalse();
         public bool UsesSemicolon => ErrorAndReturnFalse();
+
 
         public ColumnNameTranslation EntityFilterWhereClauseColumnTranslation
         {
@@ -36,7 +41,7 @@ public partial interface ISqlTranslator
             }
         }
 
-        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation, string? overrideTableName= null) =>
+        public string TranslateFilterQueryToDbExpression(FilterQuery filterQuery, ColumnNameTranslation translation, string? overrideTableName = null) =>
             ErrorAndTranslateEmpty();
 
         public string TranslateFieldName(Type ownerEntityType, string headlessAddress, bool fullTree) =>

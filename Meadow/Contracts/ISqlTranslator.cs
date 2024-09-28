@@ -19,7 +19,9 @@ public partial interface ISqlTranslator
     
     MeadowConfiguration Configuration { get; }
     
-    string AliasQuote { get; }
+    string ColumnNameAliasQuote { get; }
+
+    string AliasTableName(string name);
     
     bool DoubleQuotesColumnNames { get; }
 

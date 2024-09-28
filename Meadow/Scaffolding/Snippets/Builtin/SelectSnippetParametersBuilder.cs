@@ -17,6 +17,7 @@ public class SelectSnippetParametersBuilder<TEntity>
     private bool _fullTree = false;
     private Type _entityType = typeof(TEntity);
     private ISnippet? _source;
+    private string _sourceAlias = string.Empty;
     private bool _closeLine = true;
 
     private readonly List<Parameter> _inputParameters;
@@ -99,12 +100,13 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return this;
     }
-
-
-    public SelectSnippetParametersBuilder<TEntity> Source(ISnippet source)
+    
+    public SelectSnippetParametersBuilder<TEntity> Source(ISnippet source, string alias)
     {
         _source = source;
 
+        _sourceAlias = alias;
+        
         return this;
     }
 
@@ -150,7 +152,7 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return new SelectSnippetParameters(filterQuery, orders, _usePagination,
             _fullTree, _entityType, manipulate, 
-            _inputParameters, 
-            _byParameters,_source, _closeLine, _offset, _size);
+            _inputParameters, _byParameters,_source,
+            _closeLine, _offset, _size,_sourceAlias);
     }
 }

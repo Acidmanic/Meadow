@@ -55,7 +55,7 @@ public class FullTreeTranslation
             var tableName = _processedType.NameConvention.TableNameProvider.GetNameForOwnerType(ownerType);
             var originalColumnName = _q.QuoteTableName(tableName) + "." + _q.QuoteColumnName(node.Name);
 
-            parameterTable += sep + tab + originalColumnName + tab + $"{_sqlTranslator.AliasQuote}{fullTreeAlias}{_sqlTranslator.AliasQuote}";
+            parameterTable += sep + tab + originalColumnName + tab + $"{_sqlTranslator.ColumnNameAliasQuote}{fullTreeAlias}{_sqlTranslator.ColumnNameAliasQuote}";
             sep = ",\n";
         }
 
