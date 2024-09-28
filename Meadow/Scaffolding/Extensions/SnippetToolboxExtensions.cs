@@ -1,6 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Acidmanic.Utilities.Filtering.Extensions;
+using Acidmanic.Utilities.Reflection;
+using Acidmanic.Utilities.Reflection.ObjectTree;
 using Meadow.Contracts;
 using Meadow.Extensions;
 using Meadow.Models;
@@ -401,6 +405,27 @@ public static class SnippetToolboxExtensions
         setup(builder);
 
         return builder.Build();
+    }
+    
+    public static IEnumerable<Parameter> Parameters(this ISnippetToolbox toolbox, Func<Parameter,bool> predicate, bool fullTree = false)
+    {
+        List<Parameter> allParameters =
+            fullTree ? toolbox.ProcessedType.ParametersFullTree : toolbox.ProcessedType.Parameters;
+
+
+        return allParameters.Where(predicate);
+    }
+
+    public static Parameter ParameterOrNullParameter<TEntity>(this ISnippetToolbox toolbox,
+        Expression<Func<TEntity, object>> select)
+    {
+        return ParameterOrDefault(toolbox, select) ?? Parameter.Null;
+    }
+    public static Parameter? ParameterOrDefault<TEntity>(this ISnippetToolbox toolbox, Expression<Func<TEntity,object>> select, bool fullTree = false)
+    {
+        var address = MemberOwnerUtilities.GetAddress(select);
+
+        return Parameters(toolbox, p => p.StandardAddress == address, fullTree).FirstOrDefault();
     }
 
     public static string Semicolon(this ISnippetToolbox toolbox) =>

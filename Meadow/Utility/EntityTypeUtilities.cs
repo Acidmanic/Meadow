@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Formats.Tar;
 using System.Linq;
+using System.Linq.Expressions;
+using Acidmanic.Utilities.Filtering.Extensions;
 using Acidmanic.Utilities.Filtering.Models;
 using Acidmanic.Utilities.Reflection;
 using Acidmanic.Utilities.Reflection.Extensions;
@@ -121,6 +124,31 @@ public static class EntityTypeUtilities
         };
 
         return parameter;
+    }
+
+    public static Parameter? ParameterByAddress<TEntity>(
+        Expression<Func<TEntity, object>> select,
+        MeadowConfiguration configuration,
+        IDbTypeNameMapper typeNameMapper)
+        => ParameterByAddress(typeof(TEntity), select, configuration, typeNameMapper);
+    
+    public static Parameter? ParameterByAddress<TEntity>(Type entityType,
+        Expression<Func<TEntity,object>> select,
+        MeadowConfiguration configuration, 
+        IDbTypeNameMapper typeNameMapper)
+    {
+        var ev = new ObjectEvaluator(entityType);
+
+        var address = entityType.Name +"." + MemberOwnerUtilities.GetKey(select).Headless().ToString();
+
+        if (ev.Map.ContainsKey(address))
+        {
+            var leaf = ev.Map.NodeByAddress(address);
+
+            return ToParameter(leaf, configuration, typeNameMapper);
+        }
+
+        return null;
     }
 
     public static ProcessedType Process(Type type, MeadowConfiguration configuration, IDbTypeNameMapper typeNameMapper)
