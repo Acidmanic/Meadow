@@ -36,10 +36,10 @@ public class ReadAllSelectSnippet : ISnippet
 
     public ISnippet Source => _parameters.OverrideSource ?? new StringSnippet(T.SourceName());
 
-    public string Sop => _parameters.SourceInParentheses ? "(" : string.Empty;
-    public string Scp => _parameters.SourceInParentheses ? ")" : string.Empty;
+    public string Sop => _parameters.IsSourceOverride ? "(" : string.Empty;
+    public string Scp => _parameters.IsSourceOverride ? ")" : string.Empty;
 
-    public string SourceAlias => _parameters.SourceInParentheses ? 
+    public string SourceAlias => _parameters.IsSourceOverride ? 
         " " + T.SqlTranslator
         .AliasTableName(T.SqlTranslator.QuoteTable(_parameters.SourceAlias ?? string.Empty)) : string.Empty;
     
@@ -53,7 +53,11 @@ public class ReadAllSelectSnippet : ISnippet
         T.SqlTranslator.TranslateFilterQueryToDbExpression(_parameters.FilterQuery,
             ColumnNameTranslation.DataOwnerDotColumnName, T.SourceName(_parameters.FullTree));
 
-    public string WhereBy => T.EqualityClause(fullTree: _parameters.FullTree, parameters: _parameters.ByParameters.ToArray());
+    private string? SourceAliasOrDefault => _parameters.IsSourceOverride ? _parameters.SourceAlias : null; 
+    
+    public string WhereBy => T.EqualityClause(fullTree: _parameters.FullTree, 
+        parameters: _parameters.ByParameters.ToArray(),
+        sourceName: SourceAliasOrDefault);
 
     public string ByToFilter => _parameters.ByParameters.Count > 0 && _parameters.FilterQuery.NormalizedKeys().Count > 0 ? " AND " : string.Empty;
 

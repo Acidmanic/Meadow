@@ -48,7 +48,7 @@ public class SelectSnippetParameters
         SourceAlias = sourceAlias;
     }
 
-    public bool SourceInParentheses => OverrideSource != null;
+    public bool IsSourceOverride => OverrideSource != null;
 
     public bool HasWhereClause => FilterQuery.NormalizedKeys().Count + ByParameters.Count > 0;
 }
