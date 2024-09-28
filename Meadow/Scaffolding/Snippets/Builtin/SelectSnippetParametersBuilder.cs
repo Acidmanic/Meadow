@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
@@ -41,8 +43,6 @@ public class SelectSnippetParametersBuilder<TEntity>
     {
         _offset = offset;
         _size = size;
-        _inputParameters.Add(_offset);
-        _inputParameters.Add(_size);
         _usePagination = true;
         return this;
     }
@@ -94,8 +94,6 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         var parameters = parameterSelector.Build();
 
-        _inputParameters.AddRange(parameters);
-
         _byParameters.AddRange(parameters);
 
         return this;
@@ -131,6 +129,35 @@ public class SelectSnippetParametersBuilder<TEntity>
         return this;
     }
 
+    private List<Parameter> ExtractParameters(FilterQuery query)
+    {
+        var items = query.Items();
+
+        var parameters = new Dictionary<string, Parameter>();
+
+        void ExtractParameter(object o)
+        {
+            if (o is Parameter p && !parameters.ContainsKey(p.StandardAddress))
+            {
+                parameters.Add(p.StandardAddress, p);
+            }
+        }
+
+        foreach (var item in items)
+        {
+            foreach (var ev in item.EqualityValues)
+            {
+                ExtractParameter(ev);
+            }
+
+            ExtractParameter(item.Minimum);
+            ExtractParameter(item.Maximum);
+            
+        }
+
+        return parameters.Values.ToList();
+    }
+
     public SelectSnippetParameters Build()
     {
         var filterQuery = _filterQueryBuilder.Build();
@@ -150,9 +177,21 @@ public class SelectSnippetParametersBuilder<TEntity>
             };
         }
 
+        var inputs = new List<Parameter>(_inputParameters);
+
+        if (_usePagination)
+        {
+            inputs.Add(_offset);
+            inputs.Add(_size);
+        }
+        
+        inputs.AddRange(_byParameters);
+        
+        inputs.AddRange(ExtractParameters(filterQuery));
+
         return new SelectSnippetParameters(filterQuery, orders, _usePagination,
             _fullTree, _entityType, manipulate, 
-            _inputParameters, _byParameters,_source,
+            inputs, _byParameters,_source,
             _closeLine, _offset, _size,_sourceAlias);
     }
 }
