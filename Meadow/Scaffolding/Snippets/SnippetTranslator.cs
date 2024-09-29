@@ -121,7 +121,7 @@ public class SnippetTranslator
 
             if (method.GetParameters().Length == 1)
             {
-                methodParameters = new object[] { replacement.Parameter };
+                methodParameters = replacement.Parameters.Select(s => (object)s).ToArray();
             }
 
             var invokeResult = method.Invoke(owner, methodParameters);
@@ -157,14 +157,14 @@ public class SnippetTranslator
 
             if (parameters.Length == 0) return true;
 
-            if (parameters.Length == 1 && parameters[0].ParameterType == typeof(string)) return true;
+            if (parameters.All(p => p.ParameterType == typeof(string))) return true;
         }
 
         return false;
     }
 
 
-    private record MethodReplacement(int Index, int Length, string Parameter, bool HasParameter);
+    private record MethodReplacement(int Index, int Length, List<string> Parameters);
 
 
     private Result<MethodReplacement> ParseReplacement(MethodInfo method, string content)
@@ -189,17 +189,25 @@ public class SnippetTranslator
                 {
                     var parameterLength = endStartIndex - parameterStartIndex;
 
-                    var parameter = content.Substring(parameterStartIndex, parameterLength);
+                    var parametersString = content.Substring(parameterStartIndex, parameterLength).Trim();
 
                     var replacementEndIndex = endStartIndex + endTag.Length;
 
                     var replacementLength = replacementEndIndex - startIndex;
 
-                    var hasParams = parameter.Length > 0;
-
-                    if (hasParams == (method.GetParameters().Length > 0))
+                    var parameters = new List<string>();
+                    
+                    if (parametersString.Length > 0)
                     {
-                        return new Result<MethodReplacement>(true, new MethodReplacement(startIndex, replacementLength, parameter, hasParams));
+                        var segments = parametersString.Split("{,}",
+                            StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+                        
+                        parameters.AddRange(segments);
+                    }
+
+                    if (parameters.Count == method.GetParameters().Length)
+                    {
+                        return new Result<MethodReplacement>(true, new MethodReplacement(startIndex, replacementLength, parameters));
                     }
 
                     searchStart = replacementEndIndex;
