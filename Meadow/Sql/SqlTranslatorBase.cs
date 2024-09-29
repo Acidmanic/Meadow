@@ -15,6 +15,7 @@ using Meadow.Models;
 using Meadow.RelationalStandardMapping;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
+using Meadow.ValueObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -259,7 +260,11 @@ namespace Meadow.Sql
                 {
                     return this.Decorate(p,ParameterUsage.ProcedureBody);
                 }
-                
+
+                if (v is Code c)
+                {
+                    return c.Value;
+                }
                 var translatingType = v.GetType();
 
                 var translatingObject = v;
