@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using Meadow.Enums;
 
 namespace Meadow.Extensions
 {
@@ -37,6 +38,14 @@ namespace Meadow.Extensions
             var bytes = Convert.FromBase64String(base64);
 
             return encoding.GetString(bytes);
+        }
+
+
+        public static string Wrap(this string value, KnownWraps wrap)
+        {
+            if (wrap == KnownWraps.Parentheses) return $"({value})";
+
+            return value;
         }
     }
 }

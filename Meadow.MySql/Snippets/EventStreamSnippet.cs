@@ -1,4 +1,5 @@
 using Meadow.Contracts;
+using Meadow.Enums;
 using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Scaffolding.Attributes;
 using Meadow.Scaffolding.Extensions;
@@ -37,7 +38,7 @@ public class EventStreamSnippet : ISnippet
         .By(ps => ps.Add(e => e.StreamId))
         .Build(),NameConvention.ReadStreamByStreamId);
 
-    private ISnippet ReadAllStreamChunksSelect => new ReadAllSelectSnippet(Builder.Inline().Build());
+    public ISnippet ReadAllStreamChunksSelect => new ReadAllSelectSnippet(Builder.Inline().Build());
 
     private Parameter EventIdParameter =>
         EntityTypeUtilities.ParameterByAddress<ObjectEntry<object, object>>
@@ -50,7 +51,7 @@ public class EventStreamSnippet : ISnippet
         .By(ps => ps.Add(e => e.StreamId))
         .Filter(fb => 
             fb.Where(oe => oe.EventId).IsLargerThan(EventIdParameter)
-                .Where(oe => oe.StreamId).IsEqualTo(new Code(readAll)))
+                .Where(oe => oe.StreamId).IsEqualTo(new Code(readAll,KnownWraps.Parentheses)))
         .Source(ReadAllStreamChunksSelect,"Source")
         .Build(),NameConvention.ReadChunkProcedureName);
 

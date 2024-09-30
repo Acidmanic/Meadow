@@ -205,7 +205,7 @@ namespace Meadow.Sql
         {
             var max = TranslateValue(filter.Maximum);
             var min = TranslateValue(filter.Minimum);
-            var equalities = TranslateValue(filter.EqualityValues);
+            var equalities = TranslateValues(filter.EqualityValues);
 
             var foundKey = pickKey(filter);
 
@@ -251,6 +251,11 @@ namespace Meadow.Sql
             }
         }
 
+
+        private List<string> TranslateValues(List<object> value)
+        {
+            return value.Select(TranslateValue).ToList();
+        }
         
         public string TranslateValue(object? value)
         {
