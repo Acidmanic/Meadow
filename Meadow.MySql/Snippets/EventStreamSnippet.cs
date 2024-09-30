@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Runtime.CompilerServices;
 using Meadow.Contracts;
 using Meadow.Enums;
 using Meadow.Requests.GenericEventStreamRequests.Models;
@@ -40,19 +42,41 @@ public class EventStreamSnippet : ISnippet
 
     public ISnippet ReadAllStreamChunksSelect => new ReadAllSelectSnippet(Builder.Inline().Build());
     
+    
+    private Parameter BaseEventIdParameter {
+        get
+        {
+            var b = new ParameterBuilder(Toolbox.TypeNameMapper);
+            
+            b.Add().Name("BaseEventId").Type(Toolbox.ProcessedType.EventIdType!);
+
+            return b.Build().First();
+        }
+    }
+        
+    
+    
     private Parameter EventIdParameter =>
         EntityTypeUtilities.ParameterByAddress<ObjectEntry<object, object>>
         (ProcessedType.EventStreamType, en => en.EventId,
             Toolbox.Construction.MeadowConfiguration,
             Toolbox.TypeNameMapper) ?? Parameter.Null;
     
+    public ISnippet SelectEventRowNumber => new ReadAllSelectSnippet(
+        Builder.Inline()
+            .SelectColumns(oe => oe.Add(e=>e.EventRowNumber))
+            .Filter(f => 
+                f.Where(oe => oe.EventId)
+                .IsEqualTo(BaseEventIdParameter))
+            .Build());
     
-    public ISnippet ReadAllStreamsChunksProcedure(string readAll) => new ReadAllProcedureSnippet(Builder
+    public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new ReadAllProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
         .Filter(fb => 
             fb.Where(oe => oe.EventId).IsLargerThan(EventIdParameter)
-                .Where(oe => oe.StreamId).IsEqualTo(new Code(readAll,KnownWraps.Parentheses)))
+                .Where(oe => oe.EventRowNumber).IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))
         .Source(ReadAllStreamChunksSelect,"Source")
+        .InputParameters(BaseEventIdParameter)
         .Build(),NameConvention.ReadChunkProcedureName);
 
     public ISnippet Line => new CommentLineSnippet();
@@ -65,7 +89,7 @@ public class EventStreamSnippet : ISnippet
 {Line}
 {ReadStreamByStreamIdProcedure}
 {Line}
-{ReadAllStreamsChunksProcedure}{ReadAllStreamChunksSelect}{/ReadAllStreamsChunksProcedure}
+{ReadAllStreamsChunksProcedure}{SelectEventRowNumber}{/ReadAllStreamsChunksProcedure}
 {Line}
 ".Trim();
 }

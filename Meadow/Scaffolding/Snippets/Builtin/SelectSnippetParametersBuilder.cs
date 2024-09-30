@@ -67,6 +67,13 @@ public class SelectSnippetParametersBuilder<TEntity>
         return this;
     }
 
+    public SelectSnippetParametersBuilder<TEntity> InputParameters(params Parameter[] inputParameters)
+    {
+        _inputParameters.AddRange(inputParameters);
+
+        return this;
+    }
+
     public SelectSnippetParametersBuilder<TEntity> FullTree()
     {
         _fullTree = true;
@@ -97,7 +104,7 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return this;
     }
-    
+
     private Parameter[] SelectParameters(Action<IParameterSelector<TEntity>> select)
     {
         var parameterSelector = new ParameterSelector<TEntity>
@@ -110,13 +117,13 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return parameters;
     }
-    
+
     public SelectSnippetParametersBuilder<TEntity> Source(ISnippet source, string alias)
     {
         _source = source;
 
         _sourceAlias = alias;
-        
+
         return this;
     }
 
@@ -140,16 +147,16 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return this;
     }
-    
+
     public SelectSnippetParametersBuilder<TEntity> SelectAll()
     {
         _selectFields.Clear();
 
         return this;
     }
-    
-    
-    public SelectSnippetParametersBuilder<TEntity> Select(string code, SelectFieldType type, string? alias = null )
+
+
+    public SelectSnippetParametersBuilder<TEntity> Select(string code, SelectFieldType type, string? alias = null)
     {
         _selectFields.Add(new SelectField
         {
@@ -160,7 +167,7 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return this;
     }
-    
+
     public SelectSnippetParametersBuilder<TEntity> SelectColumns(Action<IParameterSelector<TEntity>> select)
     {
         var parameters = SelectParameters(select);
@@ -172,12 +179,12 @@ public class SelectSnippetParametersBuilder<TEntity>
                 Alias = null,
                 Code = parameter.Name,
                 Type = SelectFieldType.ColumnName
-            });    
+            });
         }
-        
+
         return this;
     }
-    
+
 
     private List<Parameter> ExtractParameters(FilterQuery query)
     {
@@ -202,7 +209,6 @@ public class SelectSnippetParametersBuilder<TEntity>
 
             ExtractParameter(item.Minimum);
             ExtractParameter(item.Maximum);
-            
         }
 
         return parameters.Values.ToList();
@@ -234,14 +240,14 @@ public class SelectSnippetParametersBuilder<TEntity>
             inputs.Add(_offset);
             inputs.Add(_size);
         }
-        
+
         inputs.AddRange(_byParameters);
-        
+
         inputs.AddRange(ExtractParameters(filterQuery));
 
         return new SelectSnippetParameters(filterQuery, orders, _usePagination,
-            _fullTree, _entityType, manipulate, 
-            inputs, _byParameters,_source,
-            _closeLine, _offset, _size,_sourceAlias);
+            _fullTree, _entityType, manipulate,
+            inputs, _byParameters, _source,
+            _closeLine, _offset, _size, _sourceAlias);
     }
 }
