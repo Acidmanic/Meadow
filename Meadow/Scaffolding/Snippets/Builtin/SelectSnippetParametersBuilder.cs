@@ -231,6 +231,8 @@ public class SelectSnippetParametersBuilder<TEntity>
 
                 _manipulateConfigurations(cb);
             };
+
+            filterQuery.EntityType = _entityType;
         }
 
         var inputs = new List<Parameter>(_inputParameters);
