@@ -74,7 +74,7 @@ public class EventStreamSnippet : ISnippet
     //.By(ps => ps.Add(e => e.StreamId))
     public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new ReadAllProcedureSnippet(Builder
         .Filter(fb => 
-            fb.Where(oe => oe.EventId)
+            fb.Where(oe => oe.EventRowNumber)
                 .IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))
         .InputParameters(BaseEventIdParameter)
         .Build(),NameConvention.ReadChunkProcedureName);
