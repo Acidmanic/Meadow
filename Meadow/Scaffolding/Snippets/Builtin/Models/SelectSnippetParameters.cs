@@ -33,7 +33,7 @@ public class SelectSnippetParameters
         bool fullTree, Type entityType, 
         Action<SnippetConfigurationBuilder> manipulateToolbox, List<Parameter> inputParameters, 
         List<Parameter> byParameters, ISnippet? overrideSource, bool closeLine,
-        Parameter offsetParameter,Parameter sizeParameter, string? sourceAlias)
+        Parameter offsetParameter,Parameter sizeParameter, string? sourceAlias, List<SelectField>? selectFields = null)
     {
         FilterQuery = filterQuery;
         Orders = orders;
@@ -48,6 +48,8 @@ public class SelectSnippetParameters
         OffsetParameter = offsetParameter;
         SizeParameter = sizeParameter;
         SourceAlias = sourceAlias;
+        
+        if(selectFields is {} sf ) SelectFields.AddRange(sf);
     }
 
     public bool IsSourceOverride => OverrideSource != null;

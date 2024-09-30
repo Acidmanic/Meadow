@@ -70,12 +70,12 @@ public class EventStreamSnippet : ISnippet
                 .IsEqualTo(BaseEventIdParameter))
             .Build());
     
+    
+    //.By(ps => ps.Add(e => e.StreamId))
     public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new ReadAllProcedureSnippet(Builder
-        .By(ps => ps.Add(e => e.StreamId))
         .Filter(fb => 
-            fb.Where(oe => oe.EventId).IsLargerThan(EventIdParameter)
-                .Where(oe => oe.EventRowNumber).IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))
-        .Source(ReadAllStreamChunksSelect,"Source")
+            fb.Where(oe => oe.EventId)
+                .IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))
         .InputParameters(BaseEventIdParameter)
         .Build(),NameConvention.ReadChunkProcedureName);
 

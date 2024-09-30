@@ -105,7 +105,7 @@ public static class SqlTranslatorExtensions
             return AliasOrDirect(tr, parameter, field.Alias);
         }
 
-        return "*";
+        return "''";
     }
 
     public static string TranslateSelectFields(this ISqlTranslator tr, params SelectField[] fields)

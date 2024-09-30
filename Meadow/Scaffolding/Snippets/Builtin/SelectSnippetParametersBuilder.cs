@@ -248,6 +248,6 @@ public class SelectSnippetParametersBuilder<TEntity>
         return new SelectSnippetParameters(filterQuery, orders, _usePagination,
             _fullTree, _entityType, manipulate,
             inputs, _byParameters, _source,
-            _closeLine, _offset, _size, _sourceAlias);
+            _closeLine, _offset, _size, _sourceAlias,_selectFields);
     }
 }
