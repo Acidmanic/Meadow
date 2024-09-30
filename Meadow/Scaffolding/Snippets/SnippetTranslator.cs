@@ -119,7 +119,7 @@ public class SnippetTranslator
         {
             object[] methodParameters = { };
 
-            if (method.GetParameters().Length == 1)
+            if (method.GetParameters().Length >0 )
             {
                 methodParameters = replacement.Parameters.Select(s => (object)s).ToArray();
             }

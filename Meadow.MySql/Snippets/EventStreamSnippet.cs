@@ -7,6 +7,7 @@ using Meadow.Scaffolding.Models;
 using Meadow.Scaffolding.Snippets;
 using Meadow.Scaffolding.Snippets.Builtin;
 using Meadow.Utility;
+using Meadow.ValueObjects;
 
 namespace Meadow.MySql.Snippets;
 
@@ -45,9 +46,11 @@ public class EventStreamSnippet : ISnippet
             Toolbox.TypeNameMapper) ?? Parameter.Null;
     
     
-    public ISnippet ReadAllStreamsChunksProcedure => new ReadAllProcedureSnippet(Builder
+    public ISnippet ReadAllStreamsChunksProcedure(string readAll) => new ReadAllProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
-        .Filter(fb => fb.Where(oe => oe.EventId).IsLargerThan(EventIdParameter))
+        .Filter(fb => 
+            fb.Where(oe => oe.EventId).IsLargerThan(EventIdParameter)
+                .Where(oe => oe.StreamId).IsEqualTo(new Code(readAll)))
         .Source(ReadAllStreamChunksSelect,"Source")
         .Build(),NameConvention.ReadChunkProcedureName);
 
@@ -61,7 +64,7 @@ public class EventStreamSnippet : ISnippet
 {Line}
 {ReadStreamByStreamIdProcedure}
 {Line}
-{ReadAllStreamsChunksProcedure}
+{ReadAllStreamsChunksProcedure}{ReadAllStreamChunksSelect}{/ReadAllStreamsChunksProcedure}
 {Line}
 ".Trim();
 }
