@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Utilities;
+using Meadow.Enums;
+using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 using Meadow.Scaffolding.Snippets.Builtin.Models;
@@ -29,6 +32,8 @@ public class SelectSnippetParametersBuilder<TEntity>
 
     private FilterQueryBuilder<TEntity> _filterQueryBuilder = new FilterQueryBuilder<TEntity>();
     private OrderSetBuilder<TEntity> _orderSetBuilder = new OrderSetBuilder<TEntity>();
+
+    private readonly List<SelectField> _selectFields = new();
 
     public SelectSnippetParametersBuilder(ISnippetToolbox snippetToolbox)
     {
@@ -86,6 +91,15 @@ public class SelectSnippetParametersBuilder<TEntity>
 
     public SelectSnippetParametersBuilder<TEntity> By(Action<IParameterSelector<TEntity>> select)
     {
+        var parameters = SelectParameters(select);
+
+        _byParameters.AddRange(parameters);
+
+        return this;
+    }
+    
+    private Parameter[] SelectParameters(Action<IParameterSelector<TEntity>> select)
+    {
         var parameterSelector = new ParameterSelector<TEntity>
         (_snippetToolbox.Construction.MeadowConfiguration,
             _snippetToolbox.TypeNameMapper, _entityType);
@@ -94,9 +108,7 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         var parameters = parameterSelector.Build();
 
-        _byParameters.AddRange(parameters);
-
-        return this;
+        return parameters;
     }
     
     public SelectSnippetParametersBuilder<TEntity> Source(ISnippet source, string alias)
@@ -128,6 +140,44 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         return this;
     }
+    
+    public SelectSnippetParametersBuilder<TEntity> SelectAll()
+    {
+        _selectFields.Clear();
+
+        return this;
+    }
+    
+    
+    public SelectSnippetParametersBuilder<TEntity> Select(string code, SelectFieldType type, string? alias = null )
+    {
+        _selectFields.Add(new SelectField
+        {
+            Alias = alias,
+            Code = code,
+            Type = type
+        });
+
+        return this;
+    }
+    
+    public SelectSnippetParametersBuilder<TEntity> SelectColumns(Action<IParameterSelector<TEntity>> select)
+    {
+        var parameters = SelectParameters(select);
+
+        foreach (var parameter in parameters)
+        {
+            _selectFields.Add(new SelectField
+            {
+                Alias = null,
+                Code = parameter.Name,
+                Type = SelectFieldType.ColumnName
+            });    
+        }
+        
+        return this;
+    }
+    
 
     private List<Parameter> ExtractParameters(FilterQuery query)
     {

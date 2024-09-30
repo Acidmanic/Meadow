@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
+using Meadow.Models;
 using Meadow.Scaffolding.Macros.BuiltIn.Snippets;
 using Meadow.Scaffolding.Models;
 
@@ -22,8 +23,9 @@ public class SelectSnippetParameters
     public ISnippet? OverrideSource { get; }
     
     public string? SourceAlias { get; }
-    
-    
+
+    public List<SelectField> SelectFields { get; } = new();
+
     public bool CloseLine { get; }
 
     public SelectSnippetParameters(FilterQuery filterQuery, 

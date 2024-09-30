@@ -1,5 +1,7 @@
 using System;
+using System.Linq;
 using Meadow.Contracts;
+using Meadow.Enums;
 using Meadow.Models;
 using Meadow.Scaffolding.Models;
 
@@ -69,5 +71,44 @@ public static class SqlTranslatorExtensions
 
     public static string EqualityAssertionOperator(this ISqlTranslator sqlTranslator, Parameter p)
         => sqlTranslator.EqualityAssertionOperator(p.IsString);
+
+
+    public static string AliasColumnName(this ISqlTranslator tr, string columnName)
+    {
+        return $" {tr.ColumnNameAliasQuote}{columnName}{tr.ColumnNameAliasQuote}";
+    }
+
+    private static string AliasOrDirect(ISqlTranslator tr,string name, string? alias)
+    {
+        if (alias is { } a) return name +  AliasColumnName(tr, a);
+
+        return name;
+    }
     
+    private static string TranslateSelectField(this ISqlTranslator tr, SelectField field)
+    {
+        if (field.Type == SelectFieldType.All) return "*";
+
+        if (field.Type == SelectFieldType.Code) return AliasOrDirect(tr, field.Code, field.Alias);
+
+        if (field.Type == SelectFieldType.ColumnName)
+        {
+            var column = GetQuoters(tr).QuoteColumnName(field.Code);
+
+            return AliasOrDirect(tr, column, field.Alias);
+        }
+
+        if (field.Type == SelectFieldType.ProcedureParameter)
+        {
+            var parameter = tr.Decorate(field.Code, ParameterUsage.ProcedureBody);
+
+            return AliasOrDirect(tr, parameter, field.Alias);
+        }
+
+        return "*";
+    }
+
+    public static string TranslateSelectFields(this ISqlTranslator tr, params SelectField[] fields)
+        => string.Join(',', fields.Select(f => TranslateSelectField(tr, f)));
+
 }

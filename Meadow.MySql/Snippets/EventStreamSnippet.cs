@@ -39,7 +39,7 @@ public class EventStreamSnippet : ISnippet
         .Build(),NameConvention.ReadStreamByStreamId);
 
     public ISnippet ReadAllStreamChunksSelect => new ReadAllSelectSnippet(Builder.Inline().Build());
-
+    
     private Parameter EventIdParameter =>
         EntityTypeUtilities.ParameterByAddress<ObjectEntry<object, object>>
         (ProcessedType.EventStreamType, en => en.EventId,
