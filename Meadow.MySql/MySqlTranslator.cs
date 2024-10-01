@@ -53,9 +53,18 @@ namespace Meadow.MySql
             return new TableParameterDefinition(tableColumnDefinition,string.Empty);
         }
 
-        public override string TranslatePagination(Parameter offset, Parameter size)
+        public override string TranslatePagination(Parameter? offset, Parameter? size)
         {
-            return $"LIMIT {this.Decorate(offset,ParameterUsage.ProcedureBody)},{this.Decorate(size,ParameterUsage.ProcedureBody)}";
+            if (offset is { } o && size is { } s)
+            {
+                return $"LIMIT {this.Decorate(o,ParameterUsage.ProcedureBody)},{this.Decorate(s,ParameterUsage.ProcedureBody)}";    
+            }
+
+            if (offset is null && size is null) return string.Empty;
+
+            if (size is { } sz) return $"LIMIT {this.Decorate(sz,ParameterUsage.ProcedureBody)}";
+            
+            
         }
 
         public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
