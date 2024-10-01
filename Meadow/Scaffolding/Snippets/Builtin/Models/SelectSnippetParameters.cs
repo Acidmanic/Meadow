@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using Acidmanic.Utilities.Filtering;
 using Acidmanic.Utilities.Filtering.Models;
 using Meadow.Models;
@@ -12,10 +13,9 @@ public class SelectSnippetParameters
 {
     public FilterQuery FilterQuery { get; }
     public OrderTerm[] Orders { get; }
-    public bool UsePagination { get; }
     public bool FullTree { get; }
-    public Parameter OffsetParameter { get; } = Parameter.Null;
-    public Parameter SizeParameter { get; } = Parameter.Null;
+    public Parameter? OffsetParameter { get; }
+    public Parameter? SizeParameter { get; } 
     public Type EntityType { get; }
     public Action<SnippetConfigurationBuilder> ManipulateToolbox { get; }
     public List<Parameter> InputParameters { get; }
@@ -29,15 +29,13 @@ public class SelectSnippetParameters
     public bool CloseLine { get; }
 
     public SelectSnippetParameters(FilterQuery filterQuery, 
-        OrderTerm[] orders, bool usePagination, 
-        bool fullTree, Type entityType, 
+        OrderTerm[] orders, bool fullTree, Type entityType, 
         Action<SnippetConfigurationBuilder> manipulateToolbox, List<Parameter> inputParameters, 
         List<Parameter> byParameters, ISnippet? overrideSource, bool closeLine,
-        Parameter offsetParameter,Parameter sizeParameter, string? sourceAlias, List<SelectField>? selectFields = null)
+        Parameter? offsetParameter,Parameter? sizeParameter, string? sourceAlias, List<SelectField>? selectFields = null)
     {
         FilterQuery = filterQuery;
         Orders = orders;
-        UsePagination = usePagination;
         FullTree = fullTree;
         EntityType = entityType;
         ManipulateToolbox = manipulateToolbox;
@@ -55,4 +53,10 @@ public class SelectSnippetParameters
     public bool IsSourceOverride => OverrideSource != null;
 
     public bool HasWhereClause => FilterQuery.NormalizedKeys().Count + ByParameters.Count > 0;
+
+    public bool LimitsSize => SizeParameter != null;
+    
+    public bool SkipsRecords => OffsetParameter != null;
+
+    public bool UsePagination => LimitsSize | SkipsRecords;
 }
