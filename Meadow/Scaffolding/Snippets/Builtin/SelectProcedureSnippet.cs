@@ -4,13 +4,13 @@ using Meadow.Scaffolding.Snippets.Builtin.Models;
 
 namespace Meadow.Scaffolding.Snippets.Builtin;
 
-public class ReadAllProcedureSnippet : ISnippet
+public class SelectProcedureSnippet : ISnippet
 {
 
     private readonly SelectSnippetParameters _parameters;
     private readonly string _procedureName;
 
-    public ReadAllProcedureSnippet(SelectSnippetParameters parameters, string procedureName)
+    public SelectProcedureSnippet(SelectSnippetParameters parameters, string procedureName)
     {
         _parameters = parameters;
         _procedureName = procedureName;
@@ -34,7 +34,7 @@ public class ReadAllProcedureSnippet : ISnippet
     public string Procedure(string body) => Toolbox.Procedure(T.Configurations.RepetitionHandling,_procedureName,
         body,string.Empty,T.SourceName(),_parameters.InputParameters.ToArray());
 
-    public ISnippet Select => new ReadAllSelectSnippet(_parameters);
+    public ISnippet Select => new SelectSnippet(_parameters);
     
     public string Template => @"
 {Procedure}

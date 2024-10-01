@@ -32,15 +32,15 @@ public class EventStreamSnippet : ISnippet
             .ManipulateConfigurations(cb =>
                 cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
     
-    public ISnippet ReadAllStreamsProcedure => new ReadAllProcedureSnippet(Builder
+    public ISnippet ReadAllStreamsProcedure => new SelectProcedureSnippet(Builder
         .Order(o => o.OrderAscendingBy(e => e.EventRowNumber))
         .Build(),NameConvention.ReadAllStreams);
 
-    public ISnippet ReadStreamByStreamIdProcedure => new ReadAllProcedureSnippet(Builder
+    public ISnippet ReadStreamByStreamIdProcedure => new SelectProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
         .Build(),NameConvention.ReadStreamByStreamId);
 
-    public ISnippet ReadAllStreamChunksSelect => new ReadAllSelectSnippet(Builder.Inline().Build());
+    public ISnippet ReadAllStreamChunksSelect => new SelectSnippet(Builder.Inline().Build());
     
     
     private Parameter BaseEventIdParameter {
@@ -62,7 +62,7 @@ public class EventStreamSnippet : ISnippet
             Toolbox.Construction.MeadowConfiguration,
             Toolbox.TypeNameMapper) ?? Parameter.Null;
     
-    public ISnippet SelectEventRowNumber => new ReadAllSelectSnippet(
+    public ISnippet SelectEventRowNumber => new SelectSnippet(
         Builder.Inline()
             .SelectColumns(oe => oe.Add(e=>e.EventRowNumber))
             .Filter(f => 
@@ -72,7 +72,7 @@ public class EventStreamSnippet : ISnippet
     
     
     //.By(ps => ps.Add(e => e.StreamId))
-    public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new ReadAllProcedureSnippet(Builder
+    public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new SelectProcedureSnippet(Builder
         .Filter(fb => 
             fb.Where(oe => oe.EventRowNumber)
                 .IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))

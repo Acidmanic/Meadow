@@ -8,11 +8,11 @@ using Meadow.Scaffolding.Snippets.Builtin.Models;
 
 namespace Meadow.Scaffolding.Snippets.Builtin;
 
-public class ReadAllSelectSnippet : ISnippet
+public class SelectSnippet : ISnippet
 {
     private readonly SelectSnippetParameters _parameters;
 
-    public ReadAllSelectSnippet(SelectSnippetParameters parameters)
+    public SelectSnippet(SelectSnippetParameters parameters)
     {
         _parameters = parameters;
     }
