@@ -52,6 +52,18 @@ public class SelectSnippetParametersBuilder<TEntity>
         return this;
     }
 
+    public SelectSnippetParametersBuilder<TEntity> Offset(Parameter offset)
+    {
+        _offset = offset;
+        return this;
+    }
+
+    public SelectSnippetParametersBuilder<TEntity> Size(Parameter size)
+    {
+        _size = size;
+        return this;
+    }
+
     public SelectSnippetParametersBuilder<TEntity> Filter(Action<FilterQueryBuilder<TEntity>> filter)
     {
         filter(_filterQueryBuilder);
@@ -247,9 +259,8 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         inputs.AddRange(ExtractParameters(filterQuery));
 
-        return new SelectSnippetParameters(filterQuery, orders, _usePagination,
-            _fullTree, _entityType, manipulate,
+        return new SelectSnippetParameters(filterQuery, orders, _fullTree, _entityType, manipulate,
             inputs, _byParameters, _source,
-            _closeLine, _offset, _size, _sourceAlias,_selectFields);
+            _closeLine, _offset, _size, _sourceAlias, _selectFields);
     }
 }
