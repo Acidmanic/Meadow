@@ -77,6 +77,7 @@ public class EventStreamSnippet : ISnippet
             fb.Where(oe => oe.EventRowNumber)
                 .IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))
         .InputParameters(BaseEventIdParameter)
+        .Order( p => p.OrderAscendingBy(oe => oe.EventRowNumber))
         .Build(),NameConvention.ReadChunkProcedureName);
 
     public ISnippet Line => new CommentLineSnippet();

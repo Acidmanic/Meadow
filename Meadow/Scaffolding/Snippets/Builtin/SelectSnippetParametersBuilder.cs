@@ -16,9 +16,9 @@ public class SelectSnippetParametersBuilder<TEntity>
 {
     private readonly ISnippetToolbox _snippetToolbox;
 
-    private Parameter _offset = Parameter.Null;
-    private Parameter _size = Parameter.Null;
-    private bool _usePagination = false;
+    private Parameter? _offset;
+    private Parameter? _size;
+
     private bool _fullTree = false;
     private Type _entityType = typeof(TEntity);
     private ISnippet? _source;
@@ -48,7 +48,6 @@ public class SelectSnippetParametersBuilder<TEntity>
     {
         _offset = offset;
         _size = size;
-        _usePagination = true;
         return this;
     }
 
@@ -249,10 +248,14 @@ public class SelectSnippetParametersBuilder<TEntity>
 
         var inputs = new List<Parameter>(_inputParameters);
 
-        if (_usePagination)
+        if (_offset is { } offset)
         {
-            inputs.Add(_offset);
-            inputs.Add(_size);
+            inputs.Add(offset);
+        }
+
+        if (_size is { } size)
+        {
+            inputs.Add(size);
         }
 
         inputs.AddRange(_byParameters);
