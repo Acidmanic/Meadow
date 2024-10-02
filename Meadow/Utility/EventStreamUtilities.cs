@@ -177,7 +177,8 @@ public static class EventStreamUtilities
     }
 
 
-    public static StreamEvent? ToStreamEvent<TEventId, TStreamId>(this ObjectEntry<TEventId, TStreamId> entry,
+    public static StreamEvent? ToStreamEvent<TEventId, TStreamId>(
+        this ObjectEntry<TEventId, TStreamId> entry,
         MeadowConfiguration meadowConfiguration)
     {
         if (entry.EventId is not null && entry.StreamId is not null)

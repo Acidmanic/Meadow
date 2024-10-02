@@ -352,7 +352,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
                 var serInfo = EventStreamSerializationInfo.FromType(streamEvent.EventConcreteType);
                 
                 entry.StreamId = streamId;
-                entry.AssemblyName = streamEvent.EventConcreteType.AssemblyQualifiedName!;
+                entry.AssemblyName = streamEvent.EventConcreteType.Assembly.FullName!;
                 entry.EventId = streamEvent.EventId;
                 entry.TypeName = streamEvent.EventConcreteType.FullName!;
                 entry.SerializedValue = MeadowConfiguration.Null.EventSerialization.Serialize(
