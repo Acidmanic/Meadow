@@ -44,8 +44,7 @@ public class EventStreamSnippet : ISnippet
 
     private Parameter BaseEventIdParameter => Toolbox.Parameters(pb => pb.Add().Name("BaseEventId").Type(Toolbox.ProcessedType.EventIdType!)).First();
 
-    private Parameter SizeParameter => Toolbox.Parameters(pb => pb.Add().Name("Size").Type<long>()).First();
-
+    private Parameter SizeParameter => Toolbox.Parameters(pb => pb.Add().Name("Count").Type<long>()).First();
 
     private Parameter EventIdParameter =>
         EntityTypeUtilities.ParameterByAddress<ObjectEntry<object, object>>
