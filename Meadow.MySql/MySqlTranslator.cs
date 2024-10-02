@@ -64,7 +64,9 @@ namespace Meadow.MySql
 
             if (size is { } sz) return $"LIMIT {this.Decorate(sz,ParameterUsage.ProcedureBody)}";
             
-            
+            if (offset is { } of) return $"LIMIT {this.Decorate(of,ParameterUsage.ProcedureBody)},18446744073709551615";
+
+            return string.Empty;
         }
 
         public override string CreateViewPhrase(RepetitionHandling repetition, string viewName)
