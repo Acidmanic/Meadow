@@ -61,12 +61,21 @@ public class EventStreamSnippet : ISnippet
                     .IsEqualTo(BaseEventIdParameter))
             .Build());
 
-
-    //.By(ps => ps.Add(e => e.StreamId))
     public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new SelectProcedureSnippet(Builder
         .Filter(fb =>
             fb.Where(oe => oe.EventRowNumber)
                 .IsLargerThan(new Code(selectBaseEvent, KnownWraps.Parentheses)))
+        .InputParameters(BaseEventIdParameter)
+        .Order(p => p.OrderAscendingBy(oe => oe.EventRowNumber))
+        .Size(SizeParameter)
+        .Build(), NameConvention.ReadChunkProcedureName);
+    
+    
+    public ISnippet ReadStreamChunkByStreamIdProcedure(string selectBaseEvent) => new SelectProcedureSnippet(Builder
+        .Filter(fb =>
+            fb.Where(oe => oe.EventRowNumber)
+                .IsLargerThan(new Code(selectBaseEvent, KnownWraps.Parentheses)))
+        .By(ps => ps.Add(oe => oe.StreamId))
         .InputParameters(BaseEventIdParameter)
         .Order(p => p.OrderAscendingBy(oe => oe.EventRowNumber))
         .Size(SizeParameter)
@@ -83,6 +92,8 @@ public class EventStreamSnippet : ISnippet
 {ReadStreamByStreamIdProcedure}
 {Line}
 {ReadAllStreamsChunksProcedure}{SelectEventRowNumber}{/ReadAllStreamsChunksProcedure}
+{Line}
+{ReadStreamChunkByStreamIdProcedure}{SelectEventRowNumber}{/ReadStreamChunkByStreamIdProcedure}
 {Line}
 ".Trim();
 }
