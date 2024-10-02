@@ -45,7 +45,7 @@ public class SelectSnippet : ISnippet
         .AliasTableName(T.SqlTranslator.QuoteTable(_parameters.SourceAlias ?? string.Empty)) : string.Empty;
     
     public string Pagination => _parameters.UsePagination
-        ? T.SqlTranslator.TranslatePagination(_parameters.OffsetParameter, _parameters.SizeParameter)
+        ? " " + T.SqlTranslator.TranslatePagination(_parameters.OffsetParameter, _parameters.SizeParameter) + " "
         : string.Empty;
 
     public string Order => _parameters.Orders.Any() ? " ORDER BY " + T.SqlTranslator.TranslateOrders(T.EffectiveType, _parameters.Orders, _parameters.FullTree) : string.Empty;

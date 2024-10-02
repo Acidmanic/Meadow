@@ -25,63 +25,55 @@ public class EventStreamSnippet : ISnippet
     private RepetitionHandling RepetitionHandling => Toolbox.Configurations.RepetitionHandling;
 
     public string InsertProcedure => Toolbox.TranslateEventStreamsPhraseInsertProcedure();
-    
+
     private SelectSnippetParametersBuilder<ObjectEntry<object, object>> Builder =>
         new SelectSnippetParametersBuilder<ObjectEntry<object, object>>(Toolbox)
             .EntityType(ProcessedType.EventStreamType)
             .ManipulateConfigurations(cb =>
                 cb.OverrideDbObjectName(Toolbox.ProcessedType.NameConvention.EventStreamTableName));
-    
+
     public ISnippet ReadAllStreamsProcedure => new SelectProcedureSnippet(Builder
         .Order(o => o.OrderAscendingBy(e => e.EventRowNumber))
-        .Build(),NameConvention.ReadAllStreams);
+        .Build(), NameConvention.ReadAllStreams);
 
     public ISnippet ReadStreamByStreamIdProcedure => new SelectProcedureSnippet(Builder
         .By(ps => ps.Add(e => e.StreamId))
-        .Build(),NameConvention.ReadStreamByStreamId);
+        .Build(), NameConvention.ReadStreamByStreamId);
 
     public ISnippet ReadAllStreamChunksSelect => new SelectSnippet(Builder.Inline().Build());
-    
-    
-    private Parameter BaseEventIdParameter {
-        get
-        {
-            var b = new ParameterBuilder(Toolbox.TypeNameMapper);
-            
-            b.Add().Name("BaseEventId").Type(Toolbox.ProcessedType.EventIdType!);
 
-            return b.Build().First();
-        }
-    }
-        
-    
-    
+    private Parameter BaseEventIdParameter => Toolbox.Parameters(pb => pb.Add().Name("BaseEventId").Type(Toolbox.ProcessedType.EventIdType!)).First();
+
+    private Parameter SizeParameter => Toolbox.Parameters(pb => pb.Add().Name("Size").Type<long>()).First();
+
+
     private Parameter EventIdParameter =>
         EntityTypeUtilities.ParameterByAddress<ObjectEntry<object, object>>
         (ProcessedType.EventStreamType, en => en.EventId,
             Toolbox.Construction.MeadowConfiguration,
             Toolbox.TypeNameMapper) ?? Parameter.Null;
-    
+
     public ISnippet SelectEventRowNumber => new SelectSnippet(
         Builder.Inline()
-            .SelectColumns(oe => oe.Add(e=>e.EventRowNumber))
-            .Filter(f => 
+            .SelectColumns(oe => oe.Add(e => e.EventRowNumber))
+            .Filter(f =>
                 f.Where(oe => oe.EventId)
-                .IsEqualTo(BaseEventIdParameter))
+                    .IsEqualTo(BaseEventIdParameter))
             .Build());
-    
-    
+
+
     //.By(ps => ps.Add(e => e.StreamId))
     public ISnippet ReadAllStreamsChunksProcedure(string selectBaseEvent) => new SelectProcedureSnippet(Builder
-        .Filter(fb => 
+        .Filter(fb =>
             fb.Where(oe => oe.EventRowNumber)
-                .IsLargerThan(new Code(selectBaseEvent,KnownWraps.Parentheses)))
+                .IsLargerThan(new Code(selectBaseEvent, KnownWraps.Parentheses)))
         .InputParameters(BaseEventIdParameter)
-        .Order( p => p.OrderAscendingBy(oe => oe.EventRowNumber))
-        .Build(),NameConvention.ReadChunkProcedureName);
+        .Order(p => p.OrderAscendingBy(oe => oe.EventRowNumber))
+        .Size(SizeParameter)
+        .Build(), NameConvention.ReadChunkProcedureName);
 
     public ISnippet Line => new CommentLineSnippet();
-    
+
     public string Template => @"
 {Line}
 {InsertProcedure}
