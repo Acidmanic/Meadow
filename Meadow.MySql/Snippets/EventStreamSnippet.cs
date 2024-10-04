@@ -67,7 +67,7 @@ public class EventStreamSnippet : ISnippet
         .InputParameters(BaseEventIdParameter)
         .Order(p => p.OrderAscendingBy(oe => oe.EventRowNumber))
         .Size(SizeParameter)
-        .Build(), NameConvention.ReadStreamChunkByStreamId);
+        .Build(), NameConvention.ReadAllStreamsChunks);
     
     
     public ISnippet ReadStreamChunkByStreamIdProcedure(string selectBaseEvent) => new SelectProcedureSnippet(Builder
@@ -78,7 +78,7 @@ public class EventStreamSnippet : ISnippet
         .InputParameters(BaseEventIdParameter)
         .Order(p => p.OrderAscendingBy(oe => oe.EventRowNumber))
         .Size(SizeParameter)
-        .Build(), NameConvention.ReadChunkProcedureName);
+        .Build(), NameConvention.ReadStreamChunkByStreamId);
 
     public ISnippet Line => new CommentLineSnippet();
 
