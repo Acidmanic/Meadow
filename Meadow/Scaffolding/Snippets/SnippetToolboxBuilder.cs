@@ -54,6 +54,13 @@ public class SnippetToolboxBuilder
 
         return this;
     }
+
+    public SnippetToolboxBuilder OverrideDbObjectName(string name)
+    {
+        _configurationBuilder.OverrideDbObjectName(name);
+        
+        return this;
+    }
     
     public SnippetToolboxBuilder BehaviorUseAll()
     {

@@ -13,6 +13,8 @@ using Meadow.Requests.BuiltIn.Dtos;
 using Meadow.Requests.GenericEventStreamRequests;
 using Meadow.Requests.GenericEventStreamRequests.Models;
 using Meadow.Scaffolding.Attributes;
+using Meadow.Scaffolding.Snippets;
+using Meadow.Scaffolding.Snippets.Builtin;
 using Meadow.Test.Functional.TestEnvironment.Extensions;
 using Meadow.Test.Functional.TestEnvironment.Utility;
 using Meadow.Test.Shared;
@@ -65,7 +67,8 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         public ILogger Logger { get; }
 
-        public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration, ILogger logger)
+        public Context(MeadowEngine engine, CaseData data, string databaseName, MeadowConfiguration meadowConfiguration,
+            ILogger logger)
         {
             Engine = engine;
             Data = data;
@@ -190,13 +193,16 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
                 .FromStorage.ToStreamEvents(MeadowConfiguration);
         }
 
-        public List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>(TStreamId streamId, TEventId baseEventId, long count)
+        public List<StreamEvent> EventStreamRead<TEvent, TEventId, TStreamId>(TStreamId streamId, TEventId baseEventId,
+            long count)
         {
-            return PerformRequest(new ReadStreamChunkByStreamIdRequest<TEvent, TEventId, TStreamId>(streamId, baseEventId, count))
+            return PerformRequest(
+                    new ReadStreamChunkByStreamIdRequest<TEvent, TEventId, TStreamId>(streamId, baseEventId, count))
                 .FromStorage.ToStreamEvents(MeadowConfiguration);
         }
 
-        public FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector) => PerformRequest(new RangeRequest<TEntity, TField>(selector)).FromStorage.FirstOrDefault();
+        public FieldRangeDto<TField>? Range<TEntity, TField>(Expression<Func<TEntity, TField>> selector) =>
+            PerformRequest(new RangeRequest<TEntity, TField>(selector)).FromStorage.FirstOrDefault();
 
         public List<TField> Existings<TEntity, TField>(Expression<Func<TEntity, TField>> selector)
             => PerformRequest(new ExistingValuesRequest<TEntity, TField>(selector)).FromStorage
@@ -272,7 +278,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         // var data = CaseData.Create(rawDataSets);
 
         var data = Seed(dataProvider, engine, engineSetup.Configuration);
-        
+
         var context = new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration, logger);
 
         //SeedingUtilities.SeedCaseData(engine, data);
@@ -289,22 +295,22 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var data = CaseData.Create(provider.SeedSet);
 
-        var seedsByType = SeedObjectsByType(data.SeedsByType,engine,configuration);
-        var eventsByStreamId = SeedEventsByStreamId(data.EventsByStreamId,engine,configuration);
+        var seedsByType = SeedObjectsByType(data.SeedsByType, engine, configuration);
+        var eventsByStreamId = SeedEventsByStreamId(data.EventsByStreamId, engine, configuration);
 
         return new CaseData(seedsByType, eventsByStreamId);
     }
-    
-    
-    private Dictionary<Type, List<object>> SeedObjectsByType(IReadOnlyDictionary<Type, List<object>> objectsByType, MeadowEngine engine, MeadowConfiguration configuration)
+
+
+    private Dictionary<Type, List<object>> SeedObjectsByType(IReadOnlyDictionary<Type, List<object>> objectsByType,
+        MeadowEngine engine, MeadowConfiguration configuration)
     {
-      
         var seedsByType = new Dictionary<Type, List<object>>();
 
         foreach (var typeValue in objectsByType)
         {
-            if(!seedsByType.ContainsKey(typeValue.Key)) seedsByType.Add(typeValue.Key, new List<object>());
-            
+            if (!seedsByType.ContainsKey(typeValue.Key)) seedsByType.Add(typeValue.Key, new List<object>());
+
             foreach (object o in typeValue.Value)
             {
                 var insertScript = configuration.TranslateInsert(typeValue.Key, o);
@@ -314,7 +320,7 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
                 engine.Perform(request, false);
             }
         }
-        
+
         foreach (var typeValue in objectsByType)
         {
             var readAllSql = configuration.TranslateSelectAll(typeValue.Key, true);
@@ -334,23 +340,25 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         return seedsByType;
     }
-    
-    private Dictionary<object, List<StreamEvent>> SeedEventsByStreamId(IReadOnlyDictionary<object, List<StreamEvent>> dataEventsByStreamId, MeadowEngine engine, MeadowConfiguration configuration)
+
+    private Dictionary<object, List<StreamEvent>> SeedEventsByStreamId(
+        IReadOnlyDictionary<object, List<StreamEvent>> dataEventsByStreamId, MeadowEngine engine,
+        MeadowConfiguration configuration)
     {
         var eventsByStreamId = new Dictionary<object, List<StreamEvent>>();
-        
+
         foreach (var sIdEvent in dataEventsByStreamId)
         {
             var streamId = sIdEvent.Key;
-            
-            if(!eventsByStreamId.ContainsKey(streamId)) eventsByStreamId.Add(streamId, new List<StreamEvent>());
+
+            if (!eventsByStreamId.ContainsKey(streamId)) eventsByStreamId.Add(streamId, new List<StreamEvent>());
 
             foreach (var streamEvent in sIdEvent.Value)
             {
                 var entry = new ObjectEntry<object, object>();
                 var prefInfo = EventStreamPreferencesInfo.FromType(streamEvent.EventConcreteType);
                 var serInfo = EventStreamSerializationInfo.FromType(streamEvent.EventConcreteType);
-                
+
                 entry.StreamId = streamId;
                 entry.AssemblyName = streamEvent.EventConcreteType.Assembly.FullName!;
                 entry.EventId = streamEvent.EventId;
@@ -359,20 +367,43 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
                     streamEvent.Event, serInfo.Encoding, serInfo.Compression, serInfo.CompressionLevel).Result;
 
                 var tableName = configuration.GetNameConvention(prefInfo.Value.EventAbstraction).EventStreamTableName;
-                
-                var insertSql = configuration.TranslateInsert( typeof(ObjectEntry<,>).MakeGenericType(prefInfo.Value.EventIdType,prefInfo.Value.StreamIdType), entry, tableName);
-                
+
+                var entryType =
+                    typeof(ObjectEntry<,>).MakeGenericType(prefInfo.Value.EventIdType, prefInfo.Value.StreamIdType);
+
+                var insertSql = configuration.TranslateInsert(entryType, entry, tableName);
+
                 var request = new DiscouragedDirectSqlRequest(insertSql);
 
-                engine.Perform(request, false);
+                var response = engine.Perform(request, false);
 
+                // var snippetBuilder = new SnippetToolboxBuilder(configuration, entryType);
+                //
+                // var toolBox = snippetBuilder
+                //     .OverrideDbObjectName(tableName)
+                //     .BehaviorUseAll().Build();
+                //
+                // var parameters = new SelectSnippetParametersBuilder<ObjectEntry<object, object>>(toolBox)
+                //     .EntityType(entryType).Filter(fb => fb
+                //         .Where(oe => oe.StreamId).IsEqualTo(entry.StreamId)
+                //         .Where(oe => oe.EventId).IsEqualTo(entry.EventId))
+                //     .ManipulateConfigurations(cb => cb.OverrideDbObjectName(tableName))
+                //     .Build();
+                //
+                // var selectSnippet = new SelectSnippet(parameters);
+                //
+                // var select = new SnippetTranslator().Translate(selectSnippet);
+                if (response.Success)
+                {
+                    eventsByStreamId[streamId].Add(streamEvent);
+                }
             }
         }
-        
+
+
         return eventsByStreamId;
     }
 
-    
 
     private object? CreateRequest(string sql, Type returnType, bool fullTree = false)
     {
