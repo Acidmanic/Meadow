@@ -36,7 +36,7 @@ public class ConcreteRecordEventStreamSuit : EventStreamSuit<NumberEventRecord,G
 public abstract class EventStreamSuit<TEventBase,TEventId, TConcreteEvent,TDataProvider>
 where TDataProvider:ICaseDataProvider, new()
 {
-    private const Databases Database = Databases.SqLite;
+    private const Databases Database = Databases.SqlServer;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
     
