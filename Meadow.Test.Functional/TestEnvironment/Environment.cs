@@ -271,23 +271,12 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
 
         var dataProvider = new TCaseProvider();
 
-        dataProvider.Initialize();
-
-        // var rawDataSets = dataProvider.SeedSet;
-
-        // var data = CaseData.Create(rawDataSets);
-
         var data = Seed(dataProvider, engine, engineSetup.Configuration);
 
         var context = new Context(engine, data, engineSetup.DatabaseName, engineSetup.Configuration, logger);
 
-        //SeedingUtilities.SeedCaseData(engine, data);
-
-        dataProvider.PostSeeding();
-
         env(context);
     }
-
 
     private CaseData Seed(TCaseProvider provider, MeadowEngine engine, MeadowConfiguration configuration)
     {
@@ -296,8 +285,11 @@ public class Environment<TCaseProvider> where TCaseProvider : ICaseDataProvider,
         var data = CaseData.Create(provider.SeedSet);
 
         var seedsByType = SeedObjectsByType(data.SeedsByType, engine, configuration);
+        
         var eventsByStreamId = SeedEventsByStreamId(data.EventsByStreamId, engine, configuration);
 
+        provider.PostSeeding();
+        
         return new CaseData(seedsByType, eventsByStreamId);
     }
 

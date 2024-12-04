@@ -11,33 +11,34 @@ public class PersonsDataProvider : ICaseDataProvider
     {
         SeedSet.Clear();
 
-        SeedSet.Add(new List<object>(jobs));
-        SeedSet.Add(new List<object>(persons));
-        SeedSet.Add(new List<object>(addresses));
-        SeedSet.Add(new List<object>(tags));
+        SeedSet.Add(new List<object>(_jobs));
+        SeedSet.Add(new List<object>(_persons));
+        SeedSet.Add(new List<object>(_addresses));
+        SeedSet.Add(new List<object>(_tags));
     }
 
     public void PostSeeding() => PlugDataRelations();
 
     public List<List<object>> SeedSet { get; } = new();
 
-    protected static Job J(string personName, long income)
+    private static Job J(int id,string personName, long income)
     {
         return new Job
         {
+            Id = id,
             Title = personName + "'s Job",
             JobDescription = personName + "'s job description",
             IncomeInRials = income
         };
     }
 
-    protected static Person P(string name, string surname, int age, long jobId, bool isDeleted = false)
+    private static Person P(string name, string surname, int age, long jobId, bool isDeleted = false)
     {
         return new Person
             { Age = age, Name = name, Surname = surname, JobId = jobId, IsDeleted = isDeleted };
     }
 
-    protected static Address A(int addressNumber, long personId)
+    private static Address A(int addressNumber, long personId)
     {
         string[] counts = { "First", "Second", "Third", "Fourth", "Fifth" };
         addressNumber -= 1;
@@ -52,13 +53,13 @@ public class PersonsDataProvider : ICaseDataProvider
         };
     }
 
-    private readonly Job[] jobs =
+    private readonly Job[] _jobs =
     {
-        J("Mani", 100), J("Mona", 200), J("Mina", 300),
-        J("Farshid", 400), J("Farimehr", 500), J("Deleted", -100)
+        J(1,"Mani", 100), J(2,"Mona", 200), J(3,"Mina", 300),
+        J(4,"Farshid", 400), J(5,"Farimehr", 500), J(6,"Deleted", -100)
     };
 
-    private readonly Person[] persons =
+    private readonly Person[] _persons =
     {
         P("Mani", "Moayedi", 37, 1),
         P("Mona", "Moayedi", 42, 2),
@@ -68,7 +69,7 @@ public class PersonsDataProvider : ICaseDataProvider
         P("Deleted", "Deletian", 128, 6, true),
     };
 
-    private readonly Address[] addresses =
+    private readonly Address[] _addresses =
     {
         A(1, 1),
         A(1, 2), A(2, 2),
@@ -78,21 +79,21 @@ public class PersonsDataProvider : ICaseDataProvider
         A(1, 6)
     };
 
-    private readonly Tag[] tags =
+    private readonly Tag[] _tags =
     {
-        new Tag() { PropertyId = 10, ProductClassId = 100 },
-        new Tag() { PropertyId = 20, ProductClassId = 200 },
-        new Tag() { PropertyId = 30, ProductClassId = 300 },
+        new () { PropertyId = 10, ProductClassId = 100 },
+        new () { PropertyId = 20, ProductClassId = 200 },
+        new () { PropertyId = 30, ProductClassId = 300 },
     };
 
 
     private void PlugDataRelations()
     {
-        foreach (var person in persons)
+        foreach (var person in _persons)
         {
-            person.Addresses = addresses.Where(a => a.PersonId == person.Id).ToList();
+            person.Addresses = _addresses.Where(a => a.PersonId == person.Id).ToList();
 
-            person.Job = jobs.FirstOrDefault(j => person.JobId == j.Id);
+            person.Job = _jobs.First(j => person.JobId == j.Id);
         }
     }
 }

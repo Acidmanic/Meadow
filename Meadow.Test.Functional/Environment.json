@@ -1,3 +1,3 @@
 {
-  "DatabaseType": "MySql"
+  "DatabaseType": "sqlite"
 }
