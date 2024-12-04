@@ -130,7 +130,7 @@ namespace Meadow.SQLite
             return key;
         }
         
-        protected override string EscapedStringValueQuote => "\\'";
+        protected override string EscapedStringValueQuote => "''";
 
         public SqLiteTranslator(MeadowConfiguration configuration) : base(configuration)
         {
