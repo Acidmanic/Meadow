@@ -14,7 +14,8 @@ namespace Meadow.Test.Functional.Suits;
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class CrudSuit
 {
-    private const Databases Databases = Shared.Databases.MySql;
+    private readonly Databases _databases = SharedTestEnvironmentConfig.Instance.DatabaseType;
+    
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
     private readonly string _scriptsDirectory = "MacroScripts";
@@ -41,7 +42,7 @@ public class CrudSuit
 
         var expected = new List<Person>();
 
-        environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             expected = c.Data.Get<Person>(p => (!considerEntityFilters) || p.IsDeleted == false);
 
@@ -64,7 +65,7 @@ public class CrudSuit
         var actuals = new List<Person>();
         List<Person> expecteds = new List<Person>();
 
-        environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             expecteds = c.Data.Get<Person>(p => !p.IsDeleted);
 
@@ -94,7 +95,7 @@ public class CrudSuit
 
         var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
         
-        environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             expectedUndeleted = c.Data.Get<Person>(p => p.Name != deletee);
 
@@ -133,7 +134,7 @@ public class CrudSuit
         var expected = new List<Person>();
         var actual = new List<Person>();
 
-        environment.Perform(Databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_databases, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             expected = c.Data.Get<Person>(p => !considerEntityFilters || p.IsDeleted==false);
 
