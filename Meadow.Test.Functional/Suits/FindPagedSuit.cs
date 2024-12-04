@@ -12,7 +12,7 @@ namespace Meadow.Test.Functional.Suits;
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class FindPagedSuit
 {
-    private const Databases Databases = Shared.Databases.SqLite;
+    private const Databases Databases = Shared.Databases.MySql;
 
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
 
