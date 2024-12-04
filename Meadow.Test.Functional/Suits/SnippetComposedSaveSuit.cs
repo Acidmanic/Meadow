@@ -14,7 +14,7 @@ public class SnippetComposedSaveSuit
 {
     private readonly ITestOutputHelper _outputHelper;
     private readonly Func<Person, string> _toString = person => $"{person.Name}:{person.Id}";
-    private readonly Databases _database = Databases.MySql;
+    private readonly Databases _database = SharedTestEnvironmentConfig.Instance.DatabaseType;
     public SnippetComposedSaveSuit(ITestOutputHelper outputHelper)
     {
         _outputHelper = outputHelper;

@@ -15,7 +15,7 @@ namespace Meadow.Test.Functional.Suits;
 public class DataBoundSuit
 {
 
-    private const Databases Database = Databases.MySql;
+    private readonly Databases _database = SharedTestEnvironmentConfig.Instance.DatabaseType;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
 
@@ -30,7 +30,7 @@ public class DataBoundSuit
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             
             
@@ -61,7 +61,7 @@ public class DataBoundSuit
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             var range = c.Range(field);
 
@@ -91,7 +91,7 @@ public class DataBoundSuit
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             var actualExistings = c.Existings(field);
             

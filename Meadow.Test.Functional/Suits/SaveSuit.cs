@@ -15,6 +15,7 @@ namespace Meadow.Test.Functional.Suits;
 public class SaveSuit
 {
 
+    private readonly Databases _database = SharedTestEnvironmentConfig.Instance.DatabaseType;
     private readonly ITestOutputHelper _outputHelper;
     private readonly Func<Person, string> _toString = person => $"{person.Name}:{person.Id}";
     
@@ -35,7 +36,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
             
@@ -71,7 +72,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
             
@@ -106,7 +107,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
             
@@ -139,7 +140,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
             
@@ -169,7 +170,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
             
@@ -202,7 +203,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Person>().Count;
             
@@ -236,7 +237,7 @@ public class SaveSuit
         int existingItemsCount = 0;
         int afterSaveItemsCount = 0;
         
-        environment.Perform(Databases.SqLite,new LoggerAdapter(_outputHelper.WriteLine), c =>
+        environment.Perform(_database,new LoggerAdapter(_outputHelper.WriteLine), c =>
         {
             existingItemsCount = c.Data.Get<Tag>().Count;
             

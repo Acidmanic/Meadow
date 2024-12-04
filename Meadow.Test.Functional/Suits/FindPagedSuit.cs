@@ -12,7 +12,7 @@ namespace Meadow.Test.Functional.Suits;
 [Collection("SEQUENTIAL_DATABASE_TESTS")]
 public class FindPagedSuit
 {
-    private const Databases Databases = Shared.Databases.MySql;
+    private readonly Databases _database = SharedTestEnvironmentConfig.Instance.DatabaseType;
 
     private readonly Func<Person, string> _personIdentifier = p => $"{p.Name}:{p.Id}";
 
@@ -60,7 +60,7 @@ public class FindPagedSuit
     {
         var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
 
-        environment.Perform(Databases, e =>
+        environment.Perform(_database, e =>
         {
             var all = e.FindPaged<Person>(fullTree: fullTree).FromStorage;
 
@@ -154,7 +154,7 @@ public class FindPagedSuit
         });
 
 
-        environment.Perform(Databases, e =>
+        environment.Perform(_database, e =>
         {
             e.Update<Person>(p => p.Name == deleteeName, p => p.IsDeleted = true);
 
@@ -171,7 +171,7 @@ public class FindPagedSuit
     {
         var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
 
-        environment.Perform(Databases, e =>
+        environment.Perform(_database, e =>
         {
             e.Index(e.Data.Get<Person>(p => true));
             
@@ -188,7 +188,7 @@ public class FindPagedSuit
     {
         var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
 
-        environment.Perform(Databases, e =>
+        environment.Perform(_database, e =>
         {
             var found = e.FindPaged(qb, fullTree: fullTree).FromStorage;
 
@@ -204,7 +204,7 @@ public class FindPagedSuit
     {
         var environment = new Environment<PersonsDataProvider>(_scriptsDirectory);
 
-        environment.Perform(Databases, e =>
+        environment.Perform(_database, e =>
         {
             var found = e.FindPaged(order: buildActualOrders, fullTree: fullTree).FromStorage;
 

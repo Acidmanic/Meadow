@@ -36,7 +36,7 @@ public class ConcreteRecordEventStreamSuit : EventStreamSuit<NumberEventRecord,G
 public abstract class EventStreamSuit<TEventBase,TEventId, TConcreteEvent,TDataProvider>
 where TDataProvider:ICaseDataProvider, new()
 {
-    private const Databases Database = Databases.MySql;
+    private readonly Databases _database = SharedTestEnvironmentConfig.Instance.DatabaseType;
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly string _scriptsDirectory = "SnippetComposedMacroScripts";
     
@@ -53,7 +53,7 @@ where TDataProvider:ICaseDataProvider, new()
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), _ => { });
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), _ => { });
     }
 
     [Fact]
@@ -61,7 +61,7 @@ where TDataProvider:ICaseDataProvider, new()
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             var actual = c.EventStreamRead<TEventBase, TEventId, Guid>();
 
@@ -76,7 +76,7 @@ where TDataProvider:ICaseDataProvider, new()
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             foreach (var eventsByStreamId in c.Data.EventsByStreamId)
             {
@@ -103,7 +103,7 @@ where TDataProvider:ICaseDataProvider, new()
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             var allSeededEvents = c.Data.Events();
 
@@ -140,7 +140,7 @@ where TDataProvider:ICaseDataProvider, new()
     {
         var environment = CreateEnvironment();
 
-        environment.Perform(Database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
+        environment.Perform(_database, new LoggerAdapter(_testOutputHelper.WriteLine), c =>
         {
             foreach (var eventsByStreamId in c.Data.EventsByStreamId)
             {
